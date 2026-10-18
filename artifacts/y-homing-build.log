@@ -1,0 +1,13 @@
+make BUILD=build/y-homing ARTIFACTS=artifacts/y-homing CPPFLAGS='-DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1' all
+make[1]: Entering directory '/workspace/RF2000'
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/y-homing/limits.o
+/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/y-homing/main.map build/y-homing/analog_control.o build/y-homing/coolant_control.o build/y-homing/digital_control.o build/y-homing/eeprom.o build/y-homing/gcode.o build/y-homing/jog.o build/y-homing/limits.o build/y-homing/main.o build/y-homing/motion_control.o build/y-homing/nuts_bolts.o build/y-homing/planner.o build/y-homing/print.o build/y-homing/probe.o build/y-homing/protocol.o build/y-homing/report.o build/y-homing/rf2000_board.o build/y-homing/rf2000_drv8711.o build/y-homing/serial.o build/y-homing/settings.o build/y-homing/sleep.o build/y-homing/spindle_control.o build/y-homing/stepper.o build/y-homing/system.o -lm -o build/y-homing/main.elf
+/workspace/.tools/avr/usr/bin/avr-size build/y-homing/main.elf
+   text	   data	    bss	    dec	    hex	filename
+  34086	      0	   3469	  37555	   92b3	build/y-homing/main.elf
+python3 tools/check-avr-size.py build/y-homing/main.elf /workspace/.tools/avr/usr/bin/avr-size
+Flash 34086/253952 bytes; static SRAM 3545/8192 bytes
+/workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/y-homing/main.elf artifacts/y-homing/rf2000-grbl.hex
+cp build/y-homing/main.elf artifacts/y-homing/rf2000-grbl.elf
+cp build/y-homing/main.map artifacts/y-homing/rf2000-grbl.map
+make[1]: Leaving directory '/workspace/RF2000'

@@ -66,10 +66,19 @@
     // Candidate milling sequence: X/Y MIN, Z MAX. NOT permission to home;
     // verify installed switch polarity, direction and mechanics before enabling.
     #define DEFAULT_HOMING_DIR_MASK ((1<<AXIS_1)|(1<<AXIS_2))
-    #define DEFAULT_HOMING_FEED_RATE 20.0
-    #define DEFAULT_HOMING_SEEK_RATE 100.0
+    #if RF2000_Y_HOMING_TEST
+      #define DEFAULT_HOMING_FEED_RATE RF2000_Y_HOMING_FEED_MM_MIN
+      #define DEFAULT_HOMING_SEEK_RATE RF2000_Y_HOMING_SEEK_MM_MIN
+    #else
+      #define DEFAULT_HOMING_FEED_RATE 20.0
+      #define DEFAULT_HOMING_SEEK_RATE 100.0
+    #endif
     #define DEFAULT_HOMING_DEBOUNCE_DELAY 250
-    #define DEFAULT_HOMING_PULLOFF 2.0
+    #if RF2000_Y_HOMING_TEST
+      #define DEFAULT_HOMING_PULLOFF RF2000_Y_HOMING_PULLOFF_MM
+    #else
+      #define DEFAULT_HOMING_PULLOFF 2.0
+    #endif
   #endif
 
   #ifdef DEFAULTS_GENERIC

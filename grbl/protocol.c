@@ -39,7 +39,11 @@ static void protocol_exec_rt_suspend();
 void protocol_main_loop()
 {
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-    printPgmString(PSTR("[MSG:RF2000 XYZ test profile; A/B asleep; homing gated]\r\n"));
+    #if RF2000_Y_HOMING_TEST
+      printPgmString(PSTR("[MSG:RF2000 Y-only test; $22=1 then $HY; seek until switch]\r\n"));
+    #else
+      printPgmString(PSTR("[MSG:RF2000 XYZ test profile; A/B asleep; homing gated]\r\n"));
+    #endif
     if (!rf2000_drivers_ready() || rf2000_drivers_fault_active()) {
       rf2000_drivers_disable();
       sys.state = STATE_ALARM;

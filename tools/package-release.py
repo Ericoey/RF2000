@@ -26,10 +26,12 @@ if upstream.is_dir():
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-grbl_out = artifacts / 'grbl'
-(grbl_out / 'SHA256SUMS').write_text(''.join(
-    f'{sha(p)}  {p.name}\n' for p in sorted(grbl_out.iterdir())
-    if p.is_file() and p.name != 'SHA256SUMS'))
+for directory in ('grbl', 'y-homing'):
+    build_out = artifacts / directory
+    if build_out.is_dir():
+        (build_out / 'SHA256SUMS').write_text(''.join(
+            f'{sha(p)}  {p.name}\n' for p in sorted(build_out.iterdir())
+            if p.is_file() and p.name != 'SHA256SUMS'))
 
 files = []
 for p in sorted(root.rglob('*')):
@@ -41,9 +43,11 @@ for p in sorted(root.rglob('*')):
     if p.suffix == '.log' or '__pycache__' in rel.parts:
         continue
     files.append(p)
-for directory in ('grbl', 'repetier'):
+for directory in ('grbl', 'repetier', 'y-homing'):
     files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
-for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log'):
+for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
+             'y-homing-build.log', 'y-homing-simulation.log',
+             'platformio-y-homing-build.log'):
     p = artifacts / name
     if p.is_file():
         files.append(p)

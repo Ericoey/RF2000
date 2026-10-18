@@ -25,6 +25,17 @@
 // Sets up valid jog motion received from g-code parser, checks for soft-limits, and executes the jog.
 uint8_t jog_execute(plan_line_data_t *pl_data, parser_block_t *gc_block)
 {
+  #if RF2000_Y_HOMING_TEST
+    if (sys.state != STATE_IDLE ||
+        !isfinite(gc_block->values.f) || gc_block->values.f <= 0 ||
+        gc_block->values.f > RF2000_Y_JOG_MAX_MM_MIN ||
+        gc_block->values.xyz[AXIS_1] != gc_state.position[AXIS_1] ||
+        gc_block->values.xyz[AXIS_3] != gc_state.position[AXIS_3] ||
+        !isfinite(gc_block->values.xyz[AXIS_2]) ||
+        fabsf(gc_block->values.xyz[AXIS_2] - gc_state.position[AXIS_2]) > RF2000_Y_JOG_MAX_MM) {
+      return(STATUS_INVALID_JOG_COMMAND);
+    }
+  #endif
   // Initialize planner data struct for jogging motions.
   // NOTE: Spindle and coolant are allowed to fully function with overrides during a jog.
   pl_data->feed_rate = gc_block->values.f;

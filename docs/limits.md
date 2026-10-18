@@ -60,9 +60,9 @@ Antrieben sicher freigegeben werden. Es gibt absichtlich keine
 softwareseitige Rückfahrumgehung bei betätigtem Schalter. Manuelles
 Freigeben muss zur Mechanik und deren Schwerkraftlast passen.
 
-## Referenzfahrt bleibt gesperrt
+## Referenzfahrt im Standardprofil bleibt gesperrt
 
-`RF2000_HOMING_VERIFIED=0` ist die ausgelieferte Einstellung. `$H`,
+`RF2000_HOMING_VERIFIED=0` ist die Einstellung des Standardprofils `rf2000_grbl`. `$H`,
 `$22=1` und ein direkter Aufruf der Referenzroutine sind gesperrt. Die
 Sperre darf erst in einem bewusst neu kompilierten Hardwareprofil geändert
 werden, nachdem Schalterpegel und reale Achsenrichtungen geprüft wurden.
@@ -80,6 +80,46 @@ Hard Limits. Eine Referenzfahrt startet nicht mit bereits betätigtem
 Schalter. X-/Y-Homing in MAX-Richtung wird mangels passender Schalter
 abgewiesen. Dies ist eine vorbereitete Implementierung und kein Nachweis
 einer auf realer Hardware erfolgreichen Referenzfahrt.
+
+## Separates Y-Testprofil
+
+`rf2000_y_homing_test` wird bewusst als eigene Firmware gebaut. Es hält
+X/Z/A/B mit CTRL.ENBL=0 und SLEEPn=0 gesperrt und begrenzt die STEP-Ausgabe
+auf Y. Die kurze gemeinsame Initialisierungs-Wake-Phase aller fünf Treiber
+erfolgt weiterhin ohne STEP und mit CTRL.ENBL=0. Alle vier Endschalter und
+FAULTn werden überwacht.
+
+Nach einem Reset ist Homing auch hier aus. Nur `$22=1` aktiviert für die
+aktuelle Sitzung den Befehl **`$HY`**. Er darf aus Alarm oder Leerlauf starten,
+wenn alle Eingänge stabil frei und die Treiber bereit sind; ein `$X` davor
+ist nur für einen Jog erforderlich. `$H`, `$HX`, `$HZ` und normale
+G-Code-Bewegungen bleiben gesperrt. Das Profil übernimmt keine
+EEPROM-Einstellungen oder Startprogramme und schreibt keine EEPROM-Daten.
+Andere globale Einstellungen als `$22=0/1` sind gesperrt.
+
+Vor Homing müssen Y-Min-Polarität, reale Y-Richtung und Motorstrom geprüft
+sein. Zulässig ist ausschließlich inkrementelles Y-Jogging in mm, maximal
+0,5 mm pro Kommando bei höchstens 30 mm/min und jeweils aus Leerlauf.
+Die Referenzsuche erfolgt Richtung Y-Min mit 60 mm/min, die zweite
+Annäherung mit 20 mm/min und beide Rückzüge mit 1 mm. Das sind bewusste
+Prüfstandswerte; Repetier verwendet für Y im Fräsmodus 70 mm/s, einen
+Retestfaktor von 20 und `ENDSTOP_Y_BACK_MOVE=5 mm`. Die erste Suche läuft
+nach Nutzervorgabe ohne Gesamtweg- oder Zeitbegrenzung bis zum Y-Min-Kontakt.
+Bleibt dieser erste Kontakt aus, läuft sie weiter und erzeugt dafür keinen
+automatischen Suchweg-Alarm. Sie wird aus wiederholten 5-mm-Abschnitten
+gebildet und kann an deren Übergängen kurz abbremsen und beschleunigen;
+eine durchgehend konstante Geschwindigkeit ist nicht zugesichert. Erst nach
+dem ersten Kontakt sind Rückzug und zweite Annäherung wegbegrenzt; die zweite
+Annäherung sucht maximal 5 mm. Ein bereits aktiver Schalter verhindert den Start.
+Während des Y-Homings ist nur der erwartete Y-Min-Kontakt Teil des Zyklus;
+andere Schalter bleiben Hard Limits. Ein bei der zweiten Annäherung fehlender
+Kontakt löst Alarm 9 aus, ein beim Rückzug nicht freigegebener Kontakt Alarm 8.
+
+`!` stoppt Homing nicht. Ctrl-X (Byte `0x18`) bricht den Zyklus ab; Ctrl-C
+schließt im PlatformIO-Monitor nur das Terminal. Die unabhängige
+Hardware-Abschaltung bleibt erforderlich. Der vollständige Ablauf mit
+Build, serieller Verbindung, `$DRV`, Jog und Homing steht in
+[y-axis-test.md](y-axis-test.md). Es wird dadurch kein XYZ-Homing freigegeben.
 
 ## Diagnose ohne Motorfreigabe
 
@@ -108,7 +148,8 @@ Formatbeispiel und kein gemessener Zustand.
    Unlock keinen Treiber freigeben. Nicht mit einem MCU-Ausgang kurzschließen.
 5. Erst nach dokumentierter Richtungsprüfung kurze Einzelachsbewegungen
    mit begrenzter Energie ausführen und das reale Stoppverhalten messen.
-   Homing bleibt dabei gesperrt, bis sämtliche Voraussetzungen belegt sind.
+   Im Standardprofil bleibt Homing gesperrt. Das separate Y-Profil darf
+   erst nach bestandenen Y-Prüfungen für `$HY` freigegeben werden.
 
 Es wurden keine physischen Hardwaremessungen oder Referenzfahrten in der
 Cloud ausgeführt. Host-Tests bzw. AVR-Kompilation prüfen nur die Software.

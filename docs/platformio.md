@@ -1,7 +1,8 @@
 # GRBL mit PlatformIO kompilieren
 
 Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
-Umgebung **`rf2000_grbl`** für ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
+Standardumgebung **`rf2000_grbl`** und die separat wählbare Umgebung
+**`rf2000_y_homing_test`** für ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
 und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
 
 ## VS Code
@@ -32,6 +33,18 @@ pio run -e rf2000_grbl
 pio run -e rf2000_grbl -t clean
 pio run -e rf2000_grbl
 ```
+
+Für den separaten Y-Achstest das zusätzliche Profil bewusst auswählen:
+
+```bash
+pio run -e rf2000_y_homing_test
+```
+
+In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
+Dieses Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`;
+ELF und MAP liegen daneben. Das Standardprofil bleibt unverändert ausgewählt,
+wenn `-e` fehlt. Unterschiede und Prüfablauf stehen in
+[y-axis-test.md](y-axis-test.md).
 
 In dieser Cloudumgebung liegt PlatformIO in einem beschreibbaren
 Python-Virtualenv. Dafür stehen folgende Befehle bereit:
@@ -93,9 +106,36 @@ pio run -e rf2000_grbl
 Die Korrektur wurde zusätzlich mit dem echten `avr-size` und einem relativen
 `.pio/…/firmware.elf` durch den vollständigen Python-Post-Build-Hook geprüft.
 
+## Seriellen Monitor öffnen
+
+PlatformIO bringt den benötigten Monitor mit. Für das Y-Testprofil:
+
+```bash
+pio device monitor -e rf2000_y_homing_test
+```
+
+Bei Bedarf mit `pio device list` den Port bestimmen und beispielsweise auf
+dem Mac `--port /dev/cu.usbserial-...` mit dem tatsächlichen Gerätenamen
+anhängen. Beide Umgebungen konfigurieren 115200 Baud, LF-Zeilenende und
+lokale Eingabeanzeige. Befehle wie `$DRV`, `$X`, `$22=1` und `$HY` jeweils
+eingeben und mit Enter senden. Bewegungsbefehle erst nach den Vorprüfungen
+aus [y-axis-test.md](y-axis-test.md) senden. Öffnen des Ports kann einen
+Reset auslösen; die Y-Homing-Freigabe `$22=1` gilt nur bis zum nächsten Reset.
+
+Ctrl-X sendet den Echtzeit-Reset (Byte `0x18` ohne Enter). Ctrl-C beendet nur
+den Monitor und stoppt keine Bewegung. Während Homing stoppt `!` nicht;
+Software-Abbruch mit Ctrl-X und unabhängige Hardware-Abschaltung bereithalten.
+
 ## Hardwaretest
 
-A/B bleiben deaktiviert und Homing bleibt im Testprofil gesperrt. Es wurde
+A/B bleiben deaktiviert und Homing bleibt im **Standardprofil** gesperrt.
+Das zusätzliche Y-Profil hält X/Z/A/B abgeschaltet und erlaubt ausschließlich
+begrenztes Y-Jogging sowie `$HY` nach bewusstem `$22=1` und bestandener
+Richtungs-/Endschalterprüfung. Die erste Referenzsuche läuft ohne Gesamtweg-
+oder Zeitbegrenzung bis zum Y-Min-Kontakt. Ein fehlender Kontakt führt dabei
+nicht zu einem automatischen Stopp; Ctrl-X sendet den Software-Abbruch.
+Nach dem ersten Kontakt folgen Rückzug, langsame zweite Annäherung und
+abschließender Rückzug. Es wurde
 keine Uploadaktion ausgeführt. Die Mega-Boarddefinition enthält allgemeine
 Uploadvorgaben; das tatsächliche Programmierverfahren muss vor Ort geprüft
 werden. Ein Build bestätigt keine
@@ -114,7 +154,11 @@ Atmel-AVR-Plattformquelle und die Mega-Boarddefinition wurden geprüft.
 Der vollständige PlatformIO-Build ist in dieser Cloudmaschine derzeit noch
 **nicht verifiziert**: Der Netzwerkproxy verweigert den Registry-Abruf mit
 HTTP 403, bevor der Compiler installiert werden kann. Die benötigten
-Registry-/Download-Domains sind im Umgebungsentwurf eingetragen.
-Nach dem Speichern der Netzwerkfreigabe `tools/install-platformio.sh` und
-`tools/platformio.sh run -e rf2000_grbl` erneut ausführen und das erzeugte
-ELF mit `tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf` prüfen.
+Registry-/Download-Domains sind in der Umgebungskonfiguration eingetragen;
+der erneute Abruf für das Y-Profil scheitert weiterhin an diesem Proxy.
+Die Konfiguration beider Umgebungen einschließlich geerbter Buildflags wurde
+erfolgreich eingelesen. Der Make-Build mit AVR-GCC 14.2.0 ist davon getrennt.
+Wenn der Registry-Zugriff verfügbar ist, die gewünschte PlatformIO-Umgebung
+bauen und deren tatsächliches ELF prüfen: für das Standardprofil mit
+`tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf`, für das Y-Profil mit
+`tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf`.

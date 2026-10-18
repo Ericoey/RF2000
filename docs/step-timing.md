@@ -1,11 +1,15 @@
 # RF2000 STEP/DIR timing
 
-The test profile uses three logical Grbl axes. Five physical DRV8711 channels
+The standard test profile uses three logical Grbl axes. Five physical DRV8711 channels
 are initialized by the driver module; the two reserve channels have no planner
 axis and remain asleep throughout motion. Initialization temporarily wakes
 their digital circuitry with CTRL.ENBL=0 to perform RESET and clear status;
 their motor bridges remain disabled. The STEP implementation is guarded by
 `CPU_MAP_2560_RENKFORCE_CTC_V3` and `N_AXIS == 3`.
+
+The separate `rf2000_y_homing_test` profile further masks physical STEP output
+to PF6 and limits driver enable to Y. It uses the same pulse timers and minimum
+timing constraints; X/Z/A/B motor bridges remain disabled.
 
 All XYZ STEP pins share PORTF (PF0/PF6/PF3). X/Y direction pins PF1/PF7 and Y
 SLEEPn PF2 share the same register. Each pulse edge therefore uses one masked

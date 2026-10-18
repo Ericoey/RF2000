@@ -67,6 +67,10 @@ void gc_sync_position()
 // coordinates, respectively.
 uint8_t gc_execute_line(char *line)
 {
+  #if RF2000_Y_HOMING_TEST
+    // This profile accepts bounded Y jogging, never ordinary machining code.
+    if (strncmp(line, "$J=", 3)) { return(STATUS_SETTING_DISABLED); }
+  #endif
   /* -------------------------------------------------------------------------------------
      STEP 1: Initialize parser block struct and copy current g-code state modes. The parser
      updates these modes and commands as the block line is parser and will only be used and
@@ -1282,6 +1286,14 @@ uint8_t gc_execute_line(char *line)
   // protocol_execute_realtime() when jogging completes or is canceled.
   if (gc_parser_flags & GC_PARSER_JOG_MOTION) {
     // Only distance and unit modal commands and G53 absolute override command are allowed.
+    #if RF2000_Y_HOMING_TEST
+      if (axis_dwords != dwbit(AXIS_2) ||
+          gc_block.modal.distance != DISTANCE_MODE_INCREMENTAL ||
+          gc_block.modal.units != UNITS_MODE_MM ||
+          gc_block.non_modal_command != NON_MODAL_NO_ACTION) {
+        return(STATUS_INVALID_JOG_COMMAND);
+      }
+    #endif
     // NOTE: Feed rate word and axis word checks have already been performed in STEP 3.
     if (command_dwords & ~(bit(MODAL_GROUP_G3) | bit(MODAL_GROUP_G6) | bit(MODAL_GROUP_G0))) { FAIL(STATUS_INVALID_JOG_COMMAND) };
     if (!(gc_block.non_modal_command == NON_MODAL_ABSOLUTE_OVERRIDE || gc_block.non_modal_command == NON_MODAL_NO_ACTION)) { FAIL(STATUS_INVALID_JOG_COMMAND); }

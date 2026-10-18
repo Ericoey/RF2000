@@ -90,6 +90,9 @@ const __flash settings_t defaults = {
 // Method to store startup lines into EEPROM
 void settings_store_startup_line(uint8_t n, char *line)
 {
+  #if RF2000_Y_HOMING_TEST
+    (void)n; (void)line; return;
+  #endif
   // EEPROM records are independent of the larger serial/parser buffer.
   // Reject unsupported indices and overlong records without touching EEPROM.
   if (n >= N_STARTUP_LINE || strlen(line) >= EEPROM_LINE_SIZE) { return; }
@@ -107,6 +110,9 @@ void settings_store_startup_line(uint8_t n, char *line)
 // NOTE: This function can only be called in IDLE state.
 void settings_store_build_info(char *line)
 {
+  #if RF2000_Y_HOMING_TEST
+    (void)line; return;
+  #endif
   // Build info can only be stored when state is IDLE.
   if (strlen(line) >= EEPROM_LINE_SIZE) { return; }
   char record[EEPROM_LINE_SIZE] = {0};
@@ -118,6 +124,9 @@ void settings_store_build_info(char *line)
 // Method to store coord data parameters into EEPROM
 void settings_write_coord_data(uint8_t coord_select, float *coord_data)
 {
+  #if RF2000_Y_HOMING_TEST
+    (void)coord_select; (void)coord_data; return;
+  #endif
   #ifdef FORCE_BUFFER_SYNC_DURING_EEPROM_WRITE
     protocol_buffer_synchronize();
   #endif
@@ -130,6 +139,9 @@ void settings_write_coord_data(uint8_t coord_select, float *coord_data)
 // NOTE: This function can only be called in IDLE state.
 void write_global_settings()
 {
+  #if RF2000_Y_HOMING_TEST
+    return;
+  #endif
   eeprom_put_char(0, SETTINGS_VERSION);
   memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
 }
@@ -137,6 +149,9 @@ void write_global_settings()
 
 // Method to restore EEPROM-saved Grbl global settings back to defaults.
 void settings_restore(uint8_t restore_flag) {
+  #if RF2000_Y_HOMING_TEST
+    (void)restore_flag; return;
+  #endif
   if (restore_flag & SETTINGS_RESTORE_DEFAULTS) {
     settings = defaults;
     write_global_settings();
@@ -164,6 +179,9 @@ void settings_restore(uint8_t restore_flag) {
 // Reads startup line from EEPROM. Updated pointed line string data.
 uint8_t settings_read_startup_line(uint8_t n, char *line)
 {
+  #if RF2000_Y_HOMING_TEST
+    (void)n; line[0] = 0; return(true);
+  #endif
   if (n >= N_STARTUP_LINE) { line[0] = 0; return(false); }
   uint32_t addr = n*(EEPROM_LINE_SIZE+1)+EEPROM_ADDR_STARTUP_BLOCK;
   if (!(memcpy_from_eeprom_with_checksum(line, addr, EEPROM_LINE_SIZE)) ||
@@ -180,6 +198,9 @@ uint8_t settings_read_startup_line(uint8_t n, char *line)
 // Reads startup line from EEPROM. Updated pointed line string data.
 uint8_t settings_read_build_info(char *line)
 {
+  #if RF2000_Y_HOMING_TEST
+    strcpy(line, "RF2000_Y_HOMING_TEST"); return(true);
+  #endif
   if (!(memcpy_from_eeprom_with_checksum(line, EEPROM_ADDR_BUILD_INFO, EEPROM_LINE_SIZE)) ||
       !memchr(line, 0, EEPROM_LINE_SIZE)) {
     // Reset line with default value
@@ -194,6 +215,9 @@ uint8_t settings_read_build_info(char *line)
 // Read selected coordinate data from EEPROM. Updates pointed coord_data value.
 uint8_t settings_read_coord_data(uint8_t coord_select, float *coord_data)
 {
+  #if RF2000_Y_HOMING_TEST
+    (void)coord_select; clear_vector_float(coord_data); return(true);
+  #endif
   uint32_t addr = coord_select*(sizeof(float)*N_AXIS+1) + EEPROM_ADDR_PARAMETERS;
   if (!(memcpy_from_eeprom_with_checksum((char*)coord_data, addr, sizeof(float)*N_AXIS))) {
     // Reset with default zero vector
@@ -207,6 +231,12 @@ uint8_t settings_read_coord_data(uint8_t coord_select, float *coord_data)
 
 // Reads Grbl global settings struct from EEPROM.
 uint8_t read_global_settings() {
+  #if RF2000_Y_HOMING_TEST
+    // Fixed calibration and rates; never import or modify another profile's
+    // EEPROM. $22 is an explicit RAM-only arming flag, cleared after reset.
+    settings = defaults;
+    return(true);
+  #endif
   // Check version-byte of eeprom
   uint8_t version = eeprom_get_char(0);
   if (version == SETTINGS_VERSION) {
@@ -240,6 +270,14 @@ uint8_t read_global_settings() {
 
 // A helper method to set settings from command line
 uint8_t settings_store_global_setting(uint8_t parameter, float value) {
+  #if RF2000_Y_HOMING_TEST
+    if (parameter != 22 || (value != 0.0f && value != 1.0f)) {
+      return(STATUS_SETTING_DISABLED);
+    }
+    if (value == 1.0f) { settings.flags |= BITFLAG_HOMING_ENABLE; }
+    else { settings.flags &= ~BITFLAG_HOMING_ENABLE; }
+    return(STATUS_OK);
+  #endif
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
     if (!isfinite(value)) { return(STATUS_BAD_NUMBER_FORMAT); }
     if (parameter == 0 && (value < 10 || value > 20 || value != floorf(value))) {

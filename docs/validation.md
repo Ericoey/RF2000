@@ -8,6 +8,7 @@ ausgeführt. Es wurde keine Platine programmiert und kein Motor bewegt.
 | Variante | Flash | Statisches SRAM | Ergebnis |
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
+| GRBL separater Y-Test | 34.086 / 253.952 Byte | 3.545 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 GRBL verwendet `.text=35176`, `.data=50`, `.bss=3470`. Für SRAM werden
@@ -28,6 +29,7 @@ Firmware-SHA256:
 ```text
 GRBL     6c9b5ba8fe9859a3fab238af9202e40301f7dc5b04248492e1af0d2472142050
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
+Y-Test   b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -73,6 +75,41 @@ Ein anschließender Make-Build und `tests/run-sim.sh` sind ebenfalls erfolgreich
 das erzeugte HEX bleibt bytegleich. Vollständiger Test und dieser gezielte
 Nachlauf stehen in `artifacts/validation.log`.
 
+## Separates Y-Testprofil
+
+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem finalen Y-ELF.
+
+`make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
+Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
+AVR-ELF aus. Die Testfälle umfassen den vollständigen Referenzablauf, Kontakte
+bei Schritt 761/762/763 an der 5-mm-Abschnittsgrenze, eine erste Suche über
+mehr als zwei Abschnitte ohne Schalterkontakt sowie die Fehler- und
+Abbruchpfade. Protokoll: `artifacts/y-homing-simulation.log`.
+
+Dabei werden Y als einziger freigegebener Treiber, die gesperrten STEP-Ausgänge
+von X/Z/A/B, zwei Kontakte und zwei Freigaben, Such-/Rückzugsrichtung,
+60/20-mm/min-Testgeschwindigkeiten und 1-mm-Rückzüge geprüft. Weitere Fälle
+prüfen eine fehlende zweite Betätigung, einen dauerhaft aktiven Schalter,
+einen bereits aktiven Schalter beim Start, andere Endschalter, einen
+1-µs-FAULT-Puls und Ctrl-X einschließlich erneuter `$22=0`-Sperre. Feste
+Einstellungen, abgewiesene Bewegungsbefehle und Y-Jogs mit genau 15+15
+Schritten werden ebenfalls kontrolliert. Alle 4096 EEPROM-Bytes werden vor
+jedem Lauf mit einem Muster vorbelegt und auf unveränderten Inhalt geprüft.
+
+Die erste Suche ist nach Nutzervorgabe fortlaufend und hat keine Gesamtweg-
+oder Zeitbegrenzung. Wiederholte 5-mm-Planerblöcke begrenzen die Zählergröße;
+ein fehlender erster Kontakt beendet die Suche nicht. Strg-X, Treiberfehler
+und andere Endschalter brechen sie ab. Die zweite Annäherung bleibt auf 5 mm
+begrenzt. Beim Phasenwechsel wird ein eventuell noch gesetztes CYCLE_STOP
+verworfen, ohne RESET- oder Fehlerflags zu löschen. Der Standard-HEX bleibt
+bytegleich zum bereits vollständig geprüften Standardprofil.
+
+Beide PlatformIO-Umgebungen wurden mit geerbten Buildflags und Monitoroptionen
+korrekt eingelesen. Ein tatsächlicher PlatformIO-Build ist in der Cloud
+weiterhin am Registry-Proxy blockiert (CONNECT HTTP 403); der belegte
+Firmwarebuild verwendet AVR-GCC 14.2.0. Das mit PlatformIO/AVR-GCC 7.3.0
+lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
+
 ## Codeprüfung und Grenzen
 
 Die unabhängigen Prüfungen fanden und korrigierten unter anderem die
@@ -97,6 +134,8 @@ Nicht geprüft am GRBL-Port: elektrische
 Signalqualität, Reset-/Watchdog-Laufverhalten, Endschalter-NO/NC und
 Kabelbruchverhalten, tatsächliche Wicklungsströme, mechanische
 Bewegungsrichtungen, reale Anhaltewege und
-Dauerbetrieb. Homing bleibt gesperrt. Die Hardwareprüfung folgt
+Dauerbetrieb. Allgemeines Homing bleibt im Standardprofil gesperrt; der
+gesonderte Y-Test verlangt die Prüfungen aus [y-axis-test.md](y-axis-test.md).
+Die Hardwareprüfung folgt
 [hardware-test.md](hardware-test.md); Softwaretests erteilen keine
 automatische Freigabe für eine Referenzfahrt oder den Fräsbetrieb.

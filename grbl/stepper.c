@@ -43,6 +43,9 @@
   // XYZ edges and preserves PORTF's direction, SLEEP and unused pins.
   static inline void rf2000_write_steps(uint8_t step_bits)
   {
+    #if RF2000_Y_HOMING_TEST
+      step_bits &= _BV(PF6); // Independent GPIO backstop: only Y may step.
+    #endif
     PORTF = (PORTF & ~RF2000_STEP_MASK) | (step_bits & RF2000_STEP_MASK);
   }
 
@@ -299,7 +302,15 @@ void st_wake_up()
       rf2000_stop_step_outputs();
       return;
     }
-    rf2000_drivers_enable(bit(AXIS_1) | bit(AXIS_2) | bit(AXIS_3));
+    #if RF2000_Y_HOMING_TEST
+      if (sys.state != STATE_HOMING && sys.state != STATE_JOG) {
+        rf2000_stop_step_outputs();
+        return;
+      }
+      rf2000_drivers_enable(bit(AXIS_2));
+    #else
+      rf2000_drivers_enable(bit(AXIS_1) | bit(AXIS_2) | bit(AXIS_3));
+    #endif
     if (!rf2000_drivers_ready() || rf2000_drivers_fault_active()) {
       rf2000_stepper_fault_stop();
       return;

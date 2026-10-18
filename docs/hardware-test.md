@@ -4,6 +4,14 @@ Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandene
 
 Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
 
+Die nachstehenden XYZ-Schritte beschreiben das Standardprofil `rf2000_grbl`.
+Für den ersten Test ausschließlich der Y-Achse gibt es zusätzlich
+`rf2000_y_homing_test`: Nur Y kann bestromt werden, X/Z/A/B bleiben gesperrt.
+Seine konkreten Build-, Monitor-, Jog- und `$HY`-Kommandos stehen in
+[y-axis-test.md](y-axis-test.md). Die elektrischen Vorprüfungen dieses Plans
+gelten auch dafür; die Y-Richtung und Schalterpolarität müssen vor dessen
+Homing geprüft sein. Es gibt keine allgemeine XYZ-Homing-Freigabe.
+
 ## 1. Dokumentation, Rückweg und stromloser Aufbau
 
 1. Für diesen Auftrag gilt die bereitgestellte alte RF2000-Repetier-Konfiguration nach Nutzervorgabe als funktionierend; bei Zuordnungskonflikten hat ihr RF2000v2-Block Vorrang vor dem ergänzenden Schaltplan. Aufdruck und Seriennummer dienen der Zuordnung des Prüfprotokolls; ein erneuter Revisionsabgleich ist keine offene Vorbedingung.
@@ -23,7 +31,7 @@ Alle fünf Motoren und alle Leistungslasten bleiben abgetrennt. Nach den Vorbere
 - RESET beobachten und stabilen Lauf prüfen. PA7 ist gemäß RF2000v2-Repetier `WATCHDOG_PIN` und bleibt ohne Pullup hochohmig, entsprechend `HAL::stopWatchdog()`; GRBL erzeugt keinen aktiven Watchdog-Takt. PC0 bleibt ES2/Y-Min-Eingang. Unerwartete Watchdog-Neustarts untersuchen; keine Taktimpulse auf einem Limit- oder Leistungsausgang als Umgehung erzeugen.
 - HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4 und RGB/PH3–PH5 mit Oszilloskop/Logikanalysator messen. Sie müssen über Reset, Boot, Initialisierung, Alarm und M3/M4/M7/M8 inaktiv bleiben. PA7 separat auf Eingang ohne Pullup prüfen. Hochohmige Resetphasen anhand der externen Beschaltung beurteilen; bei einem tatsächlichen HIGH-Puls keine Last anschließen.
 - STEP aller fünf Kanäle darf ohne bewusstes Bewegungskommando keine Flanken zeigen. SLEEPn aller Kanäle muss nach der Initialisierung inaktiv LOW sein; kurze kontrollierte Wake-Phasen für Registerkonfiguration nur ohne STEP und bei deaktivierter Leistungsfreigabe. Reserve A/B bleibt nach der Initialisierung LOW und deren CTRL.ENBL bleibt gesperrt.
-- Seriell die GRBL-Kennung, Achsenzahl XYZ und Einstellungen lesen. `$22=1` und `$H` müssen im unverifizierten Build zurückgewiesen werden. `$X` darf weder einen Fehlerzustand elektrisch beseitigen noch Reserveachsen freigeben. `G1 A...` und `G1 B...` dürfen keine Reservebewegung auslösen.
+- Seriell die GRBL-Kennung, Achsenzahl XYZ und Einstellungen lesen. `$22=1` und `$H` müssen im Standardbuild zurückgewiesen werden. Im bewusst gewählten Y-Profil ist ausschließlich die sitzungsbezogene Freigabe `$22=1` für `$HY` vorgesehen; `$H`, `$HX` und `$HZ` bleiben gesperrt. `$X` darf weder einen Fehlerzustand elektrisch beseitigen noch Reserveachsen freigeben. `G1 A...` und `G1 B...` dürfen keine Reservebewegung auslösen.
 
 **Abbruch:** Motorfreigabe ohne beabsichtigten Test, unerwartete STEP-Flanke, Netz-/Heizausgang aktiv, wiederholter Reset oder umgehbare Homing-Sperre.
 
@@ -84,7 +92,22 @@ Bei betätigtem Endschalter wird nicht per Software zwangsfrei gefahren. Zunäch
 
 ## 7. Homing bleibt ein eigener Freigabeschritt
 
-Der ausgelieferte unverifizierte Build hält `RF2000_HOMING_VERIFIED=0`. `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
+Der Standardbuild hält `RF2000_HOMING_VERIFIED=0`. `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine allgemeine XYZ-Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
+
+Das zusätzliche Y-Testprofil ist eine getrennte Ausnahme nur für Y: nach
+realer Prüfung von Y-Richtung und Y-Min-Polarität kann ausschließlich `$HY`
+mit `$22=1` für die aktuelle Sitzung freigegeben werden. Der
+[Y-Testablauf](y-axis-test.md) beschreibt die Einzelkommandos. Die erste
+Referenzsuche läuft nach Nutzervorgabe ohne Gesamtweg- oder Zeitbegrenzung
+bis zum Y-Min-Kontakt. Ein fehlender erster Kontakt stoppt diese Suche
+nicht automatisch. Nach Kontakt folgen Rückzug, langsame zweite Annäherung
+und abschließender Rückzug; die zweite Annäherung bleibt auf 5 mm begrenzt.
+60/20 mm/min und 1 mm Rückzug sind bewusste Prüfstandswerte gegenüber der
+alten Repetier-Konfiguration; der Y-Testablauf nennt beide Wertesätze.
+Bereits betätigte Schalter verhindern den Start. `!` stoppt einen laufenden
+Homingzyklus nicht; Ctrl-X sendet den Software-Abbruch, Ctrl-C beendet im
+PlatformIO-Monitor lediglich das Terminal. Die unabhängige Abschaltung
+bleibt erforderlich.
 
 Für die CNC-Anwendung ist **Z-Max mit positiver Z-Referenzrichtung** aus dem Repetier-Fräsmodus der Quellenkandidat. Das bedeutet erst nach realer Richtungsprüfung „vom Werkstück weg“. X/Y sind Quellkandidaten Richtung Min. Nach erfolgreicher Prüfung Homing zuerst ohne Motoren am Logikanalysator, danach einzeln langsam mit Totmannaufsicht testen: freier Start, bereits aktiver Schalter, dauerhaft aktiver Schalter, nicht erreichter/abgetrennter Schalter, Pull-off, zweite langsame Annäherung, erneutes Auslösen und Alarm. Keine automatische Freigabe aus diesem Dokument ableiten.
 

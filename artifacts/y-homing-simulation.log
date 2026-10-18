@@ -1,0 +1,49 @@
+make BUILD=build/y-homing ARTIFACTS=artifacts/y-homing CPPFLAGS='-DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1' all
+make[1]: Entering directory '/workspace/RF2000'
+make[1]: Nothing to be done for 'all'.
+make[1]: Leaving directory '/workspace/RF2000'
+tests/run-y-homing-sim.sh build/y-homing/main.elf
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: only $HY accepted; Y-only first contact at900 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
+PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: only $HY accepted; Y-only first contact at761 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
+PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: only $HY accepted; Y-only first contact at762 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
+PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: only $HY accepted; Y-only first contact at763 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
+PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: no-switch initial search continues beyond2 planning chunks/1600steps; Ctrl-X stops all drivers and clears session enable
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: missing second contact remains bounded to5mm and reports ALARM:9
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: switch stuck after contact stops after1mm pull-off with ALARM:8
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: already-active Y switch blocks homing without any STEP
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: Y homing aborted by X-Min, all five drivers asleep, no continuing STEP
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: Y homing aborted by Z-Min, all five drivers asleep, no continuing STEP
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: Y homing aborted by Z-Max, all five drivers asleep, no continuing STEP
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: Y homing aborted by 1us FAULTn pulse, all five drivers asleep, no continuing STEP
+Loaded 34010 .text at address 0x0
+Loaded 76 .data
+PASS: Y homing aborted by Ctrl-X, all five drivers asleep, no continuing STEP
+PASS: all4096 patterned EEPROM bytes preserved across 13 selected cases

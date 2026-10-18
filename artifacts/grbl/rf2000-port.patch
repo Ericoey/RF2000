@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,112 +1,61 @@
+@@ -1,112 +1,67 @@
 -#  Part of Grbl
 -#
 -#  Copyright (c) 2017-2022 Gauthier Briere
@@ -35,7 +35,7 @@
 +CFLAGS += -std=gnu99 -Os -g -Wall -Wextra -mmcu=$(MCU) -ffunction-sections -fdata-sections -flto
 +LDFLAGS += -mmcu=$(MCU) -flto -Wl,--gc-sections,-Map,$(BUILD)/main.map
  
-+.PHONY: all clean check disasm repetier flash fuse install load
++.PHONY: all clean check check-y-homing y-homing-test disasm repetier flash fuse install load
 +all: $(ARTIFACTS)/rf2000-grbl.hex $(ARTIFACTS)/rf2000-grbl.elf $(ARTIFACTS)/rf2000-grbl.map
  
 -# This is a prototype Makefile. Modify it according to your needs.
@@ -98,8 +98,12 @@
  
 -# Compile flags for avr-gcc v4.9.2 compatible with the IDE. Or if you don't care about the warnings. 
 -COMPILE = avr-gcc $(CFLAGS) -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -I. -ffunction-sections -flto
--
--
++y-homing-test:
++	$(MAKE) BUILD=build/y-homing ARTIFACTS=artifacts/y-homing CPPFLAGS='$(CPPFLAGS) -DRF2000_Y_HOMING_TEST=1' all
+ 
++check-y-homing: y-homing-test
++	tests/run-y-homing-sim.sh build/y-homing/main.elf
+ 
 -OBJECTS = $(addprefix $(BUILDDIR)/,$(notdir $(SOURCE:.c=.o)))
 -
 -# symbolic targets:
@@ -175,14 +179,16 @@
 +*.log
 --- a/README.md
 +++ b/README.md
-@@ -1,74 +1,110 @@
+@@ -1,74 +1,134 @@
 -![GitHub Logo](https://github.com/fra589/grbl-Mega-5X/blob/edge/doc/images/Mega-5X-logo.svg)
 +# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
  
 -***
 +Kompilierbarer CNC-Teststand für ATmega2560/16 MHz mit drei logischen Achsen
 +X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. Homing
-+bleibt bis zur Prüfung von Schalterpolarität und Bewegungsrichtungen gesperrt.
++bleibt im Standardprofil gesperrt. Ein separat wählbares Y-Testprofil erlaubt
++nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
++Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
  
 -Grbl is a no-compromise, high performance, low cost alternative to parallel-port-based motion control for CNC milling. This version of Grbl runs on an Arduino Mega2560 only.
 +Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
@@ -277,6 +283,25 @@
 +Das HEX liegt anschließend unter `.pio/build/rf2000_grbl/firmware.hex`.
 +Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 +
++Für den ersten Y-Test gibt es zusätzlich die Umgebung
++**`rf2000_y_homing_test`**:
++
++```bash
++pio run -e rf2000_y_homing_test
++pio device monitor -e rf2000_y_homing_test
++```
++
++HEX: `.pio/build/rf2000_y_homing_test/firmware.hex`. Der Monitor verwendet
++115200 Baud und LF; Befehle jeweils mit Enter senden. Dieses Profil hält
++X/Z/A/B abgeschaltet, begrenzt Y-Jogs auf 0,5 mm bei höchstens 30 mm/min und
++erlaubt nur `$HY` nach `$22=1` in derselben Sitzung. Die erste Y-Referenzsuche
++läuft bis zum Schalterkontakt ohne Gesamtweg- oder Zeitbegrenzung; fehlt der
++Kontakt, stoppt sie nicht automatisch. Ctrl-X sendet den Software-Abbruch.
++Normale G-Code-Bewegungen
++und andere Homing-Kommandos bleiben gesperrt. Richtung und Schalter zuerst
++mit dem [Y-Testablauf](docs/y-axis-test.md) prüfen, bevor `$HY` gesendet wird.
++Das Standardprofil und die Repetier-Referenz bleiben unverändert.
++
 +Bestehender Make-Build einschließlich Repetier-Referenz:
 +
 +```bash
@@ -289,6 +314,8 @@
 +
 +HEX/ELF/MAP: `artifacts/grbl/rf2000-grbl.*`.
 +Repetier-Referenz: `artifacts/repetier/`.
++Für das separate Y-Profil: `make y-homing-test`, anschließend optional
++`make check-y-homing`; Dateien unter `artifacts/y-homing/rf2000-grbl.*`.
 +Die Buildwerkzeuge führen keine Programmierung und keine Fuse-Änderung aus.
 +Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunktionen.
 +
@@ -309,7 +336,7 @@
 +PA7 bleibt Eingang ohne Pullup, entsprechend Repetiers `HAL::stopWatchdog()`;
 +PC4 bleibt LOW. Der Testbuild erzeugt keine Watchdog-Lebenszeichen.
 +
-+## Bedienung des Testprofils
++## Bedienung des Standardprofils
 +
 +UART0: 115200 Baud, 8N1. `$DRV` liest nur den zwischengespeicherten
 +Initialisierungszustand und die vier Limitpegel, ohne SPI oder Motorfreigabe.
@@ -346,6 +373,7 @@
 +- [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 +- [Endschalter und Diagnose](docs/limits.md)
 +- [Kontrollierter Hardwaretest](docs/hardware-test.md)
++- [Separater Y-Achs- und Homingtest](docs/y-axis-test.md)
 +- [Entwicklungsumgebung](docs/development.md)
 +- [PlatformIO / VS Code](docs/platformio.md)
 +- [Repetier-Referenzbuild](docs/repetier-build.md)
@@ -354,7 +382,7 @@
 +Dateien und der Repetier-Referenz bleiben erhalten.
 --- /dev/null
 +++ b/platformio.ini
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,37 @@
 +; Open this directory as the PlatformIO project, then build rf2000_grbl.
 +; GRBL owns main(), the interrupt vectors and all runtime initialization.
 +[platformio]
@@ -383,6 +411,15 @@
 +    -fdata-sections
 +extra_scripts = post:tools/platformio-build.py
 +monitor_speed = 115200
++monitor_eol = LF
++monitor_echo = yes
++
++; Deliberate Y-only bench profile. The standard environment stays homing-gated.
++[env:rf2000_y_homing_test]
++extends = env:rf2000_grbl
++build_flags =
++    ${env:rf2000_grbl.build_flags}
++    -DRF2000_Y_HOMING_TEST=1
 --- a/grbl/analog_control.c
 +++ b/grbl/analog_control.c
 @@ -21,7 +21,9 @@
@@ -398,7 +435,7 @@
  
 --- a/grbl/config.h
 +++ b/grbl/config.h
-@@ -39,8 +39,18 @@
+@@ -39,8 +39,39 @@
  // NOTE: OEMs can avoid the need to maintain/update the defaults.h and cpu_map.h files and use only
  // one configuration file by placing their specific defaults and pin map at the bottom of this file.
  // If doing so, simply comment out these two defines and see instructions below.
@@ -412,6 +449,27 @@
 +#ifndef RF2000_HOMING_VERIFIED
 +  #define RF2000_HOMING_VERIFIED 0
 +#endif
++#ifndef RF2000_Y_HOMING_TEST
++  #define RF2000_Y_HOMING_TEST 0
++#endif
++#if RF2000_Y_HOMING_TEST
++  #if RF2000_HOMING_VERIFIED
++    #error "Y bench test and full homing verification are separate profiles."
++  #endif
++  #if defined(RF2000_DRIVER_ACTIVE_MASK) && RF2000_DRIVER_ACTIVE_MASK != 0x02u
++    #error "Y bench test may enable only DRV2."
++  #endif
++  #define RF2000_DRIVER_ACTIVE_MASK 0x02u
++  // First search repeats finite planner blocks until contact or abort.
++  // This is a block length, NOT an overall travel or timeout limit.
++  #define RF2000_Y_HOMING_SEARCH_CHUNK_MM 5.0f
++  #define RF2000_Y_HOMING_LOCATE_MAX_MM 5.0f
++  #define RF2000_Y_HOMING_SEEK_MM_MIN 60.0f
++  #define RF2000_Y_HOMING_FEED_MM_MIN 20.0f
++  #define RF2000_Y_HOMING_PULLOFF_MM 1.0f
++  #define RF2000_Y_JOG_MAX_MM 0.5f
++  #define RF2000_Y_JOG_MAX_MM_MIN 30.0f
++#endif
 +#define RF2000_FORCE_HARD_LIMITS 1
 +#define RF2000_DISABLE_AUX_OUTPUTS 1
 +#define RF2000_DISABLE_PROBE 1
@@ -419,7 +477,7 @@
  
  //----------------------------------------------------------------------
  // Axis definitions :
-@@ -52,7 +62,7 @@
+@@ -52,7 +83,7 @@
  // unpredictable behavior!
  //----------------------------------------------------------------------
  
@@ -428,7 +486,7 @@
  #define N_AXIS_LINEAR 3 // Number of linears axis, must be <= N_AXIS
  
  // Axis indexing and names
-@@ -120,7 +130,8 @@
+@@ -120,7 +151,8 @@
  // SPINDLE_PWM_ON_D9  => 0-12v 8 bits PWM on RAMPS D9
  // SPINDLE_PWM_ON_D6  => 0-5v 8bits PWM on RAMPS Servo 2 signal (Mega 2560 D6)
  // Uncomment the line which correspond to your hardware
@@ -438,7 +496,7 @@
  //#define SPINDLE_PWM_ON_D6
  //#define SPINDLE_PWM_ON_D9
  
-@@ -407,7 +418,7 @@
+@@ -407,7 +439,7 @@
  // allowable override values and the coarse and fine increments per command received. Please
  // note the allowable values in the descriptions following each define.
  #define DEFAULT_FEED_OVERRIDE           100 // 100%. Don't change this value.
@@ -447,7 +505,7 @@
  #define MIN_FEED_RATE_OVERRIDE           10 // Percent of programmed feed rate (1-100). Usually 50% or 1%
  #define FEED_OVERRIDE_COARSE_INCREMENT   10 // (1-99). Usually 10%.
  #define FEED_OVERRIDE_FINE_INCREMENT      1 // (1-99). Usually 1%.
-@@ -475,7 +486,7 @@
+@@ -475,7 +507,7 @@
  // step rate is strictly limited by the CPU speed and will change if something other than an AVR running
  // at 16MHz is used.
  // NOTE: For now disabled, will enable if flash space permits.
@@ -456,7 +514,7 @@
  
  // By default, Grbl sets all input pins to normal-high operation with their internal pull-up resistors
  // enabled. This simplifies the wiring for users by requiring only a switch connected to ground,
-@@ -573,7 +584,7 @@
+@@ -573,7 +605,7 @@
  // NOTE: Uncomment to enable. The recommended delay must be > 3us, and, when added with the
  // user-supplied step pulse time, the total time must not exceed 127us. Reported successful
  // values for certain setups have ranged from 5 to 20us.
@@ -630,7 +688,7 @@
    #include "nuts_bolts.h"
 --- a/grbl/defaults.h
 +++ b/grbl/defaults.h
-@@ -27,6 +27,50 @@
+@@ -27,6 +27,59 @@
     NOTE: Ensure one and only one of these DEFAULTS_XXX values is defined in config.h */
  
  #ifndef defaults_h
@@ -673,10 +731,19 @@
 +    // Candidate milling sequence: X/Y MIN, Z MAX. NOT permission to home;
 +    // verify installed switch polarity, direction and mechanics before enabling.
 +    #define DEFAULT_HOMING_DIR_MASK ((1<<AXIS_1)|(1<<AXIS_2))
-+    #define DEFAULT_HOMING_FEED_RATE 20.0
-+    #define DEFAULT_HOMING_SEEK_RATE 100.0
++    #if RF2000_Y_HOMING_TEST
++      #define DEFAULT_HOMING_FEED_RATE RF2000_Y_HOMING_FEED_MM_MIN
++      #define DEFAULT_HOMING_SEEK_RATE RF2000_Y_HOMING_SEEK_MM_MIN
++    #else
++      #define DEFAULT_HOMING_FEED_RATE 20.0
++      #define DEFAULT_HOMING_SEEK_RATE 100.0
++    #endif
 +    #define DEFAULT_HOMING_DEBOUNCE_DELAY 250
-+    #define DEFAULT_HOMING_PULLOFF 2.0
++    #if RF2000_Y_HOMING_TEST
++      #define DEFAULT_HOMING_PULLOFF RF2000_Y_HOMING_PULLOFF_MM
++    #else
++      #define DEFAULT_HOMING_PULLOFF 2.0
++    #endif
 +  #endif
  
    #ifdef DEFAULTS_GENERIC
@@ -739,7 +806,18 @@
  // Extensions added as part of Grbl 
 --- a/grbl/gcode.c
 +++ b/grbl/gcode.c
-@@ -149,6 +149,16 @@
+@@ -67,6 +67,10 @@
+ // coordinates, respectively.
+ uint8_t gc_execute_line(char *line)
+ {
++  #if RF2000_Y_HOMING_TEST
++    // This profile accepts bounded Y jogging, never ordinary machining code.
++    if (strncmp(line, "$J=", 3)) { return(STATUS_SETTING_DISABLED); }
++  #endif
+   /* -------------------------------------------------------------------------------------
+      STEP 1: Initialize parser block struct and copy current g-code state modes. The parser
+      updates these modes and commands as the block line is parser and will only be used and
+@@ -149,6 +153,16 @@
      // Maybe update this later.
      int_value = trunc(value);
      mantissa =  round(100*(value - int_value)); // Compute mantissa for Gxx.x commands.
@@ -756,6 +834,21 @@
      // NOTE: Rounding must be used to catch small floating point errors.
  
      // Check if the g-code word is supported or errors due to modal group violations or has
+@@ -1272,6 +1286,14 @@
+   // protocol_execute_realtime() when jogging completes or is canceled.
+   if (gc_parser_flags & GC_PARSER_JOG_MOTION) {
+     // Only distance and unit modal commands and G53 absolute override command are allowed.
++    #if RF2000_Y_HOMING_TEST
++      if (axis_dwords != dwbit(AXIS_2) ||
++          gc_block.modal.distance != DISTANCE_MODE_INCREMENTAL ||
++          gc_block.modal.units != UNITS_MODE_MM ||
++          gc_block.non_modal_command != NON_MODAL_NO_ACTION) {
++        return(STATUS_INVALID_JOG_COMMAND);
++      }
++    #endif
+     // NOTE: Feed rate word and axis word checks have already been performed in STEP 3.
+     if (command_dwords & ~(bit(MODAL_GROUP_G3) | bit(MODAL_GROUP_G6) | bit(MODAL_GROUP_G0))) { FAIL(STATUS_INVALID_JOG_COMMAND) };
+     if (!(gc_block.non_modal_command == NON_MODAL_ABSOLUTE_OVERRIDE || gc_block.non_modal_command == NON_MODAL_NO_ACTION)) { FAIL(STATUS_INVALID_JOG_COMMAND); }
 --- a/grbl/grbl.h
 +++ b/grbl/grbl.h
 @@ -24,7 +24,7 @@
@@ -778,6 +871,26 @@
  #include "planner.h"
  #include "coolant_control.h"
  #include "digital_control.h"
+--- a/grbl/jog.c
++++ b/grbl/jog.c
+@@ -25,6 +25,17 @@
+ // Sets up valid jog motion received from g-code parser, checks for soft-limits, and executes the jog.
+ uint8_t jog_execute(plan_line_data_t *pl_data, parser_block_t *gc_block)
+ {
++  #if RF2000_Y_HOMING_TEST
++    if (sys.state != STATE_IDLE ||
++        !isfinite(gc_block->values.f) || gc_block->values.f <= 0 ||
++        gc_block->values.f > RF2000_Y_JOG_MAX_MM_MIN ||
++        gc_block->values.xyz[AXIS_1] != gc_state.position[AXIS_1] ||
++        gc_block->values.xyz[AXIS_3] != gc_state.position[AXIS_3] ||
++        !isfinite(gc_block->values.xyz[AXIS_2]) ||
++        fabsf(gc_block->values.xyz[AXIS_2] - gc_state.position[AXIS_2]) > RF2000_Y_JOG_MAX_MM) {
++      return(STATUS_INVALID_JOG_COMMAND);
++    }
++  #endif
+   // Initialize planner data struct for jogging motions.
+   // NOTE: Spindle and coolant are allowed to fully function with overrides during a jog.
+   pl_data->feed_rate = gc_block->values.f;
 --- a/grbl/limits.c
 +++ b/grbl/limits.c
 @@ -30,6 +30,114 @@
@@ -904,17 +1017,23 @@
  
  #ifdef ENABLE_RAMPS_HW_LIMITS
    void ramps_hard_limit()
-@@ -222,8 +332,26 @@
+@@ -222,8 +332,32 @@
  // TODO: Move limit pin-specific calls to a general function for portability.
  void limits_go_home(uint8_t cycle_mask)
  {
-+  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && !RF2000_HOMING_VERIFIED
++  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST
 +    (void)cycle_mask;
 +    system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
 +    return;
 +  #endif
  
    if (sys.abort) { return; } // Block if system reset has been issued.
++  #if RF2000_Y_HOMING_TEST
++    if (cycle_mask != bit(AXIS_2)) {
++      system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH);
++      return;
++    }
++  #endif
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
 +    // X/Y have MIN switches only. Z is selected from its physical MIN/MAX.
 +    // A mismatched future X/Y homing direction is a configuration fault.
@@ -931,8 +1050,60 @@
  
    // Initialize plan data struct for homing motion. Spindle and coolant are disabled.
    plan_line_data_t plan_data;
-@@ -352,6 +480,9 @@
-         if (approach && (rt_exec & EXEC_CYCLE_STOP)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH); }
+@@ -256,12 +390,22 @@
+   }
+ 
+   // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
++  #if RF2000_Y_HOMING_TEST
++    // Do not use the machine envelope (normally 290*1.5 = 435 mm) on a bench.
++    max_travel = RF2000_Y_HOMING_SEARCH_CHUNK_MM;
++  #endif
+   bool approach = true;
+   float homing_rate = settings.homing_seek_rate;
+   uint8_t limit_state, n_active_axis;
+   uint8_t axislock[N_AXIS];
++  #if RF2000_Y_HOMING_TEST
++    uint8_t initial_search = true;
++  #endif
+   do {
+-
++    #if RF2000_Y_HOMING_TEST
++      retry_initial_search: ;
++      uint8_t repeat_initial_search = false;
++    #endif
+     system_convert_array_steps_to_mpos(target,sys_position);
+ 
+     // Initialize and declare variables needed for homing routine.
+@@ -343,15 +487,30 @@
+       if (sys_rt_exec_state & (EXEC_SAFETY_DOOR | EXEC_RESET | EXEC_CYCLE_STOP)) {
+         uint8_t rt_exec = sys_rt_exec_state;
+         // Homing failure condition: Reset issued during cycle.
+-        if (rt_exec & EXEC_RESET) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET); }
+-        // Homing failure condition: Safety door was opened.
+-        if (rt_exec & EXEC_SAFETY_DOOR) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_DOOR); }
+-        // Homing failure condition: Limit switch still engaged after pull-off motion
+-        if (!approach && (limits_get_state() & cycle_mask)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF); }
+-        // Homing failure condition: Limit switch not found during approach.
+-        if (approach && (rt_exec & EXEC_CYCLE_STOP)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH); }
++        // Preserve a driver/hard-limit alarm already raised by an ISR.
++        if (!sys_rt_exec_alarm) {
++          if (rt_exec & EXEC_RESET) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET); }
++          // Homing failure condition: Safety door was opened.
++          else if (rt_exec & EXEC_SAFETY_DOOR) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_DOOR); }
++          // Limit switch still engaged after pull-off motion.
++          else if (!approach && (limits_get_state() & cycle_mask)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF); }
++          // Limit switch not found during approach.
++          else if (approach && (rt_exec & EXEC_CYCLE_STOP)) {
++            #if RF2000_Y_HOMING_TEST
++              if (initial_search) {
++                // User-requested endless bench rotation: reaching the end
++                // of a planner block is not a failed reference search.
++                repeat_initial_search = !(limits_get_state() & cycle_mask);
++              } else
++            #endif
++            { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH); }
++          }
++        }
          if (sys_rt_exec_alarm) {
            mc_reset(); // Stop motors, if they are running.
 +          #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
@@ -941,7 +1112,32 @@
            protocol_execute_realtime();
            return;
          } else {
-@@ -418,6 +549,9 @@
+@@ -363,6 +522,14 @@
+ 
+     } while (axislock_active(axislock));
+     st_reset(); // Immediately force kill steppers and reset step segment buffer.
++    #if RF2000_Y_HOMING_TEST
++      // A contact can coincide with the final STEP of a planner block.
++      // With timers stopped, discard only that stale completion flag so it
++      // cannot prematurely finish the following pull-off. Keep RESET/faults.
++      system_clear_exec_state_flag(EXEC_CYCLE_STOP);
++      if (repeat_initial_search) { goto retry_initial_search; }
++      initial_search = false;
++    #endif
+     delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
+ 
+     // Reverse direction and reset homing rate for locate cycle(s).
+@@ -371,6 +538,9 @@
+     // After first cycle, homing enters locating phase. Shorten search to pull-off distance.
+     if (approach) {
+       max_travel = settings.homing_pulloff*HOMING_AXIS_LOCATE_SCALAR;
++      #if RF2000_Y_HOMING_TEST
++        max_travel = min(max_travel, RF2000_Y_HOMING_LOCATE_MAX_MM);
++      #endif
+       homing_rate = settings.homing_feed_rate;
+     } else {
+       max_travel = settings.homing_pulloff;
+@@ -418,6 +588,9 @@
      }
    }
    sys.step_control = STEP_CONTROL_NORMAL_OP; // Return step control to normal operation.
@@ -994,7 +1190,7 @@
    stepper_init();  // Configure stepper pins and interrupt timers
    system_init();   // Configure pinout pins and pin-change interrupt
  
-@@ -503,7 +518,15 @@
+@@ -503,7 +518,19 @@
      // Reset system variables.
      uint8_t prior_state = sys.state;
      memset(&sys, 0, sizeof(system_t)); // Clear system struct variable.
@@ -1005,6 +1201,10 @@
 +      sys.state = STATE_ALARM;
 +      rf2000_drivers_disable();
 +      rf2000_board_outputs_off();
++      #if RF2000_Y_HOMING_TEST
++        // Homing must be explicitly armed with $22=1 after every reset.
++        settings.flags &= ~(BITFLAG_HOMING_ENABLE | BITFLAG_SOFT_LIMIT_ENABLE);
++      #endif
 +    #else
 +      sys.state = prior_state;
 +    #endif
@@ -1073,12 +1273,16 @@
  // Monitors probe pin state and records the system position when detected. Called by the
 --- a/grbl/protocol.c
 +++ b/grbl/protocol.c
-@@ -38,6 +38,14 @@
+@@ -38,6 +38,18 @@
  */
  void protocol_main_loop()
  {
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-+    printPgmString(PSTR("[MSG:RF2000 XYZ test profile; A/B asleep; homing gated]\r\n"));
++    #if RF2000_Y_HOMING_TEST
++      printPgmString(PSTR("[MSG:RF2000 Y-only test; $22=1 then $HY; seek until switch]\r\n"));
++    #else
++      printPgmString(PSTR("[MSG:RF2000 XYZ test profile; A/B asleep; homing gated]\r\n"));
++    #endif
 +    if (!rf2000_drivers_ready() || rf2000_drivers_fault_active()) {
 +      rf2000_drivers_disable();
 +      sys.state = STATE_ALARM;
@@ -1088,7 +1292,7 @@
    // Perform some machine checks to make sure everything is good to go.
    #ifdef CHECK_LIMITS_AT_INIT
      if (bit_istrue(settings.flags, BITFLAG_HARD_LIMIT_ENABLE)) {
-@@ -243,7 +251,8 @@
+@@ -243,7 +255,8 @@
      sys.state = STATE_ALARM; // Set system alarm state
      report_alarm_message(rt_exec);
      // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
@@ -1098,7 +1302,7 @@
        report_feedback_message(MESSAGE_CRITICAL_EVENT);
        system_clear_exec_state_flag(EXEC_RESET); // Disable any existing reset
        do {
-@@ -377,6 +386,15 @@
+@@ -377,6 +390,15 @@
              // Start cycle only if queued motions exist in planner buffer and the motion is not canceled.
              sys.step_control = STEP_CONTROL_NORMAL_OP; // Restore step control to normal operation
              if (plan_get_current_block() && bit_isfalse(sys.suspend,SUSPEND_MOTION_CANCEL)) {
@@ -1604,10 +1808,13 @@
        }
 --- a/grbl/settings.c
 +++ b/grbl/settings.c
-@@ -90,11 +90,16 @@
+@@ -90,11 +90,19 @@
  // Method to store startup lines into EEPROM
  void settings_store_startup_line(uint8_t n, char *line)
  {
++  #if RF2000_Y_HOMING_TEST
++    (void)n; (void)line; return;
++  #endif
 +  // EEPROM records are independent of the larger serial/parser buffer.
 +  // Reject unsupported indices and overlong records without touching EEPROM.
 +  if (n >= N_STARTUP_LINE || strlen(line) >= EEPROM_LINE_SIZE) { return; }
@@ -1623,9 +1830,13 @@
  }
  
  
-@@ -103,7 +108,10 @@
+@@ -102,14 +110,23 @@
+ // NOTE: This function can only be called in IDLE state.
  void settings_store_build_info(char *line)
  {
++  #if RF2000_Y_HOMING_TEST
++    (void)line; return;
++  #endif
    // Build info can only be stored when state is IDLE.
 -  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_BUILD_INFO,(char*)line, LINE_BUFFER_SIZE);
 +  if (strlen(line) >= EEPROM_LINE_SIZE) { return; }
@@ -1635,7 +1846,36 @@
  }
  
  
-@@ -142,19 +150,13 @@
+ // Method to store coord data parameters into EEPROM
+ void settings_write_coord_data(uint8_t coord_select, float *coord_data)
+ {
++  #if RF2000_Y_HOMING_TEST
++    (void)coord_select; (void)coord_data; return;
++  #endif
+   #ifdef FORCE_BUFFER_SYNC_DURING_EEPROM_WRITE
+     protocol_buffer_synchronize();
+   #endif
+@@ -122,6 +139,9 @@
+ // NOTE: This function can only be called in IDLE state.
+ void write_global_settings()
+ {
++  #if RF2000_Y_HOMING_TEST
++    return;
++  #endif
+   eeprom_put_char(0, SETTINGS_VERSION);
+   memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
+ }
+@@ -129,6 +149,9 @@
+ 
+ // Method to restore EEPROM-saved Grbl global settings back to defaults.
+ void settings_restore(uint8_t restore_flag) {
++  #if RF2000_Y_HOMING_TEST
++    (void)restore_flag; return;
++  #endif
+   if (restore_flag & SETTINGS_RESTORE_DEFAULTS) {
+     settings = defaults;
+     write_global_settings();
+@@ -142,19 +165,13 @@
    }
  
    if (restore_flag & SETTINGS_RESTORE_STARTUP_LINES) {
@@ -1659,12 +1899,15 @@
    }
  }
  
-@@ -162,8 +164,10 @@
+@@ -162,8 +179,13 @@
  // Reads startup line from EEPROM. Updated pointed line string data.
  uint8_t settings_read_startup_line(uint8_t n, char *line)
  {
 -  uint32_t addr = n*(LINE_BUFFER_SIZE+1)+EEPROM_ADDR_STARTUP_BLOCK;
 -  if (!(memcpy_from_eeprom_with_checksum((char*)line, addr, LINE_BUFFER_SIZE))) {
++  #if RF2000_Y_HOMING_TEST
++    (void)n; line[0] = 0; return(true);
++  #endif
 +  if (n >= N_STARTUP_LINE) { line[0] = 0; return(false); }
 +  uint32_t addr = n*(EEPROM_LINE_SIZE+1)+EEPROM_ADDR_STARTUP_BLOCK;
 +  if (!(memcpy_from_eeprom_with_checksum(line, addr, EEPROM_LINE_SIZE)) ||
@@ -1672,17 +1915,43 @@
      // Reset line with default value
      line[0] = 0; // Empty line
      settings_store_startup_line(n, line);
-@@ -176,7 +180,8 @@
+@@ -176,7 +198,11 @@
  // Reads startup line from EEPROM. Updated pointed line string data.
  uint8_t settings_read_build_info(char *line)
  {
 -  if (!(memcpy_from_eeprom_with_checksum((char*)line, EEPROM_ADDR_BUILD_INFO, LINE_BUFFER_SIZE))) {
++  #if RF2000_Y_HOMING_TEST
++    strcpy(line, "RF2000_Y_HOMING_TEST"); return(true);
++  #endif
 +  if (!(memcpy_from_eeprom_with_checksum(line, EEPROM_ADDR_BUILD_INFO, EEPROM_LINE_SIZE)) ||
 +      !memchr(line, 0, EEPROM_LINE_SIZE)) {
      // Reset line with default value
      line[0] = 0; // Empty line
      settings_store_build_info(line);
-@@ -212,12 +217,41 @@
+@@ -189,6 +215,9 @@
+ // Read selected coordinate data from EEPROM. Updates pointed coord_data value.
+ uint8_t settings_read_coord_data(uint8_t coord_select, float *coord_data)
+ {
++  #if RF2000_Y_HOMING_TEST
++    (void)coord_select; clear_vector_float(coord_data); return(true);
++  #endif
+   uint32_t addr = coord_select*(sizeof(float)*N_AXIS+1) + EEPROM_ADDR_PARAMETERS;
+   if (!(memcpy_from_eeprom_with_checksum((char*)coord_data, addr, sizeof(float)*N_AXIS))) {
+     // Reset with default zero vector
+@@ -202,6 +231,12 @@
+ 
+ // Reads Grbl global settings struct from EEPROM.
+ uint8_t read_global_settings() {
++  #if RF2000_Y_HOMING_TEST
++    // Fixed calibration and rates; never import or modify another profile's
++    // EEPROM. $22 is an explicit RAM-only arming flag, cleared after reset.
++    settings = defaults;
++    return(true);
++  #endif
+   // Check version-byte of eeprom
+   uint8_t version = eeprom_get_char(0);
+   if (version == SETTINGS_VERSION) {
+@@ -212,12 +247,49 @@
    } else {
      return(false);
    }
@@ -1709,6 +1978,14 @@
  
  // A helper method to set settings from command line
  uint8_t settings_store_global_setting(uint8_t parameter, float value) {
++  #if RF2000_Y_HOMING_TEST
++    if (parameter != 22 || (value != 0.0f && value != 1.0f)) {
++      return(STATUS_SETTING_DISABLED);
++    }
++    if (value == 1.0f) { settings.flags |= BITFLAG_HOMING_ENABLE; }
++    else { settings.flags &= ~BITFLAG_HOMING_ENABLE; }
++    return(STATUS_OK);
++  #endif
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
 +    if (!isfinite(value)) { return(STATUS_BAD_NUMBER_FORMAT); }
 +    if (parameter == 0 && (value < 10 || value > 20 || value != floorf(value))) {
@@ -1787,7 +2064,7 @@
 +#endif // CPU_MAP_2560_RENKFORCE_CTC_V3
 --- a/grbl/stepper.c
 +++ b/grbl/stepper.c
-@@ -21,6 +21,38 @@
+@@ -21,6 +21,41 @@
  */
  
  #include "grbl.h"
@@ -1813,6 +2090,9 @@
 +  // XYZ edges and preserves PORTF's direction, SLEEP and unused pins.
 +  static inline void rf2000_write_steps(uint8_t step_bits)
 +  {
++    #if RF2000_Y_HOMING_TEST
++      step_bits &= _BV(PF6); // Independent GPIO backstop: only Y may step.
++    #endif
 +    PORTF = (PORTF & ~RF2000_STEP_MASK) | (step_bits & RF2000_STEP_MASK);
 +  }
 +
@@ -1826,7 +2106,7 @@
  
  
  // Some useful constants.
-@@ -105,7 +137,7 @@
+@@ -105,7 +140,7 @@
             counter_z;
    #endif
    #ifdef STEP_PULSE_DELAY
@@ -1835,7 +2115,7 @@
    #endif
  
    uint8_t execute_step;         // Flags step execution for each interrupt.
-@@ -131,6 +163,38 @@
+@@ -131,6 +166,38 @@
  // Step and direction port invert masks.
  static uint8_t step_port_invert_mask[N_AXIS];
  static uint8_t dir_port_invert_mask[N_AXIS];
@@ -1874,7 +2154,7 @@
  
  // Used to avoid ISR nesting of the "Stepper Driver Interrupt". Should never occur though.
  static volatile uint8_t busy;
-@@ -222,6 +286,25 @@
+@@ -222,6 +289,33 @@
    int idx;
  
    // Enable stepper drivers.
@@ -1891,7 +2171,15 @@
 +      rf2000_stop_step_outputs();
 +      return;
 +    }
-+    rf2000_drivers_enable(bit(AXIS_1) | bit(AXIS_2) | bit(AXIS_3));
++    #if RF2000_Y_HOMING_TEST
++      if (sys.state != STATE_HOMING && sys.state != STATE_JOG) {
++        rf2000_stop_step_outputs();
++        return;
++      }
++      rf2000_drivers_enable(bit(AXIS_2));
++    #else
++      rf2000_drivers_enable(bit(AXIS_1) | bit(AXIS_2) | bit(AXIS_3));
++    #endif
 +    if (!rf2000_drivers_ready() || rf2000_drivers_fault_active()) {
 +      rf2000_stepper_fault_stop();
 +      return;
@@ -1900,7 +2188,7 @@
    if (bit_istrue(settings.flags,BITFLAG_INVERT_ST_ENABLE)) {
      STEPPER_DISABLE_PORT(0) |= (1 << STEPPER_DISABLE_BIT(0));
      STEPPER_DISABLE_PORT(1) |= (1 << STEPPER_DISABLE_BIT(1));
-@@ -249,13 +332,23 @@
+@@ -249,13 +343,23 @@
        STEPPER_DISABLE_PORT(5) &= ~(1 << STEPPER_DISABLE_BIT(5));
      #endif
    }
@@ -1925,7 +2213,7 @@
      // Set total step pulse time after direction pin set. Ad hoc computation from oscilloscope.
      st.step_pulse_time = -(((settings.pulse_microseconds+STEP_PULSE_DELAY-2)*TICKS_PER_MICROSECOND) >> 3);
      // Set delay between direction pin write and step command.
-@@ -266,7 +359,25 @@
+@@ -266,7 +370,25 @@
    #endif
  
    // Enable Stepper Driver Interrupt
@@ -1952,7 +2240,7 @@
  }
  
  
-@@ -280,12 +391,25 @@
+@@ -280,12 +402,25 @@
  
    // Set stepper driver idle state, disabled or enabled, depending on settings and circumstances.
    bool pin_state = false; // Keep enabled.
@@ -1978,7 +2266,7 @@
    if (bit_istrue(settings.flags,BITFLAG_INVERT_ST_ENABLE)) { pin_state = !pin_state; } // Apply pin invert.
    if (pin_state) {
      STEPPER_DISABLE_PORT(0) |= (1 << STEPPER_DISABLE_BIT(0));
-@@ -314,6 +438,7 @@
+@@ -314,6 +449,7 @@
        STEPPER_DISABLE_PORT(5) &= ~(1 << STEPPER_DISABLE_BIT(5));
      #endif
    }
@@ -1986,7 +2274,7 @@
  }
  
  
-@@ -371,6 +496,26 @@
+@@ -371,6 +507,26 @@
  
    if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
  
@@ -2013,7 +2301,7 @@
    // Adding limit check status to implement hardware limits for RAMPS
    // outside the changepin interrupt wich cannot be used
    #ifdef ENABLE_RAMPS_HW_LIMITS
-@@ -380,6 +525,9 @@
+@@ -380,6 +536,9 @@
    #endif
  
    // Set the direction pins a couple of nanoseconds before we step the steppers
@@ -2023,7 +2311,7 @@
    DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | st.dir_outbits[0];
    DIRECTION_PORT(1) = (DIRECTION_PORT(1) & ~(1 << DIRECTION_BIT(1))) | st.dir_outbits[1];
    DIRECTION_PORT(2) = (DIRECTION_PORT(2) & ~(1 << DIRECTION_BIT(2))) | st.dir_outbits[2];
-@@ -392,9 +540,12 @@
+@@ -392,9 +551,12 @@
    #if N_AXIS > 5
    DIRECTION_PORT(5) = (DIRECTION_PORT(5) & ~(1 << DIRECTION_BIT(5))) | st.dir_outbits[5];
    #endif
@@ -2037,7 +2325,7 @@
      st.step_bits[0] = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | st.step_outbits[0]; // Store out_bits to prevent overwriting.
      st.step_bits[1] = (STEP_PORT(1) & ~(1 << STEP_BIT(1))) | st.step_outbits[1]; // Store out_bits to prevent overwriting.
      st.step_bits[2] = (STEP_PORT(2) & ~(1 << STEP_BIT(2))) | st.step_outbits[2]; // Store out_bits to prevent overwriting.
-@@ -424,8 +575,19 @@
+@@ -424,8 +586,19 @@
  
    // Enable step pulse reset timer so that The Stepper Port Reset Interrupt can reset the signal after
    // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
@@ -2059,7 +2347,7 @@
  
    busy = true;
    sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
-@@ -607,6 +769,12 @@
+@@ -607,6 +780,12 @@
  ISR(TIMER0_OVF_vect)
  {
    // Reset stepping pins (leave the direction pins)
@@ -2072,7 +2360,7 @@
    STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
    STEP_PORT(1) = (STEP_PORT(1) & ~(1 << STEP_BIT(1))) | step_port_invert_mask[1];
    STEP_PORT(2) = (STEP_PORT(2) & ~(1 << STEP_BIT(2))) | step_port_invert_mask[2];
-@@ -620,6 +788,7 @@
+@@ -620,6 +799,7 @@
      STEP_PORT(5) = (STEP_PORT(5) & ~(1 << STEP_BIT(5))) | step_port_invert_mask[5];
    #endif
    TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
@@ -2080,7 +2368,7 @@
  }
  #ifdef STEP_PULSE_DELAY
    // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
-@@ -629,6 +798,26 @@
+@@ -629,6 +809,26 @@
    // st_wake_up() routine.
    ISR(TIMER0_COMPA_vect)
    {
@@ -2107,7 +2395,7 @@
      STEP_PORT(0) = st.step_bits[0]; // Begin step pulse.
      STEP_PORT(1) = st.step_bits[1]; // Begin step pulse.
      STEP_PORT(2) = st.step_bits[2]; // Begin step pulse.
-@@ -640,6 +829,7 @@
+@@ -640,6 +840,7 @@
      #endif
      #if N_AXIS > 5
        STEP_PORT(5) = st.step_bits[5]; // Begin step pulse.
@@ -2115,7 +2403,7 @@
      #endif
    }
  #endif
-@@ -666,6 +856,15 @@
+@@ -666,6 +867,15 @@
  
    // Initialize stepper driver idle state.
    st_go_idle();
@@ -2131,7 +2419,7 @@
  
    // Initialize stepper algorithm variables.
    memset(&prep, 0, sizeof(st_prep_t));
-@@ -682,6 +881,11 @@
+@@ -682,6 +892,11 @@
      st.dir_outbits[idx] = dir_port_invert_mask[idx]; // Initialize direction bits to default.
    }
  
@@ -2143,7 +2431,7 @@
    STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
    DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | dir_port_invert_mask[0];
  
-@@ -701,6 +905,7 @@
+@@ -701,6 +916,7 @@
    #if N_AXIS > 5
      STEP_PORT(5) = (STEP_PORT(5) & ~(1 << STEP_BIT(5))) | step_port_invert_mask[5];
      DIRECTION_PORT(5) = (DIRECTION_PORT(5) & ~(1 << DIRECTION_BIT(5))) | dir_port_invert_mask[5];
@@ -2151,7 +2439,7 @@
    #endif
  }
  
-@@ -760,9 +965,14 @@
+@@ -760,9 +976,14 @@
    TIMSK0 &= ~((1<<OCIE0B) | (1<<OCIE0A) | (1<<TOIE0)); // Disconnect OC0 outputs and OVF interrupt.
    TCCR0A = 0; // Normal operation
    TCCR0B = 0; // Disable Timer0 until needed
@@ -2228,7 +2516,18 @@
  // Returns if safety door is ajar(T) or closed(F), based on pin state.
  uint8_t system_check_safety_door_ajar()
  {
-@@ -114,6 +128,27 @@
+@@ -86,6 +100,10 @@
+ // Executes user startup script, if stored.
+ void system_execute_startup(char *line)
+ {
++  #if RF2000_Y_HOMING_TEST
++    (void)line;
++    return; // Stored scripts never run in the isolated bench profile.
++  #endif
+   uint8_t n;
+   for (n=0; n < N_STARTUP_LINE; n++) {
+     if (!(settings_read_startup_line(n, line))) {
+@@ -114,9 +132,34 @@
    uint8_t char_counter = 1;
    uint8_t helper_var = 0; // Helper variable
    float parameter, value;
@@ -2256,7 +2555,14 @@
    switch( line[char_counter] ) {
      case 0 : report_grbl_help(); break;
      case 'J' : // Jogging
-@@ -147,6 +182,9 @@
++      #if RF2000_Y_HOMING_TEST
++        // One bounded jog at a time; streaming may not accumulate travel.
++        if (sys.state != STATE_IDLE) { return(STATUS_IDLE_ERROR); }
++      #endif
+       // Execute only if in IDLE or JOG states.
+       if (sys.state != STATE_IDLE && sys.state != STATE_JOG) { return(STATUS_IDLE_ERROR); }
+       if(line[2] != '=') { return(STATUS_INVALID_STATEMENT); }
+@@ -147,6 +190,9 @@
            }
            break;
          case 'X' : // Disable alarm lock [ALARM]
@@ -2266,12 +2572,15 @@
            if (sys.state == STATE_ALARM) {
              // Block if safety door is ajar.
              if (system_check_safety_door_ajar()) { return(STATUS_CHECK_DOOR); }
-@@ -175,6 +213,13 @@
+@@ -175,6 +221,16 @@
            else { report_ngc_parameters(); }
            break;
          case 'H' : // Perform homing cycle [IDLE/ALARM]
++          #if RF2000_Y_HOMING_TEST
++            if (line[2] != 'Y' || line[3] != 0) { return(STATUS_SETTING_DISABLED); }
++          #endif
 +          #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3)
-+            #if !RF2000_HOMING_VERIFIED
++            #if !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST
 +              return(STATUS_SETTING_DISABLED);
 +            #else
 +              if (!limits_motion_allowed()) { return(STATUS_SYSTEM_GC_LOCK); }
@@ -2280,7 +2589,7 @@
            if (bit_isfalse(settings.flags,BITFLAG_HOMING_ENABLE)) {return(STATUS_SETTING_DISABLED); }
            if (system_check_safety_door_ajar()) { return(STATUS_CHECK_DOOR); } // Block if safety door is ajar.
            sys.state = STATE_HOMING; // Set system state variable
-@@ -270,10 +315,8 @@
+@@ -270,15 +326,16 @@
            #ifdef ENABLE_BUILD_INFO_WRITE_COMMAND
              } else { // Store startup line [IDLE/ALARM]
                if(line[char_counter++] != '=') { return(STATUS_INVALID_STATEMENT); }
@@ -2293,7 +2602,24 @@
                settings_store_build_info(line);
            #endif
            }
-@@ -312,14 +355,15 @@
+           break;
+         case 'R' : // Restore defaults [IDLE/ALARM]
++          #if RF2000_Y_HOMING_TEST
++            return(STATUS_SETTING_DISABLED); // Preserve the other firmware's EEPROM.
++          #endif
+           if ((line[2] != 'S') || (line[3] != 'T') || (line[4] != '=') || (line[6] != 0)) { return(STATUS_INVALID_STATEMENT); }
+           switch (line[5]) {
+             #ifdef ENABLE_RESTORE_EEPROM_DEFAULT_SETTINGS
+@@ -306,20 +363,24 @@
+             }
+             break;
+           } else { // Store startup line [IDLE Only] Prevents motion during ALARM.
++            #if RF2000_Y_HOMING_TEST
++              return(STATUS_SETTING_DISABLED);
++            #endif
+             if (sys.state != STATE_IDLE) { return(STATUS_IDLE_ERROR); } // Store only when idle.
+             helper_var = true;  // Set helper_var to flag storing method.
+             // No break. Continues into default: to read remaining command characters.
            }
          default :  // Storing setting methods [IDLE/ALARM]
            if(!read_float(line, &char_counter, &parameter)) { return(STATUS_BAD_NUMBER_FORMAT); }
@@ -2585,7 +2911,7 @@
 +echo 'AVR tools and pinned Arduino AVR core available. No device was flashed.'
 --- /dev/null
 +++ b/tools/package-release.py
-@@ -0,0 +1,61 @@
+@@ -0,0 +1,65 @@
 +#!/usr/bin/env python3
 +"""Package reviewed sources, reference documents, and current build artifacts."""
 +from pathlib import Path
@@ -2614,10 +2940,12 @@
 +def sha(path):
 +    return hashlib.sha256(path.read_bytes()).hexdigest()
 +
-+grbl_out = artifacts / 'grbl'
-+(grbl_out / 'SHA256SUMS').write_text(''.join(
-+    f'{sha(p)}  {p.name}\n' for p in sorted(grbl_out.iterdir())
-+    if p.is_file() and p.name != 'SHA256SUMS'))
++for directory in ('grbl', 'y-homing'):
++    build_out = artifacts / directory
++    if build_out.is_dir():
++        (build_out / 'SHA256SUMS').write_text(''.join(
++            f'{sha(p)}  {p.name}\n' for p in sorted(build_out.iterdir())
++            if p.is_file() and p.name != 'SHA256SUMS'))
 +
 +files = []
 +for p in sorted(root.rglob('*')):
@@ -2629,9 +2957,11 @@
 +    if p.suffix == '.log' or '__pycache__' in rel.parts:
 +        continue
 +    files.append(p)
-+for directory in ('grbl', 'repetier'):
++for directory in ('grbl', 'repetier', 'y-homing'):
 +    files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
-+for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log'):
++for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
++             'y-homing-build.log', 'y-homing-simulation.log',
++             'platformio-y-homing-build.log'):
 +    p = artifacts / name
 +    if p.is_file():
 +        files.append(p)
@@ -3754,6 +4084,328 @@
 +  return 0;
 +}
 --- /dev/null
++++ b/tests/rf2000_y_homing_sim.c
+@@ -0,0 +1,319 @@
++/* Real-ELF regression for the opt-in RF2000 Y-only commissioning profile.
++ * Reuse the electrical/DRV8711 model of the normal profile. Physical switch
++ * position below is only a digital model, not validation of installed wiring.
++ * GPL-3.0+. */
++#include "sim_elf.h"
++#include "avr_eeprom.h"
++static void y_load_firmware(avr_t *avr, elf_firmware_t *firmware);
++static void y_terminate(avr_t *avr);
++#define avr_load_firmware y_load_firmware
++#define avr_terminate y_terminate
++#define main rf2000_general_regression_main
++#include "rf2000_sim.c"
++#undef main
++#undef avr_load_firmware
++#undef avr_terminate
++
++static uint8_t eeprom_sentinel[4096];
++
++static void y_load_firmware(avr_t *avr, elf_firmware_t *firmware)
++{
++  avr_load_firmware(avr,firmware);
++  for (unsigned i=0;i<sizeof(eeprom_sentinel);++i)
++    eeprom_sentinel[i] = (uint8_t)(i*73+19);
++  avr_eeprom_desc_t eeprom = {.ee=NULL,.offset=0,.size=sizeof(eeprom_sentinel)};
++  // simavr1.6 returns -1 even when this ioctl succeeds. Its pointer result
++  // proves the EEPROM exists and avoids depending on that return-value bug.
++  avr_ioctl(avr,AVR_IOCTL_EEPROM_GET,&eeprom);
++  CHECK(eeprom.ee,"cannot access simulated EEPROM before firmware starts");
++  memcpy(eeprom.ee,eeprom_sentinel,sizeof(eeprom_sentinel));
++}
++
++static void y_terminate(avr_t *avr)
++{
++  avr_eeprom_desc_t eeprom = {.ee=NULL,.offset=0,.size=sizeof(eeprom_sentinel)};
++  avr_ioctl(avr,AVR_IOCTL_EEPROM_GET,&eeprom);
++  CHECK(eeprom.ee,"cannot inspect simulated EEPROM");
++  for (unsigned i=0;i<sizeof(eeprom_sentinel);++i)
++    CHECK(eeprom.ee[i]==eeprom_sentinel[i],
++      "Y profile modified EEPROM[%u]: %02x instead of%02x",i,eeprom.ee[i],eeprom_sentinel[i]);
++  avr_terminate(avr);
++}
++
++enum switch_model { SWITCH_FOLLOWS_POSITION, SWITCH_MISSING, SWITCH_STUCK,
++  SWITCH_MISSING_ON_LOCATE };
++typedef struct {
++  int direction;
++  unsigned pulses;
++  uint64_t samples[64], fastest_window;
++} y_phase_t;
++static struct {
++  enum switch_model model;
++  int position;
++  uint8_t previous_step, switch_active;
++  unsigned contacts, releases, phase_count;
++  y_phase_t phases[8];
++} y_model;
++
++static void y_profile_pin(struct avr_irq_t *irq, uint32_t value, void *opaque)
++{
++  (void)irq;
++  watched_pin_t *pin = opaque;
++  const uint8_t level = value & 1;
++  if (!is_output(pin->port,pin->bit)) return;
++  if ((pin->port == 'D' && pin->bit == 7) ||
++      (pin->port == 'K' && pin->bit == 0) ||
++      (pin->port == 'A' && pin->bit == 2) ||
++      (pin->port == 'C' && pin->bit == 7))
++    CHECK(!level,"Y profile woke non-Y driver P%c%u",pin->port,pin->bit);
++  if (pin->port != 'F' || pin->bit != 6) return;
++  const uint8_t previous = y_model.previous_step;
++  y_model.previous_step = level;
++  if (!level || previous == level) return;
++
++  // Repetier-derived default: PF7=0 is a negative Y move toward Y-Min.
++  const int direction = sim.pins['F'-'A'][7] ? 1 : -1;
++  if (!y_model.phase_count ||
++      y_model.phases[y_model.phase_count-1].direction != direction) {
++    CHECK(y_model.phase_count < 8,"unexpected extra Y homing direction reversals");
++    y_model.phases[y_model.phase_count++].direction = direction;
++  }
++  y_phase_t *phase = &y_model.phases[y_model.phase_count-1];
++  const unsigned slot = phase->pulses++ & 63;
++  if (phase->samples[slot]) {
++    const uint64_t duration = sim.avr->cycle - phase->samples[slot];
++    if (!phase->fastest_window || duration < phase->fastest_window)
++      phase->fastest_window = duration;
++  }
++  phase->samples[slot] = sim.avr->cycle;
++  y_model.position += direction;
++  uint8_t active = y_model.position <= 0;
++  if (y_model.model == SWITCH_MISSING) active = 0;
++  if (y_model.model == SWITCH_STUCK && y_model.contacts) active = 1;
++  if (y_model.model == SWITCH_MISSING_ON_LOCATE && y_model.releases) active = 0;
++  if (active != y_model.switch_active) {
++    if (active) ++y_model.contacts;
++    else ++y_model.releases;
++    y_model.switch_active = active;
++    input_pin('C',0,!active);
++  }
++}
++
++static void boot_y(const char *elf, enum switch_model model, int position)
++{
++  boot(elf,0);
++  all_asleep();
++  memset(&y_model,0,sizeof(y_model));
++  y_model.model = model;
++  y_model.position = position;
++  const char *ports = "DFKAC";
++  const uint8_t bits[] = {7,6,0,2,7};
++  for (unsigned i=0;i<sizeof(bits);++i) {
++    watched_pin_t *pin = &sim.watch[ports[i]-'A'][bits[i]];
++    avr_irq_register_notify(pin_irq(ports[i],bits[i]),y_profile_pin,pin);
++  }
++  for (unsigned d=0;d<5;++d)
++    CHECK(!!(sim.regs[d][0]&1)==(d==1),"Y profile must arm only DRV2, got DRV%u CTRL=%03x",d+1,sim.regs[d][0]);
++  CHECK(strstr(command("$$\n",150),"$22=0\r\n"),"Y profile must start with session homing disabled");
++  assert_ok("$22=1\n",30);
++}
++
++static const char *await_reply(size_t start, unsigned timeout_ms)
++{
++  const uint64_t deadline = sim.avr->cycle + (uint64_t)timeout_ms*16000;
++  while (sim.avr->cycle < deadline &&
++      !strstr(sim.log+start,"ok\r\n") &&
++      !strstr(sim.log+start,"error:") && !strstr(sim.log+start,"ALARM:"))
++    run_us(10000);
++  CHECK(sim.avr->cycle < deadline,"Y homing did not complete within %u ms",timeout_ms);
++  return sim.log+start;
++}
++
++static void no_non_y_steps(void)
++{
++  CHECK(!sim.step_count[0] && !sim.step_count[2] &&
++    !sim.step_count[3] && !sim.step_count[4],
++    "Y profile emitted non-Y steps: %u/%u/%u/%u",
++    sim.step_count[0],sim.step_count[2],sim.step_count[3],sim.step_count[4]);
++}
++
++static void wait_for_y_steps(unsigned minimum)
++{
++  const uint64_t deadline = sim.avr->cycle + 2*CPU_HZ;
++  while (sim.step_count[1] < minimum && sim.avr->cycle < deadline) run_us(1000);
++  CHECK(sim.step_count[1] >= minimum,"Y approach did not start");
++  no_non_y_steps();
++}
++
++static void stopped_after_alarm(const char *alarm)
++{
++  run_us(3000);
++  all_asleep();
++  const unsigned stopped = sim.step_count[1];
++  run_us(650000);
++  CHECK(sim.step_count[1] == stopped,"Y emitted steps after abort/alarm");
++  no_non_y_steps();
++  CHECK(strstr(sim.log,alarm),"missing expected %s",alarm);
++}
++
++static void test_complete_at(const char *elf, unsigned contact_steps)
++{
++  // Exercise contacts before, at and after the5mm chunk boundary (762
++  // rounded steps), as well as one well beyond the first planning chunk.
++  boot_y(elf,SWITCH_FOLLOWS_POSITION,(int)contact_steps);
++  const char *blocked[] = {"$H\n","$HX\n","$HZ\n","$HA\n","$HB\n"};
++  for (unsigned i=0;i<sizeof(blocked)/sizeof(*blocked);++i) assert_error(blocked[i]);
++  assert_ok("$22=0\n",30);
++  assert_error("$HY\n");
++  assert_ok("$22=1\n",30);
++  const char *frozen[] = {"$22=2\n","$23=0\n","$24=100\n","$25=200\n",
++    "$27=10\n","$101=1\n","$111=1000\n","$3=0\n","$21=0\n","$N0=G0Y1\n"};
++  for (unsigned i=0;i<sizeof(frozen)/sizeof(*frozen);++i) assert_error(frozen[i]);
++  CHECK(!sim.step_count[1],"rejected homing command moved Y");
++  all_asleep();
++  const size_t start = sim.log_len;
++  command("$HY\n",0);
++  const char *reply = await_reply(start,20000);
++  CHECK(strstr(reply,"ok\r\n") && !strstr(reply,"ALARM:") && !strstr(reply,"error:"),
++    "Y home failed: %s",reply);
++  CHECK(y_model.phase_count==4,"expected approach/pull-off/locate/pull-off, got %u phases",y_model.phase_count);
++  for (unsigned p=0;p<4;++p) {
++    const y_phase_t *phase = &y_model.phases[p];
++    CHECK(phase->direction==(p%2 ? 1 : -1),"phase%u moved in wrong direction",p);
++    CHECK(phase->pulses >= (p ? 150 : contact_steps) &&
++        phase->pulses <= (p ? 155 : contact_steps+2),
++      "phase%u has %u pulses outside expected travel",p,phase->pulses);
++    CHECK(phase->fastest_window,"phase%u lacks speed measurements",p);
++    const double rate = (double)CPU_HZ*64/phase->fastest_window;
++    CHECK(rate > (p==2 ? 49 : 149) && rate < (p==2 ? 53 : 156),
++      "phase%u rate %.2f steps/s differs from fixed20/60mm/min profile",p,rate);
++  }
++  CHECK(y_model.contacts==2 && y_model.releases==2,
++    "expected two switch contacts/releases, got %u/%u",y_model.contacts,y_model.releases);
++  CHECK(y_model.position >= 150 && y_model.position <= 155,
++    "final switch clearance is %d steps instead of1mm",y_model.position);
++  run_us(100000); all_asleep(); no_non_y_steps();
++  CHECK(strstr(command("?",30),"<Idle"),"successful Y home did not return Idle");
++  printf("PASS: only $HY accepted; Y-only first contact at%u steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe\n",contact_steps);
++  const char *motion_blocked[] = {"G91G1Y-0.1F20\n","G0X1\n","$J=G91G21X0.1F20\n",
++    "$J=G91G21Z0.1F20\n","$J=G90G21Y0.1F20\n","$J=G91G20Y0.1F20\n",
++    "$J=G91G21Y0.6F20\n","$J=G91G21Y0.1F31\n","$J=G91G21Y0.1F0\n"};
++  for (unsigned i=0;i<sizeof(motion_blocked)/sizeof(*motion_blocked);++i)
++    assert_error(motion_blocked[i]);
++  const unsigned before_jog = sim.step_count[1];
++  const char *jog_reply = command("$J=G91G21Y-0.1F20\n$J=G91G21Y-0.1F20\n",1000);
++  CHECK(strstr(jog_reply,"ok\r\n") && strstr(jog_reply,"error:"),
++    "pipelined Y jog must accept one move and reject the queued move: %s",jog_reply);
++  CHECK(sim.step_count[1]-before_jog==15,"bounded -0.1mm Y jog did not produce15 steps");
++  assert_ok("$J=G91G21Y0.1F20\n",700);
++  CHECK(sim.step_count[1]-before_jog==30,"bounded +0.1mm Y jog did not return15 steps");
++  all_asleep(); no_non_y_steps();
++  printf("PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs\n");
++  y_terminate(sim.avr);
++}
++
++static void test_continuous(const char *elf)
++{
++  boot_y(elf,SWITCH_MISSING,300);
++  command("$HY\n",0);
++  const uint64_t deadline = sim.avr->cycle + 15*CPU_HZ;
++  while (sim.step_count[1] < 1600 && sim.avr->cycle < deadline) run_us(10000);
++  CHECK(sim.step_count[1]>=1600,"continuous Y search stopped before1600steps");
++  CHECK(y_model.phase_count==1,"continuous Y search unexpectedly reversed direction");
++  CHECK(!strstr(sim.log,"ALARM:"),"continuous initial search produced an alarm before switch/abort");
++  command("\030",0);
++  stopped_after_alarm("ALARM:6");
++  CHECK(strstr(command("$$\n",150),"$22=0\r\n"),"continuous-search abort failed to clear session enable");
++  printf("PASS: no-switch initial search continues beyond2 planning chunks/1600steps; Ctrl-X stops all drivers and clears session enable\n");
++  y_terminate(sim.avr);
++}
++
++static void test_missing_locate(const char *elf)
++{
++  boot_y(elf,SWITCH_MISSING_ON_LOCATE,150);
++  const size_t start = sim.log_len;
++  command("$HY\n",0);
++  CHECK(strstr(await_reply(start,22000),"ALARM:9"),"missing second Y contact must produce approach alarm9");
++  stopped_after_alarm("ALARM:9");
++  CHECK(y_model.phase_count==3 && y_model.contacts==1 && y_model.releases==1,
++    "missing locate contact did not stop in the second approach");
++  CHECK(y_model.phases[2].pulses>=760 && y_model.phases[2].pulses<=764,
++    "second locate search exceeded its5mm bound: %u steps",y_model.phases[2].pulses);
++  printf("PASS: missing second contact remains bounded to5mm and reports ALARM:9\n");
++  y_terminate(sim.avr);
++}
++
++static void test_stuck(const char *elf)
++{
++  boot_y(elf,SWITCH_STUCK,150);
++  size_t start = sim.log_len;
++  command("$HY\n",0);
++  CHECK(strstr(await_reply(start,6000),"ALARM:8"),"stuck Y switch must produce pull-off alarm8");
++  stopped_after_alarm("ALARM:8");
++  CHECK(y_model.phase_count==2 && y_model.contacts==1 && !y_model.releases,
++    "stuck switch proceeded beyond first pull-off");
++  CHECK(y_model.phases[1].pulses>=150 && y_model.phases[1].pulses<=155,
++    "stuck switch pull-off exceeded1mm");
++  printf("PASS: switch stuck after contact stops after1mm pull-off with ALARM:8\n");
++  y_terminate(sim.avr);
++}
++
++static void test_initially_active(const char *elf)
++{
++  boot_y(elf,SWITCH_MISSING,300);
++  input_pin('C',0,0); run_us(10000);
++  const size_t start = sim.log_len;
++  command("$HY\n",0);
++  const char *reply = await_reply(start,1000);
++  CHECK(strstr(reply,"error:") || strstr(reply,"ALARM:"),"initially active Y switch was accepted");
++  run_us(100000); all_asleep(); no_non_y_steps();
++  CHECK(!sim.step_count[1],"initially active Y switch emitted %u steps",sim.step_count[1]);
++  printf("PASS: already-active Y switch blocks homing without any STEP\n");
++  y_terminate(sim.avr);
++}
++
++static void test_abort(const char *elf, char port, uint8_t bit, const char *alarm)
++{
++  boot_y(elf,SWITCH_MISSING,300);
++  command("$HY\n",0);
++  wait_for_y_steps(20);
++  if (port) {
++    input_pin(port,bit,0);
++    if (port=='E') { run_us(1); input_pin(port,bit,1); }
++  } else command("\030",0);
++  stopped_after_alarm(alarm);
++  if (!port) {
++    CHECK(strstr(command("$$\n",150),"$22=0\r\n"),"Ctrl-X failed to clear session homing enable");
++    assert_error("$HY\n");
++    all_asleep();
++  }
++  printf("PASS: Y homing aborted by %s, all five drivers asleep, no continuing STEP\n",
++    !port ? "Ctrl-X" : port=='E' ? "1us FAULTn pulse" : port=='H' ? "Z-Max" : bit==2 ? "X-Min" : "Z-Min");
++  y_terminate(sim.avr);
++}
++
++int main(int argc, char **argv)
++{
++  setvbuf(stdout,NULL,_IOLBF,0);
++  if (argc<2 || argc>3) { fprintf(stderr,"usage: %s y-homing-firmware.elf [case]\n",argv[0]); return 2; }
++  unsigned selected = 0;
++  #define RUN_CASE(name, ...) do { if (argc==2 || !strcmp(argv[2],name)) { \
++    __VA_ARGS__; ++selected; } } while (0)
++  RUN_CASE("complete",test_complete_at(argv[1],900));
++  RUN_CASE("boundary761",test_complete_at(argv[1],761));
++  RUN_CASE("boundary762",test_complete_at(argv[1],762));
++  RUN_CASE("boundary763",test_complete_at(argv[1],763));
++  RUN_CASE("continuous",test_continuous(argv[1]));
++  RUN_CASE("locate-missing",test_missing_locate(argv[1]));
++  RUN_CASE("stuck",test_stuck(argv[1]));
++  RUN_CASE("active",test_initially_active(argv[1]));
++  RUN_CASE("xlimit",test_abort(argv[1],'C',2,"ALARM:1"));
++  RUN_CASE("zmin",test_abort(argv[1],'C',6,"ALARM:1"));
++  RUN_CASE("zmax",test_abort(argv[1],'H',1,"ALARM:1"));
++  RUN_CASE("fault",test_abort(argv[1],'E',6,"ALARM:12"));
++  RUN_CASE("reset",test_abort(argv[1],0,0,"ALARM:6"));
++  #undef RUN_CASE
++  if (!selected) { fprintf(stderr,"unknown test case: %s\n",argv[2]); return 2; }
++  printf("PASS: all4096 patterned EEPROM bytes preserved across %u selected cases\n",selected);
++  return 0;
++}
+--- /dev/null
 +++ b/tests/run-sim.sh
 @@ -0,0 +1,11 @@
 +#!/usr/bin/env bash
@@ -3768,8 +4420,22 @@
 +  -Wl,-rpath,"$sim_lib" -lsimavr -o "$repo_root/build/tests/rf2000_sim"
 +"$repo_root/build/tests/rf2000_sim" "${1:-$repo_root/build/main.elf}"
 --- /dev/null
++++ b/tests/run-y-homing-sim.sh
+@@ -0,0 +1,11 @@
++#!/usr/bin/env bash
++set -euo pipefail
++repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++tool_root="${RF2000_AVR_ROOT:-/workspace/.tools/avr}"
++sim_lib="$tool_root/usr/lib/x86_64-linux-gnu"
++mkdir -p "$repo_root/build/tests"
++cc -std=c11 -O2 -Wall -Wextra -Werror \
++  -I"$tool_root/usr/include/simavr" \
++  "$repo_root/tests/rf2000_y_homing_sim.c" -L"$sim_lib" \
++  -Wl,-rpath,"$sim_lib" -lsimavr -o "$repo_root/build/tests/rf2000_y_homing_sim"
++"$repo_root/build/tests/rf2000_y_homing_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
+--- /dev/null
 +++ b/docs/development.md
-@@ -0,0 +1,95 @@
+@@ -0,0 +1,103 @@
 +# Entwicklung und Build
 +
 +Die Cloudumgebung verwendet den vorhandenen Checkout `/workspace/RF2000`.
@@ -3838,12 +4504,20 @@
 +Planerparameter, EEPROM-Version und Testabdeckung bewusst erweitert werden.
 +Das fünfkanalige SPI-/Freigabemodul kann dabei wiederverwendet werden.
 +
-+Homing ist durch `RF2000_HOMING_VERIFIED=0` zusätzlich zur normalen
++Im Standardprofil ist Homing durch `RF2000_HOMING_VERIFIED=0` zusätzlich zur normalen
 +GRBL-Einstellung gesperrt. Die Kandidaten aus dem Repetier-Fräsmodus sind
 +X/Y Richtung MIN und Z Richtung MAX. Die Hardwareprüfung muss diese
 +Zuordnung und die tatsächlichen Richtungen erst bestätigen. Auch eine spätere
 +Änderung von `$3`, `$23`, Schalterverkabelung oder Mechanik erfordert erneute
 +Verifikation. Eine Compileroption allein ist kein Prüfnachweis.
++
++Das gesonderte Profil `rf2000_y_homing_test` wird mit `make y-homing-test`
++oder `pio run -e rf2000_y_homing_test` gebaut. `make check-y-homing` prüft
++dessen tatsächliches AVR-ELF. Es erlaubt nur Y-Jogs und nach `$22=1` nur
++`$HY`; die erste Suche läuft nach Nutzervorgabe bis zum Schalterkontakt
++ohne Gesamtweg- oder Zeitlimit. Reset löscht die Freigabe. Dieses Profil
++übernimmt keine EEPROM-Einstellungen und schreibt kein EEPROM. Ablauf und
++Testwerte stehen in [y-axis-test.md](y-axis-test.md).
 +
 +`make flash`, `make fuse`, `make install` und `make load` brechen bewusst ab.
 +Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.
@@ -3867,10 +4541,10 @@
 +Nutzer mit bisheriger und neuer Zuordnung ausdrücklich mitgeteilt.
 --- /dev/null
 +++ b/docs/drv8711.md
-@@ -0,0 +1,174 @@
+@@ -0,0 +1,179 @@
 +# DRV8711 auf I851 CTC V3.0
 +
-+Der Port initialisiert fünf physische Treiber, während GRBL im Testprofil nur
++Der Port initialisiert fünf physische Treiber, während GRBL im Standardprofil nur
 +X/Y/Z plant. A und B erhalten vollständige Registerkonfiguration und Readback,
 +bleiben im Betrieb mit CTRL.ENBL=0, SLEEPn=0 und STEP=0 abgeschaltet. Während
 +der einmaligen Initialisierung werden ihre Logikschaltungen kontrolliert
@@ -3879,6 +4553,11 @@
 +Freigabe sind bewusst `N_AXIS`, die GRBL-Signalerzeugung und
 +`RF2000_DRIVER_ACTIVE_MASK` anzupassen; die SPI- und Freigabeimplementierung
 +unterstützt bereits alle fünf Kanäle.
++
++Im gesonderten [Y-Testprofil](y-axis-test.md) ist die aktive Treibermaske
++`0x02`: Nur Y erhält CTRL.ENBL=1; X/Z/A/B behalten CTRL.ENBL=0. Alle fünf
++Kanäle durchlaufen weiterhin den sicheren Reset und Registerreadback. Die
++folgenden Registerbeispiele beschreiben das Standardprofil.
 +
 +## Verifizierte Verdrahtung
 +
@@ -4044,12 +4723,20 @@
 +Hardware-Testplan sind vor einem tatsächlichen Achsentest notwendig.
 --- /dev/null
 +++ b/docs/hardware-test.md
-@@ -0,0 +1,109 @@
+@@ -0,0 +1,132 @@
 +# Kontrollierter Hardwaretest
 +
 +Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandenen Hardwaretest** und erteilt keine pauschale Freigabe zum Flashen oder Bewegen einer Maschine. Die verbindliche Quellenpriorität und der Quellabgleich stehen in [hardware-verification.md](hardware-verification.md): Bei abweichenden Hardwarezuordnungen gilt nach jüngster Nutzervorgabe die als funktionierend angenommene RF2000v2-Repetier-Konfiguration. Jede Stufe setzt die protokollierte Erfüllung der vorherigen Stufe voraus; bei Abweichung Versorgung sicher abschalten und die Ursache klären.
 +
 +Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
++
++Die nachstehenden XYZ-Schritte beschreiben das Standardprofil `rf2000_grbl`.
++Für den ersten Test ausschließlich der Y-Achse gibt es zusätzlich
++`rf2000_y_homing_test`: Nur Y kann bestromt werden, X/Z/A/B bleiben gesperrt.
++Seine konkreten Build-, Monitor-, Jog- und `$HY`-Kommandos stehen in
++[y-axis-test.md](y-axis-test.md). Die elektrischen Vorprüfungen dieses Plans
++gelten auch dafür; die Y-Richtung und Schalterpolarität müssen vor dessen
++Homing geprüft sein. Es gibt keine allgemeine XYZ-Homing-Freigabe.
 +
 +## 1. Dokumentation, Rückweg und stromloser Aufbau
 +
@@ -4070,7 +4757,7 @@
 +- RESET beobachten und stabilen Lauf prüfen. PA7 ist gemäß RF2000v2-Repetier `WATCHDOG_PIN` und bleibt ohne Pullup hochohmig, entsprechend `HAL::stopWatchdog()`; GRBL erzeugt keinen aktiven Watchdog-Takt. PC0 bleibt ES2/Y-Min-Eingang. Unerwartete Watchdog-Neustarts untersuchen; keine Taktimpulse auf einem Limit- oder Leistungsausgang als Umgehung erzeugen.
 +- HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4 und RGB/PH3–PH5 mit Oszilloskop/Logikanalysator messen. Sie müssen über Reset, Boot, Initialisierung, Alarm und M3/M4/M7/M8 inaktiv bleiben. PA7 separat auf Eingang ohne Pullup prüfen. Hochohmige Resetphasen anhand der externen Beschaltung beurteilen; bei einem tatsächlichen HIGH-Puls keine Last anschließen.
 +- STEP aller fünf Kanäle darf ohne bewusstes Bewegungskommando keine Flanken zeigen. SLEEPn aller Kanäle muss nach der Initialisierung inaktiv LOW sein; kurze kontrollierte Wake-Phasen für Registerkonfiguration nur ohne STEP und bei deaktivierter Leistungsfreigabe. Reserve A/B bleibt nach der Initialisierung LOW und deren CTRL.ENBL bleibt gesperrt.
-+- Seriell die GRBL-Kennung, Achsenzahl XYZ und Einstellungen lesen. `$22=1` und `$H` müssen im unverifizierten Build zurückgewiesen werden. `$X` darf weder einen Fehlerzustand elektrisch beseitigen noch Reserveachsen freigeben. `G1 A...` und `G1 B...` dürfen keine Reservebewegung auslösen.
++- Seriell die GRBL-Kennung, Achsenzahl XYZ und Einstellungen lesen. `$22=1` und `$H` müssen im Standardbuild zurückgewiesen werden. Im bewusst gewählten Y-Profil ist ausschließlich die sitzungsbezogene Freigabe `$22=1` für `$HY` vorgesehen; `$H`, `$HX` und `$HZ` bleiben gesperrt. `$X` darf weder einen Fehlerzustand elektrisch beseitigen noch Reserveachsen freigeben. `G1 A...` und `G1 B...` dürfen keine Reservebewegung auslösen.
 +
 +**Abbruch:** Motorfreigabe ohne beabsichtigten Test, unerwartete STEP-Flanke, Netz-/Heizausgang aktiv, wiederholter Reset oder umgehbare Homing-Sperre.
 +
@@ -4131,7 +4818,22 @@
 +
 +## 7. Homing bleibt ein eigener Freigabeschritt
 +
-+Der ausgelieferte unverifizierte Build hält `RF2000_HOMING_VERIFIED=0`. `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
++Der Standardbuild hält `RF2000_HOMING_VERIFIED=0`. `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine allgemeine XYZ-Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
++
++Das zusätzliche Y-Testprofil ist eine getrennte Ausnahme nur für Y: nach
++realer Prüfung von Y-Richtung und Y-Min-Polarität kann ausschließlich `$HY`
++mit `$22=1` für die aktuelle Sitzung freigegeben werden. Der
++[Y-Testablauf](y-axis-test.md) beschreibt die Einzelkommandos. Die erste
++Referenzsuche läuft nach Nutzervorgabe ohne Gesamtweg- oder Zeitbegrenzung
++bis zum Y-Min-Kontakt. Ein fehlender erster Kontakt stoppt diese Suche
++nicht automatisch. Nach Kontakt folgen Rückzug, langsame zweite Annäherung
++und abschließender Rückzug; die zweite Annäherung bleibt auf 5 mm begrenzt.
++60/20 mm/min und 1 mm Rückzug sind bewusste Prüfstandswerte gegenüber der
++alten Repetier-Konfiguration; der Y-Testablauf nennt beide Wertesätze.
++Bereits betätigte Schalter verhindern den Start. `!` stoppt einen laufenden
++Homingzyklus nicht; Ctrl-X sendet den Software-Abbruch, Ctrl-C beendet im
++PlatformIO-Monitor lediglich das Terminal. Die unabhängige Abschaltung
++bleibt erforderlich.
 +
 +Für die CNC-Anwendung ist **Z-Max mit positiver Z-Referenzrichtung** aus dem Repetier-Fräsmodus der Quellenkandidat. Das bedeutet erst nach realer Richtungsprüfung „vom Werkstück weg“. X/Y sind Quellkandidaten Richtung Min. Nach erfolgreicher Prüfung Homing zuerst ohne Motoren am Logikanalysator, danach einzeln langsam mit Totmannaufsicht testen: freier Start, bereits aktiver Schalter, dauerhaft aktiver Schalter, nicht erreichter/abgetrennter Schalter, Pull-off, zweite langsame Annäherung, erneutes Auslösen und Alarm. Keine automatische Freigabe aus diesem Dokument ableiten.
 +
@@ -4156,7 +4858,7 @@
 +| Homing-Freigabe, verantwortliche Person, Datum | **nicht erteilt** |
 --- /dev/null
 +++ b/docs/hardware-verification.md
-@@ -0,0 +1,126 @@
+@@ -0,0 +1,134 @@
 +# Hardwareabgleich RF2000v2 / I851 CTC V3.0
 +
 +Stand: 18.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
@@ -4252,7 +4954,15 @@
 +
 +Die Quellwerte `INVERT_X_DIR=true`, `INVERT_Y_DIR=false`, `INVERT_Z_DIR=false` sind zunächst elektrische Kandidaten. Repetier und GRBL verwenden unterschiedliche DIR-Bedeutungen: Eine positive Repetier-Bewegung setzt hier X=LOW, Y/Z=HIGH; deshalb ist die entsprechende GRBL-Invertmaske **Y|Z**, nicht X. Die Implementierung verwendet diese Umrechnung, trotzdem bleibt die physische Richtung zu prüfen. Repetier definiert X/Y/Z `HOME_DIR=-1`; **im Fräsmodus kehrt `Printer::anyHomeDir(Z_AXIS)` Z auf +1 um und benutzt Z-Max**. Deshalb ist ein unkritisches Übernehmen des Drucker-Z-Min-Homings falsch. Mechanische Orientierung, Z-Bewegung relativ zu Werkzeug/Werkstück und Schalterlage müssen am umgebauten Gerät bestätigt werden.
 +
-+Im Testbuild bleibt Homing per Compile-Gate `RF2000_HOMING_VERIFIED=0` gesperrt; `$22=1` und `$H` dürfen es nicht umgehen. Eine spätere Freigabe verlangt dokumentierte Richtungs- und Pegelprüfung, belegte Z-Max-Zuordnung, getestetes Rückziehen vom Schalter und erneuten Build. Ein bereits aktiver Endschalter soll einen Alarm auslösen; kein automatisches Losfahren zur vermeintlichen Freifahrt. Tests an solchen Zuständen erfolgen zuerst mit abgetrennten Motoren.
++Im Standardprofil bleibt Homing per Compile-Gate `RF2000_HOMING_VERIFIED=0` gesperrt; `$22=1` und `$H` dürfen es nicht umgehen. Eine spätere Freigabe verlangt dokumentierte Richtungs- und Pegelprüfung, belegte Z-Max-Zuordnung, getestetes Rückziehen vom Schalter und erneuten Build. Ein bereits aktiver Endschalter soll einen Alarm auslösen; kein automatisches Losfahren zur vermeintlichen Freifahrt. Tests an solchen Zuständen erfolgen zuerst mit abgetrennten Motoren.
++
++Das getrennte Y-Profil `rf2000_y_homing_test` ist die ausdrücklich angeforderte
++Ausnahme für den Motorprüfstand: nur DRV2 erhält CTRL.ENBL=1, nur Y darf
++STEP ausgeben. `$HY` verlangt die Sitzungsfreigabe `$22=1`. Die erste Suche
++läuft ohne Gesamtweg- oder Zeitlimit bis zum Y-Min-Kontakt; Rückzug und
++langsame zweite Annäherung folgen anschließend. Testwerte und Abweichungen
++zu Repetier stehen in [y-axis-test.md](y-axis-test.md). Eine physische
++Richtungs-/Pegelprüfung muss vor dem Start erfolgen.
 +
 +## Unbenutzte Leistungsausgänge und Watchdog-Verhalten
 +
@@ -4297,12 +5007,12 @@
 +
 +`python3 tools/test_eeprom_records.py` kompiliert die tatsächlichen C-Funktionen aus `settings.c` und `eeprom.c` mit simuliertem EEPROM und AVR-Registern. AddressSanitizer und UndefinedBehaviorSanitizer prüfen Datensatzgrenzen, Index- und Längengrenzen, NUL-Behandlung, Wiederherstellung und Erhaltung von SREG bei allen Schreibvarianten. Der Test wurde erfolgreich ausgeführt. Der vollständige AVR-Build und die UART-Simulation prüften zusätzlich `$N0=G21`, `$N1=G90`, `$I=EEPROMCHECK`, getrenntes Zurücklesen sowie die unveränderten Datensätze nach `$N2`, `$N-1` und `$N0.5`.
 +
-+Weiter geprüft: Jeder Boot und Software-Reset startet in ALARM; `$X` und der Bewegungsstart prüfen aktive Endschalter und Treiberzustand erneut. Homing ist ohne die Compilefreigabe `RF2000_HOMING_VERIFIED` gesperrt. Die RF2000-Einstellungen erzwingen STEP-Puls 10–20 µs, feste STEP-/Freigabe-/Endschalterpolarität, Hard Limits und deaktivierten Lasermodus. Feed-Override bleibt auf höchstens 100 %. Nicht eingerichtete Spindel-, Kühlmittel-, Digitalausgabe- und Probe-Befehle werden abgewiesen.
++Weiter geprüft: Jeder Boot und Software-Reset startet in ALARM; `$X` und der Bewegungsstart prüfen aktive Endschalter und Treiberzustand erneut. Im Standardprofil ist Homing ohne die Compilefreigabe `RF2000_HOMING_VERIFIED` gesperrt. Das gesonderte [Y-Testprofil](y-axis-test.md) erlaubt nur `$HY` nach einer expliziten Sitzungsfreigabe und verwendet feste RAM-Einstellungen ohne EEPROM-Schreibzugriffe. Die RF2000-Einstellungen erzwingen STEP-Puls 10–20 µs, feste STEP-/Freigabe-/Endschalterpolarität, Hard Limits und deaktivierten Lasermodus. Feed-Override bleibt auf höchstens 100 %. Nicht eingerichtete Spindel-, Kühlmittel-, Digitalausgabe- und Probe-Befehle werden abgewiesen.
 +
 +Diese Ergebnisse bestätigen die ausgeführten Softwaretests. Elektrische Pegel, Motordrehrichtungen und reale Fehlerabschaltung müssen im kontrollierten Hardwaretest gemessen werden.
 --- /dev/null
 +++ b/docs/limits.md
-@@ -0,0 +1,114 @@
+@@ -0,0 +1,155 @@
 +# Endschalter, Freigaben und Referenzfahrt
 +
 +Die RF2000-Plattform liest vier physische Eingänge direkt: X-Min PC2/D35,
@@ -4365,9 +5075,9 @@
 +softwareseitige Rückfahrumgehung bei betätigtem Schalter. Manuelles
 +Freigeben muss zur Mechanik und deren Schwerkraftlast passen.
 +
-+## Referenzfahrt bleibt gesperrt
++## Referenzfahrt im Standardprofil bleibt gesperrt
 +
-+`RF2000_HOMING_VERIFIED=0` ist die ausgelieferte Einstellung. `$H`,
++`RF2000_HOMING_VERIFIED=0` ist die Einstellung des Standardprofils `rf2000_grbl`. `$H`,
 +`$22=1` und ein direkter Aufruf der Referenzroutine sind gesperrt. Die
 +Sperre darf erst in einem bewusst neu kompilierten Hardwareprofil geändert
 +werden, nachdem Schalterpegel und reale Achsenrichtungen geprüft wurden.
@@ -4385,6 +5095,46 @@
 +Schalter. X-/Y-Homing in MAX-Richtung wird mangels passender Schalter
 +abgewiesen. Dies ist eine vorbereitete Implementierung und kein Nachweis
 +einer auf realer Hardware erfolgreichen Referenzfahrt.
++
++## Separates Y-Testprofil
++
++`rf2000_y_homing_test` wird bewusst als eigene Firmware gebaut. Es hält
++X/Z/A/B mit CTRL.ENBL=0 und SLEEPn=0 gesperrt und begrenzt die STEP-Ausgabe
++auf Y. Die kurze gemeinsame Initialisierungs-Wake-Phase aller fünf Treiber
++erfolgt weiterhin ohne STEP und mit CTRL.ENBL=0. Alle vier Endschalter und
++FAULTn werden überwacht.
++
++Nach einem Reset ist Homing auch hier aus. Nur `$22=1` aktiviert für die
++aktuelle Sitzung den Befehl **`$HY`**. Er darf aus Alarm oder Leerlauf starten,
++wenn alle Eingänge stabil frei und die Treiber bereit sind; ein `$X` davor
++ist nur für einen Jog erforderlich. `$H`, `$HX`, `$HZ` und normale
++G-Code-Bewegungen bleiben gesperrt. Das Profil übernimmt keine
++EEPROM-Einstellungen oder Startprogramme und schreibt keine EEPROM-Daten.
++Andere globale Einstellungen als `$22=0/1` sind gesperrt.
++
++Vor Homing müssen Y-Min-Polarität, reale Y-Richtung und Motorstrom geprüft
++sein. Zulässig ist ausschließlich inkrementelles Y-Jogging in mm, maximal
++0,5 mm pro Kommando bei höchstens 30 mm/min und jeweils aus Leerlauf.
++Die Referenzsuche erfolgt Richtung Y-Min mit 60 mm/min, die zweite
++Annäherung mit 20 mm/min und beide Rückzüge mit 1 mm. Das sind bewusste
++Prüfstandswerte; Repetier verwendet für Y im Fräsmodus 70 mm/s, einen
++Retestfaktor von 20 und `ENDSTOP_Y_BACK_MOVE=5 mm`. Die erste Suche läuft
++nach Nutzervorgabe ohne Gesamtweg- oder Zeitbegrenzung bis zum Y-Min-Kontakt.
++Bleibt dieser erste Kontakt aus, läuft sie weiter und erzeugt dafür keinen
++automatischen Suchweg-Alarm. Sie wird aus wiederholten 5-mm-Abschnitten
++gebildet und kann an deren Übergängen kurz abbremsen und beschleunigen;
++eine durchgehend konstante Geschwindigkeit ist nicht zugesichert. Erst nach
++dem ersten Kontakt sind Rückzug und zweite Annäherung wegbegrenzt; die zweite
++Annäherung sucht maximal 5 mm. Ein bereits aktiver Schalter verhindert den Start.
++Während des Y-Homings ist nur der erwartete Y-Min-Kontakt Teil des Zyklus;
++andere Schalter bleiben Hard Limits. Ein bei der zweiten Annäherung fehlender
++Kontakt löst Alarm 9 aus, ein beim Rückzug nicht freigegebener Kontakt Alarm 8.
++
++`!` stoppt Homing nicht. Ctrl-X (Byte `0x18`) bricht den Zyklus ab; Ctrl-C
++schließt im PlatformIO-Monitor nur das Terminal. Die unabhängige
++Hardware-Abschaltung bleibt erforderlich. Der vollständige Ablauf mit
++Build, serieller Verbindung, `$DRV`, Jog und Homing steht in
++[y-axis-test.md](y-axis-test.md). Es wird dadurch kein XYZ-Homing freigegeben.
 +
 +## Diagnose ohne Motorfreigabe
 +
@@ -4413,17 +5163,19 @@
 +   Unlock keinen Treiber freigeben. Nicht mit einem MCU-Ausgang kurzschließen.
 +5. Erst nach dokumentierter Richtungsprüfung kurze Einzelachsbewegungen
 +   mit begrenzter Energie ausführen und das reale Stoppverhalten messen.
-+   Homing bleibt dabei gesperrt, bis sämtliche Voraussetzungen belegt sind.
++   Im Standardprofil bleibt Homing gesperrt. Das separate Y-Profil darf
++   erst nach bestandenen Y-Prüfungen für `$HY` freigegeben werden.
 +
 +Es wurden keine physischen Hardwaremessungen oder Referenzfahrten in der
 +Cloud ausgeführt. Host-Tests bzw. AVR-Kompilation prüfen nur die Software.
 --- /dev/null
 +++ b/docs/platformio.md
-@@ -0,0 +1,120 @@
+@@ -0,0 +1,164 @@
 +# GRBL mit PlatformIO kompilieren
 +
 +Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
-+Umgebung **`rf2000_grbl`** für ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
++Standardumgebung **`rf2000_grbl`** und die separat wählbare Umgebung
++**`rf2000_y_homing_test`** für ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
 +und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
 +
 +## VS Code
@@ -4454,6 +5206,18 @@
 +pio run -e rf2000_grbl -t clean
 +pio run -e rf2000_grbl
 +```
++
++Für den separaten Y-Achstest das zusätzliche Profil bewusst auswählen:
++
++```bash
++pio run -e rf2000_y_homing_test
++```
++
++In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
++Dieses Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`;
++ELF und MAP liegen daneben. Das Standardprofil bleibt unverändert ausgewählt,
++wenn `-e` fehlt. Unterschiede und Prüfablauf stehen in
++[y-axis-test.md](y-axis-test.md).
 +
 +In dieser Cloudumgebung liegt PlatformIO in einem beschreibbaren
 +Python-Virtualenv. Dafür stehen folgende Befehle bereit:
@@ -4515,9 +5279,36 @@
 +Die Korrektur wurde zusätzlich mit dem echten `avr-size` und einem relativen
 +`.pio/…/firmware.elf` durch den vollständigen Python-Post-Build-Hook geprüft.
 +
++## Seriellen Monitor öffnen
++
++PlatformIO bringt den benötigten Monitor mit. Für das Y-Testprofil:
++
++```bash
++pio device monitor -e rf2000_y_homing_test
++```
++
++Bei Bedarf mit `pio device list` den Port bestimmen und beispielsweise auf
++dem Mac `--port /dev/cu.usbserial-...` mit dem tatsächlichen Gerätenamen
++anhängen. Beide Umgebungen konfigurieren 115200 Baud, LF-Zeilenende und
++lokale Eingabeanzeige. Befehle wie `$DRV`, `$X`, `$22=1` und `$HY` jeweils
++eingeben und mit Enter senden. Bewegungsbefehle erst nach den Vorprüfungen
++aus [y-axis-test.md](y-axis-test.md) senden. Öffnen des Ports kann einen
++Reset auslösen; die Y-Homing-Freigabe `$22=1` gilt nur bis zum nächsten Reset.
++
++Ctrl-X sendet den Echtzeit-Reset (Byte `0x18` ohne Enter). Ctrl-C beendet nur
++den Monitor und stoppt keine Bewegung. Während Homing stoppt `!` nicht;
++Software-Abbruch mit Ctrl-X und unabhängige Hardware-Abschaltung bereithalten.
++
 +## Hardwaretest
 +
-+A/B bleiben deaktiviert und Homing bleibt im Testprofil gesperrt. Es wurde
++A/B bleiben deaktiviert und Homing bleibt im **Standardprofil** gesperrt.
++Das zusätzliche Y-Profil hält X/Z/A/B abgeschaltet und erlaubt ausschließlich
++begrenztes Y-Jogging sowie `$HY` nach bewusstem `$22=1` und bestandener
++Richtungs-/Endschalterprüfung. Die erste Referenzsuche läuft ohne Gesamtweg-
++oder Zeitbegrenzung bis zum Y-Min-Kontakt. Ein fehlender Kontakt führt dabei
++nicht zu einem automatischen Stopp; Ctrl-X sendet den Software-Abbruch.
++Nach dem ersten Kontakt folgen Rückzug, langsame zweite Annäherung und
++abschließender Rückzug. Es wurde
 +keine Uploadaktion ausgeführt. Die Mega-Boarddefinition enthält allgemeine
 +Uploadvorgaben; das tatsächliche Programmierverfahren muss vor Ort geprüft
 +werden. Ein Build bestätigt keine
@@ -4536,10 +5327,14 @@
 +Der vollständige PlatformIO-Build ist in dieser Cloudmaschine derzeit noch
 +**nicht verifiziert**: Der Netzwerkproxy verweigert den Registry-Abruf mit
 +HTTP 403, bevor der Compiler installiert werden kann. Die benötigten
-+Registry-/Download-Domains sind im Umgebungsentwurf eingetragen.
-+Nach dem Speichern der Netzwerkfreigabe `tools/install-platformio.sh` und
-+`tools/platformio.sh run -e rf2000_grbl` erneut ausführen und das erzeugte
-+ELF mit `tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf` prüfen.
++Registry-/Download-Domains sind in der Umgebungskonfiguration eingetragen;
++der erneute Abruf für das Y-Profil scheitert weiterhin an diesem Proxy.
++Die Konfiguration beider Umgebungen einschließlich geerbter Buildflags wurde
++erfolgreich eingelesen. Der Make-Build mit AVR-GCC 14.2.0 ist davon getrennt.
++Wenn der Registry-Zugriff verfügbar ist, die gewünschte PlatformIO-Umgebung
++bauen und deren tatsächliches ELF prüfen: für das Standardprofil mit
++`tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf`, für das Y-Profil mit
++`tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf`.
 --- /dev/null
 +++ b/docs/repetier-build.md
 @@ -0,0 +1,66 @@
@@ -4611,15 +5406,19 @@
 +Für spätere Aufgaben den vorhandenen Checkout verwenden; die Cloudmaschine ist bereits isoliert und benötigt keinen Git-Worktree. Flashen ist keine Setupaktion und wurde nicht durchgeführt.
 --- /dev/null
 +++ b/docs/step-timing.md
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,69 @@
 +# RF2000 STEP/DIR timing
 +
-+The test profile uses three logical Grbl axes. Five physical DRV8711 channels
++The standard test profile uses three logical Grbl axes. Five physical DRV8711 channels
 +are initialized by the driver module; the two reserve channels have no planner
 +axis and remain asleep throughout motion. Initialization temporarily wakes
 +their digital circuitry with CTRL.ENBL=0 to perform RESET and clear status;
 +their motor bridges remain disabled. The STEP implementation is guarded by
 +`CPU_MAP_2560_RENKFORCE_CTC_V3` and `N_AXIS == 3`.
++
++The separate `rf2000_y_homing_test` profile further masks physical STEP output
++to PF6 and limits driver enable to Y. It uses the same pulse timers and minimum
++timing constraints; X/Z/A/B motor bridges remain disabled.
 +
 +All XYZ STEP pins share PORTF (PF0/PF6/PF3). X/Y direction pins PF1/PF7 and Y
 +SLEEPn PF2 share the same register. Each pulse edge therefore uses one masked
@@ -4679,7 +5478,7 @@
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,141 @@
 +# Prüfbericht
 +
 +Stand: 18.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
@@ -4690,6 +5489,7 @@
 +| Variante | Flash | Statisches SRAM | Ergebnis |
 +| --- | ---: | ---: | --- |
 +| GRBL RF2000 XYZ | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
++| GRBL separater Y-Test | 34.086 / 253.952 Byte | 3.545 / 8.192 Byte | gebaut |
 +| Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 +
 +GRBL verwendet `.text=35176`, `.data=50`, `.bss=3470`. Für SRAM werden
@@ -4710,6 +5510,7 @@
 +```text
 +GRBL     6c9b5ba8fe9859a3fab238af9202e40301f7dc5b04248492e1af0d2472142050
 +Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
++Y-Test   b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d
 +```
 +
 +Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -4755,6 +5556,41 @@
 +das erzeugte HEX bleibt bytegleich. Vollständiger Test und dieser gezielte
 +Nachlauf stehen in `artifacts/validation.log`.
 +
++## Separates Y-Testprofil
++
++Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem finalen Y-ELF.
++
++`make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
++Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
++AVR-ELF aus. Die Testfälle umfassen den vollständigen Referenzablauf, Kontakte
++bei Schritt 761/762/763 an der 5-mm-Abschnittsgrenze, eine erste Suche über
++mehr als zwei Abschnitte ohne Schalterkontakt sowie die Fehler- und
++Abbruchpfade. Protokoll: `artifacts/y-homing-simulation.log`.
++
++Dabei werden Y als einziger freigegebener Treiber, die gesperrten STEP-Ausgänge
++von X/Z/A/B, zwei Kontakte und zwei Freigaben, Such-/Rückzugsrichtung,
++60/20-mm/min-Testgeschwindigkeiten und 1-mm-Rückzüge geprüft. Weitere Fälle
++prüfen eine fehlende zweite Betätigung, einen dauerhaft aktiven Schalter,
++einen bereits aktiven Schalter beim Start, andere Endschalter, einen
++1-µs-FAULT-Puls und Ctrl-X einschließlich erneuter `$22=0`-Sperre. Feste
++Einstellungen, abgewiesene Bewegungsbefehle und Y-Jogs mit genau 15+15
++Schritten werden ebenfalls kontrolliert. Alle 4096 EEPROM-Bytes werden vor
++jedem Lauf mit einem Muster vorbelegt und auf unveränderten Inhalt geprüft.
++
++Die erste Suche ist nach Nutzervorgabe fortlaufend und hat keine Gesamtweg-
++oder Zeitbegrenzung. Wiederholte 5-mm-Planerblöcke begrenzen die Zählergröße;
++ein fehlender erster Kontakt beendet die Suche nicht. Strg-X, Treiberfehler
++und andere Endschalter brechen sie ab. Die zweite Annäherung bleibt auf 5 mm
++begrenzt. Beim Phasenwechsel wird ein eventuell noch gesetztes CYCLE_STOP
++verworfen, ohne RESET- oder Fehlerflags zu löschen. Der Standard-HEX bleibt
++bytegleich zum bereits vollständig geprüften Standardprofil.
++
++Beide PlatformIO-Umgebungen wurden mit geerbten Buildflags und Monitoroptionen
++korrekt eingelesen. Ein tatsächlicher PlatformIO-Build ist in der Cloud
++weiterhin am Registry-Proxy blockiert (CONNECT HTTP 403); der belegte
++Firmwarebuild verwendet AVR-GCC 14.2.0. Das mit PlatformIO/AVR-GCC 7.3.0
++lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
++
 +## Codeprüfung und Grenzen
 +
 +Die unabhängigen Prüfungen fanden und korrigierten unter anderem die
@@ -4779,6 +5615,196 @@
 +Signalqualität, Reset-/Watchdog-Laufverhalten, Endschalter-NO/NC und
 +Kabelbruchverhalten, tatsächliche Wicklungsströme, mechanische
 +Bewegungsrichtungen, reale Anhaltewege und
-+Dauerbetrieb. Homing bleibt gesperrt. Die Hardwareprüfung folgt
++Dauerbetrieb. Allgemeines Homing bleibt im Standardprofil gesperrt; der
++gesonderte Y-Test verlangt die Prüfungen aus [y-axis-test.md](y-axis-test.md).
++Die Hardwareprüfung folgt
 +[hardware-test.md](hardware-test.md); Softwaretests erteilen keine
 +automatische Freigabe für eine Referenzfahrt oder den Fräsbetrieb.
+--- /dev/null
++++ b/docs/y-axis-test.md
+@@ -0,0 +1,185 @@
++# Separater Y-Achs- und Homingtest
++
++Für den ersten Y-Test gibt es das zusätzliche Profil **`rf2000_y_homing_test`**.
++Die Standardfirmware `rf2000_grbl` behält ihre Homing-Sperre. Die
++Hardwarezuordnung folgt bei Quellenabweichungen der als funktionierend
++angenommenen RF2000v2-Repetier-Konfiguration. Y verwendet STEP PF6, DIR PF7,
++SLEEPn PF2 und Y-Min/ES2 PC0/D37 am Anschluss X14. Der Ablauf folgt dem
++Referenzprinzip Anfahren → Rückzug → langsameres erneutes Anfahren →
++abschließend freifahren; Geschwindigkeit und Rückzug sind bewusste Testwerte.
++
++## Unterschiede zur Standardfirmware
++
++| Eigenschaft | `rf2000_grbl` | `rf2000_y_homing_test` |
++|---|---|---|
++| Freigabefähige Motoren | XYZ | nur Y; X/Z/A/B mit CTRL.ENBL=0 und SLEEPn=0 |
++| Referenzfahrt | gesperrt | ausschließlich `$HY`, nach `$22=1` in derselben Sitzung |
++| Erste Referenzsuche | gesperrt | fortlaufend bis Y-Min-Kontakt, ohne Gesamtweg- oder Zeitbegrenzung |
++| Jogging | XYZ | ausschließlich inkrementelles Y in mm, höchstens 0,5 mm pro Kommando und 30 mm/min |
++| Normale G-Code-Bewegungen | XYZ-Testbetrieb | gesperrt; auch `$H`, `$HX` und `$HZ` sind gesperrt |
++| Einstellungen | GRBL-Einstellungen mit Board-Grenzen | feste Testwerte; nur `$22=0` oder `$22=1` veränderbar |
++| EEPROM | normale GRBL-Verwaltung | keine Übernahme gespeicherter Einstellungen oder Startprogramme, keine EEPROM-Schreibzugriffe |
++
++Alle fünf DRV8711 werden auch im Y-Profil initialisiert und zurückgelesen.
++Eine kurze gemeinsame Wake-Phase erfolgt dabei ausdrücklich mit gesperrten
++H-Brücken, CTRL.ENBL=0 und ohne STEP. Danach kann nur Y freigegeben werden.
++Die übrigen STEP-Ausgänge bleiben LOW. Heizungen, P230, Spindel- und sonstige
++Leistungsausgänge bleiben deaktiviert. Homing-Freigabe und gespeicherte
++Parameter einer anderen Firmware werden nicht übernommen.
++
++## Bauen und verbinden
++
++Im Repository-Hauptverzeichnis mit vorhandenem PlatformIO:
++
++```bash
++pio run -e rf2000_y_homing_test
++```
++
++In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
++Das Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`; ELF und
++MAP liegen daneben. `pio run` ohne `-e` baut weiterhin das Standardprofil.
++Es sind keine zusätzlichen Bibliotheken oder Terminalpakete erforderlich.
++
++Alternativ erzeugt `make y-homing-test` die Dateien
++`artifacts/y-homing/rf2000-grbl.hex`, `.elf` und `.map`.
++`make check-y-homing` baut dieses Profil und startet dessen AVR-Simulation.
++Ein Build überträgt keine Firmware. Das passende Programmierverfahren und
++der Rückweg zur vorhandenen Firmware gehören zum
++[Hardwaretestplan](hardware-test.md).
++
++Nach dem bewusst ausgeführten Programmieren des Y-Images den seriellen
++Monitor öffnen:
++
++```bash
++pio device monitor -e rf2000_y_homing_test
++```
++
++Bei mehreren Schnittstellen zuerst `pio device list` ausführen und den
++passenden Port angeben, zum Beispiel auf dem Mac:
++
++```bash
++pio device monitor -e rf2000_y_homing_test --port /dev/cu.usbserial-...
++```
++
++Den Beispielpfad durch den tatsächlich angezeigten Port ersetzen. Das Profil
++stellt **115200 Baud, LF-Zeilenende und lokale Eingabeanzeige** ein. Ein anderer
++Sender muss 115200 Baud und 8N1 verwenden. Andere Programme dürfen denselben
++Port nicht gleichzeitig geöffnet haben. Das Öffnen kann die Platine über
++DTR zurücksetzen; danach beginnt eine neue Sitzung mit `$22=0`.
++
++## 1. Endschalter und Treiber ohne Motor prüfen
++
++Die elektrischen Vorprüfungen aus [hardware-test.md](hardware-test.md)
++gelten weiterhin. Motoren, Spindel und Heizer bleiben zunächst abgetrennt;
++keine Motorstecker unter Spannung stecken. Z gegen Absinken sichern.
++Die unabhängige Abschaltung muss erreichbar sein.
++
++Im seriellen Monitor **`$DRV` eingeben und Enter drücken**. Die folgenden
++Kommandos jeweils einzeln mit Enter abschicken. Der erwartete fehlerfreie
++Ausgangspunkt ist `READY=1`, `FAULT=0`, `READBACK=0`, `LIMITS=0`.
++Der beim Start angezeigte Alarm ist beabsichtigt und allein kein Treiberfehler.
++
++Y-Min von Hand betätigen und erneut `$DRV` senden: Wenn alle anderen
++Schalter frei sind, muss `LIMITS=2` erscheinen. Nach Loslassen muss wieder
++stabil `LIMITS=0` erscheinen. PC0/D37 ist der Y-Endschaltereingang; er wird
++nicht als Watchdog-Ausgang getaktet. Bei abweichender Polarität, instabilem
++Signal, Readbackfehler, FAULT oder unerwartetem Neustart keine Bewegung starten.
++Ein Treiberfehler kann durch `$X` oder einen Software-Reset nicht gelöscht werden.
++
++## 2. Y-Richtung mit einem kleinen Jog prüfen
++
++Erst nach bestandener elektrischer Prüfung spannungsfrei **nur den
++Y-Motor** anschließen. X/Z/A/B bleiben abgetrennt. Motorstrom und Erwärmung
++müssen zur vorhandenen Mechanik und zum Motor passen. Die übernommenen
++TORQUE-Werte sind keine Ampereangaben; Y hat bei ISGAIN 20 und 0,033 Ω
++rechnerisch etwa 1,79 A Wicklungs-Spitzenstrom, noch keinen gemessenen Strom.
++
++Für den Jog alle vier Schalter freigeben und auf stabile Freigabe warten.
++**Ctrl-X** sendet den GRBL-Software-Reset (Byte `0x18`, ohne Enter). Danach
++zunächst `$DRV` prüfen und bei den oben genannten fehlerfreien Werten
++**`$X` mit Enter** senden. `$X` dient dem Jog-Unlock und übergeht keinen
++aktiven Eingang oder Treiberfehler.
++
++Nur wenn der entsprechende 0,1-mm-Weg mechanisch frei ist, einzeln senden:
++
++```text
++$J=G91 G21 Y-0.1 F20
++```
++
++`Y-` muss sich tatsächlich **zum Y-Min-Schalter hin** bewegen. Mit `?` den
++Status abfragen und vor dem nächsten Kommando auf `<Idle...>` warten.
++Danach bei freiem Gegenweg:
++
++```text
++$J=G91 G21 Y0.1 F20
++```
++
++`Y+` muss sich vom Schalter entfernen. Bei falscher Richtung sofort abbrechen
++und die Ursache klären. Keine Homing-Fahrt zur Richtungsbestimmung verwenden.
++Die Firmware akzeptiert nur einen Jog im Leerlauf, maximal 0,5 mm und
++30 mm/min. **Keine Befehlsfolgen vorpuffern oder streamen.** Die Begrenzung
++gilt pro Kommando und begrenzt keine Summe wiederholter Jog-Kommandos.
++
++## 3. Erst danach Y referenzieren
++
++Voraussetzungen sind die dokumentiert richtige Y-Richtung, der gemessene
++LOW-aktive Y-Min-Schalter und passender Motorstrom. Der Schalter muss zu
++Beginn frei sein. Alle anderen Endschalter müssen ebenfalls frei sein.
++Für den vom Nutzer beschriebenen mechanisch endlosen Prüfaufbau fährt die
++erste Suche fortlaufend Richtung Y-Min, bis dessen Kontakt erkannt wird.
++**Es gibt dabei keine Gesamtweg- oder Zeitbegrenzung. Ein ausbleibender
++erster Kontakt stoppt diese Fahrt nicht automatisch.** Ein Software-Abbruch
++erfolgt unmittelbar mit Ctrl-X (Byte `0x18`, ohne Enter); Treiberfehler und
++andere Endschalter beenden die Fahrt ebenfalls.
++
++Die erste Suche setzt wiederholt 5-mm-Bewegungsabschnitte fort, ohne
++Gesamtweggrenze und ohne zusätzliche Entprellpause zwischen den Abschnitten.
++An den Übergängen kann sie kurz abbremsen und wieder beschleunigen;
++konstante Geschwindigkeit über die Abschnittsgrenzen wird nicht zugesichert.
++Nach dem ersten Kontakt folgen Rückzug, langsame zweite Annäherung und
++abschließender Rückzug. Die zweite Annäherung ist auf 5 mm begrenzt, damit
++ein ausbleibendes erneutes Schaltsignal als Fehler erkannt wird. Für die
++gesamte Referenzfahrt gibt es keine feste maximale Wegsumme.
++
++Die Geschwindigkeiten und Rückzüge wurden gegenüber Repetier bewusst für
++dieses Testprofil geändert; sie werden nicht als Originalwerte ausgegeben:
++
++| Parameter | Bereitgestellte Repetier-Konfiguration, Y im Fräsmodus | Y-Testprofil |
++|---|---|---|
++| Erstes Anfahren | 70 mm/s = 4200 mm/min | 60 mm/min |
++| Langsame erneute Annäherung | Suchtempo / 20 = 210 mm/min | 20 mm/min |
++| Rückzug (`ENDSTOP_Y_BACK_MOVE`) | 5 mm | 1 mm je Rückzug |
++
++Jetzt im Monitor nacheinander eingeben, jeweils mit Enter:
++
++```text
++$22=1
++$HY
++```
++
++`$22=1` schaltet Y-Homing nur für die laufende Sitzung frei; jeder
++Software- oder Hardware-Reset setzt es wieder auf 0. `$HY` darf bei freien
++Eingängen aus Alarm oder Leerlauf starten. Ein vorheriges `$X` ist dafür
++nicht erforderlich. Bei einem bereits betätigten Schalter wird der Start
++abgewiesen, ohne automatische Freifahrt. Erst mechanisch sicher entlasten.
++
++Erwarteter Ablauf: Y fährt zum Min-Schalter, zieht sich 1 mm zurück,
++nähert sich langsam erneut und zieht sich abschließend 1 mm zurück.
++Bei einem von Hand betätigten Prüfschalter: beim ersten Rückzug loslassen,
++bei der langsamen zweiten Annäherung erneut betätigen und beim abschließenden
++Rückzug wieder loslassen. Dauerhaftes Festhalten ergibt Rückzugfehler 8.
++Nach Erfolg antwortet die Firmware mit `ok`; `?` zeigt Leerlauf. Ein nicht
++erneut erreichter Schalter bei der zweiten Annäherung führt zu Homing-Alarm 9,
++ein nicht freigegebener Schalter beim Rückzug zu Homing-Alarm 8. Ein vor dem
++ersten Kontakt ausbleibendes Schaltsignal erzeugt keinen automatischen
++Suchweg-Alarm. Ein anderer Endschalter oder Treiberfehler
++beendet den Test. Ursache klären und Position erneut beurteilen.
++
++**Abbruch:** Während Homing wirkt `!` nicht als Stopp. **Ctrl-X** sendet
++den Software-Abbruch. **Ctrl-C schließt im PlatformIO-Monitor nur das
++Terminal und stoppt keine Bewegung.** Bei Gefahr die unabhängige
++Hardware-Abschaltung verwenden; eine serielle Verbindung ersetzt sie nicht.
++
++Dieses Profil ist ein gesonderter Y-Inbetriebnahmetest. Es gibt weder X/Z-
++Homing noch Fräsbetrieb frei. Es wurden in der Cloud keine reale Platine
++programmiert, kein Motor bewegt und keine physische Referenzfahrt bestätigt.

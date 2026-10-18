@@ -93,7 +93,15 @@ PC0/PC2/PC6 und PH1 besitzen am ATmega2560 keine geeigneten PCINT-Eingänge. Der
 
 Die Quellwerte `INVERT_X_DIR=true`, `INVERT_Y_DIR=false`, `INVERT_Z_DIR=false` sind zunächst elektrische Kandidaten. Repetier und GRBL verwenden unterschiedliche DIR-Bedeutungen: Eine positive Repetier-Bewegung setzt hier X=LOW, Y/Z=HIGH; deshalb ist die entsprechende GRBL-Invertmaske **Y|Z**, nicht X. Die Implementierung verwendet diese Umrechnung, trotzdem bleibt die physische Richtung zu prüfen. Repetier definiert X/Y/Z `HOME_DIR=-1`; **im Fräsmodus kehrt `Printer::anyHomeDir(Z_AXIS)` Z auf +1 um und benutzt Z-Max**. Deshalb ist ein unkritisches Übernehmen des Drucker-Z-Min-Homings falsch. Mechanische Orientierung, Z-Bewegung relativ zu Werkzeug/Werkstück und Schalterlage müssen am umgebauten Gerät bestätigt werden.
 
-Im Testbuild bleibt Homing per Compile-Gate `RF2000_HOMING_VERIFIED=0` gesperrt; `$22=1` und `$H` dürfen es nicht umgehen. Eine spätere Freigabe verlangt dokumentierte Richtungs- und Pegelprüfung, belegte Z-Max-Zuordnung, getestetes Rückziehen vom Schalter und erneuten Build. Ein bereits aktiver Endschalter soll einen Alarm auslösen; kein automatisches Losfahren zur vermeintlichen Freifahrt. Tests an solchen Zuständen erfolgen zuerst mit abgetrennten Motoren.
+Im Standardprofil bleibt Homing per Compile-Gate `RF2000_HOMING_VERIFIED=0` gesperrt; `$22=1` und `$H` dürfen es nicht umgehen. Eine spätere Freigabe verlangt dokumentierte Richtungs- und Pegelprüfung, belegte Z-Max-Zuordnung, getestetes Rückziehen vom Schalter und erneuten Build. Ein bereits aktiver Endschalter soll einen Alarm auslösen; kein automatisches Losfahren zur vermeintlichen Freifahrt. Tests an solchen Zuständen erfolgen zuerst mit abgetrennten Motoren.
+
+Das getrennte Y-Profil `rf2000_y_homing_test` ist die ausdrücklich angeforderte
+Ausnahme für den Motorprüfstand: nur DRV2 erhält CTRL.ENBL=1, nur Y darf
+STEP ausgeben. `$HY` verlangt die Sitzungsfreigabe `$22=1`. Die erste Suche
+läuft ohne Gesamtweg- oder Zeitlimit bis zum Y-Min-Kontakt; Rückzug und
+langsame zweite Annäherung folgen anschließend. Testwerte und Abweichungen
+zu Repetier stehen in [y-axis-test.md](y-axis-test.md). Eine physische
+Richtungs-/Pegelprüfung muss vor dem Start erfolgen.
 
 ## Unbenutzte Leistungsausgänge und Watchdog-Verhalten
 

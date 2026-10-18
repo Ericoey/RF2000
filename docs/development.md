@@ -66,12 +66,20 @@ Für eine spätere Aktivierung müssen Achsenzahl, Pinmap, Schrittgenerator,
 Planerparameter, EEPROM-Version und Testabdeckung bewusst erweitert werden.
 Das fünfkanalige SPI-/Freigabemodul kann dabei wiederverwendet werden.
 
-Homing ist durch `RF2000_HOMING_VERIFIED=0` zusätzlich zur normalen
+Im Standardprofil ist Homing durch `RF2000_HOMING_VERIFIED=0` zusätzlich zur normalen
 GRBL-Einstellung gesperrt. Die Kandidaten aus dem Repetier-Fräsmodus sind
 X/Y Richtung MIN und Z Richtung MAX. Die Hardwareprüfung muss diese
 Zuordnung und die tatsächlichen Richtungen erst bestätigen. Auch eine spätere
 Änderung von `$3`, `$23`, Schalterverkabelung oder Mechanik erfordert erneute
 Verifikation. Eine Compileroption allein ist kein Prüfnachweis.
+
+Das gesonderte Profil `rf2000_y_homing_test` wird mit `make y-homing-test`
+oder `pio run -e rf2000_y_homing_test` gebaut. `make check-y-homing` prüft
+dessen tatsächliches AVR-ELF. Es erlaubt nur Y-Jogs und nach `$22=1` nur
+`$HY`; die erste Suche läuft nach Nutzervorgabe bis zum Schalterkontakt
+ohne Gesamtweg- oder Zeitlimit. Reset löscht die Freigabe. Dieses Profil
+übernimmt keine EEPROM-Einstellungen und schreibt kein EEPROM. Ablauf und
+Testwerte stehen in [y-axis-test.md](y-axis-test.md).
 
 `make flash`, `make fuse`, `make install` und `make load` brechen bewusst ab.
 Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.

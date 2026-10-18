@@ -332,13 +332,19 @@ static uint8_t axislock_active(uint8_t *axislock)
 // TODO: Move limit pin-specific calls to a general function for portability.
 void limits_go_home(uint8_t cycle_mask)
 {
-  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && !RF2000_HOMING_VERIFIED
+  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST
     (void)cycle_mask;
     system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
     return;
   #endif
 
   if (sys.abort) { return; } // Block if system reset has been issued.
+  #if RF2000_Y_HOMING_TEST
+    if (cycle_mask != bit(AXIS_2)) {
+      system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH);
+      return;
+    }
+  #endif
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
     // X/Y have MIN switches only. Z is selected from its physical MIN/MAX.
     // A mismatched future X/Y homing direction is a configuration fault.
@@ -384,12 +390,22 @@ void limits_go_home(uint8_t cycle_mask)
   }
 
   // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
+  #if RF2000_Y_HOMING_TEST
+    // Do not use the machine envelope (normally 290*1.5 = 435 mm) on a bench.
+    max_travel = RF2000_Y_HOMING_SEARCH_CHUNK_MM;
+  #endif
   bool approach = true;
   float homing_rate = settings.homing_seek_rate;
   uint8_t limit_state, n_active_axis;
   uint8_t axislock[N_AXIS];
+  #if RF2000_Y_HOMING_TEST
+    uint8_t initial_search = true;
+  #endif
   do {
-
+    #if RF2000_Y_HOMING_TEST
+      retry_initial_search: ;
+      uint8_t repeat_initial_search = false;
+    #endif
     system_convert_array_steps_to_mpos(target,sys_position);
 
     // Initialize and declare variables needed for homing routine.
@@ -471,13 +487,25 @@ void limits_go_home(uint8_t cycle_mask)
       if (sys_rt_exec_state & (EXEC_SAFETY_DOOR | EXEC_RESET | EXEC_CYCLE_STOP)) {
         uint8_t rt_exec = sys_rt_exec_state;
         // Homing failure condition: Reset issued during cycle.
-        if (rt_exec & EXEC_RESET) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET); }
-        // Homing failure condition: Safety door was opened.
-        if (rt_exec & EXEC_SAFETY_DOOR) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_DOOR); }
-        // Homing failure condition: Limit switch still engaged after pull-off motion
-        if (!approach && (limits_get_state() & cycle_mask)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF); }
-        // Homing failure condition: Limit switch not found during approach.
-        if (approach && (rt_exec & EXEC_CYCLE_STOP)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH); }
+        // Preserve a driver/hard-limit alarm already raised by an ISR.
+        if (!sys_rt_exec_alarm) {
+          if (rt_exec & EXEC_RESET) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET); }
+          // Homing failure condition: Safety door was opened.
+          else if (rt_exec & EXEC_SAFETY_DOOR) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_DOOR); }
+          // Limit switch still engaged after pull-off motion.
+          else if (!approach && (limits_get_state() & cycle_mask)) { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF); }
+          // Limit switch not found during approach.
+          else if (approach && (rt_exec & EXEC_CYCLE_STOP)) {
+            #if RF2000_Y_HOMING_TEST
+              if (initial_search) {
+                // User-requested endless bench rotation: reaching the end
+                // of a planner block is not a failed reference search.
+                repeat_initial_search = !(limits_get_state() & cycle_mask);
+              } else
+            #endif
+            { system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_APPROACH); }
+          }
+        }
         if (sys_rt_exec_alarm) {
           mc_reset(); // Stop motors, if they are running.
           #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
@@ -494,6 +522,14 @@ void limits_go_home(uint8_t cycle_mask)
 
     } while (axislock_active(axislock));
     st_reset(); // Immediately force kill steppers and reset step segment buffer.
+    #if RF2000_Y_HOMING_TEST
+      // A contact can coincide with the final STEP of a planner block.
+      // With timers stopped, discard only that stale completion flag so it
+      // cannot prematurely finish the following pull-off. Keep RESET/faults.
+      system_clear_exec_state_flag(EXEC_CYCLE_STOP);
+      if (repeat_initial_search) { goto retry_initial_search; }
+      initial_search = false;
+    #endif
     delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
 
     // Reverse direction and reset homing rate for locate cycle(s).
@@ -502,6 +538,9 @@ void limits_go_home(uint8_t cycle_mask)
     // After first cycle, homing enters locating phase. Shorten search to pull-off distance.
     if (approach) {
       max_travel = settings.homing_pulloff*HOMING_AXIS_LOCATE_SCALAR;
+      #if RF2000_Y_HOMING_TEST
+        max_travel = min(max_travel, RF2000_Y_HOMING_LOCATE_MAX_MM);
+      #endif
       homing_rate = settings.homing_feed_rate;
     } else {
       max_travel = settings.homing_pulloff;

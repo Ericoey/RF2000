@@ -100,6 +100,10 @@ uint8_t system_check_safety_door_ajar()
 // Executes user startup script, if stored.
 void system_execute_startup(char *line)
 {
+  #if RF2000_Y_HOMING_TEST
+    (void)line;
+    return; // Stored scripts never run in the isolated bench profile.
+  #endif
   uint8_t n;
   for (n=0; n < N_STARTUP_LINE; n++) {
     if (!(settings_read_startup_line(n, line))) {
@@ -152,6 +156,10 @@ uint8_t system_execute_line(char *line)
   switch( line[char_counter] ) {
     case 0 : report_grbl_help(); break;
     case 'J' : // Jogging
+      #if RF2000_Y_HOMING_TEST
+        // One bounded jog at a time; streaming may not accumulate travel.
+        if (sys.state != STATE_IDLE) { return(STATUS_IDLE_ERROR); }
+      #endif
       // Execute only if in IDLE or JOG states.
       if (sys.state != STATE_IDLE && sys.state != STATE_JOG) { return(STATUS_IDLE_ERROR); }
       if(line[2] != '=') { return(STATUS_INVALID_STATEMENT); }
@@ -213,8 +221,11 @@ uint8_t system_execute_line(char *line)
           else { report_ngc_parameters(); }
           break;
         case 'H' : // Perform homing cycle [IDLE/ALARM]
+          #if RF2000_Y_HOMING_TEST
+            if (line[2] != 'Y' || line[3] != 0) { return(STATUS_SETTING_DISABLED); }
+          #endif
           #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3)
-            #if !RF2000_HOMING_VERIFIED
+            #if !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST
               return(STATUS_SETTING_DISABLED);
             #else
               if (!limits_motion_allowed()) { return(STATUS_SYSTEM_GC_LOCK); }
@@ -322,6 +333,9 @@ uint8_t system_execute_line(char *line)
           }
           break;
         case 'R' : // Restore defaults [IDLE/ALARM]
+          #if RF2000_Y_HOMING_TEST
+            return(STATUS_SETTING_DISABLED); // Preserve the other firmware's EEPROM.
+          #endif
           if ((line[2] != 'S') || (line[3] != 'T') || (line[4] != '=') || (line[6] != 0)) { return(STATUS_INVALID_STATEMENT); }
           switch (line[5]) {
             #ifdef ENABLE_RESTORE_EEPROM_DEFAULT_SETTINGS
@@ -349,6 +363,9 @@ uint8_t system_execute_line(char *line)
             }
             break;
           } else { // Store startup line [IDLE Only] Prevents motion during ALARM.
+            #if RF2000_Y_HOMING_TEST
+              return(STATUS_SETTING_DISABLED);
+            #endif
             if (sys.state != STATE_IDLE) { return(STATUS_IDLE_ERROR); } // Store only when idle.
             helper_var = true;  // Set helper_var to flag storing method.
             // No break. Continues into default: to read remaining command characters.

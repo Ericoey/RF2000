@@ -47,6 +47,27 @@
 #ifndef RF2000_HOMING_VERIFIED
   #define RF2000_HOMING_VERIFIED 0
 #endif
+#ifndef RF2000_Y_HOMING_TEST
+  #define RF2000_Y_HOMING_TEST 0
+#endif
+#if RF2000_Y_HOMING_TEST
+  #if RF2000_HOMING_VERIFIED
+    #error "Y bench test and full homing verification are separate profiles."
+  #endif
+  #if defined(RF2000_DRIVER_ACTIVE_MASK) && RF2000_DRIVER_ACTIVE_MASK != 0x02u
+    #error "Y bench test may enable only DRV2."
+  #endif
+  #define RF2000_DRIVER_ACTIVE_MASK 0x02u
+  // First search repeats finite planner blocks until contact or abort.
+  // This is a block length, NOT an overall travel or timeout limit.
+  #define RF2000_Y_HOMING_SEARCH_CHUNK_MM 5.0f
+  #define RF2000_Y_HOMING_LOCATE_MAX_MM 5.0f
+  #define RF2000_Y_HOMING_SEEK_MM_MIN 60.0f
+  #define RF2000_Y_HOMING_FEED_MM_MIN 20.0f
+  #define RF2000_Y_HOMING_PULLOFF_MM 1.0f
+  #define RF2000_Y_JOG_MAX_MM 0.5f
+  #define RF2000_Y_JOG_MAX_MM_MIN 30.0f
+#endif
 #define RF2000_FORCE_HARD_LIMITS 1
 #define RF2000_DISABLE_AUX_OUTPUTS 1
 #define RF2000_DISABLE_PROBE 1

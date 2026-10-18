@@ -1,4 +1,4 @@
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/rf2000_board.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/limits.o
 /workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/main.map build/analog_control.o build/coolant_control.o build/digital_control.o build/eeprom.o build/gcode.o build/jog.o build/limits.o build/main.o build/motion_control.o build/nuts_bolts.o build/planner.o build/print.o build/probe.o build/protocol.o build/report.o build/rf2000_board.o build/rf2000_drv8711.o build/serial.o build/settings.o build/sleep.o build/spindle_control.o build/stepper.o build/system.o -lm -o build/main.elf
 /workspace/.tools/avr/usr/bin/avr-size build/main.elf
    text	   data	    bss	    dec	    hex	filename
@@ -11,7 +11,7 @@ cp build/main.map artifacts/grbl/rf2000-grbl.map
 python3 tools/test_check_avr_size.py
 ........
 ----------------------------------------------------------------------
-Ran 8 tests in 0.011s
+Ran 8 tests in 0.006s
 
 OK
 python3 tools/test_rf2000_limits.py
@@ -24,37 +24,6 @@ INT6 falling-edge configuration and short recovered FAULT pulse latch.
 python3 tools/test_eeprom_records.py
 EEPROM record separation, length/index guards, NUL handling, restore and SREG: PASS
 tests/run-sim.sh
-Loaded 35176 .text at address 0x0
-Loaded 50 .data
-PASS: five DRV register write/readback, alarm/admission, XYZ+reverse counts64/64/32; min STEP 14.312us DIR setup 16399.438us
-PASS: UART-stressed Z move6400 pulses at 4992.81 steps/s (fastest64-edge window), settings/M-word and EEPROM guards
-PASS: PH1 Z-max alarm stops all five drivers; active contact blocks unlock
-PASS: shared FAULTn stops motion; software reset cannot clear sticky fault
-Loaded 35176 .text at address 0x0
-Loaded 50 .data
-PASS: intentionally corrupted DRV readback blocks motion and unlock
-Loaded 35176 .text at address 0x0
-Loaded 50 .data
-PASS: deterministic FAULTn at Timer1 ISR entry cancels pending STEP, retains alarm12 before safety poll
-Loaded 35176 .text at address 0x0
-Loaded 50 .data
-PASS: deterministic FAULTn at Timer0 ISR entry cancels pending STEP, retains alarm12 before safety poll
-Loaded 35176 .text at address 0x0
-Loaded 50 .data
-PASS: INT6 latches a completed 1us FAULTn pulse and blocks unlock
-
-Follow-up: Repetier RF2000v2 mapping priority; unchanged GPIO levels.
-Commands: make -j4; tests/run-sim.sh (both exit 0).
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/rf2000_board.o
-/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/main.map build/analog_control.o build/coolant_control.o build/digital_control.o build/eeprom.o build/gcode.o build/jog.o build/limits.o build/main.o build/motion_control.o build/nuts_bolts.o build/planner.o build/print.o build/probe.o build/protocol.o build/report.o build/rf2000_board.o build/rf2000_drv8711.o build/serial.o build/settings.o build/sleep.o build/spindle_control.o build/stepper.o build/system.o -lm -o build/main.elf
-/workspace/.tools/avr/usr/bin/avr-size build/main.elf
-   text	   data	    bss	    dec	    hex	filename
-  35226	      0	   3470	  38696	   9728	build/main.elf
-python3 tools/check-avr-size.py build/main.elf /workspace/.tools/avr/usr/bin/avr-size
-Flash 35226/253952 bytes; static SRAM 3520/8192 bytes
-/workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/main.elf artifacts/grbl/rf2000-grbl.hex
-cp build/main.elf artifacts/grbl/rf2000-grbl.elf
-cp build/main.map artifacts/grbl/rf2000-grbl.map
 Loaded 35176 .text at address 0x0
 Loaded 50 .data
 PASS: five DRV register write/readback, alarm/admission, XYZ+reverse counts64/64/32; min STEP 14.312us DIR setup 16399.438us

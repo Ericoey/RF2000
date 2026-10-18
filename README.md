@@ -2,7 +2,9 @@
 
 Kompilierbarer CNC-Teststand für ATmega2560/16 MHz mit drei logischen Achsen
 X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. Homing
-bleibt bis zur Prüfung von Schalterpolarität und Bewegungsrichtungen gesperrt.
+bleibt im Standardprofil gesperrt. Ein separat wählbares Y-Testprofil erlaubt
+nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
+Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
 
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
@@ -33,6 +35,25 @@ pio run -e rf2000_grbl
 Das HEX liegt anschließend unter `.pio/build/rf2000_grbl/firmware.hex`.
 Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 
+Für den ersten Y-Test gibt es zusätzlich die Umgebung
+**`rf2000_y_homing_test`**:
+
+```bash
+pio run -e rf2000_y_homing_test
+pio device monitor -e rf2000_y_homing_test
+```
+
+HEX: `.pio/build/rf2000_y_homing_test/firmware.hex`. Der Monitor verwendet
+115200 Baud und LF; Befehle jeweils mit Enter senden. Dieses Profil hält
+X/Z/A/B abgeschaltet, begrenzt Y-Jogs auf 0,5 mm bei höchstens 30 mm/min und
+erlaubt nur `$HY` nach `$22=1` in derselben Sitzung. Die erste Y-Referenzsuche
+läuft bis zum Schalterkontakt ohne Gesamtweg- oder Zeitbegrenzung; fehlt der
+Kontakt, stoppt sie nicht automatisch. Ctrl-X sendet den Software-Abbruch.
+Normale G-Code-Bewegungen
+und andere Homing-Kommandos bleiben gesperrt. Richtung und Schalter zuerst
+mit dem [Y-Testablauf](docs/y-axis-test.md) prüfen, bevor `$HY` gesendet wird.
+Das Standardprofil und die Repetier-Referenz bleiben unverändert.
+
 Bestehender Make-Build einschließlich Repetier-Referenz:
 
 ```bash
@@ -45,6 +66,8 @@ make repetier
 
 HEX/ELF/MAP: `artifacts/grbl/rf2000-grbl.*`.
 Repetier-Referenz: `artifacts/repetier/`.
+Für das separate Y-Profil: `make y-homing-test`, anschließend optional
+`make check-y-homing`; Dateien unter `artifacts/y-homing/rf2000-grbl.*`.
 Die Buildwerkzeuge führen keine Programmierung und keine Fuse-Änderung aus.
 Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunktionen.
 
@@ -65,7 +88,7 @@ PA7/D29 der Watchdog-Pin, PC0/D37 der Y-Min-Eingang und PC4 der OUT3-Ausgang.
 PA7 bleibt Eingang ohne Pullup, entsprechend Repetiers `HAL::stopWatchdog()`;
 PC4 bleibt LOW. Der Testbuild erzeugt keine Watchdog-Lebenszeichen.
 
-## Bedienung des Testprofils
+## Bedienung des Standardprofils
 
 UART0: 115200 Baud, 8N1. `$DRV` liest nur den zwischengespeicherten
 Initialisierungszustand und die vier Limitpegel, ohne SPI oder Motorfreigabe.
@@ -102,6 +125,7 @@ Schalterverkabelung und Stopplatenz bleiben am Gerät zu messen.
 - [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 - [Endschalter und Diagnose](docs/limits.md)
 - [Kontrollierter Hardwaretest](docs/hardware-test.md)
+- [Separater Y-Achs- und Homingtest](docs/y-axis-test.md)
 - [Entwicklungsumgebung](docs/development.md)
 - [PlatformIO / VS Code](docs/platformio.md)
 - [Repetier-Referenzbuild](docs/repetier-build.md)
