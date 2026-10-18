@@ -62,12 +62,16 @@ löscht diese Sperre nicht. Ein korrumpierter SPI-Readback verhindert `$X`
 und Bewegungen. PH1/Z-Max beendet eine laufende Bewegung und blockiert die
 Freigabe, solange der Eingang aktiv ist.
 
-Der erneute vollständige Lauf von `make check` nach Festlegung des Schaltplans
-als verbindliche Hardwaregrundlage ist erfolgreich. Die AVR-Simulation prüft
-zusätzlich PA7 als Eingang ohne Pullup, PC4 als LOW-Ausgang für OUT3 und PC0
-als Endschaltereingang. Die elektrische Firmwarekonfiguration ist unverändert;
-das neu erzeugte HEX bleibt bytegleich zum zuvor geprüften Stand. Das aktuelle
-Laufprotokoll steht in `artifacts/validation.log`.
+Der vollständige Lauf von `make check` einschließlich der zusätzlichen
+GPIO-Prüfungen ist erfolgreich. Die AVR-Simulation prüft PA7 als Eingang ohne
+Pullup, PC4 als LOW-Ausgang für OUT3 und PC0 als Endschaltereingang. Diese
+GPIO-Konfiguration entspricht für PA7 Repetiers `HAL::stopWatchdog()`.
+Die aktuelle Quellenpriorität bei abweichenden Hardwarezuordnungen liegt
+nach Nutzervorgabe bei der Repetier-RF2000v2-Konfiguration. Diese Änderung
+betrifft Kommentare und Dokumentation; die GPIO-Pegel bleiben gleich.
+Ein anschließender Make-Build und `tests/run-sim.sh` sind ebenfalls erfolgreich;
+das erzeugte HEX bleibt bytegleich. Vollständiger Test und dieser gezielte
+Nachlauf stehen in `artifacts/validation.log`.
 
 ## Codeprüfung und Grenzen
 
@@ -86,8 +90,10 @@ separaten RF2000-Board-/Treiber-/Steppermodule wurden ohne Warnungen
 kompiliert. Repetier enthält die dokumentierten ursprünglichen fehlenden
 Return-Pfade in `Printer.h`. Warnungen wurden nicht global abgeschaltet.
 
-Die Übereinstimmung der Zielplatine mit dem Schaltplan ist inzwischen vom
-Nutzer als verbindliche Arbeitsannahme festgelegt. Nicht geprüft: elektrische
+Die bisherige Repetier-Konfiguration wird nach Nutzervorgabe als
+funktionierend zugrunde gelegt; abweichende Hardwarezuordnungen im Plan
+werden anhand dieser Referenz entschieden und dem Nutzer mitgeteilt.
+Nicht geprüft am GRBL-Port: elektrische
 Signalqualität, Reset-/Watchdog-Laufverhalten, Endschalter-NO/NC und
 Kabelbruchverhalten, tatsächliche Wicklungsströme, mechanische
 Bewegungsrichtungen, reale Anhaltewege und

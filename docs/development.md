@@ -77,8 +77,19 @@ Verifikation. Eine Compileroption allein ist kein Prüfnachweis.
 Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.
 Das kontrollierte Vorgehen steht in [hardware-test.md](hardware-test.md).
 
-Für die Hardwarezuordnung gilt nach ausdrücklicher Nutzervorgabe
-`references/rf2000-schematic.pdf` als vollständig richtig und passend zur
-Platine. Abweichende Repetier-Pinangaben dürfen diese Zuordnung nicht
-überschreiben. PA7/PC4 werden als OUT3 behandelt: PC4 LOW, PA7 Eingang ohne
-Pullup. PC0 bleibt ES2-Eingang und wird nicht als Watchdog-Ausgang getaktet.
+Für die Hardwarezuordnung gilt nach jüngster ausdrücklicher Nutzervorgabe die
+Konfiguration der bereitgestellten alten RF2000-Repetier-Firmware als
+funktionierend. Bei Abweichungen zum ergänzenden Schaltplan hat ihr
+RF2000v2-Block Vorrang. Das bereitgestellte Archiv ist laut eigener README die
+Community-Modifikation RF 1.45.Mod; eine unveränderte Herstellerfassung ist
+damit nicht nachgewiesen. Die Vorgabe ersetzt den früheren absoluten
+Schaltplanvorrang und ist kein Hardwareprüfnachweis. TI bleibt für
+DRV8711-Protokoll und Registersemantik maßgeblich.
+
+PA7/D29 ist `WATCHDOG_PIN`, PC4 ist OUT3 und PC0/D37 bleibt ES2/Y-Min. PA7 und PC4
+werden nicht als gemeinsames OUT3 behandelt. Die elektrischen Pegel bleiben
+unverändert: PC4 LOW und PA7 Eingang ohne Pullup, entsprechend
+`HAL::stopWatchdog()` der Referenz. GRBL erzeugt keinen aktiven Watchdog-Takt.
+Das gleichlautende PDF-Netzlabel `PC0` bei WDI belegt für sich keine Verbindung
+zum CPU-Portpin PC0. Weitere Änderungen der Hardwarezuordnung werden dem
+Nutzer mit bisheriger und neuer Zuordnung ausdrücklich mitgeteilt.

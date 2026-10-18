@@ -49,7 +49,7 @@
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
     "grbl/report.c": "14fcb9923f437ab90402f992d26e63cab8ea57f79eb2e72c02d655aa83a519fc",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
-    "grbl/rf2000_board.c": "98e62756dc6a38b2aa23b17e3af72558a56018a28e04ecf49cc05a96f75dd20a",
+    "grbl/rf2000_board.c": "bf758c7318fecb177ad790e5518ff93070108fb861b3e364a9d8913b3fc07d80",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
     "grbl/rf2000_drv8711.c": "0b36c59e9a2961ab241a4cef5e968fafea70fc91841daed992111e9506bcaa9d",
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
@@ -69,13 +69,21 @@
   "artifacts": {
     "rf2000-grbl.elf": "2a9bc58ae233f90897792aad08322f83817f619bb78b4ec3909166bc5b483f2f",
     "rf2000-grbl.hex": "6c9b5ba8fe9859a3fab238af9202e40301f7dc5b04248492e1af0d2472142050",
-    "rf2000-grbl.map": "a7622e09b2ed180f1a2f7d6761610352d8b476c0f22a0d575ffc803ed61bb2b1"
+    "rf2000-grbl.map": "3a052a843e36a53568fbaa522e50b467620a63d2cfd0c2f2557dd9602f05279d"
   },
   "reproducibility": "HEX is byte-identical after fresh toolchain installation into a second prefix and rebuilding all objects in another directory.",
   "hardware_test_performed": false,
   "hardware_authority": {
-    "path": "references/rf2000-schematic.pdf",
-    "sha256": "9d4f87760933a603c669d5fe4381cdf342b47a1c18273c9e94a336061eac288c",
-    "basis": "Explicit user assumption: schematic is correct and matches the target board."
+    "path": "references/repetier/Repetier/pins.h",
+    "configuration": "MOTHERBOARD == DEVICE_TYPE_RF2000v2",
+    "reference_files_sha256": {
+      "references/repetier/Repetier/pins.h": "fce20625310fe1b5fdce50bc101514d9d0b11742ee684a4922ac2eeadf6364b8",
+      "references/repetier/Repetier/RF2000v2.h": "e56d0dec0c5cf975f925592844dfa3c773cb9b1803223bffde41423a88356c33",
+      "references/repetier/Repetier/HAL.cpp": "f6102b12c56e71fc7f2e316fc6a0cdd2a032310c0ae0df0fbe6c1f9d938f0283"
+    },
+    "status": "Latest user direction: assume the existing RF2000 Repetier configuration works; prefer its RF2000v2 hardware assignments over conflicting schematic assignments.",
+    "priority": "Repetier RF2000v2 configuration for conflicting hardware assignments; schematic as supporting electrical reference; TI datasheet for DRV8711 protocol and register semantics.",
+    "notification_policy": "Tell the user each adopted schematic/Repetier difference and record the selected mapping in docs/hardware-verification.md.",
+    "physical_validation_claimed": false
   }
 }

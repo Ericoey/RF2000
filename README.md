@@ -13,10 +13,13 @@ nachgewiesene Hersteller-Stockfirmware. Sie liegt unverändert unter
 `references/repetier/` und wird als zweite Firmwarevariante separat gebaut.
 Quellen und Prüfsummen stehen in `references/provenance.json`.
 
-**Verbindliche Hardwaregrundlage:** Nach Vorgabe des Nutzers gilt
-`references/rf2000-schematic.pdf` als vollständig richtig und passend zur
-verwendeten Platine. Bei Abweichungen hat der Schaltplan Vorrang vor der
-Community-Repetier-Firmware. Diese Festlegung ersetzt keinen Funktionstest.
+**Quellenpriorität bei Abweichungen:** Nach aktueller Nutzervorgabe gilt die
+bisherige RF2000-Repetier-Konfiguration als funktionierend. Widerspricht eine
+Hardwarezuordnung im Schaltplan der bereitgestellten Repetier-Referenz, hat
+deren RF2000v2-Konfigurationsblock Vorrang. Jede übernommene Abweichung wird
+dem Nutzer genannt und in [docs/hardware-verification.md](docs/hardware-verification.md)
+dokumentiert. DRV8711-Protokoll und Registersemantik folgen dem TI-Datenblatt;
+die Festlegung ersetzt keinen Funktionstest des GRBL-Ports.
 
 ## Bauen und prüfen
 
@@ -57,9 +60,10 @@ Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunkt
 - G38.x, M3/M4, M7/M8 und digitale/analoge Ausgangskommandos zurückgewiesen. M5/M9 bleiben sichere Ausschaltkommandos.
 
 **Korrigierte Reservepins:** DRV4 hat STEP=PA4 und DIR=PA6. PA5/PA7 aus der
-Auftragsliste sind hierfür falsch. PA7 und PC4 sind im maßgeblichen Plan als
-`OUT3` bezeichnet: PC4 hält das Netz LOW, PA7 bleibt Eingang ohne Pull-up.
-Die davon abweichende Repetier-Bezeichnung PA7/WDI wird nicht übernommen.
+Auftragsliste sind hierfür falsch. Nach der Repetier-Konfiguration ist
+PA7/D29 der Watchdog-Pin, PC0/D37 der Y-Min-Eingang und PC4 der OUT3-Ausgang.
+PA7 bleibt Eingang ohne Pullup, entsprechend Repetiers `HAL::stopWatchdog()`;
+PC4 bleibt LOW. Der Testbuild erzeugt keine Watchdog-Lebenszeichen.
 
 ## Bedienung des Testprofils
 

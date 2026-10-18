@@ -26,10 +26,16 @@
   },
   "repetier_provenance": "Uploaded Community Mod 1.45.01, not proven manufacturer stock. Full unmodified extracted reference is retained in references/repetier. No earlier RF GRBL development state was supplied.",
   "hardware_authority": {
-    "path": "references/rf2000-schematic.pdf",
-    "sha256": "9d4f87760933a603c669d5fe4381cdf342b47a1c18273c9e94a336061eac288c",
-    "status": "User-directed authoritative assumption: schematic is 100% correct and matches the target board.",
-    "priority": "Use schematic for wiring; TI datasheet for DRV8711 protocol and register semantics; Repetier for reference algorithms and compatible defaults.",
+    "path": "references/repetier/Repetier/pins.h",
+    "configuration": "MOTHERBOARD == DEVICE_TYPE_RF2000v2",
+    "reference_files_sha256": {
+      "references/repetier/Repetier/pins.h": "fce20625310fe1b5fdce50bc101514d9d0b11742ee684a4922ac2eeadf6364b8",
+      "references/repetier/Repetier/RF2000v2.h": "e56d0dec0c5cf975f925592844dfa3c773cb9b1803223bffde41423a88356c33",
+      "references/repetier/Repetier/HAL.cpp": "f6102b12c56e71fc7f2e316fc6a0cdd2a032310c0ae0df0fbe6c1f9d938f0283"
+    },
+    "status": "Latest user direction: assume the existing RF2000 Repetier configuration works; prefer its RF2000v2 hardware assignments over conflicting schematic assignments.",
+    "priority": "Repetier RF2000v2 configuration for conflicting hardware assignments; schematic as supporting electrical reference; TI datasheet for DRV8711 protocol and register semantics.",
+    "notification_policy": "Tell the user each adopted schematic/Repetier difference and record the selected mapping in docs/hardware-verification.md.",
     "physical_validation_claimed": false
   }
 }

@@ -175,7 +175,7 @@
 +*.log
 --- a/README.md
 +++ b/README.md
-@@ -1,74 +1,106 @@
+@@ -1,74 +1,110 @@
 -![GitHub Logo](https://github.com/fra589/grbl-Mega-5X/blob/edge/doc/images/Mega-5X-logo.svg)
 +# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
  
@@ -195,10 +195,13 @@
 +Quellen und Prüfsummen stehen in `references/provenance.json`.
  
 -The controller is written in highly optimized C utilizing every clever feature of the AVR-chips to achieve precise timing and asynchronous operation. It is able to maintain up to 30kHz of stable, jitter free control pulses.
-+**Verbindliche Hardwaregrundlage:** Nach Vorgabe des Nutzers gilt
-+`references/rf2000-schematic.pdf` als vollständig richtig und passend zur
-+verwendeten Platine. Bei Abweichungen hat der Schaltplan Vorrang vor der
-+Community-Repetier-Firmware. Diese Festlegung ersetzt keinen Funktionstest.
++**Quellenpriorität bei Abweichungen:** Nach aktueller Nutzervorgabe gilt die
++bisherige RF2000-Repetier-Konfiguration als funktionierend. Widerspricht eine
++Hardwarezuordnung im Schaltplan der bereitgestellten Repetier-Referenz, hat
++deren RF2000v2-Konfigurationsblock Vorrang. Jede übernommene Abweichung wird
++dem Nutzer genannt und in [docs/hardware-verification.md](docs/hardware-verification.md)
++dokumentiert. DRV8711-Protokoll und Registersemantik folgen dem TI-Datenblatt;
++die Festlegung ersetzt keinen Funktionstest des GRBL-Ports.
  
 -It accepts standards-compliant g-code and has been tested with the output of several CAM tools with no problems. Arcs, circles and helical motion are fully supported, as well as, all other primary g-code commands. Macro functions, variables, and most canned cycles are not supported, but we think GUIs can do a much better job at translating them into straight g-code anyhow.
 +## Bauen und prüfen
@@ -301,9 +304,10 @@
 +- G38.x, M3/M4, M7/M8 und digitale/analoge Ausgangskommandos zurückgewiesen. M5/M9 bleiben sichere Ausschaltkommandos.
 +
 +**Korrigierte Reservepins:** DRV4 hat STEP=PA4 und DIR=PA6. PA5/PA7 aus der
-+Auftragsliste sind hierfür falsch. PA7 und PC4 sind im maßgeblichen Plan als
-+`OUT3` bezeichnet: PC4 hält das Netz LOW, PA7 bleibt Eingang ohne Pull-up.
-+Die davon abweichende Repetier-Bezeichnung PA7/WDI wird nicht übernommen.
++Auftragsliste sind hierfür falsch. Nach der Repetier-Konfiguration ist
++PA7/D29 der Watchdog-Pin, PC0/D37 der Y-Min-Eingang und PC4 der OUT3-Ausgang.
++PA7 bleibt Eingang ohne Pullup, entsprechend Repetiers `HAL::stopWatchdog()`;
++PC4 bleibt LOW. Der Testbuild erzeugt keine Watchdog-Lebenszeichen.
 +
 +## Bedienung des Testprofils
 +
@@ -1115,8 +1119,8 @@
 @@ -0,0 +1,87 @@
 +/*
 + * Safe GPIO setup for the RF2000v2 I851 CTC V3 ATmega2560 board.
-+ * Wiring authority: supplied I851 CTC V3.0 schematic, declared authoritative
-+ * for this board by the user. Repetier is a software reference only.
++ * Wiring reference: supplied Repetier RF2000v2 configuration; by user
++ * direction it takes precedence when schematic assignments disagree.
 + * GPL-3.0-or-later.
 + */
 +#include "grbl.h"
@@ -1187,9 +1191,9 @@
 +    DDRF |= RF2000_OFF_F;
 +    DDRH |= RF2000_OFF_H;
 +
-+    // Schematic sheet 1 labels BOTH PA7 and PC4 as OUT3. PC4 drives the
-+    // shared inactive LOW; PA7 remains an input without pull-up so it cannot
-+    // contend with that output. Do not adopt Repetier's PA7/WDI assignment.
++    // Repetier RF2000v2 assigns WATCHDOG_PIN to PA7/D29. Match its
++    // HAL::stopWatchdog(): release WDI as an input without pull-up.
++    // This test profile does not generate a watchdog heartbeat. PC4 is OUT3.
 +    PORTA &= ~_BV(PA7);
 +    DDRA &= ~_BV(PA7);
 +
@@ -3574,13 +3578,13 @@
 +  for (uint8_t bit=0;bit<5;++bit) input_pin('G',bit,1);
 +  run_us(1200000);
 +  CHECK(strstr(sim.log,"Grbl"),"missing Grbl startup");
-+  // Authoritative schematic: PA7 and PC4 carry OUT3. Drive it LOW through
-+  // PC4 while PA7 is an input without pull-up; PC0 stays a limit input.
++  // Repetier RF2000v2: PA7 is WDI, released as in HAL::stopWatchdog().
++  // PC4 drives OUT3 LOW; PC0 stays the ES2/Y-Min limit input.
 +  avr_ioport_state_t porta = {0}, portc = {0};
 +  avr_ioctl(sim.avr,AVR_IOCTL_IOPORT_GETSTATE('A'),&porta);
 +  avr_ioctl(sim.avr,AVR_IOCTL_IOPORT_GETSTATE('C'),&portc);
 +  CHECK(!(porta.ddr & (1u<<7)) && !(porta.port & (1u<<7)),
-+    "OUT3/PA7 must remain an input without pull-up");
++    "disabled watchdog/PA7 must remain an input without pull-up");
 +  CHECK((portc.ddr & (1u<<4)) && !(portc.port & (1u<<4)),
 +    "OUT3/PC4 must drive inactive LOW");
 +  CHECK(!(portc.ddr & 1u),"PC0/ES2 must remain a limit input");
@@ -3765,7 +3769,7 @@
 +"$repo_root/build/tests/rf2000_sim" "${1:-$repo_root/build/main.elf}"
 --- /dev/null
 +++ b/docs/development.md
-@@ -0,0 +1,84 @@
+@@ -0,0 +1,95 @@
 +# Entwicklung und Build
 +
 +Die Cloudumgebung verwendet den vorhandenen Checkout `/workspace/RF2000`.
@@ -3845,14 +3849,25 @@
 +Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.
 +Das kontrollierte Vorgehen steht in [hardware-test.md](hardware-test.md).
 +
-+Für die Hardwarezuordnung gilt nach ausdrücklicher Nutzervorgabe
-+`references/rf2000-schematic.pdf` als vollständig richtig und passend zur
-+Platine. Abweichende Repetier-Pinangaben dürfen diese Zuordnung nicht
-+überschreiben. PA7/PC4 werden als OUT3 behandelt: PC4 LOW, PA7 Eingang ohne
-+Pullup. PC0 bleibt ES2-Eingang und wird nicht als Watchdog-Ausgang getaktet.
++Für die Hardwarezuordnung gilt nach jüngster ausdrücklicher Nutzervorgabe die
++Konfiguration der bereitgestellten alten RF2000-Repetier-Firmware als
++funktionierend. Bei Abweichungen zum ergänzenden Schaltplan hat ihr
++RF2000v2-Block Vorrang. Das bereitgestellte Archiv ist laut eigener README die
++Community-Modifikation RF 1.45.Mod; eine unveränderte Herstellerfassung ist
++damit nicht nachgewiesen. Die Vorgabe ersetzt den früheren absoluten
++Schaltplanvorrang und ist kein Hardwareprüfnachweis. TI bleibt für
++DRV8711-Protokoll und Registersemantik maßgeblich.
++
++PA7/D29 ist `WATCHDOG_PIN`, PC4 ist OUT3 und PC0/D37 bleibt ES2/Y-Min. PA7 und PC4
++werden nicht als gemeinsames OUT3 behandelt. Die elektrischen Pegel bleiben
++unverändert: PC4 LOW und PA7 Eingang ohne Pullup, entsprechend
++`HAL::stopWatchdog()` der Referenz. GRBL erzeugt keinen aktiven Watchdog-Takt.
++Das gleichlautende PDF-Netzlabel `PC0` bei WDI belegt für sich keine Verbindung
++zum CPU-Portpin PC0. Weitere Änderungen der Hardwarezuordnung werden dem
++Nutzer mit bisheriger und neuer Zuordnung ausdrücklich mitgeteilt.
 --- /dev/null
 +++ b/docs/drv8711.md
-@@ -0,0 +1,168 @@
+@@ -0,0 +1,174 @@
 +# DRV8711 auf I851 CTC V3.0
 +
 +Der Port initialisiert fünf physische Treiber, während GRBL im Testprofil nur
@@ -3876,12 +3891,18 @@
 +| B / DRV5 | PC1 | PC3 | PC7 | PJ7 | PG4 |
 +
 +DRV4 weicht von der ursprünglich angefragten Belegung PA5/PA7 ab. Im gelieferten
-+Plan liegen STP_DRV4 an MCU-Pin 74/PA4 und DIR_DRV4 an Pin 72/PA6. PA5 und PA7 sind
-+OUT2 beziehungsweise OUT3. Der RF2000v2-Block von Repetier `pins.h`, ab Zeile 530,
-+verwendet ebenfalls Arduino 26 und 28 (PA4/PA6). Frühere Blöcke derselben Datei
-+gehören zu anderen RF-Geräten. Die v2-Bezeichnung `WATCHDOG_PIN` für PA7 weicht
-+vom verbindlichen Plan ab und wird nicht übernommen. OUT3 wird über PC4 LOW
-+gehalten, PA7 bleibt Eingang ohne Pullup; der DRV-Treiber verwendet PA7 nicht.
++Plan liegen STP_DRV4 an MCU-Pin 74/PA4 und DIR_DRV4 an Pin 72/PA6. Der
++RF2000v2-Block von Repetier `pins.h`, ab Zeile 530, verwendet ebenfalls Arduino
++26 und 28 (PA4/PA6). Frühere Blöcke derselben Datei gehören zu anderen RF-Geräten.
++Nach jüngster Nutzervorgabe gilt die bereitgestellte Repetier-Konfiguration als
++funktionierend und ihr RF2000v2-Block hat bei Hardwarezuordnungskonflikten Vorrang
++vor dem Plan. PA5 ist OUT2, PA7/D29 ist `WATCHDOG_PIN` und PC4 ist OUT3; PA7 und
++PC4 werden nicht als gemeinsamer Ausgang behandelt. OUT3 bleibt LOW. PA7 bleibt
++Eingang ohne Pullup, entsprechend `HAL::stopWatchdog()` der Referenz, ohne aktiven
++Watchdog-Takt. Der DRV-Treiber verwendet PA7 nicht. PC0/D37 bleibt ES2/Y-Min und
++wird nicht allein wegen des gleichlautenden PDF-Netzlabels bei WDI als
++Watchdog-Verbindung behandelt. Die festgelegten GPIO-Pegel ändern sich dadurch
++nicht.
 +
 +Gemeinsam: SCLK=PD5, SDATI=PD6, SDATO=PD4, RESET=PE7, FAULTn=PE6. Der Plan zeigt
 +direkte Verbindungen zu den DRV8711-Pins: SCS ist **aktiv HIGH**, RESET **aktiv
@@ -4026,16 +4047,16 @@
 @@ -0,0 +1,109 @@
 +# Kontrollierter Hardwaretest
 +
-+Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandenen Hardwaretest** und erteilt keine pauschale Freigabe zum Flashen oder Bewegen einer Maschine. Die verbindliche Schaltplangrundlage und der Quellabgleich stehen in [hardware-verification.md](hardware-verification.md). Jede Stufe setzt die protokollierte Erfüllung der vorherigen Stufe voraus; bei Abweichung Versorgung sicher abschalten und die Ursache klären.
++Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandenen Hardwaretest** und erteilt keine pauschale Freigabe zum Flashen oder Bewegen einer Maschine. Die verbindliche Quellenpriorität und der Quellabgleich stehen in [hardware-verification.md](hardware-verification.md): Bei abweichenden Hardwarezuordnungen gilt nach jüngster Nutzervorgabe die als funktionierend angenommene RF2000v2-Repetier-Konfiguration. Jede Stufe setzt die protokollierte Erfüllung der vorherigen Stufe voraus; bei Abweichung Versorgung sicher abschalten und die Ursache klären.
 +
 +Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
 +
 +## 1. Dokumentation, Rückweg und stromloser Aufbau
 +
-+1. Für diesen Auftrag gilt die Platine nach Nutzervorgabe als vollständig dem Schaltplan `references/rf2000-schematic.pdf` entsprechend. Aufdruck und Seriennummer dienen der Zuordnung des Prüfprotokolls; ein erneuter Revisionsabgleich ist keine offene Vorbedingung.
++1. Für diesen Auftrag gilt die bereitgestellte alte RF2000-Repetier-Konfiguration nach Nutzervorgabe als funktionierend; bei Zuordnungskonflikten hat ihr RF2000v2-Block Vorrang vor dem ergänzenden Schaltplan. Aufdruck und Seriennummer dienen der Zuordnung des Prüfprotokolls; ein erneuter Revisionsabgleich ist keine offene Vorbedingung.
 +2. Vor einer erwogenen Programmierung bestehende Flash-/EEPROM-Inhalte und Fuses mit einem geeigneten, zur Platine passenden Verfahren sichern und die Sicherung verifizieren. Bootloader und Fuses nicht ungeprüft überschreiben. Das bereitgestellte Build enthält keine Freigabe, den alten Druckerstand zu verlieren.
-+3. Die festen Pinzuordnungen aus dem Plan im Prüfprotokoll verwenden: DRV4 PA4/PA6; OUT3 über PC4 LOW, PA7 Eingang ohne Pullup; PC0 bleibt ES2-Eingang. Beim stromlosen Aufbau Motor-/Sensorleitungen und gesteckte Verbinder auf Beschädigung oder Fehlanschluss prüfen.
-+4. Die im Plan festgelegten 0,033-Ω-Shunts R80–R89 für die Stromberechnung verwenden. Die später gemessenen Wicklungsströme gegen Motorgrenzen und diese Sollwerte prüfen.
++3. Die maßgeblichen Pinzuordnungen im Prüfprotokoll verwenden: DRV4 PA4/PA6; OUT3 über PC4 LOW; PA7/D29 als Watchdog-Anschluss im Zustand Eingang ohne Pullup entsprechend `HAL::stopWatchdog()`; PC0/D37 bleibt ES2/Y-Min-Eingang. PA7 und PC4 werden nicht als gemeinsames OUT3 behandelt. Beim stromlosen Aufbau Motor-/Sensorleitungen und gesteckte Verbinder auf Beschädigung oder Fehlanschluss prüfen.
++4. Die ergänzend aus dem Plan übernommenen 0,033-Ω-Shunts R80–R89 für die Stromberechnung verwenden. Die später gemessenen Wicklungsströme gegen Motorgrenzen und diese Sollwerte prüfen.
 +5. Endschalterstecker und Kabel verfolgen. ES1/2/4 sind zweipolige Signale gegen VSS; ES3 ist vierpolig und kann eine aktive Sensorplatine versorgen. Pinreihenfolge anhand der realen Platine verifizieren. NO/NC, Versorgung, Betätigungsrichtung und Kabelbruchzustand separat aufschreiben. Keine 24 V auf AVR-Eingänge geben.
 +6. Unabhängige Abschaltung nachweisen. Ein serielles `!`, Ctrl-X oder USB-Abziehen ist kein unabhängiger Not-Aus.
 +
@@ -4046,8 +4067,8 @@
 +Alle fünf Motoren und alle Leistungslasten bleiben abgetrennt. Nach den Vorbereitungen aus Stufe 1 und mit einem bewusst gewählten Programmierverfahren den geprüften Testbuild einsetzen. AVR-Programmer/Bootloader-Einstellungen aus der tatsächlichen Platine bestimmen; keine automatische Flashaktion aus diesem Dokument ableiten.
 +
 +- 5 V, 3,3 V und gegebenenfalls Motorversorgung mit passender Strombegrenzung prüfen. DRV8711-Logik und Registerzugriff benötigen eine gültige Versorgung und Wake-Sequenz; ein USB-Dialog allein belegt dies nicht.
-+- RESET beobachten und stabilen Lauf prüfen. Der Plan ist verbindlich: PA7 gehört zu OUT3, PC0 bleibt ES2-Eingang. Unerwartete Watchdog-Neustarts untersuchen; keine Taktimpulse auf diesen Pins als Umgehung erzeugen.
-+- HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4 mit hochohmigem PA7, OUT4/PC5, OUT5/PF4 und RGB/PH3–PH5 mit Oszilloskop/Logikanalysator messen. Sie müssen über Reset, Boot, Initialisierung, Alarm und M3/M4/M7/M8 inaktiv bleiben. Hochohmige Resetphasen anhand der externen Beschaltung beurteilen; bei einem tatsächlichen HIGH-Puls keine Last anschließen.
++- RESET beobachten und stabilen Lauf prüfen. PA7 ist gemäß RF2000v2-Repetier `WATCHDOG_PIN` und bleibt ohne Pullup hochohmig, entsprechend `HAL::stopWatchdog()`; GRBL erzeugt keinen aktiven Watchdog-Takt. PC0 bleibt ES2/Y-Min-Eingang. Unerwartete Watchdog-Neustarts untersuchen; keine Taktimpulse auf einem Limit- oder Leistungsausgang als Umgehung erzeugen.
++- HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4 und RGB/PH3–PH5 mit Oszilloskop/Logikanalysator messen. Sie müssen über Reset, Boot, Initialisierung, Alarm und M3/M4/M7/M8 inaktiv bleiben. PA7 separat auf Eingang ohne Pullup prüfen. Hochohmige Resetphasen anhand der externen Beschaltung beurteilen; bei einem tatsächlichen HIGH-Puls keine Last anschließen.
 +- STEP aller fünf Kanäle darf ohne bewusstes Bewegungskommando keine Flanken zeigen. SLEEPn aller Kanäle muss nach der Initialisierung inaktiv LOW sein; kurze kontrollierte Wake-Phasen für Registerkonfiguration nur ohne STEP und bei deaktivierter Leistungsfreigabe. Reserve A/B bleibt nach der Initialisierung LOW und deren CTRL.ENBL bleibt gesperrt.
 +- Seriell die GRBL-Kennung, Achsenzahl XYZ und Einstellungen lesen. `$22=1` und `$H` müssen im unverifizierten Build zurückgewiesen werden. `$X` darf weder einen Fehlerzustand elektrisch beseitigen noch Reserveachsen freigeben. `G1 A...` und `G1 B...` dürfen keine Reservebewegung auslösen.
 +
@@ -4121,7 +4142,7 @@
 +| Platinenaufdruck / Seriennummer / Fotos | offen |
 +| Quellcommit / HEX-SHA256 / Buildzeit / Compiler | offen |
 +| Flash-/EEPROM-/Fuse-Sicherung und Wiederherstellung geprüft | offen |
-+| Verbindliche Hardwaregrundlage | RF2000-Schaltplan laut Nutzervorgabe vollständig passend |
++| Verbindliche Hardwarezuordnung | RF2000v2-Repetier-Konfiguration laut Nutzervorgabe funktionierend; Vorrang bei Abweichung zum Plan |
 +| Reset-/Watchdog-Verhalten im Logikbetrieb | offen |
 +| Versorgung / Shunts / Motornennströme | offen |
 +| Registerwerte aller fünf Treiber / FAULT-Test | offen |
@@ -4135,14 +4156,14 @@
 +| Homing-Freigabe, verantwortliche Person, Datum | **nicht erteilt** |
 --- /dev/null
 +++ b/docs/hardware-verification.md
-@@ -0,0 +1,118 @@
+@@ -0,0 +1,126 @@
 +# Hardwareabgleich RF2000v2 / I851 CTC V3.0
 +
 +Stand: 18.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
 +
-+## Verbindliche Hardwaregrundlage und ergänzende Quellen
++## Verbindliche Quellenpriorität und ergänzende Quellen
 +
-+Nach ausdrücklicher Vorgabe des Nutzers wird `references/rf2000-schematic.pdf` als **zu 100 % richtig und zur verwendeten Platine passend** zugrunde gelegt. Für die Portierung ist damit die Verdrahtung festgelegt; ein erneuter Revisions- oder Netzdurchgangsnachweis ist keine offene Planungsbedingung. Bei abweichenden Pinangaben hat der Schaltplan Vorrang vor der Community-Firmware. DRV8711-Protokoll und Register folgen weiterhin dem TI-Datenblatt. Diese Arbeitsannahme ist als Nutzervorgabe dokumentiert und kein durchgeführter Hardwaretest.
++Nach der jüngsten ausdrücklichen Vorgabe des Nutzers wird die Konfiguration der bereitgestellten alten RF2000-Repetier-Firmware als funktionierend angenommen. **Bei widersprüchlichen Hardwarezuordnungen hat der RF2000v2-Block dieser Firmware Vorrang vor `references/rf2000-schematic.pdf`.** Der Schaltplan bleibt die ergänzende Quelle für Beschaltung und Bauteilwerte. Diese Vorgabe ersetzt den zuvor dokumentierten absoluten Schaltplanvorrang. DRV8711-Protokoll und Registersemantik folgen weiterhin dem TI-Datenblatt; die daraus begründeten Anpassungen für GRBL bleiben bestehen. Die Arbeitsannahme ist kein durchgeführter Hardwaretest. Weitere Zuordnungsänderungen werden dem Nutzer mit bisheriger und neuer Zuordnung ausdrücklich mitgeteilt.
 +
 +1. Bereitgestellter Schaltplan `schema-electrique-1395717-renkforce-rf2000-imprimante-3d-appareil-pret-a-lemploi-banc-dimpression-chauffant.pdf`, sechs Blätter, Projekt **I851 CTC V3.0**, Rev. 1, Datum 23.10.2015. Alle sechs Blätter wurden gerendert und visuell gelesen; die Netzbezeichnungen wurden zusätzlich mit der Textextraktion abgeglichen. PDF-SHA256: `9d4f87760933a603c669d5fe4381cdf342b47a1c18273c9e94a336061eac288c`.
 +2. Bereitgestelltes Archiv `Repetier-Firmware-community_stable Original.zip`. Der Dateiname enthält „Original“; die enthaltene `README.de_DE.md` bezeichnet den Stand ausdrücklich als **inoffizielle Community-Modifikation**, RF 1.45.Mod. Damit ist keine unveränderte Conrad-Werksfirmware nachgewiesen. Archiv-SHA256: `9303140634c4a542d79d633c66e1d1689473444bdf560bda8706abfd29ed3181`.
@@ -4150,7 +4171,7 @@
 +4. Texas Instruments, **DRV8711**, offizielles Datenblatt **SLVSC40H, Rev. H, Mai 2020**, 51 Seiten: <https://www.ti.com/lit/ds/symlink/drv8711.pdf>. PDF-SHA256: `d04e2538bc6e1bea359037ce1e8ab39a36e8100197319951d4f3d19884a60843`. Abgeglichen wurden insbesondere Pin Functions, §6.6/6.7, §7.3.11, §7.4.1 und §7.5/7.6.
 +5. Bereitgestellter upstream-Stand `grbl-Mega-5X-edge.zip`, Projekt <https://github.com/fra589/grbl-Mega-5X>. Ein separater früherer GRBL-Renkforce-Port wurde nicht mitgeliefert.
 +
-+Die Zielhardware ist für diesen Auftrag die im Schaltplan festgelegte I851 CTC V3.0 des RF2000v2. Die Repetier-Modellbezeichnung ändert keine abweichende Zuordnung im Plan.
++Die Zielhardware ist für diesen Auftrag die I851 CTC V3.0 des RF2000v2. Maßgeblich ist der RF2000v2-Konfigurationsblock; andere Geräteblöcke derselben Repetier-Datei dürfen nicht übernommen werden. Die Nutzervorgabe zur funktionierenden Konfiguration ändert nicht die dokumentierte Herkunft als Community-Modifikation.
 +
 +## Motorzuordnung
 +
@@ -4164,7 +4185,7 @@
 +| 4 | A, Reserve | **PA4 / D26** | **PA6 / D28** | PA2 / D24 | PL6 / D43 | PG3 |
 +| 5 | B, Reserve | PC1 / D36 | PC3 / D34 | PC7 / D30 | PJ7 | PG4 |
 +
-+**Korrektur zum Auftrag:** DRV4 liegt auf PA4/PA6. PA5 steuert `OUT2`; PA7 trägt im maßgeblichen Plan `OUT3`. Die Repetier-Bezeichnung von PA7 als Watchdog-Pin wird für die Verdrahtung nicht übernommen. PA5/PA7 als A-STEP/DIR würden Leistungsausgänge beeinflussen. Z-STEP ist bei RF2000/v2 **PF3**, während der RF1000-Block PL3 verwendet; die Blöcke dürfen nicht vermischt werden.
++**Korrektur zum Auftrag:** DRV4 liegt auf PA4/PA6. PA5 steuert `OUT2`; PA7/D29 ist im maßgeblichen RF2000v2-Block `WATCHDOG_PIN`. PA5/PA7 als A-STEP/DIR würden somit einen Leistungsausgang beziehungsweise den Watchdog-Anschluss ansteuern. Z-STEP ist bei RF2000/v2 **PF3**, während der RF1000-Block PL3 verwendet; die Blöcke dürfen nicht vermischt werden.
 +
 +`ENA_DRVx` führt ohne Inverter direkt auf **SLEEPn**, Pin 8 des DRV8711. LOW bedeutet Sleep, HIGH bedeutet wach. Die Repetier-Definitionen `X/Y/Z_ENABLE_ON 1` bestätigen die aktive HIGH-Freigabe. Das zusätzliche CTRL-Registerbit ENBL ist unabhängig davon. Reservekanäle werden konfiguriert, bleiben anschließend im Sleep und dürfen keine STEP-Flanken erhalten.
 +
@@ -4194,7 +4215,7 @@
 +
 +## Strom und Mikroschritte
 +
-+Die zehn Shunts auf Blatt 3–5 sind als **0,033 Ω** beschriftet: DRV1 R80/R82, DRV2 R81/R83, DRV3 R84/R86, DRV4 R85/R87, DRV5 R88/R89. Dieser Wert ist unter der verbindlichen Planannahme die Berechnungsgrundlage. Der tatsächlich geregelte Wicklungsstrom und die Erwärmung bleiben Funktionstests.
++Die zehn Shunts auf Blatt 3–5 sind als **0,033 Ω** beschriftet: DRV1 R80/R82, DRV2 R81/R83, DRV3 R84/R86, DRV4 R85/R87, DRV5 R88/R89. Dieser ergänzend aus dem Plan übernommene Wert ist die Berechnungsgrundlage. Der tatsächlich geregelte Wicklungsstrom und die Erwärmung bleiben Funktionstests.
 +
 +Die Referenz erzeugt CTRL aus `0x0E01 | (MODE << 3)`: DTIME=`11` (850 ns), ISGAIN=`10` (**20**), EXSTALL=0, RDIR=0, RSTEP=0, ENBL=1. Der unveränderte GAIN-Wert ist entscheidend. TORQUE wird mit `0x1100 + level` geschrieben: TORQUE=`level`, SMPLTH=`001`; `110` bedeutet weder 110 mA noch 1,10 A.
 +
@@ -4237,9 +4258,17 @@
 +
 +Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, LCD-, SD- oder Servo-Funktion. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
 +
-+Auf Blatt 1 tragen PA7 und PC4 beide die Netzbezeichnung `OUT3`. Nach der verbindlichen Planannahme wird dies als gemeinsame Netzzuordnung behandelt: PC4 hält OUT3 LOW, PA7 bleibt **Eingang ohne Pullup** und treibt das Netz nicht zusätzlich. Diese bereits implementierten GPIO-Pegel passen zum Plan; die frühere Begründung über Repetier `WATCHDOG_PIN` entfällt.
++Die aktuelle Entscheidung zur abweichenden Zuordnung lautet:
 +
-+Der WDI-Eingang des TPS3820 (N2) liegt laut Blatt 1 über R11=0 Ω am Netz `PC0`; der CPU-Anschluss PC0 ist zugleich als ES2 geführt. Die Firmware verwendet PC0 ausschließlich als Endschaltereingang mit Pullup und erzeugt dort keinen Watchdog-Takt. Sie nimmt keinen zusätzlichen, aus Repetier abgeleiteten WDI-Ausgang an und behauptet keine softwareseitige Abschaltung des externen Watchdogs. Das reale RESET-/Watchdog-Verhalten ist Teil des Logiktests; unerwartete Neustarts werden vor Bewegungen untersucht.
++| Anschluss | Bisherige Interpretation | Jetzt maßgebliche RF2000v2-Konfiguration |
++|---|---|---|
++| PA7 / D29 | Mit PC4 als gemeinsames `OUT3` behandelt | `WATCHDOG_PIN`, getrennt von OUT3 |
++| PC4 / D33 | OUT3 LOW | OUT3 LOW, unverändert |
++| PC0 / D37 | ES2 / Y-Min | ES2 / Y-Min, unverändert |
++
++PA7 bleibt **Eingang ohne Pullup**. Das entspricht `HAL::stopWatchdog()` der Referenz: `WRITE(WATCHDOG_PIN, LOW)` und anschließend `SET_INPUT(WATCHDOG_PIN)`. GRBL erzeugt keinen aktiven Watchdog-Takt. PC4 bleibt als Leistungsausgang LOW und PC0 als Endschaltereingang mit Pullup konfiguriert. Diese Entscheidung ändert die Interpretation von PA7 und die Quellenpriorität; die bereits implementierten elektrischen GPIO-Pegel bleiben gleich.
++
++Die im PDF bei N2/WDI über R11 sichtbare Netzbezeichnung `PC0` ist nicht allein aufgrund des gleichen Namens mit dem CPU-Portpin PC0 gleichzusetzen. Der CPU-Portpin PC0 führt über das Netz `ES2` zum Y-Endschalter X14. Eine direkte Verbindung dieses Endschaltereingangs zum Watchdog wird daraus nicht behauptet. Das reale RESET-/Watchdog-Verhalten und die Wirkung des hochohmigen PA7 sind Teil des Logiktests; unerwartete Neustarts werden vor Bewegungen untersucht.
 +
 +Die unabhängige Not-Aus-Verschaltung, Netzteilabschaltung und vorhandene Relais-/Triacschaltung auf Blatt 6 müssen vor einem Test elektrisch geprüft werden. Die Firmware bestätigt deren Funktion nicht. Sie kann weder ein verschweißtes Relais noch einen durchgeschlagenen MOSFET absichern. Für erste Tests bleiben sämtliche Heizer, Netzsteckdose, Spindel und Leistungslasten physisch abgetrennt.
 +
@@ -4650,7 +4679,7 @@
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,96 @@
+@@ -0,0 +1,102 @@
 +# Prüfbericht
 +
 +Stand: 18.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
@@ -4715,12 +4744,16 @@
 +und Bewegungen. PH1/Z-Max beendet eine laufende Bewegung und blockiert die
 +Freigabe, solange der Eingang aktiv ist.
 +
-+Der erneute vollständige Lauf von `make check` nach Festlegung des Schaltplans
-+als verbindliche Hardwaregrundlage ist erfolgreich. Die AVR-Simulation prüft
-+zusätzlich PA7 als Eingang ohne Pullup, PC4 als LOW-Ausgang für OUT3 und PC0
-+als Endschaltereingang. Die elektrische Firmwarekonfiguration ist unverändert;
-+das neu erzeugte HEX bleibt bytegleich zum zuvor geprüften Stand. Das aktuelle
-+Laufprotokoll steht in `artifacts/validation.log`.
++Der vollständige Lauf von `make check` einschließlich der zusätzlichen
++GPIO-Prüfungen ist erfolgreich. Die AVR-Simulation prüft PA7 als Eingang ohne
++Pullup, PC4 als LOW-Ausgang für OUT3 und PC0 als Endschaltereingang. Diese
++GPIO-Konfiguration entspricht für PA7 Repetiers `HAL::stopWatchdog()`.
++Die aktuelle Quellenpriorität bei abweichenden Hardwarezuordnungen liegt
++nach Nutzervorgabe bei der Repetier-RF2000v2-Konfiguration. Diese Änderung
++betrifft Kommentare und Dokumentation; die GPIO-Pegel bleiben gleich.
++Ein anschließender Make-Build und `tests/run-sim.sh` sind ebenfalls erfolgreich;
++das erzeugte HEX bleibt bytegleich. Vollständiger Test und dieser gezielte
++Nachlauf stehen in `artifacts/validation.log`.
 +
 +## Codeprüfung und Grenzen
 +
@@ -4739,8 +4772,10 @@
 +kompiliert. Repetier enthält die dokumentierten ursprünglichen fehlenden
 +Return-Pfade in `Printer.h`. Warnungen wurden nicht global abgeschaltet.
 +
-+Die Übereinstimmung der Zielplatine mit dem Schaltplan ist inzwischen vom
-+Nutzer als verbindliche Arbeitsannahme festgelegt. Nicht geprüft: elektrische
++Die bisherige Repetier-Konfiguration wird nach Nutzervorgabe als
++funktionierend zugrunde gelegt; abweichende Hardwarezuordnungen im Plan
++werden anhand dieser Referenz entschieden und dem Nutzer mitgeteilt.
++Nicht geprüft am GRBL-Port: elektrische
 +Signalqualität, Reset-/Watchdog-Laufverhalten, Endschalter-NO/NC und
 +Kabelbruchverhalten, tatsächliche Wicklungsströme, mechanische
 +Bewegungsrichtungen, reale Anhaltewege und
