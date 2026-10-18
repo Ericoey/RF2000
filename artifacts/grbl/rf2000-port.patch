@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,112 +1,60 @@
+@@ -1,112 +1,61 @@
 -#  Part of Grbl
 -#
 -#  Copyright (c) 2017-2022 Gauthier Briere
@@ -85,6 +85,7 @@
  
 -AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE) -B 10 -F
 +check: all
++	python3 tools/test_check_avr_size.py
 +	python3 tools/test_rf2000_limits.py
 +	python3 tools/test_rf2000_drv8711.py
 +	python3 tools/test_eeprom_records.py
@@ -2475,21 +2476,26 @@
 +PY
 --- /dev/null
 +++ b/tools/check-avr-size.py
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,27 @@
 +#!/usr/bin/env python3
 +"""Reject images exceeding ATmega2560 flash (8 KiB bootloader reserved) or SRAM."""
 +import os
 +from pathlib import Path
++import re
 +import subprocess
 +import sys
 +
 +tool = sys.argv[2] if len(sys.argv) > 2 else Path(os.environ.get('TOOLCHAIN_ROOT', '/workspace/.tools/avr')) / 'usr/bin/avr-size'
-+result = subprocess.run([str(tool), '-A', sys.argv[1]], check=True, capture_output=True, text=True)
++result = subprocess.run([str(tool), '-A', '-d', sys.argv[1]], check=True, capture_output=True, text=True)
 +sections = {}
++section_row = re.compile(r'^\s*(\.[^\s]+)\s+([0-9]+)\s+([0-9]+)\s*$')
 +for line in result.stdout.splitlines():
-+    fields = line.split()
-+    if len(fields) >= 2 and fields[0].startswith('.'):
-+        sections[fields[0]] = int(fields[1])
++    # A relative ELF filename may itself start with '.', as in
++    # '.pio/build/rf2000_grbl/firmware.elf :'. Only accept section rows with
++    # numeric size AND address, never the filename or column headings.
++    row = section_row.fullmatch(line)
++    if row:
++        sections[row.group(1)] = int(row.group(2))
 +# New AVR binutils' Berkeley summary includes initialized data in its text
 +# column, while hiding it from data. Use actual sections to count SRAM too.
 +flash = sections.get('.text', 0) + sections.get('.data', 0)
@@ -2668,6 +2674,77 @@
 +export PLATFORMIO_CORE_DIR="${PLATFORMIO_CORE_DIR:-$rf_tools/platformio}"
 +export PLATFORMIO_SETTING_ENABLE_TELEMETRY=no
 +exec "$rf_tools/platformio-venv/bin/pio" "$@"
+--- /dev/null
++++ b/tools/test_check_avr_size.py
+@@ -0,0 +1,68 @@
++#!/usr/bin/env python3
++"""Regression tests for GNU avr-size output consumed by the build hook."""
++from contextlib import redirect_stdout
++from io import StringIO
++from pathlib import Path
++import runpy
++import subprocess
++import sys
++from types import SimpleNamespace
++import unittest
++from unittest.mock import patch
++
++CHECKER = Path(__file__).with_name('check-avr-size.py')
++
++
++class SizeCheckTests(unittest.TestCase):
++    def run_checker(self, filename, rows):
++        output = f'{filename}  :\nsection  size  addr\n{rows}\nTotal  38696\n'
++        captured = StringIO()
++        with patch.object(sys, 'argv', [str(CHECKER), filename, 'avr-size']), \
++                patch('subprocess.run', return_value=SimpleNamespace(stdout=output)) as tool, \
++                redirect_stdout(captured):
++            runpy.run_path(str(CHECKER), run_name='__main__')
++        self.assertEqual(tool.call_args.args[0], ['avr-size', '-A', '-d', filename])
++        self.assertTrue(tool.call_args.kwargs['check'])
++        return captured.getvalue()
++
++    def test_platformio_relative_filename_is_not_a_section(self):
++        result = self.run_checker('.pio/build/rf2000_grbl/firmware.elf',
++                                  '.data 50 8389120\n.text 35176 0\n.bss 3470 8389170')
++        self.assertIn('Flash 35226/253952 bytes; static SRAM 3520/8192 bytes', result)
++
++    def test_paths_with_spaces_and_windows_separators(self):
++        for filename in ('/Users/example/My Project/firmware.elf',
++                         '.pio/build/my project/firmware.elf',
++                         r'.pio\build\rf2000_grbl\firmware.elf'):
++            with self.subTest(filename=filename):
++                self.assertIn('Flash 10/', self.run_checker(filename, '.text 10 0\n.data 0 100'))
++
++    def test_noinit_counts_toward_sram(self):
++        result = self.run_checker('firmware.elf', '.text 20 0\n.data 2 100\n.bss 3 102\n.noinit 4 105')
++        self.assertIn('static SRAM 9/', result)
++
++    def test_exact_capacity_is_accepted(self):
++        result = self.run_checker('firmware.elf', '.text 253950 0\n.data 2 100\n.bss 8190 102')
++        self.assertIn('Flash 253952/253952 bytes; static SRAM 8192/8192 bytes', result)
++
++    def test_flash_overflow_is_rejected(self):
++        with self.assertRaisesRegex(AssertionError, 'bootloader'):
++            self.run_checker('firmware.elf', '.text 253953 0\n.data 0 100')
++
++    def test_initialized_data_can_overflow_sram(self):
++        with self.assertRaisesRegex(AssertionError, 'SRAM'):
++            self.run_checker('firmware.elf', '.text 20 0\n.data 1 100\n.bss 8192 101')
++
++    def test_missing_text_is_rejected(self):
++        with self.assertRaisesRegex(AssertionError, 'missing'):
++            self.run_checker('.pio/build/firmware.elf', '.debug_info 200 0')
++
++    def test_tool_error_is_preserved(self):
++        with patch.object(sys, 'argv', [str(CHECKER), 'firmware.elf', 'avr-size']), \
++                patch('subprocess.run', side_effect=subprocess.CalledProcessError(1, 'avr-size')):
++            with self.assertRaises(subprocess.CalledProcessError):
++                runpy.run_path(str(CHECKER), run_name='__main__')
++
++
++if __name__ == '__main__':
++    unittest.main()
 --- /dev/null
 +++ b/tools/test_eeprom_records.py
 @@ -0,0 +1,164 @@
@@ -4285,7 +4362,7 @@
 +Cloud ausgeführt. Host-Tests bzw. AVR-Kompilation prüfen nur die Software.
 --- /dev/null
 +++ b/docs/platformio.md
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,120 @@
 +# GRBL mit PlatformIO kompilieren
 +
 +Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
@@ -4360,6 +4437,26 @@
 +Compiler können unterschiedliche HEX-Dateien und Laufzeiten erzeugen.
 +Die Softwareprüfung muss daher zum tatsächlich verwendeten ELF gehören.
 +Der Hardwaretestplan gilt auch für ein mit PlatformIO erzeugtes Image.
++
++## Fehler `ValueError: invalid literal for int() with base 10: ':'`
++
++Dieser Fehler stammt aus einer älteren Version der zusätzlichen
++Speicherprüfung. Die Überschrift `.pio/build/…/firmware.elf :` wurde als
++Speichersektion interpretiert. Der Parser akzeptiert jetzt ausschließlich
++Sektionszeilen mit numerischer Größe und Adresse. Acht Regressionstests
++prüfen unter anderem relative Pfade, Leerzeichen, Windows-Trennzeichen und
++die weiterhin wirksamen Flash-/SRAM-Grenzen.
++
++Nach dem Aktualisieren des Repositorys einen sauberen Build ausführen:
++
++```bash
++git pull
++pio run -e rf2000_grbl -t clean
++pio run -e rf2000_grbl
++```
++
++Die Korrektur wurde zusätzlich mit dem echten `avr-size` und einem relativen
++`.pio/…/firmware.elf` durch den vollständigen Python-Post-Build-Hook geprüft.
 +
 +## Hardwaretest
 +

@@ -41,6 +41,7 @@ disasm: $(BUILD)/main.elf
 	$(OBJDUMP) -d -S $< > $(BUILD)/rf2000-grbl.lst
 
 check: all
+	python3 tools/test_check_avr_size.py
 	python3 tools/test_rf2000_limits.py
 	python3 tools/test_rf2000_drv8711.py
 	python3 tools/test_eeprom_records.py

@@ -73,6 +73,26 @@ Compiler können unterschiedliche HEX-Dateien und Laufzeiten erzeugen.
 Die Softwareprüfung muss daher zum tatsächlich verwendeten ELF gehören.
 Der Hardwaretestplan gilt auch für ein mit PlatformIO erzeugtes Image.
 
+## Fehler `ValueError: invalid literal for int() with base 10: ':'`
+
+Dieser Fehler stammt aus einer älteren Version der zusätzlichen
+Speicherprüfung. Die Überschrift `.pio/build/…/firmware.elf :` wurde als
+Speichersektion interpretiert. Der Parser akzeptiert jetzt ausschließlich
+Sektionszeilen mit numerischer Größe und Adresse. Acht Regressionstests
+prüfen unter anderem relative Pfade, Leerzeichen, Windows-Trennzeichen und
+die weiterhin wirksamen Flash-/SRAM-Grenzen.
+
+Nach dem Aktualisieren des Repositorys einen sauberen Build ausführen:
+
+```bash
+git pull
+pio run -e rf2000_grbl -t clean
+pio run -e rf2000_grbl
+```
+
+Die Korrektur wurde zusätzlich mit dem echten `avr-size` und einem relativen
+`.pio/…/firmware.elf` durch den vollständigen Python-Post-Build-Hook geprüft.
+
 ## Hardwaretest
 
 A/B bleiben deaktiviert und Homing bleibt im Testprofil gesperrt. Es wurde
