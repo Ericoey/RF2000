@@ -1,0 +1,28 @@
+python3 tools/test_rf2000_limits.py
+RF2000 limits: 16 input combinations, fixed polarity, init, debounce, hard stop, fault and homing selection PASS
+python3 tools/test_rf2000_drv8711.py
+PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
+XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
+persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
+INT6 falling-edge configuration and short recovered FAULT pulse latch.
+python3 tools/test_eeprom_records.py
+EEPROM record separation, length/index guards, NUL handling, restore and SREG: PASS
+tests/run-sim.sh
+Loaded 35176 .text at address 0x0
+Loaded 50 .data
+PASS: five DRV register write/readback, alarm/admission, XYZ+reverse counts64/64/32; min STEP 14.312us DIR setup 16399.438us
+PASS: UART-stressed Z move6400 pulses at 4992.81 steps/s (fastest64-edge window), settings/M-word and EEPROM guards
+PASS: PH1 Z-max alarm stops all five drivers; active contact blocks unlock
+PASS: shared FAULTn stops motion; software reset cannot clear sticky fault
+Loaded 35176 .text at address 0x0
+Loaded 50 .data
+PASS: intentionally corrupted DRV readback blocks motion and unlock
+Loaded 35176 .text at address 0x0
+Loaded 50 .data
+PASS: deterministic FAULTn at Timer1 ISR entry cancels pending STEP, retains alarm12 before safety poll
+Loaded 35176 .text at address 0x0
+Loaded 50 .data
+PASS: deterministic FAULTn at Timer0 ISR entry cancels pending STEP, retains alarm12 before safety poll
+Loaded 35176 .text at address 0x0
+Loaded 50 .data
+PASS: INT6 latches a completed 1us FAULTn pulse and blocks unlock

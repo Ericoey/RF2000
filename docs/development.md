@@ -1,0 +1,72 @@
+# Entwicklung und Build
+
+Die Cloudumgebung verwendet den vorhandenen Checkout `/workspace/RF2000`.
+Jede Cloudaufgabe ist bereits isoliert; ohne ausdrücklichen Auftrag keinen
+weiteren Git-Worktree anlegen. Es sind keine Hintergrunddienste und keine
+Zugangsschlüssel erforderlich. Hardware ist in dieser Cloudmaschine nicht
+angeschlossen.
+
+## Werkzeuge installieren
+
+```bash
+cd /workspace/RF2000
+tools/install-toolchain.sh
+make -j4
+make check
+make repetier
+```
+
+Der Installer funktioniert ohne Rootrechte auf Debian 13/x86_64. Er entpackt
+AVR-GCC 14.2.0, AVR-Binutils 2.43.50.20250108, AVR-libc 2.2.1 und simavr 1.6
+nach `/workspace/.tools/avr`. APT prüft signierte Debian-Metadaten und die
+Paketprüfsummen. Arduino AVR Core 1.8.6 wird über HTTPS von GitHub geladen und
+gegen den festgelegten Commit geprüft. Es wird keine Systemkonfiguration
+ersetzt. Wiederholte Aufrufe verwenden die vorhandenen Werkzeuge; fremde
+Änderungen am Arduino-Core werden nicht überschrieben.
+
+Die vollständige Installation wurde zusätzlich in einem leeren Präfix
+`/workspace/.tools/repro-verified` ausgeführt. Die Liveumgebung und die
+gespeicherten Installationsanweisungen sind getrennt: Änderungen am Entwurf
+müssen in den Umgebungseinstellungen gespeichert und anschließend
+veröffentlicht werden. Eine neue Cloudaufgabe wurde hier nicht gestartet.
+
+Netzwerkziele: `deb.debian.org`, `github.com` und für den offiziellen
+Datenblattabruf `www.ti.com`. Die Referenz-PDFs liegen bereits unter
+`references/`. Der Build benötigt keinen Arduino-CLI-Download.
+
+## Ergebnisse
+
+`make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.
+`make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
+Die Speicherprüfung reserviert 8 KiB für einen möglichen Mega-Bootloader;
+das tatsächliche Programmierverfahren ist separat am Gerät festzulegen.
+
+`make check` führt Prüfungen am tatsächlichen C-Code und am kompilierten
+ATmega2560-ELF mit einem DRV8711-/GPIO-Modell aus. Der Simulator ersetzt weder
+Motoren noch elektrische Messungen. Ein Hosttest kann keine reale
+Schalterpolarität, Netzzuordnung oder Motorstrom bestätigen.
+
+Die unveränderte Community-Repetier-Referenz und ihre getrennte Buildkopie
+sind in [repetier-build.md](repetier-build.md) beschrieben. Repetier-HEX ist
+weiterhin Druckerfirmware mit Heizfunktionen und kein CNC-Testimage.
+
+## Firmwareauswahl und spätere Änderungen
+
+Das Testprofil plant drei logische Achsen. Alle fünf Hardwaretreiber werden
+konfiguriert und zurückgelesen. A/B bleiben mit SLEEPn LOW, CTRL.ENBL=0 und
+STEP LOW gesperrt. Fünf logische Achsen würden versehentliche A/B-Kommandos
+zulassen; drei Achsen vermeiden dies auch im Parser und in den Statusdaten.
+Für eine spätere Aktivierung müssen Achsenzahl, Pinmap, Schrittgenerator,
+Planerparameter, EEPROM-Version und Testabdeckung bewusst erweitert werden.
+Das fünfkanalige SPI-/Freigabemodul kann dabei wiederverwendet werden.
+
+Homing ist durch `RF2000_HOMING_VERIFIED=0` zusätzlich zur normalen
+GRBL-Einstellung gesperrt. Die Kandidaten aus dem Repetier-Fräsmodus sind
+X/Y Richtung MIN und Z Richtung MAX. Die Hardwareprüfung muss diese
+Zuordnung und die tatsächlichen Richtungen erst bestätigen. Auch eine spätere
+Änderung von `$3`, `$23`, Schalterverkabelung oder Mechanik erfordert erneute
+Verifikation. Eine Compileroption allein ist kein Prüfnachweis.
+
+`make flash`, `make fuse`, `make install` und `make load` brechen bewusst ab.
+Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.
+Das kontrollierte Vorgehen steht in [hardware-test.md](hardware-test.md).

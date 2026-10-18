@@ -1,0 +1,2295 @@
+Archive member included to satisfy reference by file (symbol)
+
+/workspace/RF2000/build/repetier/core.a(Print.cpp.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/HAL.cpp.o (symbol from plugin) (_ZN5Print5writeEPKhj)
+/workspace/RF2000/build/repetier/core.a(Tone.cpp.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (_Z4tonehjm)
+/workspace/RF2000/build/repetier/core.a(WMath.cpp.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/RF.cpp.o (symbol from plugin) (_Z6randomll)
+/workspace/RF2000/build/repetier/core.a(main.cpp.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o (main)
+/workspace/RF2000/build/repetier/core.a(new.cpp.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/HAL.cpp.o (symbol from plugin) (_ZdlPv)
+/workspace/RF2000/build/repetier/core.a(wiring.c.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (millis)
+/workspace/RF2000/build/repetier/core.a(wiring_digital.c.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Extruder.cpp.o (symbol from plugin) (pinMode)
+/workspace/RF2000/build/repetier/core.a(hooks.c.o)
+                              wiring.c.o (symbol from plugin) (yield)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/motion.cpp.o (symbol from plugin) (atan2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (atanf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/motion.cpp.o (symbol from plugin) (cos)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__divsf3_pse)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Extruder.cpp.o (symbol from plugin) (floor)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o) (__fp_inf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o) (__fp_mintl)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o) (__fp_mpack)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__fp_nan)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o) (__fp_powser)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__fp_pscA)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__fp_pscB)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o) (__fp_rempio2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__fp_round)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o) (__fp_sinus)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__fp_split3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o) (__fp_trunc)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__fp_zero)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (hypot)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o) (__inversef)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ldexp.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o) (ldexpf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (lroundf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o) (__mulsf3x)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/motion.cpp.o (symbol from plugin) (sin)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o) (sqrtf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o) (squaref)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o) (__addsf3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o) (__addsf3x)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o) (__divsf3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o) (__fp_norm2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o) (__fp_powsodd)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o) (__mulsf3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o (exit)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o)
+                              WMath.cpp.o (symbol from plugin) (random)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/gcode.cpp.o (symbol from plugin) (strtod)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/gcode.cpp.o (symbol from plugin) (strtol)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isspace.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o) (isspace)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncasecmp_PF.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o) (strncasecmp_PF)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(pwr_10.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o) (__avrlibc_pwr_m10)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cmpsf2.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o) (__eqsf2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(floatsisf.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o) (__floatunsisf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(fp_cmp.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cmpsf2.o) (__fp_cmp)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(errno.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o) (errno)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cty_isfalse.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isspace.o) (__ctype_isfalse)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_block.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (eeprom_read_block)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_byte.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Eeprom.cpp.o (symbol from plugin) (eeprom_read_byte)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_dword.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (eeprom_read_dword)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_word.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Eeprom.cpp.o (symbol from plugin) (eeprom_read_word)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_block.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o (symbol from plugin) (eeprom_write_block)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_byte.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Eeprom.cpp.o (symbol from plugin) (eeprom_write_byte)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_dword.o)
+                              /workspace/RF2000/build/repetier/objects/firmware/Eeprom.cpp.o (symbol from plugin) (eeprom_write_dword)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_word.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_dword.o) (eeprom_write_word)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o) (__mulsi3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o) (__udivmodsi4)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o) (__divmodsi4)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o) (__negsi2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o) (__do_copy_data)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(errno.o) (__do_clear_bss)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o) (__muluhisi3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o) (__mulohisi3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o) (__umulhisi3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__fixsfsi)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__fixunssfsi)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__gesf2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(isinf.o)
+                              /tmp/ccoJTYws.ltrans3.ltrans.o (isinf)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(unordsf2.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__unordsf2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (__divmodqi4)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__udivmodhi4)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (__divmodhi4)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__tablejump2__)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+                              /tmp/ccoJTYws.ltrans3.ltrans.o (__do_global_ctors)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (__clzhi2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (__bswapsi2)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (__usmulhisi3)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+                              /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o) (__udivmodqi4)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(malloc.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (malloc)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isprint.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (isprint)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(tolower.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (tolower)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (memcpy)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (memmove)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (memset)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcat.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (strcat)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strchr.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (strchr)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
+                              /tmp/ccoJTYws.ltrans3.ltrans.o (strcmp)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
+                              /tmp/ccoJTYws.ltrans0.ltrans.o (strcpy)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncpy.o)
+                              /tmp/ccoJTYws.ltrans1.ltrans.o (strncpy)
+/workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrchr.o)
+                              /tmp/ccoJTYws.ltrans3.ltrans.o (strrchr)
+
+Discarded input sections
+
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .data          0x00000000        0x0 /tmp/ccoJTYws.ltrans3.ltrans.o
+ .comment       0x00000000       0x13 /tmp/ccIuTmxR.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccrrzaey.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccckuwbi.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccWCY2XN.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cc3L3cgv.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccrms4eh.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccqqxB5H.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccp3Caem.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccZZwLa9.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cc7CCd1p.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccy5zGjW.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccjY8r87.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccLQzLnC.debug.temp.o
+ .debug_info    0x00000000      0x55d /tmp/ccUcJc7Q.debug.temp.o
+ .debug_abbrev  0x00000000      0x24f /tmp/ccUcJc7Q.debug.temp.o
+ .debug_line    0x00000000       0x68 /tmp/ccUcJc7Q.debug.temp.o
+ .debug_str     0x00000000      0x618 /tmp/ccUcJc7Q.debug.temp.o
+ .debug_line_str
+                0x00000000      0x1a7 /tmp/ccUcJc7Q.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccUcJc7Q.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccK2wq2C.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccZekwQl.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccwi52my.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccdg98IX.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccdYdhO8.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccGbl1Ch.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccBbAV9t.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccCdFyBl.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccIewMiR.debug.temp.o
+ .debug_info    0x00000000       0x27 /tmp/ccJom4wv.debug.temp.o
+ .debug_abbrev  0x00000000       0x1d /tmp/ccJom4wv.debug.temp.o
+ .debug_line    0x00000000       0x3a /tmp/ccJom4wv.debug.temp.o
+ .debug_str     0x00000000       0xaa /tmp/ccJom4wv.debug.temp.o
+ .debug_line_str
+                0x00000000       0x94 /tmp/ccJom4wv.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccJom4wv.debug.temp.o
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ldexp.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ldexp.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ldexp.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(isinf.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(isinf.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(isinf.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(unordsf2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(unordsf2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(unordsf2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isspace.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isspace.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isspace.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncasecmp_PF.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncasecmp_PF.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(pwr_10.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(pwr_10.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(pwr_10.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cmpsf2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cmpsf2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cmpsf2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(floatsisf.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(floatsisf.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(floatsisf.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(fp_cmp.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(fp_cmp.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(fp_cmp.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(errno.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(errno.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cty_isfalse.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cty_isfalse.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cty_isfalse.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(malloc.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isprint.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isprint.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isprint.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(tolower.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(tolower.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(tolower.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcat.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcat.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcat.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strchr.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strchr.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strchr.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncpy.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrchr.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrchr.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrchr.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_block.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_block.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_block.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_byte.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_byte.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_byte.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_dword.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_dword.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_dword.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_word.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_word.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_word.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_block.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_block.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_block.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_byte.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_byte.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_byte.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_dword.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_dword.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_dword.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_word.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_word.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_word.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc.mul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+ .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .text.libgcc.div
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .text.libgcc   0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .text.libgcc.prologue
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .text.libgcc.builtins
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .text.libgcc.fmul
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+ .text.libgcc.fixed
+                0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+text             0x00000000         0x00040000         xr
+data             0x00800200         0x00002000         rw!x
+eeprom           0x00810000         0x00001000         rw!x
+fuse             0x00820000         0x00000003         rw!x
+lock             0x00830000         0x00000400         rw!x
+signature        0x00840000         0x00000400         rw!x
+user_signatures  0x00850000         0x00000400         rw!x
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+Address of section .data set to 0x800200
+LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/Commands.cpp.o
+LOAD /tmp/ccoJTYws.ltrans0.ltrans.o
+LOAD /tmp/ccoJTYws.ltrans1.ltrans.o
+LOAD /tmp/ccoJTYws.ltrans2.ltrans.o
+LOAD /tmp/ccoJTYws.ltrans3.ltrans.o
+LOAD /tmp/ccIuTmxR.debug.temp.o
+LOAD /tmp/ccrrzaey.debug.temp.o
+LOAD /tmp/ccckuwbi.debug.temp.o
+LOAD /tmp/ccWCY2XN.debug.temp.o
+LOAD /tmp/cc3L3cgv.debug.temp.o
+LOAD /tmp/ccrms4eh.debug.temp.o
+LOAD /tmp/ccqqxB5H.debug.temp.o
+LOAD /tmp/ccp3Caem.debug.temp.o
+LOAD /tmp/ccZZwLa9.debug.temp.o
+LOAD /tmp/cc7CCd1p.debug.temp.o
+LOAD /tmp/ccy5zGjW.debug.temp.o
+LOAD /tmp/ccjY8r87.debug.temp.o
+LOAD /tmp/ccLQzLnC.debug.temp.o
+LOAD /tmp/ccUcJc7Q.debug.temp.o
+LOAD /tmp/ccK2wq2C.debug.temp.o
+LOAD /tmp/ccZekwQl.debug.temp.o
+LOAD /tmp/ccwi52my.debug.temp.o
+LOAD /tmp/ccdg98IX.debug.temp.o
+LOAD /tmp/ccdYdhO8.debug.temp.o
+LOAD /tmp/ccGbl1Ch.debug.temp.o
+LOAD /tmp/ccBbAV9t.debug.temp.o
+LOAD /tmp/ccCdFyBl.debug.temp.o
+LOAD /tmp/ccIewMiR.debug.temp.o
+LOAD /tmp/ccJom4wv.debug.temp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/Communication.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/Eeprom.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/Extruder.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/HAL.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/Printer.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/RF.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/Repetier.ino.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/SDCard.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/SdFat.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/gcode.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/motion.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/firmware/ui.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/library/SPI.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/library/Wire.cpp.o
+LOAD /workspace/RF2000/build/repetier/objects/library/twi.c.o
+LOAD /workspace/RF2000/build/repetier/core.a
+LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a
+START GROUP
+LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a
+LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a
+LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a
+LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a
+END GROUP
+                [0x00000000]                      __TEXT_REGION_ORIGIN__ = DEFINED (__TEXT_REGION_ORIGIN__)?__TEXT_REGION_ORIGIN__:0x0
+                [0x00040000]                      __TEXT_REGION_LENGTH__ = DEFINED (__TEXT_REGION_LENGTH__)?__TEXT_REGION_LENGTH__:0x100000
+                [0x00800200]                      __DATA_REGION_ORIGIN__ = DEFINED (__DATA_REGION_ORIGIN__)?__DATA_REGION_ORIGIN__:0x800200
+                [0x00002000]                      __DATA_REGION_LENGTH__ = DEFINED (__DATA_REGION_LENGTH__)?__DATA_REGION_LENGTH__:0xfe00
+                [0x00001000]                      __EEPROM_REGION_LENGTH__ = DEFINED (__EEPROM_REGION_LENGTH__)?__EEPROM_REGION_LENGTH__:0x10000
+                [0x00000003]                      __FUSE_REGION_LENGTH__ = DEFINED (__FUSE_REGION_LENGTH__)?__FUSE_REGION_LENGTH__:0x400
+                0x00000400                        __LOCK_REGION_LENGTH__ = DEFINED (__LOCK_REGION_LENGTH__)?__LOCK_REGION_LENGTH__:0x400
+                0x00000400                        __SIGNATURE_REGION_LENGTH__ = DEFINED (__SIGNATURE_REGION_LENGTH__)?__SIGNATURE_REGION_LENGTH__:0x400
+                0x00000400                        __USER_SIGNATURE_REGION_LENGTH__ = DEFINED (__USER_SIGNATURE_REGION_LENGTH__)?__USER_SIGNATURE_REGION_LENGTH__:0x400
+
+.hash
+ *(.hash)
+
+.dynsym
+ *(.dynsym)
+
+.dynstr
+ *(.dynstr)
+
+.gnu.version
+ *(.gnu.version)
+
+.gnu.version_d
+ *(.gnu.version_d)
+
+.gnu.version_r
+ *(.gnu.version_r)
+
+.rel.init
+ *(.rel.init)
+
+.rela.init
+ *(.rela.init)
+
+.rel.text
+ *(.rel.text)
+ *(.rel.text.*)
+ *(.rel.gnu.linkonce.t*)
+
+.rela.text
+ *(.rela.text)
+ *(.rela.text.*)
+ *(.rela.gnu.linkonce.t*)
+
+.rel.fini
+ *(.rel.fini)
+
+.rela.fini
+ *(.rela.fini)
+
+.rel.rodata
+ *(.rel.rodata)
+ *(.rel.rodata.*)
+ *(.rel.gnu.linkonce.r*)
+
+.rela.rodata
+ *(.rela.rodata)
+ *(.rela.rodata.*)
+ *(.rela.gnu.linkonce.r*)
+
+.rel.data
+ *(.rel.data)
+ *(.rel.data.*)
+ *(.rel.gnu.linkonce.d*)
+
+.rela.data
+ *(.rela.data)
+ *(.rela.data.*)
+ *(.rela.gnu.linkonce.d*)
+
+.rel.ctors
+ *(.rel.ctors)
+
+.rela.ctors
+ *(.rela.ctors)
+
+.rel.dtors
+ *(.rel.dtors)
+
+.rela.dtors
+ *(.rela.dtors)
+
+.rel.got
+ *(.rel.got)
+
+.rela.got
+ *(.rela.got)
+
+.rel.bss
+ *(.rel.bss)
+
+.rela.bss
+ *(.rela.bss)
+
+.rel.plt
+ *(.rel.plt)
+
+.rela.plt
+ *(.rela.plt)
+
+.text           0x00000000    0x3533c
+ *(.vectors)
+ .vectors       0x00000000       0xe4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+                0x00000000                __vectors
+                0x00000000                __vector_default
+ *(.vectors)
+ *(.progmem.gcc*)
+                0x000000e4                        . = ALIGN (0x2)
+                0x000000e4                        __trampolines_start = .
+ *(.trampolines)
+ .trampolines   0x000000e4      0x6ec linker stubs
+ *(.trampolines*)
+                0x000007d0                        __trampolines_end = .
+ *libprintf_flt.a:*(.progmem.data)
+ *libc.a:*(.progmem.data)
+ *(.progmem.*)
+ .progmem.data  0x000007d0     0x2191 /tmp/ccoJTYws.ltrans0.ltrans.o
+                0x00000f9e                ui_text_home_unknown
+                0x00001072                osAnalogInputChannels
+                0x00001113                _ZN3Com13tAPIDFinishedE
+                0x00001193                ui_text_temperature_wrong
+                0x00001304                _ZZN8Extruder25setTemperatureForExtruderEfhbE3__c.lto_priv.0
+                0x0000135b                _ZN3Com2tCE
+                0x0000148f                _ZN3Com6tErrorE
+                0x00001576                _ZN3Com6tSlashE
+                0x0000160c                digital_pin_to_bit_mask_PGM
+                0x00001652                port_to_output_PGM
+                0x0000166c                digital_pin_to_port_PGM
+                0x000016b2                _ZL21tone_pin_to_timer_PGM.lto_priv.0
+                0x00001eec                _ZN3Com7tConfigE
+                0x000023f7                _ZN3Com2tFE
+                0x000023fa                _ZN3Com6tSpaceE
+                0x0000253f                ui_text_saving_success
+                0x000026e1                ui_text_heat_bed_scan
+ .progmem.data  0x00002961     0x3376 /tmp/ccoJTYws.ltrans1.ltrans.o
+                0x00003028                ui_text_min_reached
+                0x00003034                ui_text_max_reached
+                0x00004e5d                ui_text_z_compensation
+                0x00005be7                ui_text_operation_denied
+                0x00005bf8                _ZN3Com25tPrintingIsInProcessErrorE
+ .progmem.data  0x00005cd7     0x1a52 /tmp/ccoJTYws.ltrans2.ltrans.o
+                0x00005cd7                _ZL20ui_menu_message_4txt.lto_priv.0
+                0x00005cdb                _ZL20ui_menu_message_3txt.lto_priv.0
+                0x00005cdf                _ZL20ui_menu_message_2txt.lto_priv.0
+                0x00005ce3                _ZL20ui_menu_message_1txt.lto_priv.0
+                0x00005ce7                _ZL17ui_menu_message_4.lto_priv.0
+                0x00005cee                _ZL17ui_menu_message_3.lto_priv.0
+                0x00005cf5                _ZL17ui_menu_message_2.lto_priv.0
+                0x00005cfc                _ZL17ui_menu_message_1.lto_priv.0
+                0x00005d03                _ZL23ui_menu_message_entries.lto_priv.0
+                0x00006f06                _ZL15ui_menu_message.lto_priv.0
+                0x00006fbd                _ZL14ui_text_manual.lto_priv.0
+                0x000070ee                ui_text_home
+ .progmem.data  0x00007729      0x7ad /tmp/ccoJTYws.ltrans3.ltrans.o
+                0x00007ed6                        . = ALIGN (0x2)
+ *(.lowtext)
+ *(.lowtext*)
+                0x00007ed6                        __ctors_start = .
+ *(.ctors)
+ .ctors         0x00007ed6        0x2 /tmp/ccoJTYws.ltrans3.ltrans.o
+                0x00007ed8                        __ctors_end = .
+                0x00007ed8                        __dtors_start = .
+ *(.dtors)
+                0x00007ed8                        __dtors_end = .
+ SORT_BY_NAME(*)(.ctors)
+ SORT_BY_NAME(*)(.dtors)
+ *(.init0)
+ .init0         0x00007ed8        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+                0x00007ed8                __init
+ *(.init0)
+ *(.init1)
+ *(.init1)
+ *(.init2)
+ .init2         0x00007ed8       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ *(.init2)
+ *(.init3)
+ *(.init3)
+ *(.init4)
+ .init4         0x00007ee8       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+                0x00007ee8                __do_copy_data
+ .init4         0x00007f02       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+                0x00007f02                __do_clear_bss
+ *(.init4)
+ *(.init5)
+ *(.init5)
+ *(.init6)
+ .init6         0x00007f12       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ctors.o)
+                0x00007f12                __do_global_ctors
+ *(.init6)
+ *(.init7)
+ *(.init7)
+ *(.init8)
+ *(.init8)
+ *(.init9)
+ .init9         0x00007f32        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ *(.init9)
+ *(.text)
+ .text          0x00007f3a        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+                0x00007f3a                __vector_38
+                0x00007f3a                __vector_28
+                0x00007f3a                __vector_1
+                0x00007f3a                __vector_32
+                0x00007f3a                __vector_34
+                0x00007f3a                __vector_24
+                0x00007f3a                __vector_55
+                0x00007f3a                __vector_46
+                0x00007f3a                __bad_interrupt
+                0x00007f3a                __vector_6
+                0x00007f3a                __vector_31
+                0x00007f3a                __vector_35
+                0x00007f3a                __vector_3
+                0x00007f3a                __vector_30
+                0x00007f3a                __vector_45
+                0x00007f3a                __vector_11
+                0x00007f3a                __vector_54
+                0x00007f3a                __vector_19
+                0x00007f3a                __vector_56
+                0x00007f3a                __vector_7
+                0x00007f3a                __vector_49
+                0x00007f3a                __vector_41
+                0x00007f3a                __vector_43
+                0x00007f3a                __vector_27
+                0x00007f3a                __vector_5
+                0x00007f3a                __vector_33
+                0x00007f3a                __vector_47
+                0x00007f3a                __vector_52
+                0x00007f3a                __vector_37
+                0x00007f3a                __vector_4
+                0x00007f3a                __vector_44
+                0x00007f3a                __vector_51
+                0x00007f3a                __vector_9
+                0x00007f3a                __vector_2
+                0x00007f3a                __vector_15
+                0x00007f3a                __vector_36
+                0x00007f3a                __vector_29
+                0x00007f3a                __vector_40
+                0x00007f3a                __vector_8
+                0x00007f3a                __vector_48
+                0x00007f3a                __vector_14
+                0x00007f3a                __vector_53
+                0x00007f3a                __vector_10
+                0x00007f3a                __vector_50
+                0x00007f3a                __vector_16
+                0x00007f3a                __vector_18
+                0x00007f3a                __vector_20
+                0x00007f3a                __vector_42
+ .text          0x00007f3e     0xd142 /tmp/ccoJTYws.ltrans0.ltrans.o
+                0x00007f3e                _ZN5Print17availableForWriteEv
+                0x00007fa2                _ZN16RFHardwareSerial9availableEv
+                0x00007fc2                _ZN16RFHardwareSerial4peekEv
+                0x00007fea                _ZN16RFHardwareSerial4readEv
+                0x0000801c                _ZN16RFHardwareSerial5flushEv
+                0x00008038                _ZN16RFHardwareSerial5writeEh
+                0x00008140                _ZN3HAL17delayMillisecondsEj
+                0x000081a8                _ZN3HAL11eprGetFloatEj
+                0x000081d8                _ZN3HAL11eprSetFloatEjf
+                0x0000822a                _ZN3Com7printlnEv
+                0x00008236                _ZN7Printer20isXMaxSoftEndstopHitEv
+                0x0000826e                _ZN7Printer20isYMaxSoftEndstopHitEv
+                0x000082a6                _ZN7Printer18currentZPositionMMEv
+                0x00008308                _ZN8Commands18adjustFanFrequencyEh
+                0x00008324                _ZN8Commands13adjustFanModeEh
+                0x0000833c                _ZN8Commands15checkFreeMemoryEv
+                0x0000837c                _ZN3Com6printFEPKc
+                0x00008398                _ZN3Com8printFLNEPKc
+                0x000083a0                _ZN3Com12printInfoFLNEPKc
+                0x000083bc                _ZN3Com13printErrorFLNEPKc
+                0x000083d8                _ZN3Com14printSharpLineEv
+                0x000083ee                _ZN3Com5printEPKc
+                0x00008406                _ZN3Com11printNumberEm
+                0x0000849e                _ZN3Com8printFLNEPKcm
+                0x000084c6                _ZN3Com5printEl
+                0x000084fc                _ZN3Com6printFEPKci
+                0x00008596                _ZN3Com6printFEPKcl
+                0x0000874a                _ZN3Com8printFLNEPKci
+                0x00008768                _ZN8Commands22changeFeedrateMultiplyEi
+                0x00008806                _ZN8Commands22changeFlowrateMultiplyEf
+                0x000088a6                _ZN8Commands11setFanSpeedEhb
+                0x00008962                _ZN8Commands18writeLowestFreeRAMEv
+                0x000089b2                _ZN3Com8printFLNEPKcl
+                0x00008ada                _ZN3HAL10eprSetByteEjh
+                0x00008b06                _ZN3HAL11eprSetInt16Eji
+                0x00008b3a                _ZN3HAL11eprSetInt32Ejl
+                0x00008b82                _ZN6EEPROM46restoreEEPROMExtruderSettingsFromConfigurationEh
+                0x00008dc4                _ZN6EEPROM27storeExtruderDataIntoEEPROMEh
+                0x00008f36                _ZN21TemperatureController21updateTempControlVarsEv
+                0x00008fb2                _ZN8Extruder23setHeatedBedTemperatureEfb
+                0x0000915e                _ZN21TemperatureController24updateCurrentTemperatureEv
+                0x00009650                _Z31reportTempsensorAndHeaterErrorsv
+                0x00009e72                _ZN8Extruder12setDirectionEh
+                0x00009e9e                _ZN3HAL13resetHardwareEv
+                0x00009ea4                __vector_12
+                0x00009f04                _ZN3HAL13startWatchdogEv
+                0x00009f4a                _ZN3HAL12stopWatchdogEv
+                0x00009f54                __vector_22
+                0x0000a3a8                __vector_21
+                0x0000a4c6                __vector_25
+                0x0000a510                __vector_26
+                0x0000a566                _ZN7Printer22updateAdvanceActivatedEv
+                0x0000a5c4                _ZN7Printer22updateDerivedParameterEv
+                0x0000ab20                _ZN7Printer11setFeedrateEf
+                0x0000aba0                _ZN7Printer21queueFloatCoordinatesEfffff
+                0x0000ad52                _ZN7Printer9setOriginEfff
+                0x0000aec4                _ZN7Printer12needsCMPwaitEv
+                0x0000af4e                _ZN7Printer13disableCMPnowEb
+                0x0000af9c                _ZN7Printer8setHomedEaaa
+                0x0000b07e                _ZN7Printer21disableAllSteppersNowEv
+                0x0000b3a4                _ZN8Commands25checkForPeriodicalActionsE13FirmwareState
+                0x0000df08                _ZN8Commands22waitUntilEndOfAllMovesEv
+                0x0000df2e                _ZN7Printer26queueRelativeMMCoordinatesEfffffbb
+                0x0000e974                _ZN6EEPROM15computeChecksumEv
+                0x0000e9f6                _ZN6EEPROM14updateChecksumEv
+                0x0000ea04                _ZN6EEPROM19storeDataIntoEEPROMEh
+                0x0000eeec                _ZN8Extruder25setTemperatureForExtruderEfhb.part.0
+                0x0000f32c                _ZN8Extruder25setTemperatureForExtruderEfhb
+                0x0000f35a                _ZN21TemperatureController24waitForTargetTemperatureEh
+                0x0000f4bc                _ZN21TemperatureController11autotunePIDEfhibi
+                0x0000fe6e                _ZN7Printer30offsetRelativeStepsCoordinatesEllllh
+                0x0001007a                _ZN8Extruder18selectExtruderByIdEh
+                0x000104d4                _ZN6EEPROM18readDataFromEEPROMEv
+                0x000115e4                _ZN6EEPROM38restoreEEPROMSettingsFromConfigurationEv
+                0x00011ae4                _ZN7Printer19switchEverythingOffEv
+                0x00011b28                _ZN8Commands12executeGCodeEP5GCode
+                0x000149cc                __vector_17
+ .text          0x00015080     0xd9b4 /tmp/ccoJTYws.ltrans1.ltrans.o
+                0x000157a6                _ZN7Printer10anyEndstopEh
+                0x00015804                _ZN7Printer19changeAxisDirectionEha
+                0x00015838                _ZN7Printer13startAxisStepEh
+                0x000158fc                _ZN7Printer12stepAxisStepEhh
+                0x00015940                _ZN7Printer9stopPrintEv
+                0x00015b90                _ZN7Printer14checkAbortKeysEv
+                0x00015bc4                _Z20adjustPressureLimitss
+                0x00015c0c                _Z25calculateZScrewCorrectionv
+                0x00015f82                _Z23testExtruderTemperaturev
+                0x0001604c                _Z25getZMatrixDepth_CurrentXYv
+                0x000163b2                _Z31recalculateHeatBedZCompensationv
+                0x000168ea                _Z19readAveragePressurePs
+                0x00016a8e                _ZN7Printer8homeAxisEbbb
+                0x000171a4                _Z16readIdlePressurePs
+                0x000172b8                _Z16testIdlePressurev
+                0x000172ec                _Z17moveZPlusDownFastv
+                0x00017354                _Z17moveZPlusDownSlowh
+                0x000175e2                _Z16moveZMinusUpFastv
+                0x000176f8                _Z16moveZMinusUpSlowPsh
+                0x00017840                _Z22initCompensationMatrixv
+                0x00017856                _Z24outputCompensationMatrixc
+                0x00017a3a                _Z28determineCompensationOffsetZv
+                0x00017ad6                _Z15writeWord24C256ijt
+                0x00017b04                _Z14readWord24C256ij
+                0x00017b40                _Z28saveActiveHeatBedToExtEEPROMc
+                0x00017b78                _Z25handleStrainGaugeFeaturesm
+                0x00018340                _Z18handleStartStandbym
+                0x000184e2                _Z14killPausePrintv
+                0x0001850e                _Z9queueTaskc
+                0x0001854a                _Z16isAnyScanRunningv
+                0x0001856c                _Z15drv8711Transmitt
+                0x000185b6                _Z16drv8711EnableAllv
+                0x00018616                _Z17drv8711DisableAllv
+                0x0001863a                _Z6getmsbj
+                0x0001864e                _Z23drv8711adjustMicroStepsh
+                0x00018692                _Z15setMotorCurrenthh
+                0x000186ba                _Z18setExtruderCurrenthh
+                0x000186f8                _Z10setRGBLEDshhh
+                0x00018778                _Z20updateRGBLightStatusv
+                0x00018bd4                _Z17showInvalidSyntaxj
+                0x00018bf0                _Z27getHeatBedTemperatureOffsetf
+                0x00018de0                _Z9showErrorPKvS0_S0_
+                0x00018dfc                _Z16startHeatBedScanv
+                0x00018e6c                _Z19startAlignExtrudersv
+                0x0001909a                _Z19showAbortScanReasonPKvc
+                0x00019164                _Z12outputObjectb
+                0x000191f6                _Z10pausePrintv
+                0x00019330                _Z15showInformationPKvS0_S0_
+                0x0001934c                _Z13continuePrintv
+                0x000195bc                _Z11moveZActiona
+                0x00019944                _Z20outputScanParametersv.part.0
+                0x00019be0                _Z17handlePauseStatusv.part.0
+                0x00019f74                _ZN3HAL7spiInitEh
+                0x00019fb2                _ZN3HAL7spiSendEh
+                0x00019fbc                _ZL6spiRecv.lto_priv.0
+                0x00019fca                _ZN7Sd2Card11cardCommandEhm
+                0x0001a350                _ZN8SdVolume10cacheFetchEmh
+                0x0001a3d6                _ZN10SdBaseFile6removeEv
+                0x0001a41e                _ZN10SdBaseFile4syncEv
+                0x0001a498                _ZN8SdVolume6fatGetEmPm
+                0x0001a596                _ZN10SdBaseFile4readEv
+                0x0001a7b6                _ZN10SdBaseFile12readDirCacheEv
+                0x0001a818                _ZN10SdBaseFile7seekSetEm
+                0x0001a952                _ZN10SdBaseFile6rewindEv
+                0x0001aaea                _ZN10SdBaseFile4openEPS_jh
+                0x0001ab70                _ZN10SdBaseFile8openRootEP8SdVolume
+                0x0001abfe                _ZN5SdFat5chdirEb
+                0x0001ac3a                _ZN8SdVolume6fatPutEmm
+                0x0001aee0                _ZN10SdBaseFile5writeEPKvj
+                0x0001b22a                _ZN10SdBaseFile4openEPS_PKhhb
+                0x0001b6fe                _ZN10SdBaseFile5mkdirEPS_PKh
+                0x0001b84a                _ZN10SdBaseFile4openEPS_PKch
+                0x0001b8c6                _ZN5GCode9keepAliveE13FirmwareState
+                0x0001b94c                _Z22saveCompensationMatrixj
+                0x0001bd78                _Z22loadCompensationMatrixj
+                0x0001c1fe                _Z25abortSearchHeatBedZOffsetb
+                0x0001c2ec                _Z11startZOScanb
+                0x0001c342                _Z19switchActiveHeatBedc
+                0x0001c372                _Z20prepareZCompensationv
+                0x0001c39e                _Z19processSpecialGCodeP5GCode
+                0x0002271c                _Z14alignExtrudersv.part.0
+ .text          0x00022a34     0xa37e /tmp/ccoJTYws.ltrans2.ltrans.o
+                0x00022ab6                _ZN17SerialGCodeSource13supportsWriteEv
+                0x00022ab6                _ZN17SerialGCodeSource6isOpenEv
+                0x00022ab6                _ZN17SDCardGCodeSource12closeOnErrorEv
+                0x00022aba                _ZN17SerialGCodeSource12closeOnErrorEv
+                0x00022aba                _ZN17SDCardGCodeSource13supportsWriteEv
+                0x00022abe                _ZN17SerialGCodeSource13dataAvailableEv
+                0x00022ae0                _ZN17SerialGCodeSource8readByteEv
+                0x00022af6                _ZN17SerialGCodeSource9writeByteEh
+                0x00022b0c                _ZN17SerialGCodeSource5closeEv
+                0x00022b0c                _ZN7TwoWire5flushEv
+                0x00022b0e                _ZN17SDCardGCodeSource6isOpenEv
+                0x00022b1e                _ZN17SDCardGCodeSource13dataAvailableEv
+                0x00022b70                _ZN17SDCardGCodeSource9writeByteEh
+                0x000237ac                _ZN7TwoWire9availableEv
+                0x000237ba                _ZN7TwoWire4readEv
+                0x000237e0                _ZN7TwoWire4peekEv
+                0x00023850                _ZN7TwoWire5writeEh
+                0x000238ae                _ZN7TwoWire5writeEPKhj
+                0x0002390a                _ZN5Print5writeEPKhj
+                0x00023b40                _ZN17SDCardGCodeSource8readByteEv
+                0x00023bec                _ZN17SDCardGCodeSource5closeEv
+                0x00023c9e                _ZN17SerialGCodeSourceD0Ev
+                0x00023ca2                _ZN17SDCardGCodeSourceD0Ev
+                0x00024026                _ZN11GCodeSource10writeToAllEh
+                0x00024082                _ZN5GCode12printCommandEv
+                0x000246fe                _ZN5GCode14executeFStringEPKc
+                0x000247c2                _ZN17SDCardGCodeSourceD2Ev.lto_priv.0
+                0x000247c2                _ZN17SDCardGCodeSourceD1Ev.lto_priv.0
+                0x000247c4                _ZN17SerialGCodeSourceD2Ev.lto_priv.0
+                0x000247c4                _ZN17SerialGCodeSourceD1Ev.lto_priv.0
+                0x000247c6                _ZN9PrintLine18updateAdvanceStepsEj
+                0x00024834                _ZN9PrintLine16adjustDirectionsEv
+                0x000248a0                _ZN9PrintLine17prepareDirectMoveEbb
+                0x00024c34                _ZN9PrintLine20updateStepsParameterEv
+                0x00024e94                _ZN9PrintLine23stepSlowedZCompensationEv
+                0x0002501c                _Z4beephh
+                0x00025058                _ZNK8._anon_49showEntryEv.lto_priv.0
+                0x0002508e                _Z14lcdWriteNibbleh
+                0x000250dc                _Z12lcdWriteBytehh
+                0x000251c6                _Z14initNSpeccharsv
+                0x00025214                __vector_23
+                0x000252a4                millis
+                0x000252bc                _ZN5GCode14readFromSerialEv
+                0x00025b06                _ZN9PrintLine11performMoveEPS_h
+                0x000269be                micros
+                0x00026a08                digitalWrite
+                0x00026afc                _ZN9PrintLine14enableSteppersEv
+                0x00026c12                twi_handleTimeout
+                0x00026cc4                __vector_39
+                0x00026f08                _Z6noToneh
+                0x00026f90                __vector_13
+                0x00027050                _Z8moveAxisih.constprop.0
+                0x0002719a                _ZN8Extruder29setTemperatureForAllExtrudersEfb.constprop.0
+                0x000271c6                _ZN9PrintLine17waitForXFreeLinesEh.constprop.0
+                0x000271e0                _ZN9PrintLine16prepareQueueMoveEhhf
+                0x000288ca                _ZN7Printer29queueRelativeStepsCoordinatesEllllfbb.constprop.0
+                0x0002b964                _Z15doEmergencyStopc.constprop.0
+                0x0002b9b8                _ZN9UIDisplay13executeActionEi.constprop.0
+                0x0002caa2                _ZN9UIDisplay10slowActionEv.constprop.0
+ .text          0x0002cdb2     0x5192 /tmp/ccoJTYws.ltrans3.ltrans.o
+                0x0002d364                _ZN6SDCard10startPrintEv.constprop.0
+                0x0002d3ee                _ZN9UIDisplay7menuEscEv.constprop.0
+                0x0002d410                _Z15isHomingAllowedP5GCodec.constprop.0
+                0x0002d45e                _ZN6SDCard7unmountEv.constprop.0
+                0x0002d494                _ZN9UIDisplay13initializeLCDEb.constprop.0
+                0x0002d5b8                _ZN9UIDisplay13ui_check_keysERi.constprop.0
+                0x0002d660                _Z7addLongPclc.constprop.0
+                0x0002d758                _ZN9UIDisplay9setStatusEPcbb.constprop.0
+                0x0002d798                twi_readFrom.constprop.0
+                0x0002d936                _ZN9UIDisplay8exitmenuEv.constprop.0
+                0x0002d94c                _ZN9UIDisplay10setStatusPEPKcb.constprop.0
+                0x0002d99c                _ZN9UIDisplay13adjustMenuPosEv.constprop.0
+                0x0002dac0                _ZN9UIDisplay10createCharEhPKh.constprop.0
+                0x0002dafc                _ZN9UIDisplay10addStringPEPKc.constprop.0
+                0x0002fa44                _ZN10SdBaseFile8truncateEm.constprop.0
+                0x0002fb88                _ZN9UIDisplay8printRowEhPcS0_h.constprop.0
+                0x0002fc24                _ZN3Com10printFloatEfhb.constprop.0
+                0x0002fd90                _ZN3Com8printFLNEPKcfhb.constprop.0
+                0x0002fdc0                _ZN3Com6configEPKcfh.constprop.0
+                0x0002fdf6                _ZN3Com6printFEPKcfhb.constprop.0
+                0x0002fe22                _ZN8Commands20printCurrentPositionEb.constprop.0
+                0x0002ffe4                pinMode.constprop.0
+                0x00030024                _ZN5SdFat5chdirEPKcb.constprop.0.isra.0
+                0x000300a2                _ZN7TwoWire15endTransmissionEv.constprop.0.isra.0
+                0x00030262                _Z15readStrainGaugeh.constprop.0
+                0x00030732                _ZN7TwoWire5writeEi.constprop.0.isra.0
+                0x0003073c                _ZN5GCode14parseLongValueEPc.isra.0
+                0x0003078c                _ZN5GCode15parseFloatValueEPc.isra.0
+                0x000307e8                _ZN10SdBaseFile15getLongFilenameEP14directoryEntryPcaPm.isra.0
+                0x00030968                _ZN10SdBaseFile11lsRecursiveEPS_hPcS0_.constprop.0
+                0x00030b36                _ZN9UIDisplay5goDirEPc.constprop.0
+                0x00030b9a                _ZN9UIDisplay11refreshPageEv.constprop.0
+                0x000310d2                _ZN9UIDisplay8pushMenuEPvb.constprop.0
+                0x0003113e                _ZN9UIDisplay11showMessageEb.constprop.0
+                0x0003115a                _ZN10SdBaseFile5closeEv.isra.0
+                0x0003116c                _ZN6SDCard10selectFileEPcb.constprop.0
+                0x00031262                _ZN10SdBaseFile20openParentReturnFileEPS_PKcPhS0_b.constprop.0
+                0x000313fc                _ZN7Sd2Card11waitNotBusyEj.isra.0
+                0x00031432                _ZN7Sd2Card14chipSelectHighEv.isra.0
+                0x0003160a                _ZN6SDCard5mountEb.constprop.0
+                0x000317ac                _ZN10SdBaseFile10make83NameEPKcPhPS1_.isra.0
+                0x00031836                _ZN7Printer9checkHomeEa.isra.0
+                0x00031b74                _ZN7Printer21queueGCodeCoordinatesEP5GCodeb.isra.0
+ .text          0x00031f44       0x30 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncasecmp_PF.o)
+                0x00031f44                strncasecmp_PF
+                0x00031f74                        . = ALIGN (0x2)
+ *(.text.*)
+ .text.startup  0x00031f74     0x146e /tmp/ccoJTYws.ltrans2.ltrans.o
+                0x00031f74                main
+ .text.startup  0x000333e2      0x122 /tmp/ccoJTYws.ltrans3.ltrans.o
+ .text.avr-libc.fplib
+                0x00033504       0x86 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
+                0x0003352a                atan2
+                0x0003352a                atan2f
+ .text.avr-libc.fplib
+                0x0003358a       0x60 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+                0x0003358a                atan
+                0x0003358a                atanf
+ .text.avr-libc.fplib
+                0x000335ea        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
+                0x000335ea                cosf
+                0x000335ea                cos
+ .text.avr-libc.fplib
+                0x000335f4       0xdc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
+                0x00033614                __divsf3x
+                0x0003361a                __divsf3_pse
+ .text.avr-libc.fplib
+                0x000336d0       0x2e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
+                0x000336d0                floor
+                0x000336d0                floorf
+ .text.avr-libc.fplib
+                0x000336fe        0xc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
+                0x000336fe                __fp_inf
+ .text.avr-libc.fplib
+                0x0003370a       0x36 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
+                0x0003370a                __fp_mintl
+ .text.avr-libc.fplib
+                0x00033740       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
+                0x00033740                __fp_mpack
+                0x00033744                __fp_mpack_finite
+ .text.avr-libc.fplib
+                0x0003375c        0x6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
+                0x0003375c                __fp_nan
+ .text.avr-libc.fplib
+                0x00033762       0x50 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
+                0x00033762                __fp_powser
+ .text.avr-libc.fplib
+                0x000337b2        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
+                0x000337b2                __fp_pscA
+ .text.avr-libc.fplib
+                0x000337c0        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
+                0x000337c0                __fp_pscB
+ .text.avr-libc.fplib
+                0x000337ce       0x56 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
+                0x000337d2                __fp_rempio2
+ .text.avr-libc.fplib
+                0x00033824       0x22 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
+                0x00033824                __fp_round
+ .text.avr-libc.fplib
+                0x00033846       0x2a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+                0x00033846                __fp_sinus
+ .text.avr-libc.fplib
+                0x00033870       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
+                0x00033870                __fp_split3
+                0x00033880                __fp_splitA
+ .text.avr-libc.fplib
+                0x000338b4       0x30 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
+                0x000338b4                __fp_trunc
+ .text.avr-libc.fplib
+                0x000338e4        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
+                0x000338e4                __fp_zero
+                0x000338e6                __fp_szero
+ .text.avr-libc.fplib
+                0x000338f2       0xda /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(hypot.o)
+                0x0003390e                hypotf
+                0x0003390e                hypot
+ .text.avr-libc.fplib
+                0x000339cc       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
+                0x000339cc                __inversef
+ .text.avr-libc.fplib
+                0x000339dc       0x74 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ldexp.o)
+                0x000339e4                ldexpf
+                0x000339e4                ldexp
+ .text.avr-libc.fplib
+                0x00033a50       0x66 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
+                0x00033a50                lroundf
+                0x00033a50                lround
+ .text.avr-libc.fplib
+                0x00033ab6       0xd2 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
+                0x00033ad4                __mulsf3x
+                0x00033ada                __mulsf3_pse
+ .text.avr-libc.fplib
+                0x00033b88       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
+                0x00033b88                sin
+                0x00033b88                sinf
+ .text.avr-libc.fplib
+                0x00033b98       0x8c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
+                0x00033ba4                sqrt
+                0x00033ba4                sqrtf
+ .text.avr-libc.fplib
+                0x00033c24        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
+                0x00033c24                square
+                0x00033c24                squaref
+ .text.avr-libc.fplib
+                0x00033c2c        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
+                0x00033c2c                __subsf3
+                0x00033c2e                __addsf3
+ .text.avr-libc.fplib
+                0x00033c3a       0xcc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
+                0x00033c5c                __addsf3x
+ .text.avr-libc.fplib
+                0x00033d06        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
+                0x00033d06                __divsf3
+ .text.avr-libc.fplib
+                0x00033d0e        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
+                0x00033d0e                __fp_norm2
+ .text.avr-libc.fplib
+                0x00033d1c       0x2c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
+                0x00033d1c                __fp_powsodd
+ .text.avr-libc.fplib
+                0x00033d48        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
+                0x00033d48                __mulsf3
+ .text.avr-libc.fplib
+                0x00033d50        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
+                0x00033d50                __fixsfsi
+ .text.avr-libc.fplib
+                0x00033d5e       0x5e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
+                0x00033d5e                __fixunssfsi
+ .text.avr-libc.fplib
+                0x00033dbc        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
+                0x00033dbc                __gtsf2
+                0x00033dbc                __gesf2
+ .text.avr-libc.fplib
+                0x00033dc6       0x14 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(isinf.o)
+                0x00033dc6                isinff
+                0x00033dc6                isinf
+ .text.avr-libc.fplib
+                0x00033dda        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(unordsf2.o)
+                0x00033dda                __unordsf2
+ .text.libgcc.div
+                0x00033de4       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodqi4.o)
+                0x00033de4                __divmodqi4
+ .text.libgcc.div
+                0x00033e00       0x28 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+                0x00033e00                __udivmodhi4
+ .text.libgcc.div
+                0x00033e28       0x28 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+                0x00033e28                __divmodhi4
+                0x00033e28                _div
+ .text.libgcc   0x00033e50       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+                0x00033e50                __tablejump2__
+ .text.libgcc.builtins
+                0x00033e60       0x24 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clzhi2.o)
+                0x00033e60                __clzhi2
+ .text.libgcc.builtins
+                0x00033e84        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_bswapsi2.o)
+                0x00033e84                __bswapsi2
+ .text.libgcc.mul
+                0x00033e92        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_usmulhisi3.o)
+                0x00033e92                __usmulhisi3
+                0x00033e96                __usmulhisi3_tail
+ .text.libgcc.div
+                0x00033ea0       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+                0x00033ea0                __udivmodqi4
+ .text.avr-libc
+                0x00033eb8      0x148 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o)
+                0x00033eb8                random_r
+                0x00033f50                random
+                0x00033fee                srandom
+ .text.avr-libc
+                0x00034000      0x366 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+                0x00034000                strtod
+                0x00034000                strtof
+ .text.avr-libc
+                0x00034366      0x236 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o)
+                0x00034366                strtol
+ .text.avr-libc
+                0x0003459c       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isspace.o)
+                0x0003459c                isspace
+ .text.avr-libc.fplib
+                0x000345ae        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cmpsf2.o)
+                0x000345ae                __lesf2
+                0x000345ae                __nesf2
+                0x000345ae                __eqsf2
+                0x000345ae                __cmpsf2
+                0x000345ae                __ltsf2
+ .text.avr-libc.fplib
+                0x000345b8       0x7a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(floatsisf.o)
+                0x000345b8                __floatunsisf
+                0x000345bc                __floatsisf
+ .text.avr-libc.fplib
+                0x00034632       0x48 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(fp_cmp.o)
+                0x00034632                __fp_cmp
+ .text.avr-libc
+                0x0003467a        0x6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(cty_isfalse.o)
+                0x0003467a                __ctype_isfalse
+                0x0003467e                __ctype_istrue
+ .text.avr-libc
+                0x00034680      0x24e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(malloc.o)
+                0x00034680                malloc
+                0x000347ac                free
+ .text.avr-libc
+                0x000348ce       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(isprint.o)
+                0x000348ce                isgraph
+                0x000348d2                isprint
+ .text.avr-libc
+                0x000348e0       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(tolower.o)
+                0x000348e0                tolower
+ .text.avr-libc
+                0x000348f0       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
+                0x000348f0                memcpy
+ .text.avr-libc
+                0x00034902       0x24 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
+                0x00034902                memmove
+ .text.avr-libc
+                0x00034926        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
+                0x00034926                memset
+ .text.avr-libc
+                0x00034934       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcat.o)
+                0x00034934                strcat
+ .text.avr-libc
+                0x0003494a       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strchr.o)
+                0x0003494a                strchr
+ .text.avr-libc
+                0x00034960       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
+                0x00034960                strcmp
+ .text.avr-libc
+                0x00034972        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
+                0x00034972                strcpy
+ .text.avr-libc
+                0x00034980       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strncpy.o)
+                0x00034980                strncpy
+ .text.avr-libc
+                0x0003499e       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrchr.o)
+                0x0003499e                strrchr
+ .text.avr-libc
+                0x000349b4       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_block.o)
+                0x000349b4                eeprom_read_block
+                0x000349b8                eeprom_read_blraw
+ .text.avr-libc
+                0x000349d4       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_byte.o)
+                0x000349d4                eeprom_read_byte
+ .text.avr-libc
+                0x000349e4        0xc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_dword.o)
+                0x000349e4                eeprom_read_dword
+                0x000349e4                eeprom_read_float
+ .text.avr-libc
+                0x000349f0        0xc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eerd_word.o)
+                0x000349f0                eeprom_read_word
+ .text.avr-libc
+                0x000349fc       0x14 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_block.o)
+                0x000349fc                eeprom_write_block
+ .text.avr-libc
+                0x00034a10       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_byte.o)
+                0x00034a10                eeprom_write_byte
+                0x00034a12                eeprom_write_r18
+ .text.avr-libc
+                0x00034a2c       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_dword.o)
+                0x00034a2c                eeprom_write_float
+                0x00034a2c                eeprom_write_dword
+ .text.avr-libc
+                0x00034a3c        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libatmega2560.a(eewr_word.o)
+                0x00034a3c                eeprom_write_word
+ .text.libgcc.mul
+                0x00034a46       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+                0x00034a46                __mulsi3
+ .text.libgcc.div
+                0x00034a66       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+                0x00034a66                __udivmodsi4
+ .text.libgcc.div
+                0x00034aaa       0x2e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodsi4.o)
+                0x00034aaa                __divmodsi4
+ .text.libgcc.div
+                0x00034ad8       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negsi2.o)
+                0x00034ad8                __negsi2
+ .text.libgcc.mul
+                0x00034ae8       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+                0x00034ae8                __muluhisi3
+ .text.libgcc.mul
+                0x00034afe       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulshisi3.o)
+                0x00034afe                __mulshisi3
+                0x00034b04                __mulohisi3
+ .text.libgcc.mul
+                0x00034b0e       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+                0x00034b0e                __umulhisi3
+                0x00034b2c                        . = ALIGN (0x2)
+ *(.fini9)
+ .fini9         0x00034b2c        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+                0x00034b2c                exit
+                0x00034b2c                _exit
+ *(.fini9)
+ *(.fini8)
+ *(.fini8)
+ *(.fini7)
+ *(.fini7)
+ *(.fini6)
+ *(.fini6)
+ *(.fini5)
+ *(.fini5)
+ *(.fini4)
+ *(.fini4)
+ *(.fini3)
+ *(.fini3)
+ *(.fini2)
+ *(.fini2)
+ *(.fini1)
+ *(.fini1)
+ *(.fini0)
+ .fini0         0x00034b2c        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ *(.fini0)
+ *(.hightext)
+ *(.hightext*)
+ *(.progmemx.*)
+ .progmemx.gcc_fplib.atan
+                0x00034b30       0x2d /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+ .progmemx.gcc_fplib.sinus
+                0x00034b5d       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+ .progmemx.data
+                0x00034b7b        0xb /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+ .progmemx.data.pwr_10
+                0x00034b86       0x30 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(pwr_10.o)
+                0x00034b86                __avrlibc_pwr_m10
+                0x00034b9e                __avrlibc_pwr_p10
+                0x00034bb6                        . = ALIGN (0x2)
+ *(.jumptables)
+ *(.jumptables*)
+ .jumptables.gcc._ZN8Commands25checkForPeriodicalActionsE13FirmwareState
+                0x00034bb6      0x176 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .jumptables.gcc._ZN8Commands12executeGCodeEP5GCode
+                0x00034d2c       0xaa /tmp/ccoJTYws.ltrans0.ltrans.o
+ .jumptables.gcc._Z19showAbortScanReasonPKvc
+                0x00034dd6       0x20 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .jumptables.gcc._Z19processSpecialGCodeP5GCode
+                0x00034df6      0x164 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .jumptables.gcc._ZN5GCode10parseAsciiEPcb
+                0x00034f5a       0xa2 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .jumptables.gcc.digitalWrite
+                0x00034ffc       0x24 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .jumptables.gcc._ZN9UIDisplay18nextPreviousActionEa.constprop.0
+                0x00035020       0xfc /tmp/ccoJTYws.ltrans2.ltrans.o
+ .jumptables.gcc._ZN9UIDisplay13executeActionEi.constprop.0
+                0x0003511c      0x10c /tmp/ccoJTYws.ltrans2.ltrans.o
+ .jumptables.gcc._ZN9UIDisplay5parseEPcb.constprop.0
+                0x00035228      0x114 /tmp/ccoJTYws.ltrans3.ltrans.o
+                0x0003533c                        _etext = .
+
+.data           0x00800200      0x438 load address 0x0003533c
+                0x00800200                        PROVIDE (__data_start = .)
+ *(.data)
+ .data          0x00800200      0x31e /tmp/ccoJTYws.ltrans0.ltrans.o
+                0x00800200                _ZN7Printer8intervalE
+                0x00800205                g_nDigitFlowCompensation_Fmax
+                0x00800207                g_nDigitFlowCompensation_Fmin
+                0x00800209                g_maxZCompensationSteps
+                0x0080020d                g_minZCompensationSteps
+                0x00800211                _ZN7Printer17maxZOverrideStepsE
+                0x00800213                g_nDigitZCompensationDigits_active
+                0x00800214                g_nManualSteps
+                0x0080021c                g_nPauseSteps
+                0x0080022c                g_nEmergencyStopZAndEMax
+                0x0080022e                g_nEmergencyStopZAndEMin
+                0x00800230                g_nEmergencyPauseDigitsMin
+                0x00800234                g_nEmergencyPauseDigitsMax
+                0x00800238                g_nSensiblePressureOffsetMax
+                0x0080023a                _ZN7Printer23stepsPackingMinIntervalE
+                0x0080023c                _ZN7Printer9moveKosysE
+                0x0080023d                _ZN7Printer11maxFeedrateE
+                0x0080024f                _ZN8Commands14lowestRAMValueE
+                0x00800251                _ZL9tone_pins.lto_priv.0
+                0x00800252                baudrate
+                0x00800256                _ZN7Printer38maxTravelAccelerationMMPerSquareSecondE
+                0x00800266                _ZN7Printer32maxAccelerationMMPerSquareSecondE
+                0x00800276                stepperInactiveTime
+                0x0080027a                _ZN3Com10writeToAllE
+                0x0080027b                _ZN11GCodeSource12activeSourceE
+                0x0080027d                part_fan_pwm_speed
+                0x0080027e                part_fan_pwm_min
+                0x0080027f                part_fan_pwm_max
+                0x00800280                _ZN7Printer19menuExtrusionFactorE
+                0x00800284                _ZN7Printer8feedrateE
+                0x00800288                _ZN7Printer16feedrateMultiplyE
+                0x0080028a                _ZN7Printer24g_pressure_offset_activeE
+                0x0080028b                optTempController
+                0x0080030a                heatedBedController
+                0x00800389                _ZN7Printer10debugLevelE
+                0x0080038a                _ZN7Printer14homingFeedrateE
+                0x00800396                g_ZOSlearningRate
+                0x0080039a                g_ZOSTestPoint
+                0x0080039c                g_nActiveHeatBed
+                0x0080039d                g_scanStartZLiftMM
+                0x008003a1                _ZN7Printer14axisStepsPerMME
+                0x008003b1                _ZN7Printer5ZModeE
+                0x008003b2                extruder
+                0x0080050e                _ZN7Printer14axisMMPerStepsE
+ .data          0x0080051e       0x14 /tmp/ccoJTYws.ltrans1.ltrans.o
+                0x0080051e                _ZN7Printer21dynamicFeedrateFactorE
+                0x00800522                _ZN7Printer22dynamicExtrusionFactorE
+                0x00800526                g_uRGBManualG
+                0x00800527                g_uRGBManualB
+                0x00800528                g_uRGBManualR
+                0x00800529                g_uRGBIdleG
+                0x0080052a                g_uRGBIdleB
+                0x0080052b                g_uRGBIdleR
+ .data          0x00800532       0x14 /tmp/ccoJTYws.ltrans2.ltrans.o
+                0x00800532                _ZN7Printer17stepsPerTimerCallE
+                0x00800534                _ZN11GCodeSource15numWriteSourcesE
+                0x00800535                _ZN11GCodeSource16writeableSourcesE
+                0x0080053d                _ZN11GCodeSource10numSourcesE
+                0x0080053e                _ZN11GCodeSource7sourcesE
+ .data          0x00800546        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o)
+ .data          0x0080054a        0x6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(malloc.o)
+                0x0080054a                __malloc_heap_end
+                0x0080054c                __malloc_heap_start
+                0x0080054e                __malloc_margin
+ *(.data*)
+ *(.gnu.linkonce.d*)
+ *(.rodata)
+ .rodata        0x00800550       0x1a /tmp/ccoJTYws.ltrans0.ltrans.o
+                0x00800564                tempController
+ .rodata        0x0080056a       0x18 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .rodata        0x00800582       0x50 /tmp/ccoJTYws.ltrans3.ltrans.o
+ *(.rodata*)
+ .rodata.str1.1
+                0x008005d2       0x66 /tmp/ccoJTYws.ltrans0.ltrans.o
+                                  0xf (size before relaxing)
+ .rodata.str1.1
+                0x00800638       0x24 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .rodata.str1.1
+                0x00800638        0x5 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .rodata.str1.1
+                0x00800638       0x36 /tmp/ccoJTYws.ltrans3.ltrans.o
+ *(.gnu.linkonce.r*)
+                0x0080066e                        . = ALIGN (0x2)
+                0x00800638                        _edata = .
+                0x00800638                        PROVIDE (__data_end = .)
+
+.bss            0x00800638     0x16ca
+                0x00800638                        PROVIDE (__bss_start = .)
+ *(.bss)
+ .bss           0x00800638     0x117c /tmp/ccoJTYws.ltrans0.ltrans.o
+                0x00800638                serial0Source
+                0x00800646                tx_buffer
+                0x00800688                rx_buffer
+                0x0080070a                g_uRGBCurrentB
+                0x0080070b                g_uRGBTargetB
+                0x0080070c                g_uRGBCurrentG
+                0x0080070d                g_uRGBTargetG
+                0x0080070e                g_uRGBCurrentR
+                0x0080070f                g_uRGBTargetR
+                0x00800710                osAnalogInputCounter
+                0x00800714                osAnalogInputBuildup
+                0x0080071c                osAnalogInputPos
+                0x0080071d                directError
+                0x00800721                _ZN7Printer22doHeatBedZCompensationE
+                0x00800722                g_nSensiblePressureDigits
+                0x00800724                _ZN7Printer1vE
+                0x00800728                _ZN7Printer5timerE
+                0x00800730                _ZN7Printer10stepNumberE
+                0x00800738                _ZN7Printer11vMaxReachedE
+                0x0080073c                queueError
+                0x00800740                _ZN9PrintLine5linesE
+                0x00800f27                _ZN9PrintLine8linesPosE
+                0x00800f28                stepperWait
+                0x00800f2c                _ZN7Printer15advanceStepsSetE
+                0x00800f2e                waitRelax
+                0x00800f30                _ZN9PrintLine3curE
+                0x00800f32                g_bPingWatchdog
+                0x00800f33                _ZN7Printer11fanOffDelayE
+                0x00800f37                _ZN7Printer13prepareFanOffE
+                0x00800f3b                _ZN7Printer11ignoreFanOnE
+                0x00800f3c                osAnalogInputValues
+                0x00800f44                _ZN7Printer40maxPrintAccelerationStepsPerSquareSecondE
+                0x00800f54                _ZN7Printer41maxTravelAccelerationStepsPerSquareSecondE
+                0x00800f64                _ZN7Printer5flag2E
+                0x00800f65                g_diffZCompensationSteps
+                0x00800f69                g_staticZSteps
+                0x00800f6d                _ZN7Printer12enableBeeperE
+                0x00800f6e                _ZN7Printer7ZOffsetE
+                0x00800f72                _ZN7Printer12motorCurrentE
+                0x00800f77                _ZN7Printer17RGBLightIdleStartE
+                0x00800f7b                _ZN7Printer14RGBLightStatusE
+                0x00800f7c                _ZN7Printer12RGBLightModeE
+                0x00800f7d                _ZN7Printer23g_senseoffset_autostartE
+                0x00800f7e                _ZN7Printer10enableFET3E
+                0x00800f7f                _ZN7Printer10enableFET2E
+                0x00800f80                _ZN7Printer10enableFET1E
+                0x00800f81                _ZN7Printer16enable230VOutputE
+                0x00800f82                _ZN7Printer26movePositionFeedrateChoiceE
+                0x00800f83                _ZN7Printer8moveModeE
+                0x00800f86                _ZN7Printer24motorMicroStepsModeValueE
+                0x00800f8b                _ZN7Printer8blockAllE
+                0x00800f8c                _ZN7Printer14originOffsetMME
+                0x00800f98                _ZN7Printer22relativeCoordinateModeE
+                0x00800f99                fullName
+                0x00800fd2                _ZN10SdBaseFile4cwd_E
+                0x00800fd4                timer2_pin_mask
+                0x00800fd5                timer2_pin_port
+                0x00800fd7                timer2_toggle_count
+                0x00800fdb                _ZN7Printer15enableCaseLightE
+                0x00800fdc                maxadvspeed
+                0x00800fe0                maxadv2
+                0x00800fe2                _ZN7Printer19extruderStepsNeededE
+                0x00800fe4                _ZN7Printer8maxZJerkE
+                0x00800fe8                _ZN7Printer9maxXYJerkE
+                0x00800fec                maxInactiveTime
+                0x00800ff0                _ZN7Printer30relativeExtruderCoordinateModeE
+                0x00800ff1                _ZN7Printer12unitIsInchesE
+                0x00800ff2                _ZN7Printer16msecondsPrintingE
+                0x00800ff6                _ZN7Printer15filamentPrintedE
+                0x00800ffa                part_fan_frequency_modulation
+                0x00800ffb                fanSpeed
+                0x00800ffc                _ZN7Printer17g_pressure_offsetE
+                0x00800ffe                g_nLastDigits
+                0x00801000                pwm_pos
+                0x00801005                _ZN8Extruder7currentE
+                0x00801007                _ZN7Printer5flag1E
+                0x00801008                _ZN7Printer8menuModeE
+                0x00801009                g_uStopTime
+                0x0080100d                _ZN9PrintLine10linesCountE
+                0x0080100e                g_pauseStatus
+                0x0080100f                g_uPauseTime
+                0x00801013                _ZN7Printer12axisLengthMME
+                0x0080101f                g_nContinueButtonPressed
+                0x00801020                g_nScanYMaxPositionSteps
+                0x00801024                g_nScanIdleDelay
+                0x00801026                g_nScanXMaxPositionSteps
+                0x0080102a                g_nScanXStepSizeSteps
+                0x0080102e                g_nScanYStepSizeSteps
+                0x00801032                g_nScanYStartSteps
+                0x00801036                g_nScanXStartSteps
+                0x0080103a                g_lastScanTime
+                0x0080103e                g_nHeatBedScanMode
+                0x0080103f                g_retryStatus
+                0x00801040                g_nAutoReturnTime
+                0x00801044                g_nAutoReturnMessage
+                0x00801045                g_ZMatrixChangedInRam
+                0x00801046                g_nScanHeatBedUpSlowSteps
+                0x00801048                g_nScanHeatBedUpFastSteps
+                0x0080104a                g_nScanSlowStepDelay
+                0x0080104c                g_nMaxPressureIdle
+                0x0080104e                g_nMinPressureIdle
+                0x00801050                g_nMaxPressureRetry
+                0x00801052                g_nMinPressureRetry
+                0x00801054                g_nMaxPressureContact
+                0x00801056                g_nMinPressureContact
+                0x00801058                g_nCurrentIdlePressure
+                0x0080105a                g_ZOSlearningGradient
+                0x0080105e                g_uZMatrixMax
+                0x00801060                g_ZCompensationMatrix
+                0x00801522                g_nLastZScanZPosition
+                0x00801526                g_abortAxisScan
+                0x00801527                g_scanRetries
+                0x00801528                g_uStartOfIdle
+                0x0080152c                g_retryZScan
+                0x0080152d                previousMillisCmd
+                0x00801531                g_ZOS_Auto_Matrix_Leveling_State
+                0x00801532                g_nAlignExtrudersStatus
+                0x00801533                g_nZOSScanStatus
+                0x00801534                g_nHeatBedScanStatus
+                0x00801535                _ZN9PrintLine6directE
+                0x008015ac                g_pauseMode
+                0x008015ad                sd
+                0x00801619                _ZN7Printer26queuePositionZLayerCurrentE
+                0x0080161d                _ZN7Printer23queuePositionZLayerLastE
+                0x00801621                _ZN7Printer13currentZStepsE
+                0x00801625                _ZN7Printer31compensatedPositionTargetStepsZE
+                0x00801629                _ZN7Printer32compensatedPositionCurrentStepsZE
+                0x0080162d                g_nAxisScanPosition
+                0x00801631                _ZN7Printer22directDestinationStepsE
+                0x00801641                _ZN7Printer18directCurrentStepsE
+                0x00801651                _ZN7Printer17destinationMMLastE
+                0x00801661                _ZN7Printer13destinationMME
+                0x00801671                _ZN7Printer12currentStepsE
+                0x0080167d                _ZN7Printer14enabledStepperE
+                0x00801680                _ZN7Printer17g_unlock_movementE
+                0x00801681                uid
+                0x00801740                _ZN7Printer5flag0E
+                0x00801741                _ZN7Printer13currentYStepsE
+                0x00801745                _ZN7Printer13currentXStepsE
+                0x00801749                _ZN7Printer19maxSoftEndstopStepsE
+                0x00801755                _ZN7Printer17outOfPrintVolumeZE
+                0x00801759                _ZN7Printer16outOfPrintVolumeE
+                0x0080175d                _ZN7Printer5flag3E
+                0x0080175e                g_uBlockCommands
+ .bss           0x008017b4      0x34b /tmp/ccoJTYws.ltrans1.ltrans.o
+                0x008017b4                _ZN8SdVolume15cacheFatOffset_E
+                0x008017b8                _ZN8SdVolume12cacheStatus_E
+                0x008017b9                _ZN8SdVolume7sdCard_E
+                0x008017bb                _ZN8SdVolume17cacheBlockNumber_E
+                0x008017bf                tempLongFilename
+                0x008017db                _ZN7Printer20RGBButtonBackPressedE
+                0x008017dc                g_nContinueSteps
+                0x008017ec                g_nDigitFlowCompensation_speed_intense
+                0x008017ed                g_nDigitFlowCompensation_intense
+                0x008017ee                _ZN7Printer22RGBLightModeForceWhiteE
+                0x008017ef                displayCache
+                0x00801863                g_nEmergencyESkip
+                0x00801864                g_nSensiblePressure1stMarke
+                0x00801865                g_nSensiblePressureOffset
+                0x00801867                _ZN7TwoWire14rxBufferLengthE
+                0x00801868                _ZN7TwoWire13rxBufferIndexE
+                0x00801869                _ZN7TwoWire8rxBufferE
+                0x00801889                _ZN7TwoWire14txBufferLengthE
+                0x0080188a                _ZN7TwoWire13txBufferIndexE
+                0x0080188b                _ZN7TwoWire9txAddressE
+                0x0080188c                _ZN7TwoWire12transmittingE
+                0x0080188d                Wire
+                0x00801899                g_ZCompensationMax
+                0x0080189b                g_nScanYStepSizeMM
+                0x0080189f                g_nScanXStepSizeMM
+                0x008018a3                g_nDigitZCompensationDigits
+                0x008018a7                _ZN7Printer28compensatedPositionOverPercEE
+                0x008018ab                g_ZSchraubeOk
+                0x008018ac                g_ZSchraubenSollDrehungenWarm_U
+                0x008018b0                g_ZSchraubenSollKorrekturWarm_mm
+                0x008018b4                _ZN9PrintLine13linesWritePosE
+                0x008018b5                g_offsetZCompensationSteps
+ .bss           0x00801aff      0x1ec /tmp/ccoJTYws.ltrans2.ltrans.o
+                0x00801aff                nFilesOnCard
+                0x00801b00                g_nYesNo
+                0x00801b01                twi_error.lto_priv.0
+                0x00801b02                twi_masterBuffer.lto_priv.0
+                0x00801b22                twi_masterBufferLength.lto_priv.0
+                0x00801b23                twi_masterBufferIndex.lto_priv.0
+                0x00801b24                twi_slarw.lto_priv.0
+                0x00801b25                twi_do_reset_on_timeout.lto_priv.0
+                0x00801b26                twi_timeout_us.lto_priv.0
+                0x00801b2a                twi_inRepStart.lto_priv.0
+                0x00801b2b                twi_sendStop.lto_priv.0
+                0x00801b2c                twi_state.lto_priv.0
+                0x00801b2d                _ZN7TwoWire8txBufferE
+                0x00801b4d                normalchars
+                0x00801b4e                _ZN7Printer12interval_modE
+                0x00801b50                RFSerial
+ .bss           0x00801ceb       0x11 /tmp/ccoJTYws.ltrans3.ltrans.o
+ .bss           0x00801cfc        0x2 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(errno.o)
+                0x00801cfc                errno
+ .bss           0x00801cfe        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(malloc.o)
+                0x00801cfe                __flp
+                0x00801d00                __brkval
+ *(.bss*)
+ *(COMMON)
+                0x00801d02                        PROVIDE (__bss_end = .)
+                0x0003533c                        __data_load_start = LOADADDR (.data)
+                0x00035774                        __data_load_end = (__data_load_start + SIZEOF (.data))
+
+.noinit         0x00801d02        0x0
+                [!provide]                        PROVIDE (__noinit_start = .)
+ *(.noinit .noinit.* .gnu.linkonce.n.*)
+                [!provide]                        PROVIDE (__noinit_end = .)
+                0x00801d02                        _end = .
+                0x00801d02                        PROVIDE (__heap_start = .)
+                0x00000000                        __flmap_init_label = DEFINED (__flmap_noinit_start)?__flmap_noinit_start:0x0
+                0x00000000                        __flmap = DEFINED (__flmap)?__flmap:0x0
+
+.eeprom         0x00810000        0x0
+ *(.eeprom*)
+                0x00810000                        __eeprom_end = .
+
+.fuse
+ *(.fuse)
+ *(.lfuse)
+ *(.hfuse)
+ *(.efuse)
+
+.lock
+ *(.lock*)
+
+.signature
+ *(.signature*)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x00000000       0x12
+ *(.comment)
+ .comment       0x00000000       0x13 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .comment       0x00000000       0x13 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .comment       0x00000000       0x13 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .comment       0x00000000       0x13 /tmp/ccoJTYws.ltrans3.ltrans.o
+ .comment       0x00000000       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(random.o)
+                                 0x13 (size before relaxing)
+ .comment       0x00000012       0x13 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtod.o)
+ .comment       0x00000012       0x13 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strtol.o)
+ .comment       0x00000012       0x13 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(pwr_10.o)
+ .comment       0x00000012       0x13 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(errno.o)
+ .comment       0x00000012       0x13 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(malloc.o)
+
+.note.gnu.avr.deviceinfo
+                0x00000000       0x40
+ .note.gnu.avr.deviceinfo
+                0x00000000       0x40 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+
+.gnu.build.attributes
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+
+.note.gnu.build-id
+ *(.note.gnu.build-id)
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges  0x00000000       0x88
+ *(.debug_aranges)
+ .debug_aranges
+                0x00000000       0x20 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_aranges
+                0x00000020       0x20 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_aranges
+                0x00000040       0x28 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_aranges
+                0x00000068       0x20 /tmp/ccoJTYws.ltrans3.ltrans.o
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info     0x00000000    0xa9865
+ *(.debug_info .gnu.linkonce.wi.*)
+ .debug_info    0x00000000      0xbbc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .debug_info    0x00000bbc    0x11964 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_info    0x00012520    0x100c7 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_info    0x000225e7     0xd49b /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_info    0x0002fa82     0x683d /tmp/ccoJTYws.ltrans3.ltrans.o
+ .debug_info    0x000362bf     0xa161 /tmp/ccIuTmxR.debug.temp.o
+                0x000362bf                Commands.cpp.4f9f69c0
+ .debug_info    0x00040420     0x51c9 /tmp/ccrrzaey.debug.temp.o
+                0x00040420                Communication.cpp.91f95fe1
+ .debug_info    0x000455e9     0x69b1 /tmp/ccckuwbi.debug.temp.o
+                0x000455e9                Eeprom.cpp.faf79601
+ .debug_info    0x0004bf9a     0x6412 /tmp/ccWCY2XN.debug.temp.o
+                0x0004bf9a                Extruder.cpp.8515cfa9
+ .debug_info    0x000523ac     0x82e0 /tmp/cc3L3cgv.debug.temp.o
+                0x000523ac                HAL.cpp.0125ca09
+ .debug_info    0x0005a68c     0xabe8 /tmp/ccrms4eh.debug.temp.o
+                0x0005a68c                Printer.cpp.e95e0971
+ .debug_info    0x00065274     0xc685 /tmp/ccqqxB5H.debug.temp.o
+                0x00065274                RF.cpp.0c85208a
+ .debug_info    0x000718f9     0x3d5c /tmp/ccp3Caem.debug.temp.o
+                0x000718f9                Repetier.ino.cpp.2e834f21
+ .debug_info    0x00075655     0x85b1 /tmp/ccZZwLa9.debug.temp.o
+                0x00075655                SDCard.cpp.2375876f
+ .debug_info    0x0007dc06     0x9707 /tmp/cc7CCd1p.debug.temp.o
+                0x0007dc06                SdFat.cpp.f127a73f
+ .debug_info    0x0008730d     0xa228 /tmp/ccy5zGjW.debug.temp.o
+                0x0008730d                gcode.cpp.cd335d27
+ .debug_info    0x00091535     0x702d /tmp/ccjY8r87.debug.temp.o
+                0x00091535                motion.cpp.f966951d
+ .debug_info    0x00098562     0xbb8d /tmp/ccLQzLnC.debug.temp.o
+                0x00098562                ui.cpp.a42bb403
+ .debug_info    0x000a40ef     0x222a /tmp/ccK2wq2C.debug.temp.o
+                0x000a40ef                Wire.cpp.ae3cfdc3
+ .debug_info    0x000a6319      0x522 /tmp/ccZekwQl.debug.temp.o
+                0x000a6319                twi.c.919f2312
+ .debug_info    0x000a683b     0x1d03 /tmp/ccwi52my.debug.temp.o
+                0x000a683b                Print.cpp.d4528c43
+ .debug_info    0x000a853e      0x64f /tmp/ccdg98IX.debug.temp.o
+                0x000a853e                Tone.cpp.51895362
+ .debug_info    0x000a8b8d      0x163 /tmp/ccdYdhO8.debug.temp.o
+                0x000a8b8d                WMath.cpp.5f662e2c
+ .debug_info    0x000a8cf0      0x1f9 /tmp/ccGbl1Ch.debug.temp.o
+                0x000a8cf0                main.cpp.28f948d8
+ .debug_info    0x000a8ee9      0x284 /tmp/ccBbAV9t.debug.temp.o
+                0x000a8ee9                new.cpp.ec7323fc
+ .debug_info    0x000a916d      0x242 /tmp/ccCdFyBl.debug.temp.o
+                0x000a916d                wiring.c.e3e341e5
+ .debug_info    0x000a93af      0x4b6 /tmp/ccIewMiR.debug.temp.o
+                0x000a93af                wiring_digital.c.6ffb00da
+
+.debug_abbrev   0x00000000     0x901b
+ *(.debug_abbrev)
+ .debug_abbrev  0x00000000      0xb1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .debug_abbrev  0x00000b1a      0x314 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_abbrev  0x00000e2e      0x2cc /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_abbrev  0x000010fa      0x35c /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_abbrev  0x00001456      0x1f2 /tmp/ccoJTYws.ltrans3.ltrans.o
+ .debug_abbrev  0x00001648      0x986 /tmp/ccIuTmxR.debug.temp.o
+ .debug_abbrev  0x00001fce      0x455 /tmp/ccrrzaey.debug.temp.o
+ .debug_abbrev  0x00002423      0x745 /tmp/ccckuwbi.debug.temp.o
+ .debug_abbrev  0x00002b68      0x764 /tmp/ccWCY2XN.debug.temp.o
+ .debug_abbrev  0x000032cc      0x883 /tmp/cc3L3cgv.debug.temp.o
+ .debug_abbrev  0x00003b4f      0x9e8 /tmp/ccrms4eh.debug.temp.o
+ .debug_abbrev  0x00004537      0x826 /tmp/ccqqxB5H.debug.temp.o
+ .debug_abbrev  0x00004d5d      0x417 /tmp/ccp3Caem.debug.temp.o
+ .debug_abbrev  0x00005174      0x95d /tmp/ccZZwLa9.debug.temp.o
+ .debug_abbrev  0x00005ad1      0x94d /tmp/cc7CCd1p.debug.temp.o
+ .debug_abbrev  0x0000641e      0xa8d /tmp/ccy5zGjW.debug.temp.o
+ .debug_abbrev  0x00006eab      0x738 /tmp/ccjY8r87.debug.temp.o
+ .debug_abbrev  0x000075e3      0x9fc /tmp/ccLQzLnC.debug.temp.o
+ .debug_abbrev  0x00007fdf      0x464 /tmp/ccK2wq2C.debug.temp.o
+ .debug_abbrev  0x00008443      0x1da /tmp/ccZekwQl.debug.temp.o
+ .debug_abbrev  0x0000861d      0x31c /tmp/ccwi52my.debug.temp.o
+ .debug_abbrev  0x00008939      0x19d /tmp/ccdg98IX.debug.temp.o
+ .debug_abbrev  0x00008ad6       0xbe /tmp/ccdYdhO8.debug.temp.o
+ .debug_abbrev  0x00008b94       0xff /tmp/ccGbl1Ch.debug.temp.o
+ .debug_abbrev  0x00008c93      0x125 /tmp/ccBbAV9t.debug.temp.o
+ .debug_abbrev  0x00008db8      0x10f /tmp/ccCdFyBl.debug.temp.o
+ .debug_abbrev  0x00008ec7      0x154 /tmp/ccIewMiR.debug.temp.o
+
+.debug_line     0x00000000    0x47279
+ *(.debug_line .debug_line.* .debug_line_end)
+ .debug_line    0x00000000       0x1d /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .debug_line    0x0000001d    0x16dc5 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_line    0x00016de2    0x17bc2 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_line    0x0002e9a4    0x11dff /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_line    0x000407a3     0x5f79 /tmp/ccoJTYws.ltrans3.ltrans.o
+ .debug_line    0x0004671c       0xb2 /tmp/ccIuTmxR.debug.temp.o
+ .debug_line    0x000467ce       0x78 /tmp/ccrrzaey.debug.temp.o
+ .debug_line    0x00046846       0xad /tmp/ccckuwbi.debug.temp.o
+ .debug_line    0x000468f3       0x9b /tmp/ccWCY2XN.debug.temp.o
+ .debug_line    0x0004698e       0xa9 /tmp/cc3L3cgv.debug.temp.o
+ .debug_line    0x00046a37       0xc0 /tmp/ccrms4eh.debug.temp.o
+ .debug_line    0x00046af7       0xca /tmp/ccqqxB5H.debug.temp.o
+ .debug_line    0x00046bc1       0x7d /tmp/ccp3Caem.debug.temp.o
+ .debug_line    0x00046c3e       0x9a /tmp/ccZZwLa9.debug.temp.o
+ .debug_line    0x00046cd8       0x90 /tmp/cc7CCd1p.debug.temp.o
+ .debug_line    0x00046d68       0xa4 /tmp/ccy5zGjW.debug.temp.o
+ .debug_line    0x00046e0c       0x96 /tmp/ccjY8r87.debug.temp.o
+ .debug_line    0x00046ea2       0xb7 /tmp/ccLQzLnC.debug.temp.o
+ .debug_line    0x00046f59       0x6d /tmp/ccK2wq2C.debug.temp.o
+ .debug_line    0x00046fc6       0x5e /tmp/ccZekwQl.debug.temp.o
+ .debug_line    0x00047024       0x6e /tmp/ccwi52my.debug.temp.o
+ .debug_line    0x00047092       0x56 /tmp/ccdg98IX.debug.temp.o
+ .debug_line    0x000470e8       0x43 /tmp/ccdYdhO8.debug.temp.o
+ .debug_line    0x0004712b       0x5b /tmp/ccGbl1Ch.debug.temp.o
+ .debug_line    0x00047186       0x51 /tmp/ccBbAV9t.debug.temp.o
+ .debug_line    0x000471d7       0x51 /tmp/ccCdFyBl.debug.temp.o
+ .debug_line    0x00047228       0x51 /tmp/ccIewMiR.debug.temp.o
+
+.debug_frame    0x00000000     0x371c
+ *(.debug_frame)
+ .debug_frame   0x00000000     0x1044 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_frame   0x00001044     0x126c /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_frame   0x000022b0      0xa5c /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_frame   0x00002d0c      0xa10 /tmp/ccoJTYws.ltrans3.ltrans.o
+
+.debug_str      0x00000000    0x17d52
+ *(.debug_str)
+ .debug_str     0x00000000      0x3e6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .debug_str     0x000003e6    0x1796c /tmp/ccoJTYws.ltrans0.ltrans.o
+                                0x421 (size before relaxing)
+ .debug_str     0x00017d52      0x4a1 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_str     0x00017d52      0x4d7 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_str     0x00017d52      0x85f /tmp/ccoJTYws.ltrans3.ltrans.o
+ .debug_str     0x00017d52     0xd47d /tmp/ccIuTmxR.debug.temp.o
+ .debug_str     0x00017d52     0x7767 /tmp/ccrrzaey.debug.temp.o
+ .debug_str     0x00017d52     0xa642 /tmp/ccckuwbi.debug.temp.o
+ .debug_str     0x00017d52     0x9219 /tmp/ccWCY2XN.debug.temp.o
+ .debug_str     0x00017d52     0xafd9 /tmp/cc3L3cgv.debug.temp.o
+ .debug_str     0x00017d52     0xd7ad /tmp/ccrms4eh.debug.temp.o
+ .debug_str     0x00017d52     0xd2a3 /tmp/ccqqxB5H.debug.temp.o
+ .debug_str     0x00017d52     0x6ace /tmp/ccp3Caem.debug.temp.o
+ .debug_str     0x00017d52     0xa34e /tmp/ccZZwLa9.debug.temp.o
+ .debug_str     0x00017d52     0x8851 /tmp/cc7CCd1p.debug.temp.o
+ .debug_str     0x00017d52     0xbb34 /tmp/ccy5zGjW.debug.temp.o
+ .debug_str     0x00017d52     0x9f3e /tmp/ccjY8r87.debug.temp.o
+ .debug_str     0x00017d52     0xd3b0 /tmp/ccLQzLnC.debug.temp.o
+ .debug_str     0x00017d52     0x1947 /tmp/ccK2wq2C.debug.temp.o
+ .debug_str     0x00017d52      0x450 /tmp/ccZekwQl.debug.temp.o
+ .debug_str     0x00017d52     0x11aa /tmp/ccwi52my.debug.temp.o
+ .debug_str     0x00017d52      0x442 /tmp/ccdg98IX.debug.temp.o
+ .debug_str     0x00017d52      0x1d6 /tmp/ccdYdhO8.debug.temp.o
+ .debug_str     0x00017d52      0x233 /tmp/ccGbl1Ch.debug.temp.o
+ .debug_str     0x00017d52      0x221 /tmp/ccBbAV9t.debug.temp.o
+ .debug_str     0x00017d52      0x1b4 /tmp/ccCdFyBl.debug.temp.o
+ .debug_str     0x00017d52      0x208 /tmp/ccIewMiR.debug.temp.o
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+                0x00000000      0x8a3
+ *(.debug_line_str)
+ .debug_line_str
+                0x00000000      0x8a3 /tmp/ccoJTYws.ltrans0.ltrans.o
+                                0x1e1 (size before relaxing)
+ .debug_line_str
+                0x000008a3      0x250 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_line_str
+                0x000008a3      0x2d3 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_line_str
+                0x000008a3      0x27c /tmp/ccoJTYws.ltrans3.ltrans.o
+ .debug_line_str
+                0x000008a3      0x247 /tmp/ccIuTmxR.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x190 /tmp/ccrrzaey.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x23a /tmp/ccckuwbi.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x1c9 /tmp/ccWCY2XN.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x206 /tmp/cc3L3cgv.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x292 /tmp/ccrms4eh.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x299 /tmp/ccqqxB5H.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x191 /tmp/ccp3Caem.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x1ee /tmp/ccZZwLa9.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x1dc /tmp/cc7CCd1p.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x201 /tmp/ccy5zGjW.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x1b5 /tmp/ccjY8r87.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x248 /tmp/ccLQzLnC.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x1b8 /tmp/ccK2wq2C.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x19f /tmp/ccZekwQl.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x17c /tmp/ccwi52my.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x124 /tmp/ccdg98IX.debug.temp.o
+ .debug_line_str
+                0x000008a3       0xcb /tmp/ccdYdhO8.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x135 /tmp/ccGbl1Ch.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x109 /tmp/ccBbAV9t.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x11b /tmp/ccCdFyBl.debug.temp.o
+ .debug_line_str
+                0x000008a3      0x12b /tmp/ccIewMiR.debug.temp.o
+
+.debug_loclists
+                0x00000000    0x19b7b
+ *(.debug_loclists)
+ .debug_loclists
+                0x00000000     0x7150 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_loclists
+                0x00007150     0x8b45 /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_loclists
+                0x0000fc95     0x69ff /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_loclists
+                0x00016694     0x34e7 /tmp/ccoJTYws.ltrans3.ltrans.o
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+                0x00000000     0x1fca
+ *(.debug_rnglists)
+ .debug_rnglists
+                0x00000000      0x971 /tmp/ccoJTYws.ltrans0.ltrans.o
+ .debug_rnglists
+                0x00000971      0xb8c /tmp/ccoJTYws.ltrans1.ltrans.o
+ .debug_rnglists
+                0x000014fd      0x898 /tmp/ccoJTYws.ltrans2.ltrans.o
+ .debug_rnglists
+                0x00001d95      0x235 /tmp/ccoJTYws.ltrans3.ltrans.o
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+OUTPUT(/workspace/RF2000/artifacts/repetier/repetier-rf2000v2-reference.elf elf32-avr)
+LOAD linker stubs

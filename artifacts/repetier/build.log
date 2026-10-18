@@ -1,0 +1,107 @@
+Building Repetier 1.45.01 RF2000v2 reference with 2 compiler workers.
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/Communication.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/Commands.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/Eeprom.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/Extruder.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/HAL.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/Printer.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/Repetier.ino.cpp:39:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/SDCard.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/RF.cpp:19:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::getAxisDirectionIsPos(uint8_t)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:591:5: warning: control reaches end of non-void function [-Wreturn-type]
+  591 |     } // getAxisDirectionIsPos
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/SdFat.cpp:21:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/gcode.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/motion.cpp:18:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+In file included from /workspace/RF2000/build/repetier/source/Repetier/Repetier.h:137,
+                 from /workspace/RF2000/build/repetier/source/Repetier/ui.cpp:19:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h: In static member function ‘static bool Printer::setAxisDirection(uint8_t, bool)’:
+/workspace/RF2000/build/repetier/source/Repetier/Printer.h:523:5: warning: no return statement in function returning non-void [-Wreturn-type]
+  523 |     } // setAxisDirection
+      |     ^
+lto-wrapper: warning: using serial compilation of 4 LTRANS jobs
+lto-wrapper: note: see the ‘-flto’ option documentation for more information
+/workspace/RF2000/artifacts/repetier/repetier-rf2000v2-reference.elf  :
+section                       size      addr
+.data                         1080   8389120
+.text                       217916         0
+.bss                          5834   8390200
+.comment                        18         0
+.note.gnu.avr.deviceinfo        64         0
+.debug_aranges                 136         0
+.debug_info                 694373         0
+.debug_abbrev                36891         0
+.debug_line                 291449         0
+.debug_frame                 14108         0
+.debug_str                   97618         0
+.debug_line_str               2204         0
+.debug_loclists             105339         0
+.debug_rnglists               8138         0
+Total                      1475168
+
+
+
+Reference image compiled: 218996/253952 flash bytes; 6914/8192 static RAM bytes.
+This reference retains printer heaters and other original functions. Do not use it as the CNC port.

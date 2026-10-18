@@ -1,0 +1,28 @@
+{
+  "uploaded_files": {
+    "schema-electrique-1395717-renkforce-rf2000-imprimante-3d-appareil-pret-a-lemploi-banc-dimpression-chauffant.pdf": {
+      "sha256": "9d4f87760933a603c669d5fe4381cdf342b47a1c18273c9e94a336061eac288c",
+      "bytes": 162655
+    },
+    "grbl-Mega-5X-edge.zip": {
+      "sha256": "bed10c609267488f39717f97a8d22cf19fa3fe48fec0eee499719b6658546b6f",
+      "bytes": 735584
+    },
+    "Repetier-Firmware-community_stable Original.zip": {
+      "sha256": "9303140634c4a542d79d633c66e1d1689473444bdf560bda8706abfd29ed3181",
+      "bytes": 672205
+    }
+  },
+  "grbl_upstream": {
+    "url": "https://github.com/fra589/grbl-Mega-5X",
+    "ref": "edge",
+    "commit": "baaa1be3fe6c33a287695bbd57121da0b2979d9c",
+    "comparison": "All extracted source files match the official commit; only the embedded grbl.zip differs. Embedded archive not used for this port."
+  },
+  "ti_datasheet": {
+    "url": "https://www.ti.com/lit/ds/symlink/drv8711.pdf",
+    "revision": "SLVSC40H May 2020",
+    "sha256": "d04e2538bc6e1bea359037ce1e8ab39a36e8100197319951d4f3d19884a60843"
+  },
+  "repetier_provenance": "Uploaded Community Mod 1.45.01, not proven manufacturer stock. Full unmodified extracted reference is retained in references/repetier. No earlier RF GRBL development state was supplied."
+}

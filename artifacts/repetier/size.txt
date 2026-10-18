@@ -1,0 +1,19 @@
+/workspace/RF2000/artifacts/repetier/repetier-rf2000v2-reference.elf  :
+section                       size      addr
+.data                         1080   8389120
+.text                       217916         0
+.bss                          5834   8390200
+.comment                        18         0
+.note.gnu.avr.deviceinfo        64         0
+.debug_aranges                 136         0
+.debug_info                 694373         0
+.debug_abbrev                36891         0
+.debug_line                 291449         0
+.debug_frame                 14108         0
+.debug_str                   97618         0
+.debug_line_str               2211         0
+.debug_loclists             105339         0
+.debug_rnglists               8138         0
+Total                      1475175
+
+

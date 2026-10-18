@@ -1,0 +1,13 @@
+*.hex
+*.zip
+*.o
+*.elf
+*.DS_Store
+*.d
+.grbl*
+.vscode
+platformio.ini
+
+/build/
+/artifacts/
+*.log
