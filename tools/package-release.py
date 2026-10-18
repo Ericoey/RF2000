@@ -10,7 +10,7 @@ artifacts = root / 'artifacts'
 upstream = Path('/workspace/references/grbl-upstream')
 if upstream.is_dir():
     patch = []
-    selected = [root / name for name in ('Makefile', '.gitignore', 'README.md')]
+    selected = [root / name for name in ('Makefile', '.gitignore', 'README.md', 'platformio.ini')]
     for directory in ('grbl', 'tools', 'tests', 'docs'):
         selected += [p for p in sorted((root / directory).rglob('*')) if p.is_file()]
     for current in selected:

@@ -15,6 +15,18 @@ Quellen und Prüfsummen stehen in `references/provenance.json`.
 
 ## Bauen und prüfen
 
+Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
+öffnen und die Umgebung **`rf2000_grbl` → Build** auswählen. Per CLI:
+
+```bash
+pio run -e rf2000_grbl
+```
+
+Das HEX liegt anschließend unter `.pio/build/rf2000_grbl/firmware.hex`.
+Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
+
+Bestehender Make-Build einschließlich Repetier-Referenz:
+
 ```bash
 cd /workspace/RF2000
 tools/install-toolchain.sh
@@ -82,6 +94,7 @@ Schalterverkabelung und Stopplatenz bleiben am Gerät zu messen.
 - [Endschalter und Diagnose](docs/limits.md)
 - [Kontrollierter Hardwaretest](docs/hardware-test.md)
 - [Entwicklungsumgebung](docs/development.md)
+- [PlatformIO / VS Code](docs/platformio.md)
 - [Repetier-Referenzbuild](docs/repetier-build.md)
 
 Lizenz: GPL-3.0-or-later, siehe `COPYING`; Lizenzhinweise der übernommenen

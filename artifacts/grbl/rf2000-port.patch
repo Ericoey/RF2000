@@ -161,9 +161,12 @@
 +-include $(OBJECTS:.o=.d)
 --- a/.gitignore
 +++ b/.gitignore
-@@ -8,4 +8,6 @@
+@@ -6,6 +6,8 @@
+ *.d
+ .grbl*
  .vscode
- platformio.ini
+-platformio.ini
++/.pio/
  
 -README.md
 +/build/
@@ -171,7 +174,7 @@
 +*.log
 --- a/README.md
 +++ b/README.md
-@@ -1,74 +1,88 @@
+@@ -1,74 +1,101 @@
 -![GitHub Logo](https://github.com/fra589/grbl-Mega-5X/blob/edge/doc/images/Mega-5X-logo.svg)
 +# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
  
@@ -194,7 +197,9 @@
 +## Bauen und prüfen
  
 -It accepts standards-compliant g-code and has been tested with the output of several CAM tools with no problems. Arcs, circles and helical motion are fully supported, as well as, all other primary g-code commands. Macro functions, variables, and most canned cycles are not supported, but we think GUIs can do a much better job at translating them into straight g-code anyhow.
--
++Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
++öffnen und die Umgebung **`rf2000_grbl` → Build** auswählen. Per CLI:
+ 
 -Grbl includes full acceleration management with look ahead. That means the controller will look up to 24 motions into the future and plan its velocities ahead to deliver smooth acceleration and jerk-free cornering.
 -
 -* [Licensing](https://github.com/fra589/grbl-Mega-5X/blob/edge/COPYING): Grbl is free software, released under the GPLv3 license.
@@ -256,15 +261,24 @@
 -  - Spindle Control: M3, M4, M5
 -  - Valid Non-Command Words: F, I, J, K, L, N, P, R, S, T, X, Y, Z, A, B, C
 +```bash
++pio run -e rf2000_grbl
+ ```
+ 
+--------------
+-Grbl-Mega-5X is an open-source project and fueled by the free-time of our intrepid administrators and altruistic users. If you'd like to donate, all proceeds will be used to help fund supporting hardware and testing equipment. Thank you! [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?business=CZZN52UPPVHCW&no_recurring=0&item_name=Grbl-Mega-5X+%26+cn5X%2B%2B+donations&currency_code=EUR)
++Das HEX liegt anschließend unter `.pio/build/rf2000_grbl/firmware.hex`.
++Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
++
++Bestehender Make-Build einschließlich Repetier-Referenz:
++
++```bash
 +cd /workspace/RF2000
 +tools/install-toolchain.sh
 +make -j4
 +make check
 +make repetier
- ```
- 
---------------
--Grbl-Mega-5X is an open-source project and fueled by the free-time of our intrepid administrators and altruistic users. If you'd like to donate, all proceeds will be used to help fund supporting hardware and testing equipment. Thank you! [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?business=CZZN52UPPVHCW&no_recurring=0&item_name=Grbl-Mega-5X+%26+cn5X%2B%2B+donations&currency_code=EUR)
++```
++
 +HEX/ELF/MAP: `artifacts/grbl/rf2000-grbl.*`.
 +Repetier-Referenz: `artifacts/repetier/`.
 +Die Buildwerkzeuge führen keine Programmierung und keine Fuse-Änderung aus.
@@ -324,10 +338,42 @@
 +- [Endschalter und Diagnose](docs/limits.md)
 +- [Kontrollierter Hardwaretest](docs/hardware-test.md)
 +- [Entwicklungsumgebung](docs/development.md)
++- [PlatformIO / VS Code](docs/platformio.md)
 +- [Repetier-Referenzbuild](docs/repetier-build.md)
 +
 +Lizenz: GPL-3.0-or-later, siehe `COPYING`; Lizenzhinweise der übernommenen
 +Dateien und der Repetier-Referenz bleiben erhalten.
+--- /dev/null
++++ b/platformio.ini
+@@ -0,0 +1,28 @@
++; Open this directory as the PlatformIO project, then build rf2000_grbl.
++; GRBL owns main(), the interrupt vectors and all runtime initialization.
++[platformio]
++default_envs = rf2000_grbl
++src_dir = grbl
++include_dir = grbl
++
++[env:rf2000_grbl]
++platform = platformio/atmelavr@5.1.0
++platform_packages =
++    platformio/toolchain-atmelavr@1.70300.191015
++board = megaatmega2560
++board_build.f_cpu = 16000000L
++; No Arduino framework: the RF2000 firmware supplies its own bare-metal main.
++build_src_filter =
++    -<*>
++    +<*.c>
++    -<examples/>
++build_flags =
++    -std=gnu99
++    -Os
++    -Wall
++    -Wextra
++    -flto
++    -ffunction-sections
++    -fdata-sections
++extra_scripts = post:tools/platformio-build.py
++monitor_speed = 115200
 --- a/grbl/analog_control.c
 +++ b/grbl/analog_control.c
 @@ -21,7 +21,9 @@
@@ -2453,6 +2499,23 @@
 +assert ram <= 8192, 'static SRAM overflow'
 +print(f'Flash {flash}/253952 bytes; static SRAM {ram}/8192 bytes')
 --- /dev/null
++++ b/tools/install-platformio.sh
+@@ -0,0 +1,14 @@
++#!/usr/bin/env bash
++set -euo pipefail
++rf_repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++rf_tools="${RF2000_TOOL_ROOT:-/workspace/.tools}"
++rf_venv="$rf_tools/platformio-venv"
++if [[ ! -x "$rf_venv/bin/python" ]]; then
++  python3 -m venv "$rf_venv"
++fi
++if ! "$rf_venv/bin/python" -c 'import platformio; assert platformio.__version__ == "6.1.19"' 2>/dev/null; then
++  "$rf_venv/bin/python" -m pip install --disable-pip-version-check 'platformio==6.1.19'
++fi
++cd "$rf_repo"
++tools/platformio.sh --version
++tools/platformio.sh pkg install -e rf2000_grbl
+--- /dev/null
 +++ b/tools/install-toolchain.sh
 @@ -0,0 +1,49 @@
 +#!/usr/bin/env bash
@@ -2519,7 +2582,7 @@
 +upstream = Path('/workspace/references/grbl-upstream')
 +if upstream.is_dir():
 +    patch = []
-+    selected = [root / name for name in ('Makefile', '.gitignore', 'README.md')]
++    selected = [root / name for name in ('Makefile', '.gitignore', 'README.md', 'platformio.ini')]
 +    for directory in ('grbl', 'tools', 'tests', 'docs'):
 +        selected += [p for p in sorted((root / directory).rglob('*')) if p.is_file()]
 +    for current in selected:
@@ -2568,6 +2631,43 @@
 +    assert archive.testzip() is None, 'archive integrity failure'
 +(artifacts / 'RF2000-GRBL-Testpaket.zip.sha256').write_text(f'{sha(package)}  {package.name}\n')
 +print(f'{package}: {len(files)} files, {package.stat().st_size} bytes, SHA256 {sha(package)}')
+--- /dev/null
++++ b/tools/platformio-build.py
+@@ -0,0 +1,24 @@
++"""Link the bare-metal AVR firmware and validate its actual ELF sections."""
++import os
++from pathlib import Path
++import subprocess
++import sys
++
++Import("env")  # Provided by PlatformIO/SCons.
++
++env.AppendUnique(LIBS=["m"])
++env.AppendUnique(LINKFLAGS=[
++    "-flto",
++    "-Wl,--gc-sections",
++    "-Wl,-Map=" + env.subst("$BUILD_DIR/${PROGNAME}.map"),
++])
++
++
++def check_size(source, target, env):
++    toolchain = Path(env.PioPlatform().get_package_dir("toolchain-atmelavr"))
++    size_tool = toolchain / "bin" / ("avr-size.exe" if os.name == "nt" else "avr-size")
++    checker = Path(env.subst("$PROJECT_DIR")) / "tools" / "check-avr-size.py"
++    subprocess.run([sys.executable, str(checker), str(target[0]), str(size_tool)], check=True)
++
++
++env.AddPostAction("$BUILD_DIR/${PROGNAME}.elf", check_size)
+--- /dev/null
++++ b/tools/platformio.sh
+@@ -0,0 +1,7 @@
++#!/usr/bin/env bash
++# PlatformIO CLI in the writable cloud tool directory.
++set -euo pipefail
++rf_tools="${RF2000_TOOL_ROOT:-/workspace/.tools}"
++export PLATFORMIO_CORE_DIR="${PLATFORMIO_CORE_DIR:-$rf_tools/platformio}"
++export PLATFORMIO_SETTING_ENABLE_TELEMETRY=no
++exec "$rf_tools/platformio-venv/bin/pio" "$@"
 --- /dev/null
 +++ b/tools/test_eeprom_records.py
 @@ -0,0 +1,164 @@
@@ -3572,7 +3672,7 @@
 +"$repo_root/build/tests/rf2000_sim" "${1:-$repo_root/build/main.elf}"
 --- /dev/null
 +++ b/docs/development.md
-@@ -0,0 +1,72 @@
+@@ -0,0 +1,78 @@
 +# Entwicklung und Build
 +
 +Die Cloudumgebung verwendet den vorhandenen Checkout `/workspace/RF2000`.
@@ -3610,6 +3710,12 @@
 +`references/`. Der Build benötigt keinen Arduino-CLI-Download.
 +
 +## Ergebnisse
++
++Der GRBL-Port kann außerdem mit PlatformIO gebaut werden:
++`pio run -e rf2000_grbl`. In der Cloud zuerst
++`tools/install-platformio.sh` und anschließend
++`tools/platformio.sh run -e rf2000_grbl` verwenden. Anleitung und
++Ausgabepfade stehen in [platformio.md](platformio.md).
 +
 +`make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.
 +`make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
@@ -4177,6 +4283,109 @@
 +
 +Es wurden keine physischen Hardwaremessungen oder Referenzfahrten in der
 +Cloud ausgeführt. Host-Tests bzw. AVR-Kompilation prüfen nur die Software.
+--- /dev/null
++++ b/docs/platformio.md
+@@ -0,0 +1,100 @@
++# GRBL mit PlatformIO kompilieren
++
++Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
++Umgebung **`rf2000_grbl`** für ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
++und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
++
++## VS Code
++
++1. Die Erweiterung **PlatformIO IDE** von PlatformIO installieren.
++2. Das Repository aktualisieren (`git pull`) oder
++   `https://github.com/Ericoey/RF2000` klonen.
++3. In PlatformIO **Open Project** wählen und den Ordner `RF2000` öffnen,
++   in dem `platformio.ini` liegt.
++4. Unter **Project Tasks → rf2000_grbl → General → Build** kompilieren.
++   Alternativ das Häkchen **Build** in der unteren Statusleiste verwenden.
++
++Beim ersten Build lädt PlatformIO die festgelegte AVR-Plattform und
++Werkzeugkette herunter. Für das Kompilieren ist keine angeschlossene Platine
++erforderlich. Die normale Build-Aktion überträgt keine Firmware.
++
++## Kommandozeile
++
++Mit einer vorhandenen PlatformIO-Installation im Projektordner:
++
++```bash
++pio run -e rf2000_grbl
++```
++
++`pio run` verwendet dieselbe Standardumgebung. Ein sauberer Neubuild:
++
++```bash
++pio run -e rf2000_grbl -t clean
++pio run -e rf2000_grbl
++```
++
++In dieser Cloudumgebung liegt PlatformIO in einem beschreibbaren
++Python-Virtualenv. Dafür stehen folgende Befehle bereit:
++
++```bash
++cd /workspace/RF2000
++tools/install-platformio.sh
++tools/platformio.sh run -e rf2000_grbl
++```
++
++`tools/platformio.sh` setzt das Cloud-Paketverzeichnis auf
++`/workspace/.tools/platformio`. VS Code auf dem eigenen Rechner verwendet
++seine übliche PlatformIO-Installation; der Cloud-Wrapper ist dafür nicht nötig.
++
++## Ergebnisse und Buildaufbau
++
++Die Dateien liegen nach einem erfolgreichen Build unter:
++
++```text
++.pio/build/rf2000_grbl/firmware.hex
++.pio/build/rf2000_grbl/firmware.elf
++.pio/build/rf2000_grbl/firmware.map
++```
++
++Die Konfiguration verwendet Atmel AVR 5.1.0 und die festgelegte
++PlatformIO-AVR-Werkzeugkette `1.70300.191015` (AVR-GCC 7.3.0). Es werden nur
++die C-Dateien aus `grbl/` gebaut; das Beispielsketch wird ausgeschlossen.
++GRBL stellt seine eigene `main()`-Funktion und Interruptbehandlung bereit.
++Die Konfiguration bindet deshalb keinen Arduino-Core ein.
++
++Das zusätzliche Buildskript bindet die Mathematikbibliothek ein, erzeugt
++die Linker-MAP und prüft die tatsächlichen ELF-Sektionen: höchstens
++253.952 Byte Anwendungsflash bei 8 KiB reservierter Bootloaderfläche und
++8.192 Byte statisches SRAM. Eine größere Firmware führt zu einem Buildfehler.
++Stackbedarf bleibt zusätzlich zu berücksichtigen.
++
++Die bestehende Make-Werkzeugkette verwendet AVR-GCC 14.2.0. Unterschiedliche
++Compiler können unterschiedliche HEX-Dateien und Laufzeiten erzeugen.
++Die Softwareprüfung muss daher zum tatsächlich verwendeten ELF gehören.
++Der Hardwaretestplan gilt auch für ein mit PlatformIO erzeugtes Image.
++
++## Hardwaretest
++
++A/B bleiben deaktiviert und Homing bleibt im Testprofil gesperrt. Es wurde
++keine Uploadaktion ausgeführt. Die Mega-Boarddefinition enthält allgemeine
++Uploadvorgaben; das tatsächliche Programmierverfahren muss vor Ort geprüft
++werden. Ein Build bestätigt keine
++reale Platinenrevision, Motorströme oder Bewegungsrichtungen. Vor einer
++Programmierung und vor Bewegungen den
++[kontrollierten Hardwaretest](hardware-test.md) durchführen.
++
++Die Referenz-Repetier-Firmware wird weiterhin über den in
++[repetier-build.md](repetier-build.md) dokumentierten Build erzeugt.
++
++## Stand der Cloudprüfung
++
++PlatformIO Core 6.1.19 wurde installiert und die Projektkonfiguration wurde
++mit `pio project config` erfolgreich eingelesen. Die offizielle
++Atmel-AVR-Plattformquelle und die Mega-Boarddefinition wurden geprüft.
++Der vollständige PlatformIO-Build ist in dieser Cloudmaschine derzeit noch
++**nicht verifiziert**: Der Netzwerkproxy verweigert den Registry-Abruf mit
++HTTP 403, bevor der Compiler installiert werden kann. Die benötigten
++Registry-/Download-Domains sind im Umgebungsentwurf eingetragen.
++Nach dem Speichern der Netzwerkfreigabe `tools/install-platformio.sh` und
++`tools/platformio.sh run -e rf2000_grbl` erneut ausführen und das erzeugte
++ELF mit `tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf` prüfen.
 --- /dev/null
 +++ b/docs/repetier-build.md
 @@ -0,0 +1,66 @@
