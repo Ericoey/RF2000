@@ -49,7 +49,7 @@
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
     "grbl/report.c": "14fcb9923f437ab90402f992d26e63cab8ea57f79eb2e72c02d655aa83a519fc",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
-    "grbl/rf2000_board.c": "3a5f2bc85eb91fefc990b42c0df809bd0d287518c363c31db41d37a09589d806",
+    "grbl/rf2000_board.c": "98e62756dc6a38b2aa23b17e3af72558a56018a28e04ecf49cc05a96f75dd20a",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
     "grbl/rf2000_drv8711.c": "0b36c59e9a2961ab241a4cef5e968fafea70fc91841daed992111e9506bcaa9d",
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
@@ -67,10 +67,15 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "246ac042f78e37ab55c6f4b1c0fa1c4ca150c1313f2332972f06bf324321ad15",
+    "rf2000-grbl.elf": "2a9bc58ae233f90897792aad08322f83817f619bb78b4ec3909166bc5b483f2f",
     "rf2000-grbl.hex": "6c9b5ba8fe9859a3fab238af9202e40301f7dc5b04248492e1af0d2472142050",
-    "rf2000-grbl.map": "e63b33b0e0766df49b979500072f69dd82a9af9c7a5249a54c63307217ee4c46"
+    "rf2000-grbl.map": "a7622e09b2ed180f1a2f7d6761610352d8b476c0f22a0d575ffc803ed61bb2b1"
   },
   "reproducibility": "HEX is byte-identical after fresh toolchain installation into a second prefix and rebuilding all objects in another directory.",
-  "hardware_test_performed": false
+  "hardware_test_performed": false,
+  "hardware_authority": {
+    "path": "references/rf2000-schematic.pdf",
+    "sha256": "9d4f87760933a603c669d5fe4381cdf342b47a1c18273c9e94a336061eac288c",
+    "basis": "Explicit user assumption: schematic is correct and matches the target board."
+  }
 }

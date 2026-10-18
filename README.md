@@ -13,6 +13,11 @@ nachgewiesene Hersteller-Stockfirmware. Sie liegt unverändert unter
 `references/repetier/` und wird als zweite Firmwarevariante separat gebaut.
 Quellen und Prüfsummen stehen in `references/provenance.json`.
 
+**Verbindliche Hardwaregrundlage:** Nach Vorgabe des Nutzers gilt
+`references/rf2000-schematic.pdf` als vollständig richtig und passend zur
+verwendeten Platine. Bei Abweichungen hat der Schaltplan Vorrang vor der
+Community-Repetier-Firmware. Diese Festlegung ersetzt keinen Funktionstest.
+
 ## Bauen und prüfen
 
 Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
@@ -52,9 +57,9 @@ Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunkt
 - G38.x, M3/M4, M7/M8 und digitale/analoge Ausgangskommandos zurückgewiesen. M5/M9 bleiben sichere Ausschaltkommandos.
 
 **Korrigierte Reservepins:** DRV4 hat STEP=PA4 und DIR=PA6. PA5/PA7 aus der
-Auftragsliste sind hierfür falsch. PA7/WDI/OUT3 und PC0/ES2 weisen außerdem
-Unterschiede zwischen Schaltplan und Community-Firmware auf. Diese
-Revisionsfragen müssen am realen Board geklärt werden.
+Auftragsliste sind hierfür falsch. PA7 und PC4 sind im maßgeblichen Plan als
+`OUT3` bezeichnet: PC4 hält das Netz LOW, PA7 bleibt Eingang ohne Pull-up.
+Die davon abweichende Repetier-Bezeichnung PA7/WDI wird nicht übernommen.
 
 ## Bedienung des Testprofils
 
@@ -85,7 +90,7 @@ Z muss gegen Absinken gesichert werden.
 
 Die Softwareprüfungen und Buildnachweise stehen in
 [docs/validation.md](docs/validation.md). Kein physischer Hardwaretest wurde
-durchgeführt. Elektrische Revision, reale Motorströme, Bewegungsrichtungen,
+durchgeführt. Elektrisches Verhalten, reale Motorströme, Bewegungsrichtungen,
 Schalterverkabelung und Stopplatenz bleiben am Gerät zu messen.
 
 - [Verifizierte Hardwarebelegung und Quellenkonflikte](docs/hardware-verification.md)

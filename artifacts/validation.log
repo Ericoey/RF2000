@@ -1,3 +1,19 @@
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/rf2000_board.o
+/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/main.map build/analog_control.o build/coolant_control.o build/digital_control.o build/eeprom.o build/gcode.o build/jog.o build/limits.o build/main.o build/motion_control.o build/nuts_bolts.o build/planner.o build/print.o build/probe.o build/protocol.o build/report.o build/rf2000_board.o build/rf2000_drv8711.o build/serial.o build/settings.o build/sleep.o build/spindle_control.o build/stepper.o build/system.o -lm -o build/main.elf
+/workspace/.tools/avr/usr/bin/avr-size build/main.elf
+   text	   data	    bss	    dec	    hex	filename
+  35226	      0	   3470	  38696	   9728	build/main.elf
+python3 tools/check-avr-size.py build/main.elf /workspace/.tools/avr/usr/bin/avr-size
+Flash 35226/253952 bytes; static SRAM 3520/8192 bytes
+/workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/main.elf artifacts/grbl/rf2000-grbl.hex
+cp build/main.elf artifacts/grbl/rf2000-grbl.elf
+cp build/main.map artifacts/grbl/rf2000-grbl.map
+python3 tools/test_check_avr_size.py
+........
+----------------------------------------------------------------------
+Ran 8 tests in 0.011s
+
+OK
 python3 tools/test_rf2000_limits.py
 RF2000 limits: 16 input combinations, fixed polarity, init, debounce, hard stop, fault and homing selection PASS
 python3 tools/test_rf2000_drv8711.py

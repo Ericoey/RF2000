@@ -106,7 +106,7 @@ static int awake(int axis)
 
 static int forbidden_output(char port, uint8_t bit)
 {
-  return (port == 'A' && (bit == 3 || bit == 5)) ||
+  return (port == 'A' && (bit == 3 || bit == 5 || bit == 7)) ||
     (port == 'B' && bit == 4) ||
     (port == 'C' && (bit == 4 || bit == 5)) ||
     (port == 'E' && (bit == 2 || bit == 3 || bit == 5)) ||
@@ -285,6 +285,16 @@ static void boot(const char *elf, int corrupt)
   for (uint8_t bit=0;bit<5;++bit) input_pin('G',bit,1);
   run_us(1200000);
   CHECK(strstr(sim.log,"Grbl"),"missing Grbl startup");
+  // Authoritative schematic: PA7 and PC4 carry OUT3. Drive it LOW through
+  // PC4 while PA7 is an input without pull-up; PC0 stays a limit input.
+  avr_ioport_state_t porta = {0}, portc = {0};
+  avr_ioctl(sim.avr,AVR_IOCTL_IOPORT_GETSTATE('A'),&porta);
+  avr_ioctl(sim.avr,AVR_IOCTL_IOPORT_GETSTATE('C'),&portc);
+  CHECK(!(porta.ddr & (1u<<7)) && !(porta.port & (1u<<7)),
+    "OUT3/PA7 must remain an input without pull-up");
+  CHECK((portc.ddr & (1u<<4)) && !(portc.port & (1u<<4)),
+    "OUT3/PC4 must drive inactive LOW");
+  CHECK(!(portc.ddr & 1u),"PC0/ES2 must remain a limit input");
   CHECK(strstr(command("?",30),"<Alarm"),"startup must be alarm locked");
 }
 

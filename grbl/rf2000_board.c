@@ -1,7 +1,8 @@
 /*
  * Safe GPIO setup for the RF2000v2 I851 CTC V3 ATmega2560 board.
- * Sources: Repetier pins.h RF2000v2 block, RF2000v2.h, HAL::stopWatchdog(),
- * and the supplied I851 CTC V3.0 schematic. GPL-3.0-or-later.
+ * Wiring authority: supplied I851 CTC V3.0 schematic, declared authoritative
+ * for this board by the user. Repetier is a software reference only.
+ * GPL-3.0-or-later.
  */
 #include "grbl.h"
 #include <util/atomic.h>
@@ -71,8 +72,9 @@ void rf2000_board_init(void)
     DDRF |= RF2000_OFF_F;
     DDRH |= RF2000_OFF_H;
 
-    // Original Repetier explicitly releases WDI to high impedance to disable
-    // the external watchdog. PA7 is NOT the DRV4 direction signal (PA6).
+    // Schematic sheet 1 labels BOTH PA7 and PC4 as OUT3. PC4 drives the
+    // shared inactive LOW; PA7 remains an input without pull-up so it cannot
+    // contend with that output. Do not adopt Repetier's PA7/WDI assignment.
     PORTA &= ~_BV(PA7);
     DDRA &= ~_BV(PA7);
 

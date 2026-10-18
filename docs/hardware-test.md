@@ -1,27 +1,27 @@
 # Kontrollierter Hardwaretest
 
-Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandenen Hardwaretest** und erteilt keine pauschale Freigabe zum Flashen oder Bewegen einer Maschine. Der Quellabgleich und offene Revisionsfragen stehen in [hardware-verification.md](hardware-verification.md). Jede Stufe setzt die protokollierte Erfüllung der vorherigen Stufe voraus; bei Abweichung Versorgung sicher abschalten und die Ursache klären.
+Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandenen Hardwaretest** und erteilt keine pauschale Freigabe zum Flashen oder Bewegen einer Maschine. Die verbindliche Schaltplangrundlage und der Quellabgleich stehen in [hardware-verification.md](hardware-verification.md). Jede Stufe setzt die protokollierte Erfüllung der vorherigen Stufe voraus; bei Abweichung Versorgung sicher abschalten und die Ursache klären.
 
 Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
 
-## 1. Identität, Rückweg und stromlose Messung
+## 1. Dokumentation, Rückweg und stromloser Aufbau
 
-1. Platinenfotos, Aufdruck, Seriennummer, MCU und Bestückung dokumentieren. Nur eine belegte I851-CTC-V3.0/v2-kompatible Beschaltung prüfen. Abweichender Aufdruck oder unklare Revision: keine Betriebsfreigabe.
+1. Für diesen Auftrag gilt die Platine nach Nutzervorgabe als vollständig dem Schaltplan `references/rf2000-schematic.pdf` entsprechend. Aufdruck und Seriennummer dienen der Zuordnung des Prüfprotokolls; ein erneuter Revisionsabgleich ist keine offene Vorbedingung.
 2. Vor einer erwogenen Programmierung bestehende Flash-/EEPROM-Inhalte und Fuses mit einem geeigneten, zur Platine passenden Verfahren sichern und die Sicherung verifizieren. Bootloader und Fuses nicht ungeprüft überschreiben. Das bereitgestellte Build enthält keine Freigabe, den alten Druckerstand zu verlieren.
-3. Bei vollständig spannungsfreier Platine Durchgang zwischen MCU und DRV8711 messen: fünf STEP/DIR/SLEEPn, fünf SCS, SCLK/SDATI/SDATO, Reset und Fault. DRV4 muss PA4/PA6 sein. Die Netze PA7/WDI/OUT3 sowie PC0/ES2 gegenüber N2-WDI getrennt protokollieren und anhand der realen Platine auflösen.
-4. Shuntbeschriftungen R80–R89 mit 0,033 Ω bestätigen. Eine übliche Zweileiter-DMM-Messung ist bei 33 mΩ ungenau; geeignete Niederohm-/Vierleitermessung oder belastbare Bauteilidentifikation verwenden.
+3. Die festen Pinzuordnungen aus dem Plan im Prüfprotokoll verwenden: DRV4 PA4/PA6; OUT3 über PC4 LOW, PA7 Eingang ohne Pullup; PC0 bleibt ES2-Eingang. Beim stromlosen Aufbau Motor-/Sensorleitungen und gesteckte Verbinder auf Beschädigung oder Fehlanschluss prüfen.
+4. Die im Plan festgelegten 0,033-Ω-Shunts R80–R89 für die Stromberechnung verwenden. Die später gemessenen Wicklungsströme gegen Motorgrenzen und diese Sollwerte prüfen.
 5. Endschalterstecker und Kabel verfolgen. ES1/2/4 sind zweipolige Signale gegen VSS; ES3 ist vierpolig und kann eine aktive Sensorplatine versorgen. Pinreihenfolge anhand der realen Platine verifizieren. NO/NC, Versorgung, Betätigungsrichtung und Kabelbruchzustand separat aufschreiben. Keine 24 V auf AVR-Eingänge geben.
 6. Unabhängige Abschaltung nachweisen. Ein serielles `!`, Ctrl-X oder USB-Abziehen ist kein unabhängiger Not-Aus.
 
-**Abbruch:** Jede ungeklärte Netzzuordnung, fehlende Rücksicherung, beschädigte Leitung, unbekannte Sensorversorgung oder unwirksame unabhängige Abschaltung.
+**Abbruch:** Fehlende Rücksicherung, beschädigte oder falsch gesteckte Leitung, unbekannte externe Sensorversorgung oder unwirksame unabhängige Abschaltung.
 
 ## 2. Logikbetrieb ohne Motoren und Lasten
 
-Alle fünf Motoren und alle Leistungslasten bleiben abgetrennt. Erst nach bestandener Identitätsprüfung und einem bewusst gewählten Programmierverfahren den geprüften Testbuild einsetzen. AVR-Programmer/Bootloader-Einstellungen aus der tatsächlichen Platine bestimmen; keine automatische Flashaktion aus diesem Dokument ableiten.
+Alle fünf Motoren und alle Leistungslasten bleiben abgetrennt. Nach den Vorbereitungen aus Stufe 1 und mit einem bewusst gewählten Programmierverfahren den geprüften Testbuild einsetzen. AVR-Programmer/Bootloader-Einstellungen aus der tatsächlichen Platine bestimmen; keine automatische Flashaktion aus diesem Dokument ableiten.
 
 - 5 V, 3,3 V und gegebenenfalls Motorversorgung mit passender Strombegrenzung prüfen. DRV8711-Logik und Registerzugriff benötigen eine gültige Versorgung und Wake-Sequenz; ein USB-Dialog allein belegt dies nicht.
-- RESET beobachten. Unerwartete periodische Neustarts können auf die offene Watchdog-/PA7-Frage hinweisen. Nichts durch blindes Togglen vermeintlicher WDI-Pins überdecken.
-- HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4 und RGB/PH3–PH5 mit Oszilloskop/Logikanalysator messen. Sie müssen über Reset, Boot, Initialisierung, Alarm und M3/M4/M7/M8 inaktiv bleiben. Hochohmige Resetphasen anhand der externen Beschaltung beurteilen; bei einem tatsächlichen HIGH-Puls keine Last anschließen.
+- RESET beobachten und stabilen Lauf prüfen. Der Plan ist verbindlich: PA7 gehört zu OUT3, PC0 bleibt ES2-Eingang. Unerwartete Watchdog-Neustarts untersuchen; keine Taktimpulse auf diesen Pins als Umgehung erzeugen.
+- HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4 mit hochohmigem PA7, OUT4/PC5, OUT5/PF4 und RGB/PH3–PH5 mit Oszilloskop/Logikanalysator messen. Sie müssen über Reset, Boot, Initialisierung, Alarm und M3/M4/M7/M8 inaktiv bleiben. Hochohmige Resetphasen anhand der externen Beschaltung beurteilen; bei einem tatsächlichen HIGH-Puls keine Last anschließen.
 - STEP aller fünf Kanäle darf ohne bewusstes Bewegungskommando keine Flanken zeigen. SLEEPn aller Kanäle muss nach der Initialisierung inaktiv LOW sein; kurze kontrollierte Wake-Phasen für Registerkonfiguration nur ohne STEP und bei deaktivierter Leistungsfreigabe. Reserve A/B bleibt nach der Initialisierung LOW und deren CTRL.ENBL bleibt gesperrt.
 - Seriell die GRBL-Kennung, Achsenzahl XYZ und Einstellungen lesen. `$22=1` und `$H` müssen im unverifizierten Build zurückgewiesen werden. `$X` darf weder einen Fehlerzustand elektrisch beseitigen noch Reserveachsen freigeben. `G1 A...` und `G1 B...` dürfen keine Reservebewegung auslösen.
 
@@ -95,7 +95,8 @@ Für die CNC-Anwendung ist **Z-Max mit positiver Z-Referenzrichtung** aus dem Re
 | Platinenaufdruck / Seriennummer / Fotos | offen |
 | Quellcommit / HEX-SHA256 / Buildzeit / Compiler | offen |
 | Flash-/EEPROM-/Fuse-Sicherung und Wiederherstellung geprüft | offen |
-| Auflösung PA7/WDI/OUT3 und PC0/ES2 | offen |
+| Verbindliche Hardwaregrundlage | RF2000-Schaltplan laut Nutzervorgabe vollständig passend |
+| Reset-/Watchdog-Verhalten im Logikbetrieb | offen |
 | Versorgung / Shunts / Motornennströme | offen |
 | Registerwerte aller fünf Treiber / FAULT-Test | offen |
 | Limitpegel frei/aktiv/abgezogen, je Eingang | offen |

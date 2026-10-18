@@ -76,3 +76,9 @@ Verifikation. Eine Compileroption allein ist kein Prüfnachweis.
 `make flash`, `make fuse`, `make install` und `make load` brechen bewusst ab.
 Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.
 Das kontrollierte Vorgehen steht in [hardware-test.md](hardware-test.md).
+
+Für die Hardwarezuordnung gilt nach ausdrücklicher Nutzervorgabe
+`references/rf2000-schematic.pdf` als vollständig richtig und passend zur
+Platine. Abweichende Repetier-Pinangaben dürfen diese Zuordnung nicht
+überschreiben. PA7/PC4 werden als OUT3 behandelt: PC4 LOW, PA7 Eingang ohne
+Pullup. PC0 bleibt ES2-Eingang und wird nicht als Watchdog-Ausgang getaktet.

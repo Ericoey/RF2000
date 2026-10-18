@@ -24,5 +24,12 @@
     "revision": "SLVSC40H May 2020",
     "sha256": "d04e2538bc6e1bea359037ce1e8ab39a36e8100197319951d4f3d19884a60843"
   },
-  "repetier_provenance": "Uploaded Community Mod 1.45.01, not proven manufacturer stock. Full unmodified extracted reference is retained in references/repetier. No earlier RF GRBL development state was supplied."
+  "repetier_provenance": "Uploaded Community Mod 1.45.01, not proven manufacturer stock. Full unmodified extracted reference is retained in references/repetier. No earlier RF GRBL development state was supplied.",
+  "hardware_authority": {
+    "path": "references/rf2000-schematic.pdf",
+    "sha256": "9d4f87760933a603c669d5fe4381cdf342b47a1c18273c9e94a336061eac288c",
+    "status": "User-directed authoritative assumption: schematic is 100% correct and matches the target board.",
+    "priority": "Use schematic for wiring; TI datasheet for DRV8711 protocol and register semantics; Repetier for reference algorithms and compatible defaults.",
+    "physical_validation_claimed": false
+  }
 }

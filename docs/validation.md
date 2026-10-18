@@ -62,6 +62,13 @@ löscht diese Sperre nicht. Ein korrumpierter SPI-Readback verhindert `$X`
 und Bewegungen. PH1/Z-Max beendet eine laufende Bewegung und blockiert die
 Freigabe, solange der Eingang aktiv ist.
 
+Der erneute vollständige Lauf von `make check` nach Festlegung des Schaltplans
+als verbindliche Hardwaregrundlage ist erfolgreich. Die AVR-Simulation prüft
+zusätzlich PA7 als Eingang ohne Pullup, PC4 als LOW-Ausgang für OUT3 und PC0
+als Endschaltereingang. Die elektrische Firmwarekonfiguration ist unverändert;
+das neu erzeugte HEX bleibt bytegleich zum zuvor geprüften Stand. Das aktuelle
+Laufprotokoll steht in `artifacts/validation.log`.
+
 ## Codeprüfung und Grenzen
 
 Die unabhängigen Prüfungen fanden und korrigierten unter anderem die
@@ -79,9 +86,11 @@ separaten RF2000-Board-/Treiber-/Steppermodule wurden ohne Warnungen
 kompiliert. Repetier enthält die dokumentierten ursprünglichen fehlenden
 Return-Pfade in `Printer.h`. Warnungen wurden nicht global abgeschaltet.
 
-Nicht geprüft: reale Leiterplattenrevision, elektrische Signalqualität,
-Watchdog-Netzzuordnung, Endschalter-NO/NC und Kabelbruchverhalten, tatsächliche
-Wicklungsströme, mechanische Bewegungsrichtungen, reale Anhaltewege und
+Die Übereinstimmung der Zielplatine mit dem Schaltplan ist inzwischen vom
+Nutzer als verbindliche Arbeitsannahme festgelegt. Nicht geprüft: elektrische
+Signalqualität, Reset-/Watchdog-Laufverhalten, Endschalter-NO/NC und
+Kabelbruchverhalten, tatsächliche Wicklungsströme, mechanische
+Bewegungsrichtungen, reale Anhaltewege und
 Dauerbetrieb. Homing bleibt gesperrt. Die Hardwareprüfung folgt
 [hardware-test.md](hardware-test.md); Softwaretests erteilen keine
 automatische Freigabe für eine Referenzfahrt oder den Fräsbetrieb.
