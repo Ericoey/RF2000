@@ -36,14 +36,16 @@ Datenblattabruf `www.ti.com`. Die Referenz-PDFs liegen bereits unter
 
 ## Ergebnisse
 
-PlatformIO baut mit `pio run` standardmäßig das Y-Testprofil einschließlich
-Originaldisplay und Tastenfeld. Das XYZ-Profil ohne LCD wird ausdrücklich
+PlatformIO baut mit `pio run` standardmäßig das XYZ-CNC-Profil einschließlich
+Originaldisplay und Tastenfeld. Die Spindel wird manuell bedient. Das XYZ-Testprofil ohne LCD wird ausdrücklich
 mit `pio run -e rf2000_grbl` gewählt. In der Cloud zuerst
 `tools/install-platformio.sh` und anschließend
 `tools/platformio.sh run` verwenden. Anleitung und
 Ausgabepfade stehen in [platformio.md](platformio.md).
 
 `make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.
+`make cnc` baut `build/cnc/main.elf` und `artifacts/cnc/rf2000-grbl.*`.
+`make check-cnc` prüft gSender-Protokoll, XYZ-Homing, G-Code, LCD und Fehler.
 `make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
 Die Speicherprüfung reserviert 8 KiB für einen möglichen Mega-Bootloader;
 das tatsächliche Programmierverfahren ist separat am Gerät festzulegen.
@@ -73,6 +75,12 @@ X/Y Richtung MIN und Z Richtung MAX. Die Hardwareprüfung muss diese
 Zuordnung und die tatsächlichen Richtungen erst bestätigen. Auch eine spätere
 Änderung von `$3`, `$23`, Schalterverkabelung oder Mechanik erfordert erneute
 Verifikation. Eine Compileroption allein ist kein Prüfnachweis.
+Das gesonderte CNC-Profil erlaubt XYZ-Homing durch `RF2000_CNC=1` nach der
+neuesten Nutzervorgabe auch mit noch angenommenen X-/Z-Richtungen. Der Nutzer
+hat Y am Gerät bestätigt und die spätere Prüfung von X/Z ausdrücklich
+vorbehalten. Dies setzt die ursprüngliche Homing-Sperre für dieses Profil
+außer Kraft und ist keine Behauptung vollständiger Hardwareverifikation.
+Die Einrichtung mit manuell bedienter Spindel steht in [cnc-gsender.md](cnc-gsender.md).
 
 Das gesonderte Profil `rf2000_y_homing_test` wird mit `make y-homing-test`
 oder `pio run -e rf2000_y_homing_test` gebaut. `make check-y-homing` prüft

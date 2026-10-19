@@ -14,7 +14,7 @@ CPPFLAGS += -DF_CPU=16000000UL -Igrbl
 CFLAGS += -std=gnu99 -Os -g -Wall -Wextra -mmcu=$(MCU) -ffunction-sections -fdata-sections -flto
 LDFLAGS += -mmcu=$(MCU) -flto -Wl,--gc-sections,-Map,$(BUILD)/main.map
 
-.PHONY: all clean check check-y-homing check-panel y-homing-test disasm repetier flash fuse install load
+.PHONY: all clean check check-y-homing check-panel y-homing-test cnc check-cnc disasm repetier flash fuse install load
 all: $(ARTIFACTS)/rf2000-grbl.hex $(ARTIFACTS)/rf2000-grbl.elf $(ARTIFACTS)/rf2000-grbl.map
 
 $(BUILD) $(ARTIFACTS):
@@ -59,6 +59,12 @@ check-y-homing: y-homing-test
 
 check-panel: y-homing-test
 	tests/run-panel-sim.sh build/y-homing/main.elf
+
+cnc:
+	$(MAKE) BUILD=build/cnc ARTIFACTS=artifacts/cnc CPPFLAGS='$(CPPFLAGS) -DRF2000_CNC=1' all
+
+check-cnc: cnc
+	tests/run-cnc-sim.sh build/cnc/main.elf
 
 flash fuse install load:
 	@echo 'No automatic flashing or fuse writing. Read docs/hardware-test.md first.' >&2

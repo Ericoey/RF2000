@@ -1,0 +1,36 @@
+make BUILD=build/cnc ARTIFACTS=artifacts/cnc CPPFLAGS='-DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1' all
+make[1]: Entering directory '/workspace/RF2000'
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/cnc/analog_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/coolant_control.c -o build/cnc/coolant_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/digital_control.c -o build/cnc/digital_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/gcode.c -o build/cnc/gcode.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/jog.c -o build/cnc/jog.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/cnc/limits.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/main.c -o build/cnc/main.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/motion_control.c -o build/cnc/motion_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/nuts_bolts.c -o build/cnc/nuts_bolts.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/planner.c -o build/cnc/planner.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/print.c -o build/cnc/print.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/probe.c -o build/cnc/probe.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/protocol.c -o build/cnc/protocol.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/report.c -o build/cnc/report.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/cnc/rf2000_board.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_drv8711.c -o build/cnc/rf2000_drv8711.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_lcd.c -o build/cnc/rf2000_lcd.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_panel.c -o build/cnc/rf2000_panel.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/serial.c -o build/cnc/serial.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/settings.c -o build/cnc/settings.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/sleep.c -o build/cnc/sleep.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/spindle_control.c -o build/cnc/spindle_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/cnc/stepper.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/system.c -o build/cnc/system.o
+/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/cnc/main.map build/cnc/analog_control.o build/cnc/coolant_control.o build/cnc/digital_control.o build/cnc/eeprom.o build/cnc/gcode.o build/cnc/jog.o build/cnc/limits.o build/cnc/main.o build/cnc/motion_control.o build/cnc/nuts_bolts.o build/cnc/planner.o build/cnc/print.o build/cnc/probe.o build/cnc/protocol.o build/cnc/report.o build/cnc/rf2000_board.o build/cnc/rf2000_drv8711.o build/cnc/rf2000_lcd.o build/cnc/rf2000_panel.o build/cnc/serial.o build/cnc/settings.o build/cnc/sleep.o build/cnc/spindle_control.o build/cnc/stepper.o build/cnc/system.o -lm -o build/cnc/main.elf
+/workspace/.tools/avr/usr/bin/avr-size build/cnc/main.elf
+   text	   data	    bss	    dec	    hex	filename
+  42096	      0	   3586	  45682	   b272	build/cnc/main.elf
+python3 tools/check-avr-size.py build/cnc/main.elf /workspace/.tools/avr/usr/bin/avr-size
+Flash 42096/253952 bytes; static SRAM 3690/8192 bytes
+/workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/cnc/main.elf artifacts/cnc/rf2000-grbl.hex
+cp build/cnc/main.elf artifacts/cnc/rf2000-grbl.elf
+cp build/cnc/main.map artifacts/cnc/rf2000-grbl.map
+make[1]: Leaving directory '/workspace/RF2000'

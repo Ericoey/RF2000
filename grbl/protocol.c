@@ -39,7 +39,9 @@ static void protocol_exec_rt_suspend();
 void protocol_main_loop()
 {
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-    #if RF2000_Y_HOMING_TEST
+    #if RF2000_CNC
+      printPgmString(PSTR("[MSG:RF2000 XYZ CNC; spindle manual; home Zmax then XYmin]\r\n"));
+    #elif RF2000_Y_HOMING_TEST
       printPgmString(PSTR("[MSG:RF2000 Y-only test; $22=1 then $HY; seek until switch]\r\n"));
     #else
       printPgmString(PSTR("[MSG:RF2000 XYZ test profile; A/B asleep; homing gated]\r\n"));

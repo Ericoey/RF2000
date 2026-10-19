@@ -17,6 +17,8 @@ static const char key_port[KEY_COUNT] = {'G','B','H','B','L','J','J','J','J','H'
 static const uint8_t key_bit[KEY_COUNT] = {5,7,0,5,7,2,4,5,6,7,2};
 static int held_at_boot = -1;
 static uint8_t retained_eeprom[4096];
+static const uint8_t *eeprom_boot_image;
+static void (*extra_peripheral_init)(avr_t *avr);
 static struct {
   uint8_t four_bit, high_pending, high_nibble, high_rs, address;
   uint8_t ddram[128];
@@ -115,11 +117,13 @@ static void panel_load_firmware(avr_t *avr, elf_firmware_t *firmware)
   lcd.shortest_enable=UINT64_MAX;
   avr_irq_register_notify(pin_irq('K',3),lcd_enable_changed,NULL);
   for (unsigned key=0;key<KEY_COUNT;++key) key_level((enum panel_key)key,(int)key!=held_at_boot);
-  for (unsigned i=0;i<sizeof(retained_eeprom);++i) retained_eeprom[i]=(uint8_t)(i*73+19);
+  if (eeprom_boot_image) memcpy(retained_eeprom,eeprom_boot_image,sizeof(retained_eeprom));
+  else for (unsigned i=0;i<sizeof(retained_eeprom);++i) retained_eeprom[i]=(uint8_t)(i*73+19);
   avr_eeprom_desc_t eeprom = {.ee=NULL,.offset=0,.size=sizeof(retained_eeprom)};
   avr_ioctl(avr,AVR_IOCTL_EEPROM_GET,&eeprom);
   CHECK(eeprom.ee,"cannot inspect simulated EEPROM");
   memcpy(eeprom.ee,retained_eeprom,sizeof(retained_eeprom));
+  if (extra_peripheral_init) extra_peripheral_init(avr);
 }
 
 static void panel_terminate(void)
@@ -639,7 +643,10 @@ static void test_serial_cancels_confirmation(const char *elf)
   panel_terminate();
 }
 
-int main(int argc, char **argv)
+#ifndef RF2000_PANEL_TEST_MAIN
+#define RF2000_PANEL_TEST_MAIN main
+#endif
+int RF2000_PANEL_TEST_MAIN(int argc, char **argv)
 {
   setvbuf(stdout,NULL,_IOLBF,0);
   if (argc<2 || argc>3) { fprintf(stderr,"usage: %s y-panel-firmware.elf [case]\n",argv[0]); return 2; }

@@ -1,12 +1,35 @@
 make BUILD=build/y-homing ARTIFACTS=artifacts/y-homing CPPFLAGS='-DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1' all
 make[1]: Entering directory '/workspace/RF2000'
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/y-homing/analog_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/coolant_control.c -o build/y-homing/coolant_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/digital_control.c -o build/y-homing/digital_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/gcode.c -o build/y-homing/gcode.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/jog.c -o build/y-homing/jog.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/y-homing/limits.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/main.c -o build/y-homing/main.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/motion_control.c -o build/y-homing/motion_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/nuts_bolts.c -o build/y-homing/nuts_bolts.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/planner.c -o build/y-homing/planner.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/print.c -o build/y-homing/print.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/probe.c -o build/y-homing/probe.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/protocol.c -o build/y-homing/protocol.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/report.c -o build/y-homing/report.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/y-homing/rf2000_board.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_drv8711.c -o build/y-homing/rf2000_drv8711.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_lcd.c -o build/y-homing/rf2000_lcd.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_panel.c -o build/y-homing/rf2000_panel.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/serial.c -o build/y-homing/serial.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/settings.c -o build/y-homing/settings.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/sleep.c -o build/y-homing/sleep.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/spindle_control.c -o build/y-homing/spindle_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/y-homing/stepper.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_Y_HOMING_TEST=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/system.c -o build/y-homing/system.o
 /workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/y-homing/main.map build/y-homing/analog_control.o build/y-homing/coolant_control.o build/y-homing/digital_control.o build/y-homing/eeprom.o build/y-homing/gcode.o build/y-homing/jog.o build/y-homing/limits.o build/y-homing/main.o build/y-homing/motion_control.o build/y-homing/nuts_bolts.o build/y-homing/planner.o build/y-homing/print.o build/y-homing/probe.o build/y-homing/protocol.o build/y-homing/report.o build/y-homing/rf2000_board.o build/y-homing/rf2000_drv8711.o build/y-homing/rf2000_lcd.o build/y-homing/rf2000_panel.o build/y-homing/serial.o build/y-homing/settings.o build/y-homing/sleep.o build/y-homing/spindle_control.o build/y-homing/stepper.o build/y-homing/system.o -lm -o build/y-homing/main.elf
 /workspace/.tools/avr/usr/bin/avr-size build/y-homing/main.elf
    text	   data	    bss	    dec	    hex	filename
-  38442	      0	   3583	  42025	   a429	build/y-homing/main.elf
+  38426	      0	   3583	  42009	   a419	build/y-homing/main.elf
 python3 tools/check-avr-size.py build/y-homing/main.elf /workspace/.tools/avr/usr/bin/avr-size
-Flash 38442/253952 bytes; static SRAM 3697/8192 bytes
+Flash 38426/253952 bytes; static SRAM 3697/8192 bytes
 /workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/y-homing/main.elf artifacts/y-homing/rf2000-grbl.hex
 cp build/y-homing/main.elf artifacts/y-homing/rf2000-grbl.elf
 cp build/y-homing/main.map artifacts/y-homing/rf2000-grbl.map

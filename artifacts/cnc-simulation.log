@@ -1,0 +1,32 @@
+Tested AVR ELF SHA256: f41ded3c575a98330ed6ca63bd5f40439e5d7f86c45051be3f19024d4e0f3ef6
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: gSender handshake/settings/G54/status; XYZ homing default; manual spindle M3/M4/S accepted without outputs; unwired commands blocked
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: LCD XYZ work coordinates; front-panel X/Y/Z jog; two-press work zero without motion; idle hold and raw STOP
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: $H homes Z-MAX before XY-MIN; each axis two contacts/releases and four phases; XYZ reference indication; Z-MIN trips alarm and disables all
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: streamed metric G54 rectangle with Z depth and manual spindle words; exact XYZ pulses; gSender ! hold and ~ resume complete same move
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: one-microsecond FAULT stops CNC Z jog, all drivers sleep, LCD alarm12 persists
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: clockwise/counterclockwise GRBL arcs interpolate XY and return to starting position without Z or reserve movement
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: $HX/$HY/$HZ independently reference the selected motor and accumulate XYZ reference indicators
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: CNC calibration and G54 persist in EEPROM across a fresh MCU; reboot remains alarm locked without movement
+PASS: 8 real-AVR CNC cases
+Loaded 41992 .text at address 0x0
+Loaded 104 .data
+PASS: live CNC LCD plus100Hz UART status:6400 Z pulses at4996.41steps/s, min pulse14.312us
+PASS: 1 real-AVR CNC cases

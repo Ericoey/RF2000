@@ -5,7 +5,8 @@ HD44780-Display mit 20×4 Zeichen und das vorhandene Tastenfeld. Pinbelegung,
 4-Bit-Ansteuerung und Initialisierungsfolge stammen aus der bereitgestellten
 Repetier-Referenz. Die Bedienoberfläche ist ein eigenes kleines GRBL-Testmenü.
 Es werden keine Drucker-, Heizungs- oder Extrudermenüs übernommen.
-Dieses Y-Profil ist die Standardauswahl für PlatformIO-Build und -Upload.
+Dieses Dokument beschreibt das getrennte Y-Testprofil. Die aktuelle
+PlatformIO-Standardauswahl ist das [XYZ-CNC-Profil](cnc-gsender.md).
 Das ausdrücklich auswählbare XYZ-Profil `rf2000_grbl` aktiviert dieses
 Bedienfeld nicht.
 
@@ -15,7 +16,7 @@ Repository aktualisieren und im Hauptordner kompilieren:
 
 ```bash
 git pull
-pio run
+pio run -e rf2000_y_homing_test
 ```
 
 In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
@@ -24,12 +25,12 @@ Ein Build überträgt keine Firmware. Zum Aufspielen den seriellen Monitor
 schließen und beispielsweise mit dem bekannten Mac-Port ausführen:
 
 ```bash
-pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
-pio device monitor --port /dev/cu.usbserial-AL03P2K9
+pio run -e rf2000_y_homing_test -t upload --upload-port /dev/cu.usbserial-AL03P2K9
+pio device monitor -e rf2000_y_homing_test --port /dev/cu.usbserial-AL03P2K9
 ```
 
-Den Port gegebenenfalls ersetzen. Ohne `-e` wird das Y-Testprofil gebaut und
-aufgespielt; `-e rf2000_y_homing_test` wählt es ausdrücklich. Nach dem Neustart
+Den Port gegebenenfalls ersetzen. `-e rf2000_y_homing_test` wählt dieses
+Profil ausdrücklich; ohne `-e` wird CNC gebaut. Nach dem Neustart
 muss die serielle Startmeldung **`RF2000 Y-only test`** enthalten.
 **`RF2000 XYZ test profile`** zeigt das Profil ohne Display an. Die Auswahl
 im Monitor allein ändert keine aufgespielte Firmware. Nach dem Programmieren
@@ -144,7 +145,7 @@ freigefahren. Alarm 8 bedeutet Rückzugfehler, 9 fehlenden zweiten Kontakt,
 
 ## Implementierung und Nachweise
 
-`RF2000_LOCAL_PANEL` ist standardmäßig ausschließlich im Y-Testprofil aktiv.
+`RF2000_LOCAL_PANEL` ist standardmäßig im Y-Testprofil und im CNC-Profil aktiv; dieses Dokument beschreibt die Y-Bedienung.
 LCD-Schreibzugriffe erfolgen portmaskiert in kurzen atomaren Abschnitten;
 die gemeinsam genutzten Motor- und SPI-Portbits bleiben erhalten. Laufzeit-
 Updates übertragen höchstens ein LCD-Byte je zwei Timer-Ticks im Vordergrund;

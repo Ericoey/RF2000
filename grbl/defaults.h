@@ -51,7 +51,11 @@
     // Repetier positive DIR levels are X=0 Y=1 Z=1. GRBL's direction bit
     // denotes a NEGATIVE move, so the inversion mask is Y|Z, not X.
     #define DEFAULT_DIRECTION_INVERT_MASK ((1<<AXIS_2)|(1<<AXIS_3))
-    #define DEFAULT_STEPPER_IDLE_LOCK_TIME 25 // ms before entering nSLEEP
+    #if RF2000_CNC
+      #define DEFAULT_STEPPER_IDLE_LOCK_TIME 255 // Hold position until explicit reset/disable.
+    #else
+      #define DEFAULT_STEPPER_IDLE_LOCK_TIME 25 // ms before entering nSLEEP
+    #endif
     #define DEFAULT_STATUS_REPORT_MASK 1
     #define DEFAULT_JUNCTION_DEVIATION 0.01
     #define DEFAULT_ARC_TOLERANCE 0.002
@@ -62,7 +66,9 @@
     #define DEFAULT_HARD_LIMIT_ENABLE 1 // Required in RF2000 hardware backend.
     #define DEFAULT_INVERT_PROBE_PIN 0
     #define DEFAULT_LASER_MODE 0
-    #define DEFAULT_HOMING_ENABLE 0 // $H and $22 remain gated by RF2000_HOMING_VERIFIED.
+    // CNC homing is enabled at the user's explicit request using assumed
+    // X/Y-MIN and Z-MAX mapping; this is not a physical verification claim.
+    #define DEFAULT_HOMING_ENABLE RF2000_CNC
     // Candidate milling sequence: X/Y MIN, Z MAX. NOT permission to home;
     // verify installed switch polarity, direction and mechanics before enabling.
     #define DEFAULT_HOMING_DIR_MASK ((1<<AXIS_1)|(1<<AXIS_2))

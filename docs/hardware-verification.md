@@ -103,9 +103,13 @@ langsame zweite Annäherung folgen anschließend. Testwerte und Abweichungen
 zu Repetier stehen in [y-axis-test.md](y-axis-test.md). Eine physische
 Richtungs-/Pegelprüfung muss vor dem Start erfolgen.
 
-## Originaldisplay und Tasten im Y-Testprofil
+## Neueste CNC-Freigabe nach Nutzervorgabe
 
-Das getrennte Y-Testprofil verwendet das originale **20×4-HD44780-Display im 4-Bit-Modus** und die elf direkten Taster. Die übrigen Druckermenüs und Druckerfunktionen werden nicht importiert. Im Standardprofil bleiben Display und Tasten unbenutzt. Maßgeblich sind `references/repetier/Repetier/pins.h:680–702` für die Taster und `pins.h:740–757` für das Display. Displaytyp, Größe und ursprüngliche Bytewartezeit stehen in `ui.h:257–265`; die Ansteuerung übernimmt die Initialisierungsfolge aus `ui.cpp:438–500`. Die Dateien unter `references/repetier/` bleiben unverändert.
+Am 19.10.2026 bestätigte der Nutzer die Funktionen von Display, Tasten, Y-Motor, Y-Referenzfahrt und Referenzschalter. Er wünschte anschließend XYZ-Fräsbetrieb und erklärte ausdrücklich, dass X/Z noch nicht geprüft seien, aber zunächst als funktionierend angenommen werden sollen. Deshalb erlaubt das neue Profil `rf2000_cnc` mit `RF2000_CNC=1` die Referenzfolge Z-Max, danach X/Y-Min. Dies ersetzt für dieses Profil die frühere Voraussetzung einer vollständigen physischen Homing-Prüfung. `RF2000_HOMING_VERIFIED` bleibt 0; die Annahme wird nicht als Messnachweis ausgegeben. Die Spindel bleibt auf ausdrückliche Nutzervorgabe manuell; M3/M4/M5 schalten keine vorhandene Last. Details: [cnc-gsender.md](cnc-gsender.md).
+
+## Originaldisplay und Tasten im Y-Test- und CNC-Profil
+
+Das getrennte Y-Testprofil und das CNC-Profil verwenden das originale **20×4-HD44780-Display im 4-Bit-Modus** und die elf direkten Taster. Die übrigen Druckermenüs und Druckerfunktionen werden nicht importiert. Im bisherigen XYZ-Testprofil `rf2000_grbl` bleiben Display und Tasten unbenutzt. Maßgeblich sind `references/repetier/Repetier/pins.h:680–702` für die Taster und `pins.h:740–757` für das Display. Displaytyp, Größe und ursprüngliche Bytewartezeit stehen in `ui.h:257–265`; die Ansteuerung übernimmt die Initialisierungsfolge aus `ui.cpp:438–500`. Die Dateien unter `references/repetier/` bleiben unverändert.
 
 | LCD-Signal | AVR / Mega | Displaystecker X21 |
 |---|---|---|
@@ -137,11 +141,11 @@ Die Tasten sind aktive LOW-Eingänge mit internen Pullups gemäß `ui.h:318–32
 
 **Weitere belegte Abweichung:** Auf Blatt 2 ist X23 Pin 7 als „PAUSE“ und Pin 9 als „CONT“ beschriftet. Die Repetier-Funktionen sind dazu vertauscht: `pins.h:689–692` verbindet E5 mit PH7 und E6 mit PH2; `ui.cpp:592–593` ordnet E5 `CONTINUE` und E6 `PAUSE` zu. Die elektrische GPIO-Zuordnung folgt weiterhin der alten Firmware. Für den neuen Y-Test dienen **beide Leitungen PH7 und PH2 bewusst als Abbruch**, ebenso Links. Diese neue Testfunktion ist keine unverändert übernommene Pause-/Fortsetzen-Funktion; keine der beiden Sondertasten setzt eine abgebrochene Bewegung fort. Die früheren Z-/Extrudertasten aktivieren keine Z- oder Extruderbewegungen.
 
-**Ergänzung zur alten Firmware:** Die Hintergrundbeleuchtung wird im Y-Profil über **PA0 / D22 (`D_LED`) HIGH** eingeschaltet. Blatt 2 zeigt den BC847-Masseschalter Q8, zwei 10-kΩ-Widerstände R76/R78 und die LED-Versorgung über R53 mit 22 Ω / 0,5 W. Die bereitgestellte Repetier-Firmware konfiguriert PA0 nicht ausdrücklich; diese Aktivierung folgt ergänzend dem Schaltplan. PA0 ist kein Motorpin. Die Display-/Tastenintegration und diese beiden bewussten Änderungen sind Quellen- und Softwarebefunde, keine bestätigten Messungen am Originalbedienteil.
+**Ergänzung zur alten Firmware:** Die Hintergrundbeleuchtung wird im Y- und CNC-Profil über **PA0 / D22 (`D_LED`) HIGH** eingeschaltet. Blatt 2 zeigt den BC847-Masseschalter Q8, zwei 10-kΩ-Widerstände R76/R78 und die LED-Versorgung über R53 mit 22 Ω / 0,5 W. Die bereitgestellte Repetier-Firmware konfiguriert PA0 nicht ausdrücklich; diese Aktivierung folgt ergänzend dem Schaltplan. PA0 ist kein Motorpin. Die Display-/Tastenintegration und diese beiden bewussten Änderungen sind Quellen- und Softwarebefunde, keine bestätigten Messungen am Originalbedienteil.
 
 ## Unbenutzte Leistungsausgänge und Watchdog-Verhalten
 
-Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, SD- oder Servo-Funktion. LCD und Tasten bleiben im Standardprofil unbenutzt; ausschließlich das Y-Testprofil verwendet das oben beschriebene lokale Bedienteil. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
+Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, SD- oder Servo-Funktion. LCD und Tasten bleiben im XYZ-Testprofil unbenutzt; Y-Test- und CNC-Profil verwenden das oben beschriebene lokale Bedienteil. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
 
 Die aktuelle Entscheidung zur abweichenden Zuordnung lautet:
 

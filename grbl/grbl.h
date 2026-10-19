@@ -24,7 +24,11 @@
 
 // Grbl versioning system
 #define GRBL_VERSION "1.2i"
-#define GRBL_VERSION_BUILD "20261018-rf2000"
+#if defined(RF2000_CNC) && RF2000_CNC
+  #define GRBL_VERSION_BUILD "20261019-rf2000-cnc"
+#else
+  #define GRBL_VERSION_BUILD "20261018-rf2000"
+#endif
 
 // Define standard libraries used by Grbl.
 #include <avr/io.h>

@@ -253,7 +253,7 @@ uint8_t read_global_settings() {
         settings.step_invert_mask ||
         (settings.flags & (BITFLAG_INVERT_ST_ENABLE | BITFLAG_INVERT_LIMIT_PINS | BITFLAG_LASER_MODE)) ||
         !(settings.flags & BITFLAG_HARD_LIMIT_ENABLE)) { return(false); }
-    #if !RF2000_HOMING_VERIFIED
+    #if !RF2000_HOMING_VERIFIED && !RF2000_CNC
       if (settings.flags & (BITFLAG_HOMING_ENABLE | BITFLAG_SOFT_LIMIT_ENABLE)) { return(false); }
     #endif
     for (uint8_t axis=0; axis<N_AXIS; axis++) {
@@ -285,7 +285,7 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
     }
     if (((parameter == 2 || parameter == 4 || parameter == 5 || parameter == 32) && value != 0) ||
         (parameter == 21 && value != 1)) { return(STATUS_SETTING_DISABLED); }
-    #if !RF2000_HOMING_VERIFIED
+    #if !RF2000_HOMING_VERIFIED && !RF2000_CNC
       if ((parameter == 20 || parameter == 22) && value != 0) { return(STATUS_SETTING_DISABLED); }
     #endif
     if (parameter >= AXIS_SETTINGS_START_VAL && value <= 0) { return(STATUS_INVALID_STATEMENT); }

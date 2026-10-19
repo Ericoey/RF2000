@@ -4,7 +4,7 @@ Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandene
 
 Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
 
-Die nachstehenden XYZ-Schritte beschreiben das Standardprofil `rf2000_grbl`.
+Die nachstehenden XYZ-Schritte beschreiben das bisherige Testprofil `rf2000_grbl`. Das neue [CNC-Profil](cnc-gsender.md) erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auf Basis angenommener X/Z-Richtungen; die physischen Prüfpunkte bleiben als Nachweis offen.
 Für den ersten Test ausschließlich der Y-Achse gibt es zusätzlich
 `rf2000_y_homing_test`: Nur Y kann bestromt werden, X/Z/A/B bleiben gesperrt.
 Seine konkreten Build-, Monitor-, Jog- und `$HY`-Kommandos stehen in
@@ -92,7 +92,7 @@ Bei betätigtem Endschalter wird nicht per Software zwangsfrei gefahren. Zunäch
 
 ## 7. Homing bleibt ein eigener Freigabeschritt
 
-Der Standardbuild hält `RF2000_HOMING_VERIFIED=0`. `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine allgemeine XYZ-Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
+Das bisherige XYZ-Testprofil hält `RF2000_HOMING_VERIFIED=0`. Das neue CNC-Profil ist nach ausdrücklicher Nutzeranweisung mit angenommenen X/Z-Richtungen freigegeben; siehe [cnc-gsender.md](cnc-gsender.md). `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine messtechnisch bestätigte XYZ-Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
 
 Das zusätzliche Y-Testprofil ist eine getrennte Ausnahme nur für Y: nach
 realer Prüfung von Y-Richtung und Y-Min-Polarität kann ausschließlich `$HY`

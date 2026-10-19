@@ -60,7 +60,9 @@ Antrieben sicher freigegeben werden. Es gibt absichtlich keine
 softwareseitige Rückfahrumgehung bei betätigtem Schalter. Manuelles
 Freigeben muss zur Mechanik und deren Schwerkraftlast passen.
 
-## Referenzfahrt im Standardprofil bleibt gesperrt
+## Referenzfahrt im bisherigen XYZ-Testprofil bleibt gesperrt
+
+Das neue [CNC-Profil](cnc-gsender.md) erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auch mit noch angenommenen X/Z-Richtungen; die folgende Compile-Sperre beschreibt `rf2000_grbl`.
 
 `RF2000_HOMING_VERIFIED=0` ist die Einstellung des Standardprofils `rf2000_grbl`. `$H`,
 `$22=1` und ein direkter Aufruf der Referenzroutine sind gesperrt. Die

@@ -10,12 +10,13 @@ das ist ein Anwenderbericht vom 19.10.2026, kein Messprotokoll der Cloud.
 
 | Variante | Flash | Statisches SRAM | Ergebnis |
 | --- | ---: | ---: | --- |
-| GRBL RF2000 XYZ | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
-| GRBL separater Y-Test mit Bedienfeld | 38.442 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
+| GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
+| GRBL separater Y-Test mit Bedienfeld | 38.426 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
+| XYZ-CNC mit Display und manueller Spindel | 42.096 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
-das Y-Profil mit Bedienfeld `.text=38328`, `.data=114`, `.bss=3583`. Für SRAM werden
+das Y-Profil mit Bedienfeld `.text=38312`, `.data=114`, `.bss=3583`. Für SRAM werden
 `.data` und `.bss` addiert. Die neue Binutils-Kurzausgabe zählt initialisierte
 Daten bei dieser Zielplattform anders; die Kapazitätsprüfung verwendet
 deshalb die einzelnen ELF-Sektionen. Statische SRAM-Reserve belegt keine
@@ -37,7 +38,8 @@ Firmware-SHA256:
 ```text
 GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
-Y-Test   770f79c59bc8b56a6f5686df3fdfe82c59d8f17ddce8aea90fbd806ab96e02db
+Y-Test   028937c1619c42ff30d4bd1c86c94dee52e0bda657ec77469268d91bb6b8c36e
+CNC      ee60c2adb46c84c8561893e17947db1d88ee69753bdb05038a9a65645c266b14
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -84,8 +86,8 @@ Test nach der Bedienfelderweiterung steht in `artifacts/validation.log`.
 
 ## Separates Y-Testprofil
 
-PlatformIO wählt für den aktuellen Hardwaretest jetzt standardmäßig
-`rf2000_y_homing_test` mit LCD und Tasten. Die aufgelöste Konfiguration wurde
+Das Y-Testprofil bleibt explizit als `rf2000_y_homing_test` verfügbar;
+PlatformIO wählt jetzt standardmäßig `rf2000_cnc`. Die aufgelöste Konfiguration wurde
 mit `pio project config --json-output` geprüft: Default, geerbte Buildflags,
 `RF2000_Y_HOMING_TEST=1`, C-Quellen und Monitorparameter stimmen. Bei dieser
 früheren Umstellung wurde nur die Auswahl geändert. Die neue Menüführung
@@ -127,12 +129,53 @@ weiterhin am Registry-Proxy blockiert (CONNECT HTTP 403); der belegte
 Firmwarebuild verwendet AVR-GCC 14.2.0. Das mit PlatformIO/AVR-GCC 7.3.0
 lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 
+## XYZ-CNC und gSender-Protokoll
+
+Ergebnis: **acht CNC-Funktionsfälle und ein zusätzlicher Timingfall bestanden**,
+alle mit ELF `f41ded3c575a98330ed6ca63bd5f40439e5d7f86c45051be3f19024d4e0f3ef6`.
+Protokoll: `artifacts/cnc-simulation.log`. Der zusätzliche Timingfall wurde
+nach den acht Funktionsfällen separat ausgeführt. `make check-cnc` fasst alle
+neun Fälle zusammen. Der CNC-Build verwendet `.text=41992`, `.data=104`,
+`.bss=3586`; Buildprotokoll: `artifacts/cnc-build.log`.
+
+Geprüft wurden GRBL-Handshake und Status für gSender (`$I`, `$$`, `$G`, `$#`,
+`?`), XYZ-Jogging am Tastenfeld, Arbeitskoordinaten auf dem tatsächlich
+dekodierten LCD, bestätigtes Nullsetzen ohne Bewegung und Motorhaltung mit
+`$1=255`. `$H` referenziert Z-Max vor X/Y-Min; jede Achse erreicht zwei Kontakte
+und zwei Freigaben in vier Phasen. Einzelbefehle `$HX/$HY/$HZ` bewegen nur die
+gewählte Achse und ergänzen die Referenzanzeige. G54-Rechteck, Z-Zustellung,
+Kreisbahnen G2/G3 sowie Echtzeit-Pause `!` und Fortsetzen `~` bestehen. M3/M4/S
+werden für die manuelle Spindel angenommen, ohne einen Ausgang einzuschalten.
+A/B bleiben ohne STEP und Freigabe. Z-Min, lokaler STOP und ein 1-µs-FAULT-Puls
+schalten ab; Alarm 12 bleibt auf dem Display sichtbar.
+
+Nach abgeschlossenen EEPROM-Schreibzugriffen wurde der vollständige Inhalt
+in eine frische MCU-Instanz übernommen: Kalibrierung, Rückzug und G54 bleiben
+erhalten; der Neustart bleibt verriegelt und bewegungslos. Stock-simavr 1.6
+ignoriert die EEPM-Bits und behandelt Erase-only fälschlich wie normales
+Schreiben aus EEDR. Das CNC-Testmodell ergänzt ausschließlich die AVR-
+Programmiermodi Erase-only und Write-only um ihre Datenblattsemantik;
+EEMPE-Fenster, Read-Pfad und vorhandene Simulator-Timer werden weiter benutzt.
+Der Firmware-EEPROM-Treiber wurde dafür nicht verändert.
+
+Mit aktivem CNC-LCD und 100-Hz-UART-Status entstehen genau **6400 Z-Pulse**,
+bei **4996,41 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
+**14,312 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
+die Firmwarevorgabe für Z bleibt 150 mm/min.
+
+Dies ist ein Test der gSender-relevanten seriellen Befehle und des tatsächlichen
+AVR-Programms, kein Lauf der gSender-Desktopanwendung an realer Hardware. Der
+Nutzer hat die spätere physische Prüfung von X/Z ausdrücklich vorbehalten und
+die angenommene Zuordnung zur Implementierung freigegeben. Es wird keine
+vollständig gemessene Hardwarefreigabe behauptet. Bedienung und Grenzen:
+[cnc-gsender.md](cnc-gsender.md).
+
 ## Codeprüfung und Grenzen
 
 ### Originaldisplay und lokales Tastenfeld
 
 Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
-Y-ELF `93a7e697f53ad70bc12ce72a2ac8b0acf024469179db4d5991b470446b116cd6`.
+Y-ELF `b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3`.
 Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.
 
@@ -212,7 +255,7 @@ Nicht geprüft am GRBL-Port: elektrische
 Signalqualität, Reset-/Watchdog-Laufverhalten, Endschalter-NO/NC und
 Kabelbruchverhalten, tatsächliche Wicklungsströme, mechanische
 Bewegungsrichtungen, reale Anhaltewege und
-Dauerbetrieb. Allgemeines Homing bleibt im Standardprofil gesperrt; der
+Dauerbetrieb. Im bisherigen XYZ-Testprofil bleibt Homing gesperrt; das CNC-Profil erlaubt es nach Nutzeranweisung mit noch angenommenen X/Z-Richtungen. Der
 gesonderte Y-Test verlangt die Prüfungen aus [y-axis-test.md](y-axis-test.md).
 Die Hardwareprüfung folgt
 [hardware-test.md](hardware-test.md); Softwaretests erteilen keine

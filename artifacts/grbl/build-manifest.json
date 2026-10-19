@@ -16,26 +16,26 @@
   "source_sha256": {
     "grbl/analog_control.c": "c587acc887ea9d8e5fb3b152299120567ad523374a58541b1c29b5c185710aa2",
     "grbl/analog_control.h": "4f566ec634d19144ed0f1d5bfec2399d7a43384952a993fea15d5c3be5519ecc",
-    "grbl/config.h": "18e005efaf004ae2cc6946903c49483e478ab065465122baea25b49d31de0bdb",
+    "grbl/config.h": "7501aeb9bdd23b19a2ae750b0e65c22a1f09e4123a943b1b5822c36933aac35d",
     "grbl/coolant_control.c": "bb0d14639388a171a5ead35c444ba2d146bdb2c0631972dea8d5c955260143e3",
     "grbl/coolant_control.h": "be1151afe71b4867b968e9a6b5f963f952ff59dd653230d5f11d2c843297915b",
     "grbl/cpu_map.h": "302886ddfe639b3da19908934d7ea02c3250dfed94a833bca33bd48da776d54f",
-    "grbl/defaults.h": "5eebaf36939959c7786e924ee2c259fa99bf41c9e7553b1980de42a94cf5f8c5",
+    "grbl/defaults.h": "99b7e841bd3d25efda3055cca6dfc0e9a1314abd179b1c89c031fcb8c6883173",
     "grbl/digital_control.c": "f0cc7511eac1856bb89f75d429c26a2df4a7374165fab59e9110dffb7853ce53",
     "grbl/digital_control.h": "3ccd959f226af539f1715cf602fcb54db670c9f6da2a921115a275716da7f098",
     "grbl/eeprom.c": "e71bdf008f45b5b7b1147ae23bcc1c5a074a9e1d9876c140d416ef34430e1873",
     "grbl/eeprom.h": "fcb6c0d3d51eae11aa00b8b0e850fe7d1603999c77202651c5459ea61c0b0e7d",
     "grbl/examples/grblUpload/grblUpload.ino": "9d1a1054f2d7ad97a7c0862e81a3cee4db8c6cf95236d68d6c925c1d8996567b",
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
-    "grbl/gcode.c": "ef8559947827310ff395ee1671c226d6161e059d833df3a048b52a50f28762ff",
+    "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "394c04f0bcfb1a8e25fea0e8a3928c4d83ddfbec5f8fe4ab3b82db798fd3f0c3",
+    "grbl/grbl.h": "668d990980c59f801c7ed5619f6d6308345b45c3b9a53890437e9619d1752cfb",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
-    "grbl/limits.c": "ab090613310550a1bf9bc459655dbb86036fbe119a4ab5a4127dfcbc8ac92b72",
+    "grbl/limits.c": "875f8d4ba715c3b7e966984f3414d8a01052a9ca0ebb7b17bf4455736748e410",
     "grbl/limits.h": "8d34528451e0ffb4cfaacbb6018b36e4a4df79c3054dfd3b4e0a625ac9332512",
     "grbl/main.c": "c59ce7da83da24f520166f6d6d3d41d679306ffded68b8cfec6d218f9a8cca09",
-    "grbl/motion_control.c": "734c85fb69fb34fb0560f502a11f7ae2d251787ae1443c19bd2458ebc2507355",
+    "grbl/motion_control.c": "e6e42ac35fb4fd4ed3e18a58b2a576232b07d6838c06fef4bd0672562a0818f7",
     "grbl/motion_control.h": "25445b9ac9e46a31d57ae56afa4f1c25f7beb4bb0977b3e6f8629207ff67793e",
     "grbl/nuts_bolts.c": "77aec3827f651f9958709d77d920aaed6f817b975d2989b655e66a37fcad7985",
     "grbl/nuts_bolts.h": "3442a59d27d65da876319a41522a7e39cb9be7c627b44d86daa10d81d828dfad",
@@ -45,7 +45,7 @@
     "grbl/print.h": "935c4b92f95224c6a30b92d2081d2fb8fbff5a23efc04852031b8022b9ad2f19",
     "grbl/probe.c": "24ab65fb1879a98709f09f9a877b373615503b8e8b6d1ffeb6536936e85d6841",
     "grbl/probe.h": "fb309aed7a9e4af6ac832d679cf14d553cc1a40bc6f6a2a08621b51a24ad000d",
-    "grbl/protocol.c": "d5c7f350d2c9847bdca4ce8595c7d19f1d9bdaaab123394fe77201d235b30329",
+    "grbl/protocol.c": "48451a926b894cc3a40535280ff1c6a62f0dfaf1f536d4e66b7940a4f32e549c",
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
     "grbl/report.c": "c9cfed46b53a133de1a96ed6e21be8e47ad174449ba26383370df26a0b343a8a",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
@@ -55,25 +55,25 @@
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
-    "grbl/rf2000_panel.c": "ebc46772e58defdf3ad5253d1ca7b9c06514ddb8dbf933c55309ce9359fed7b9",
-    "grbl/rf2000_panel.h": "30eceef9b31947b6e12da38f7a0ff21e6ec72e534f1ace7902e35adf13f85a51",
+    "grbl/rf2000_panel.c": "04ea876eb891c4279dfc4ac2b0f36d5d81a6782d2fcc525a8a766041e69f7eb7",
+    "grbl/rf2000_panel.h": "7d3bd682688149305630b2c77812057eafdafce9f0266d7332cb30c0f0bb338c",
     "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
-    "grbl/settings.c": "6b775ac6881018fa67b9ba547582a6bfd0ad1d86d11f25beb7634c02fdb6ca53",
-    "grbl/settings.h": "a92ab3c3a9164ded715b23e1d2ee25812c2b8a952813d921bc2be9c1d31c3362",
+    "grbl/settings.c": "59ebd0602f9929c2a1a75e63e0ad68c5ed73a073ac663ad612a50e264b718457",
+    "grbl/settings.h": "b794195201b518d390b9bf76fe57d501b45384cd8c74d3602f1e2cca5709e98e",
     "grbl/sleep.c": "ed0d1e8a455c548e51a2da9c3b87c064dd588285430206373ed6bda2fb718c59",
     "grbl/sleep.h": "045ca702271be6e45bb7963157e45cbe4374f6ace3c239eee22847efe2679d2f",
     "grbl/spindle_control.c": "6fed236c47a04c559bc7c8f7dfd3b59987b263e2677cd00dd8c2831b325e81dc",
     "grbl/spindle_control.h": "b8fa30fb2ba7c1ad0100afae98c95c53f193da5c11e134a66eaec8fef9207e93",
     "grbl/stepper.c": "ba42ef38dfb9e5f8ce41be0a6fc072ac3a654c4623ede0f267217f911eef1e9c",
     "grbl/stepper.h": "e9b74fd1c7589fd2010a52c0efc1155712511fa65f18462d8799d983443fe345",
-    "grbl/system.c": "576b564818d74a3c2b1d7fe7d902e0f6a20d50dbe87782032ddb640b7477d62c",
+    "grbl/system.c": "ceff92894b5dc1e97dbebdea32fbebdaeb464b9f7a6fadd7510f781290adf389",
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "7357c77cda463890b98e6e262f8a48a21aaebaa2ef942dae4b0abab3b7bbb019",
+    "rf2000-grbl.elf": "e0cc85f21ae00603af597df220446d6e68314aee14ecd601b74c3fe9bd81168f",
     "rf2000-grbl.hex": "fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f",
-    "rf2000-grbl.map": "ddc3601a11ce6a4e0fd791fc533d9c23e496683c1e16933bd828e060caafed91"
+    "rf2000-grbl.map": "adea294b42e3d171d0eeb9397788a6a0aa25a42b0d82c09ad84ff16e1512a462"
   },
   "reproducibility": "Current HEX is byte-identical after rebuilding all objects in a second clean directory with installed AVR-GCC 14.2.0; dependency installation into a second prefix was verified earlier.",
   "hardware_test_performed": false,
@@ -99,10 +99,12 @@
   },
   "local_panel": {
     "enabled": false,
-    "configuration": "RF2000_LOCAL_PANEL defaults to RF2000_Y_HOMING_TEST"
+    "configuration": "RF2000_LOCAL_PANEL defaults to (RF2000_Y_HOMING_TEST || RF2000_CNC)"
   },
   "validation": {
+    "date": "2026-10-19",
     "standard_make_check": "passed; artifacts/validation.log",
-    "date": "2026-10-19"
-  }
+    "tested_elf_sha256": "e0cc85f21ae00603af597df220446d6e68314aee14ecd601b74c3fe9bd81168f"
+  },
+  "platformio_default_environment": "rf2000_cnc"
 }

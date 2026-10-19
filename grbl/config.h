@@ -50,11 +50,17 @@
 #ifndef RF2000_Y_HOMING_TEST
   #define RF2000_Y_HOMING_TEST 0
 #endif
-#ifndef RF2000_LOCAL_PANEL
-  #define RF2000_LOCAL_PANEL RF2000_Y_HOMING_TEST
+#ifndef RF2000_CNC
+  #define RF2000_CNC 0
 #endif
-#if RF2000_LOCAL_PANEL && !RF2000_Y_HOMING_TEST
-  #error "Local RF2000 controls are commissioned only for the Y test profile."
+#if RF2000_CNC && RF2000_Y_HOMING_TEST
+  #error "Select either the XYZ CNC or the isolated Y commissioning profile."
+#endif
+#ifndef RF2000_LOCAL_PANEL
+  #define RF2000_LOCAL_PANEL (RF2000_Y_HOMING_TEST || RF2000_CNC)
+#endif
+#if RF2000_LOCAL_PANEL && !RF2000_Y_HOMING_TEST && !RF2000_CNC
+  #error "Local controls require the Y commissioning or XYZ CNC profile."
 #endif
 #if RF2000_Y_HOMING_TEST
   #if RF2000_HOMING_VERIFIED

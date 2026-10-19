@@ -157,7 +157,7 @@ uint8_t gc_execute_line(char *line)
       // No physical spindle, coolant, digital I/O, or probe has been commissioned.
       // Reject the complete block before any parser state or motion is committed.
       if ((letter == 'G' && int_value == 38) ||
-          (letter == 'M' && (int_value == 3 || int_value == 4 || int_value == 7 || int_value == 8 ||
+          (letter == 'M' && ((!RF2000_CNC && (int_value == 3 || int_value == 4)) || int_value == 7 || int_value == 8 ||
                             int_value == 62 || int_value == 63 || int_value == 64 || int_value == 65 ||
                             int_value == 67 || int_value == 68))) {
         FAIL(STATUS_GCODE_UNSUPPORTED_COMMAND);

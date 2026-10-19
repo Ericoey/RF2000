@@ -32,7 +32,11 @@
 // Version of the EEPROM data. Will be used to migrate existing data from older versions of Grbl
 // when firmware is upgraded. Always stored in byte 0 of eeprom
 #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-  #define SETTINGS_VERSION 73 // Separate XYZ RF2000 profile; never reuse RAMPS/5-axis EEPROM.
+  #if RF2000_CNC
+    #define SETTINGS_VERSION 74 // CNC defaults and settings are separate from the XYZ test.
+  #else
+    #define SETTINGS_VERSION 73 // Separate XYZ RF2000 profile; never reuse RAMPS/5-axis EEPROM.
+  #endif
 #else
   #define SETTINGS_VERSION 10
 #endif

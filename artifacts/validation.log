@@ -34,7 +34,7 @@ cp build/main.map artifacts/grbl/rf2000-grbl.map
 python3 tools/test_check_avr_size.py
 ........
 ----------------------------------------------------------------------
-Ran 8 tests in 0.006s
+Ran 8 tests in 0.012s
 
 OK
 python3 tools/test_rf2000_limits.py
@@ -72,5 +72,3 @@ PASS: deterministic FAULTn at Timer0 ISR entry cancels pending STEP, retains ala
 Loaded 35176 .text at address 0x0
 Loaded 50 .data
 PASS: INT6 latches a completed 1us FAULTn pulse and blocks unlock
-
-Final standard rebuild after panel-only edits: same fully tested HEX SHA256 fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f

@@ -1,7 +1,8 @@
 # Separater Y-Achs- und Homingtest
 
-Für den ersten Y-Test ist **`rf2000_y_homing_test`** die PlatformIO-
-Standardumgebung; sie aktiviert auch das originale Display und Tastenfeld.
+Für den getrennten Y-Test ist **`rf2000_y_homing_test`** ausdrücklich zu
+wählen; es aktiviert das originale Display und Tastenfeld. PlatformIO wählt
+standardmäßig die [XYZ-CNC-Firmware](cnc-gsender.md).
 Das ausdrücklich wählbare XYZ-Profil `rf2000_grbl` behält seine Homing-Sperre
 und deaktiviert das Display. Die
 Hardwarezuordnung folgt bei Quellenabweichungen der als funktionierend
@@ -47,12 +48,12 @@ Im Repository-Hauptverzeichnis mit vorhandenem PlatformIO:
 
 ```bash
 git pull
-pio run
+pio run -e rf2000_y_homing_test
 ```
 
 In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
 Das Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`; ELF und
-MAP liegen daneben. `pio run` ohne `-e` baut dieses Y-Testprofil.
+MAP liegen daneben. `pio run` ohne `-e` baut das XYZ-CNC-Profil.
 Eine explizite Auswahl mit `-e rf2000_y_homing_test` ist ebenfalls möglich.
 Es sind keine zusätzlichen Bibliotheken oder Terminalpakete erforderlich.
 
@@ -67,7 +68,7 @@ Zum Aufspielen den Monitor schließen und den tatsächlichen Port angeben,
 beispielsweise auf dem Mac:
 
 ```bash
-pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
+pio run -e rf2000_y_homing_test -t upload --upload-port /dev/cu.usbserial-AL03P2K9
 ```
 
 Nach dem Programmieren des Y-Images den seriellen Monitor öffnen:

@@ -225,7 +225,7 @@ uint8_t system_execute_line(char *line)
             if (line[2] != 'Y' || line[3] != 0) { return(STATUS_SETTING_DISABLED); }
           #endif
           #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3)
-            #if !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST
+            #if !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST && !RF2000_CNC
               return(STATUS_SETTING_DISABLED);
             #else
               if (!limits_motion_allowed()) { return(STATUS_SYSTEM_GC_LOCK); }

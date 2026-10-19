@@ -1,15 +1,15 @@
 # RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
 
-Kompilierbarer CNC-Teststand für ATmega2560/16 MHz mit drei logischen Achsen
-X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. PlatformIO
-baut standardmäßig das Y-Testprofil mit Display und Tasten. Dieses erlaubt
-nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
-Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
-Das Y-Profil bietet dafür ein einfaches Menü auf dem originalen 20×4-LCD
-und dem vorhandenen Tastenfeld: Freigeben, Y verfahren, Y referenzieren und
-Diagnose. Die Verfahrseite nutzt Hoch/Runter für Y+/Y−; OK und die bisherigen
-Z-/Extrudertasten stellen Schrittweite und Vorschub ein.
-[Bedienung am Gerät](docs/local-panel.md).
+XYZ-CNC-Firmware für ATmega2560/16 MHz und fünf DRV8711. PlatformIO wählt
+standardmäßig **`rf2000_cnc`**: gSender-Jogging, XYZ-Homing, G-Code-Fräsen,
+Arbeitsnullpunkte und das originale 20×4-Display mit Tastenfeld. A/B bleiben
+gesperrt. **Die Spindel wird manuell bedient**; M3/M4/M5 und S-Werte schalten
+keinen Ausgang. Anleitung: [CNC und gSender](docs/cnc-gsender.md).
+
+Y wurde vom Nutzer am Gerät bestätigt. XYZ-Homing ist nach dessen neuer
+ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
+freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
+und das bisherige XYZ-Testprofil bleiben verfügbar.
 
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
@@ -31,17 +31,17 @@ die Festlegung ersetzt keinen Funktionstest des GRBL-Ports.
 ## Bauen und prüfen
 
 Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
-öffnen und die Umgebung **`rf2000_y_homing_test` → Build** auswählen. Per CLI:
+öffnen und die Umgebung **`rf2000_cnc` → Build** auswählen. Per CLI:
 
 ```bash
 git pull
 pio run
 ```
 
-Das HEX liegt anschließend unter `.pio/build/rf2000_y_homing_test/firmware.hex`.
+Das HEX liegt anschließend unter `.pio/build/rf2000_cnc/firmware.hex`.
 Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 
-Zum Aufspielen des Y-Testprofils den seriellen Monitor vorher schließen und
+Zum Aufspielen gSender und seriellen Monitor vorher schließen und
 den tatsächlichen USB-Port angeben, beispielsweise auf dem Mac:
 
 ```bash
@@ -49,30 +49,31 @@ pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
 pio device monitor --port /dev/cu.usbserial-AL03P2K9
 ```
 
-Die Startmeldung muss **`RF2000 Y-only test`** enthalten. Der Monitor verwendet
-115200 Baud und LF; Befehle jeweils mit Enter senden. Dieses Profil hält
-X/Z/A/B abgeschaltet, begrenzt Y-Jogs auf 0,5 mm bei höchstens 30 mm/min und
-erlaubt nur `$HY` nach `$22=1` in derselben Sitzung. Die erste Y-Referenzsuche
-läuft bis zum Schalterkontakt ohne Gesamtweg- oder Zeitbegrenzung; fehlt der
-Kontakt, stoppt sie nicht automatisch. Ctrl-X sendet den Software-Abbruch.
-Normale G-Code-Bewegungen
-und andere Homing-Kommandos bleiben gesperrt. Richtung und Schalter zuerst
-mit dem [Y-Testablauf](docs/y-axis-test.md) prüfen, bevor `$HY` gesendet wird.
-Das XYZ-Profil `rf2000_grbl` bleibt mit `pio run -e rf2000_grbl` ausdrücklich
-wählbar; darin sind Display und Homing deaktiviert. Die Profilwahl im Monitor
-ändert keine aufgespielte Firmware. Die Repetier-Referenz bleibt unverändert.
+Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
+115200 Baud** verbinden. Home / `$H` referenziert Z-Max, danach X/Y-Min;
+`$HX`, `$HY`, `$HZ` funktionieren einzeln. XYZ-Jogs und normale GRBL-Dateien
+werden angenommen. Das Display zeigt XYZ-Arbeitspositionen, G54–G59,
+Referenzstatus, Zustand und Vorschub. Arbeitsnull am Werkstück setzen und
+Spindel vor dem Job manuell starten. [Vollständiger Ablauf](docs/cnc-gsender.md).
+
+Weitere Profile ausdrücklich wählen: `-e rf2000_y_homing_test` für den
+isolierten Y-Test mit endloser erster Suche und `-e rf2000_grbl` für den
+XYZ-Test ohne LCD und ohne Homing. Die Profilwahl im Monitor programmiert
+keine Firmware. Die Repetier-Referenz bleibt unverändert.
 
 Bestehender Make-Build einschließlich Repetier-Referenz:
 
 ```bash
 cd /workspace/RF2000
 tools/install-toolchain.sh
-make -j4
+make cnc
+make check-cnc
 make check
 make repetier
 ```
 
-HEX/ELF/MAP: `artifacts/grbl/rf2000-grbl.*`.
+HEX/ELF/MAP CNC: `artifacts/cnc/rf2000-grbl.*`.
+Das unveränderte Make-Standardziel baut den XYZ-Test unter `artifacts/grbl/`.
 Repetier-Referenz: `artifacts/repetier/`.
 Für das Y-Profil im Make-Build: `make y-homing-test`, anschließend optional
 `make check-y-homing`; Dateien unter `artifacts/y-homing/rf2000-grbl.*`.
@@ -87,9 +88,9 @@ Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunkt
 - Fünfkanaliges HIGH-aktives Software-SPI mit kontrollierter ENBL0-Wake-/Resetsequenz und verpflichtendem Registerreadback.
 - Mikroschritte X/Y 1/32, Z 1/16, Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN 20.
 - LOW-aktive X-/Y-/Z-Min und Z-Max auf Port C/H, Timer2-Abfrage mit 1 kHz, sofortige Stopentscheidung und fünf freie Samples vor Wiederfreigabe.
-- Treiberfehler über INT6 auch bei kurzen FAULTn-Pulsen verriegelt bis zum echten MCU-Neustart; Boot und Softreset erfordern manuelles `$X` bei freien Eingängen.
+- Treiberfehler über INT6 auch bei kurzen FAULTn-Pulsen verriegelt bis zum echten MCU-Neustart; Boot und Softreset starten verriegelt, Freigabe über Homing oder `$X` bei freien Eingängen.
 - Heizungen, P230, Lüfter-/RGB-/sonstige Leistungsfunktionen aus; Probe und physische GRBL-Kontrolltasten unzugeordnet.
-- G38.x, M3/M4, M7/M8 und digitale/analoge Ausgangskommandos zurückgewiesen. M5/M9 bleiben sichere Ausschaltkommandos.
+- G38.x, M7/M8 und digitale/analoge Ausgangskommandos zurückgewiesen. CNC nimmt M3/M4/M5 nur als manuelle Spindel-Programmmodalität an; es schaltet keine Spindel.
 
 **Korrigierte Reservepins:** DRV4 hat STEP=PA4 und DIR=PA6. PA5/PA7 aus der
 Auftragsliste sind hierfür falsch. Nach der Repetier-Konfiguration ist
@@ -132,6 +133,7 @@ Hardwareprüfungen nicht selbst durchgeführt. Die neue Menüführung ist
 separat am Gerät zu prüfen; reale Motorströme und Stopplatenz bleiben zu messen.
 
 - [Verifizierte Hardwarebelegung und Quellenkonflikte](docs/hardware-verification.md)
+- [XYZ-CNC mit gSender und Display](docs/cnc-gsender.md)
 - [DRV8711-Protokoll, Register, Stromberechnung](docs/drv8711.md)
 - [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 - [Endschalter und Diagnose](docs/limits.md)

@@ -338,7 +338,7 @@ static uint8_t axislock_active(uint8_t *axislock)
 // TODO: Move limit pin-specific calls to a general function for portability.
 void limits_go_home(uint8_t cycle_mask)
 {
-  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST
+  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && !RF2000_HOMING_VERIFIED && !RF2000_Y_HOMING_TEST && !RF2000_CNC
     (void)cycle_mask;
     system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
     return;
@@ -458,7 +458,12 @@ void limits_go_home(uint8_t cycle_mask)
 
     sys.step_control = STEP_CONTROL_EXECUTE_SYS_MOTION; // Set to execute homing motion and clear existing flags.
     #if RF2000_LOCAL_PANEL
-      rf2000_panel_homing_phase(initial_search ? 1 : (approach ? 3 : (n_cycle == 2 ? 2 : 4)));
+      #if RF2000_Y_HOMING_TEST
+        rf2000_panel_homing_phase(initial_search ? 1 : (approach ? 3 : (n_cycle == 2 ? 2 : 4)));
+      #else
+        rf2000_panel_homing_phase(approach ? (n_cycle == 2*N_HOMING_LOCATE_CYCLE+1 ? 1 : 3) :
+          (n_cycle == 2*N_HOMING_LOCATE_CYCLE ? 2 : 4));
+      #endif
     #endif
     st_prep_buffer(); // Prep and fill segment buffer from newly planned block.
     st_wake_up(); // Initiate motion
