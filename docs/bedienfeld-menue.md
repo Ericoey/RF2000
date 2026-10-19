@@ -4,6 +4,9 @@ Diese Anleitung gilt für das Profil **`rf2000_cnc`** und das originale
 20×4-Zeichen-Display mit elf Tasten. Fräsprogramme werden über **gSender**
 gestartet; ein Start von SD-Karte ist nicht eingerichtet.
 
+Die serielle Bedienung steht in der [Befehlsübersicht für gSender](befehle.md),
+einschließlich `$HY`, Joggen, Nullpunkten und Einstellungen.
+
 Die Spindel wird weiterhin **von Hand am Spindelgerät eingeschaltet und
 ausgeschaltet**. Pause, Reset und `M5` schalten diese Spindel nicht aus.
 

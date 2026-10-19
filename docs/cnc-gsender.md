@@ -1,5 +1,8 @@
 # XYZ fräsen mit gSender und Originaldisplay
 
+Alle verfügbaren Konsolenbefehle mit Beispielen stehen in der
+[RF2000-Befehlsübersicht](befehle.md).
+
 **`rf2000_cnc` ist das Standardprofil in PlatformIO.** Es unterstützt XYZ-
 Jogging, G0/G1, G2/G3, Arbeitskoordinaten und GRBL-Programmübertragung. Alle
 fünf DRV8711 werden initialisiert; A/B bleiben gesperrt. Heizungen, P230,

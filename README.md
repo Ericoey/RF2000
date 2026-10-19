@@ -176,6 +176,7 @@ separat am Gerät zu prüfen; reale Motorströme und Stopplatenz bleiben zu mess
 - [Verifizierte Hardwarebelegung und Quellenkonflikte](docs/hardware-verification.md)
 - [XYZ-CNC mit gSender und Display](docs/cnc-gsender.md)
 - [CNC-Bedienfeld und Menü](docs/bedienfeld-menue.md)
+- [Befehlsübersicht für gSender: Referenzieren, Joggen, Nullpunkte und Einstellungen](docs/befehle.md)
 - [DRV8711-Protokoll, Register, Stromberechnung](docs/drv8711.md)
 - [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 - [Endschalter und Diagnose](docs/limits.md)
