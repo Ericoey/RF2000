@@ -30,7 +30,7 @@
   "jog_max_mm_per_command": 0.5,
   "jog_max_mm_min": 30.0,
   "eeprom_writes": false,
-  "flash_bytes": 38426,
+  "flash_bytes": 38448,
   "static_sram_bytes": 3697,
   "compiler": "avr-gcc (GCC) 14.2.0",
   "source_sha256": {
@@ -40,7 +40,7 @@
     "grbl/coolant_control.c": "bb0d14639388a171a5ead35c444ba2d146bdb2c0631972dea8d5c955260143e3",
     "grbl/coolant_control.h": "be1151afe71b4867b968e9a6b5f963f952ff59dd653230d5f11d2c843297915b",
     "grbl/cpu_map.h": "302886ddfe639b3da19908934d7ea02c3250dfed94a833bca33bd48da776d54f",
-    "grbl/defaults.h": "99b7e841bd3d25efda3055cca6dfc0e9a1314abd179b1c89c031fcb8c6883173",
+    "grbl/defaults.h": "49d6ae36c037c1c6f209bec77226d485c89047491f5111a236871223674d794d",
     "grbl/digital_control.c": "f0cc7511eac1856bb89f75d429c26a2df4a7374165fab59e9110dffb7853ce53",
     "grbl/digital_control.h": "3ccd959f226af539f1715cf602fcb54db670c9f6da2a921115a275716da7f098",
     "grbl/eeprom.c": "e71bdf008f45b5b7b1147ae23bcc1c5a074a9e1d9876c140d416ef34430e1873",
@@ -49,7 +49,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "688af3aae77d447237a6e8ec6705e122b2dd1e2e84cbdebb969c8575b631eb26",
+    "grbl/grbl.h": "bd76eb78db10467eaa725c8442274ff842c11a48f73b9898d5885858dd062392",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "875f8d4ba715c3b7e966984f3414d8a01052a9ca0ebb7b17bf4455736748e410",
@@ -75,7 +75,7 @@
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
-    "grbl/rf2000_panel.c": "04ea876eb891c4279dfc4ac2b0f36d5d81a6782d2fcc525a8a766041e69f7eb7",
+    "grbl/rf2000_panel.c": "97bc65ee602184f307bb34ace424ab088d2f96757043d43c2cab2518a80e98dc",
     "grbl/rf2000_panel.h": "7d3bd682688149305630b2c77812057eafdafce9f0266d7332cb30c0f0bb338c",
     "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
@@ -91,9 +91,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "a5b0bfaf3457d82f829553e33c7a95c5eae475c7e942fd45fbdff87495fc16f0",
-    "rf2000-grbl.hex": "028937c1619c42ff30d4bd1c86c94dee52e0bda657ec77469268d91bb6b8c36e",
-    "rf2000-grbl.map": "2a744a4cd646e883d1542edc7e2b67b87d07a587144f56920b44ceb48160c2a5"
+    "rf2000-grbl.elf": "f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8",
+    "rf2000-grbl.hex": "3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa",
+    "rf2000-grbl.map": "46e1e3c6f94c521952fa746cb7a4503a34273810b3661e259d67b14a54e6e061"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -157,19 +157,17 @@
     "default_feed_mm_min": 20,
     "jog_keys": "UP Y+, DOWN Y-, OK cycles step; PJ2/PJ4 step up/down; PJ5/PJ6 feed up/down; settings keys only on jog page",
     "position_display": "Machine Y mm; foreground 200ms snapshots; R:? / R:JA; homing shows phase instead of rebased counter",
-    "settings_persisted": false
+    "settings_persisted": false,
+    "lcd_spacing": "Two Timer2 ticks measured from completed transfer; formatting latency excluded; no wait inside step ISR"
   },
   "validation": {
     "date": "2026-10-19",
     "standard_make_check": "passed; artifacts/validation.log",
-    "tested_elf_sha256": "b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3",
+    "tested_elf_sha256": "f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8",
     "local_panel_real_avr_cases": 14,
     "serial_y_homing_real_avr_cases": 13,
     "panel_log": "artifacts/panel-validation.log",
-    "y_homing_log": "artifacts/y-homing-simulation.log",
-    "hex_unchanged_after_identification_fix": true,
-    "rebuilt_elf_sha256": "a5b0bfaf3457d82f829553e33c7a95c5eae475c7e942fd45fbdff87495fc16f0",
-    "rebuild_evidence": "HEX byte-identical to previous fully simulated program; new ELF debug/link metadata. Previous test logs retain their actual tested ELF hash."
+    "y_homing_log": "artifacts/y-homing-simulation.log"
   },
   "platformio_selection": {
     "default_environment": "rf2000_cnc",

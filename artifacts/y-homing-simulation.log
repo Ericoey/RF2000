@@ -1,45 +1,45 @@
-Tested AVR ELF SHA256: b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3
-Loaded 38312 .text at address 0x0
+Firmware ELF SHA256 f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: only $HY accepted; Y-only first contact at900 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
 PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: only $HY accepted; Y-only first contact at761 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
 PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: only $HY accepted; Y-only first contact at762 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
 PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: only $HY accepted; Y-only first contact at763 steps/1mm pull-off/slow locate/final pull-off,2 contacts,2 releases; XYZAB idle safe
 PASS: fixed settings and normal G-code blocked; bounded incremental metric Y jog emits15+15 steps and rejects queued/unsafe jogs
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: no-switch initial search continues beyond2 planning chunks/1600steps; Ctrl-X stops all drivers and clears session enable
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: missing second contact remains bounded to5mm and reports ALARM:9
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: switch stuck after contact stops after1mm pull-off with ALARM:8
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: already-active Y switch blocks homing without any STEP
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: Y homing aborted by X-Min, all five drivers asleep, no continuing STEP
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: Y homing aborted by Z-Min, all five drivers asleep, no continuing STEP
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: Y homing aborted by Z-Max, all five drivers asleep, no continuing STEP
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: Y homing aborted by 1us FAULTn pulse, all five drivers asleep, no continuing STEP
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: Y homing aborted by Ctrl-X, all five drivers asleep, no continuing STEP
 PASS: all4096 patterned EEPROM bytes preserved across 13 selected cases

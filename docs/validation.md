@@ -11,12 +11,12 @@ das ist ein Anwenderbericht vom 19.10.2026, kein Messprotokoll der Cloud.
 | Variante | Flash | Statisches SRAM | Ergebnis |
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
-| GRBL separater Y-Test mit Bedienfeld | 38.426 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-| XYZ-CNC mit Display und manueller Spindel | 42.140 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
+| GRBL separater Y-Test mit Bedienfeld | 38.448 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
+| XYZ-CNC mit Display und manueller Spindel | 42.162 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
-das Y-Profil mit Bedienfeld `.text=38312`, `.data=114`, `.bss=3583`. Für SRAM werden
+das Y-Profil mit Bedienfeld `.text=38334`, `.data=114`, `.bss=3583`. Für SRAM werden
 `.data` und `.bss` addiert. Die neue Binutils-Kurzausgabe zählt initialisierte
 Daten bei dieser Zielplattform anders; die Kapazitätsprüfung verwendet
 deshalb die einzelnen ELF-Sektionen. Statische SRAM-Reserve belegt keine
@@ -33,19 +33,19 @@ Binäranordnung trotz deaktiviertem Bedienfeld; der neue Hauptbuild wurde
 mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 
-Nach der CNC-Erkennungskorrektur wurden auch XYZ-Test und Y-Test neu gebaut:
-beide HEX-Dateien sind bytegleich zum zuvor vollständig getesteten Stand.
-Die neu erzeugten ELF-/MAP-Dateien enthalten geänderte Debug-/Linkmetadaten.
-Die früheren Testprotokolle beziehen sich weiterhin auf ihre dort genannten
-ELF-Hashes; die Manifestfelder `rebuilt_elf_sha256` kennzeichnen den Neubuild.
+Nach der SFU1605-Anpassung bleibt das XYZ-Test-HEX bytegleich zum zuvor
+vollständig getesteten Stand. Dessen früheres Testprotokoll bezieht sich
+weiterhin auf den dort genannten ELF-Hash; `rebuilt_elf_sha256` kennzeichnet
+den Neubuild. Das separate Y-Profil erhält ebenfalls den unten beschriebenen
+LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert.
 
 Firmware-SHA256:
 
 ```text
 GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
-Y-Test   028937c1619c42ff30d4bd1c86c94dee52e0bda657ec77469268d91bb6b8c36e
-CNC      6ae232d9164f2a217dd43c4982ac7c85d86b1b9b8c922ee528b8081f93eaa752
+Y-Test   3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa
+CNC      494575328d1ea6bb6a4ade19042fec3990d39b5de43ea58e6f17fbc2ab73651c
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -137,11 +137,11 @@ lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 
 ## XYZ-CNC und gSender-Protokoll
 
-Ergebnis: **neun CNC-Fälle bestanden**,
-alle mit ELF `269f46de74b61c25e86d2e6541e1cf89580404569cf736e0b6bf2ba9aee32d45`.
-Protokoll: `artifacts/cnc-simulation.log`. Nach der Korrektur der gSender-
-Erkennung wurden alle acht Funktionsfälle und der Timingfall zusammen erneut
-ausgeführt. Der CNC-Build verwendet `.text=42036`, `.data=104`,
+Ergebnis: **zehn CNC-Fälle bestanden**,
+alle mit ELF `71a19ef1514c161a79c4aad896e73cc47ebcf1e1e1e3d5e78359661856eec22e`.
+Protokoll: `artifacts/cnc-simulation.log`. Nach der SFU1605-Kalibrierung
+und Korrektur des LCD-Abstands wurden alle neun Funktionsfälle und der
+Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet `.text=42058`, `.data=104`,
 `.bss=3586`; Buildprotokoll: `artifacts/cnc-build.log`.
 
 Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
@@ -169,6 +169,22 @@ werden für die manuelle Spindel angenommen, ohne einen Ausgang einzuschalten.
 A/B bleiben ohne STEP und Freigabe. Z-Min, lokaler STOP und ein 1-µs-FAULT-Puls
 schalten ab; Alarm 12 bleibt auf dem Display sichtbar.
 
+Ein zusätzlicher Kalibrierungsfall startet mit einem gültigen alten
+EEPROM-74-Datensatz: X/Y 152,38 Schritte/mm bei 500 mm/min. Das neue Programm
+behält ihn beim Update. Eine verfrühte Umstellung auf 2560 Schritte/mm wird
+wegen der 5-kHz-Grenze abgewiesen. Die dokumentierte Reihenfolge mit zuerst
+100 mm/min funktioniert; die neuen Werte bleiben nach einem weiteren
+MCU-Neustart erhalten, ebenso G54. Anschließende einzelne 1-mm-Jogs erzeugen
+genau **2560 / 2560 / 1280 reale GPIO-Schrittimpulse** im Simulator.
+
+Mit der höheren X/Y-Schrittzahl fand der Homing-/Alarmfall einen zu kurzen
+LCD-Byteabstand von 206,938 µs. Der Service hatte seinen Zeitstempel vor
+der Formatierung gesetzt; unter Schrittinterruptlast konnte diese bereits
+mehrere Timer-Ticks dauern. Der Zeitstempel wird nun zusätzlich unmittelbar
+nach dem vollständigen LCD-Transfer gesetzt. Die vorhandene Prüfung auf
+mindestens 320 µs Abstand bleibt unverändert aktiv. Es gibt keine neue
+Warteschleife im Schrittinterrupt.
+
 Nach abgeschlossenen EEPROM-Schreibzugriffen wurde der vollständige Inhalt
 in eine frische MCU-Instanz übernommen: Kalibrierung, Rückzug und G54 bleiben
 erhalten; der Neustart bleibt verriegelt und bewegungslos. Stock-simavr 1.6
@@ -179,7 +195,7 @@ EEMPE-Fenster, Read-Pfad und vorhandene Simulator-Timer werden weiter benutzt.
 Der Firmware-EEPROM-Treiber wurde dafür nicht verändert.
 
 Mit aktivem CNC-LCD und 100-Hz-UART-Status entstehen genau **6400 Z-Pulse**,
-bei **4996,41 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
+bei **4994,44 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
 **14,312 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
 die Firmwarevorgabe für Z bleibt 150 mm/min.
 
@@ -194,8 +210,8 @@ vollständig gemessene Hardwarefreigabe behauptet. Bedienung und Grenzen:
 
 ### Originaldisplay und lokales Tastenfeld
 
-Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem zuvor geprüften
-Y-ELF `b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3`.
+Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
+Y-ELF `f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8`.
 Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.
 

@@ -1,31 +1,38 @@
-Firmware ELF SHA256 269f46de74b61c25e86d2e6541e1cf89580404569cf736e0b6bf2ba9aee32d45
-Loaded 42036 .text at address 0x0
+Firmware ELF SHA256 71a19ef1514c161a79c4aad896e73cc47ebcf1e1e1e3d5e78359661856eec22e
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: gSender handshake/settings/G54/status; XYZ homing default; manual spindle M3/M4/S accepted without outputs; unwired commands blocked
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: LCD XYZ work coordinates; front-panel X/Y/Z jog; two-press work zero without motion; idle hold and raw STOP
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: $H homes Z-MAX before XY-MIN; each axis two contacts/releases and four phases; XYZ reference indication; Z-MIN trips alarm and disables all
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: streamed metric G54 rectangle with Z depth and manual spindle words; exact XYZ pulses; gSender ! hold and ~ resume complete same move
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: one-microsecond FAULT stops CNC Z jog, all drivers sleep, LCD alarm12 persists
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: clockwise/counterclockwise GRBL arcs interpolate XY and return to starting position without Z or reserve movement
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: $HX/$HY/$HZ independently reference the selected motor and accumulate XYZ reference indicators
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
 PASS: CNC calibration and G54 persist in EEPROM across a fresh MCU; reboot remains alarm locked without movement
-Loaded 42036 .text at address 0x0
+Loaded 42058 .text at address 0x0
 Loaded 104 .data
-PASS: live CNC LCD plus100Hz UART status:6400 Z pulses at4996.41steps/s, min pulse14.312us
-PASS: 9 real-AVR CNC cases
+Loaded 42058 .text at address 0x0
+Loaded 104 .data
+Loaded 42058 .text at address 0x0
+Loaded 104 .data
+PASS: retained legacy EEPROM; rate-first calibration update survives reboot without coordinate erase; 1mm XYZ jogs emit2560/2560/1280 pulses
+Loaded 42058 .text at address 0x0
+Loaded 104 .data
+PASS: live CNC LCD plus100Hz UART status:6400 Z pulses at4994.44steps/s, min pulse14.312us
+PASS: 10 real-AVR CNC cases

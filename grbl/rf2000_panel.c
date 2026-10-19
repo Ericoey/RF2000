@@ -476,6 +476,9 @@ void rf2000_panel_service(void)
     const uint8_t row = frame_slot / 21, col = frame_slot % 21;
     if (!col) rf2000_lcd_write(0, 0x80 | row_address[row]);
     else rf2000_lcd_write(1, frame[row * 20 + col - 1]);
+    // Compose/formatting may span several ticks under STEP interrupt load.
+    // Space from the completed transfer, not from before that foreground work.
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { last_service_ms = panel_ms; }
     ++frame_slot;
   }
 }

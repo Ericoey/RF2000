@@ -30,13 +30,23 @@
 #define defaults_h
 
   #ifdef DEFAULTS_RENKFORCE_RF2000V2
-    // RF2000v2.h: X/Y 4.761875 full steps/mm, Z 80 full steps/mm.
-    // Configuration.h RF_MICRO_STEPS_XY=32, RF_MICRO_STEPS_Z=16.
-    #define DEFAULT_AXIS1_STEPS_PER_UNIT (4.761875*32.0) // 152.38 steps/mm
-    #define DEFAULT_AXIS2_STEPS_PER_UNIT (4.761875*32.0)
-    #define DEFAULT_AXIS3_STEPS_PER_UNIT (80.0*16.0) // 1280 steps/mm
-    #define DEFAULT_AXIS1_MAX_RATE 500.0 // mm/min; 1270 steps/s
-    #define DEFAULT_AXIS2_MAX_RATE 500.0
+    #if RF2000_CNC
+      // User-specified SFU1605 mechanics on XYZ: 200 full steps/rev,
+      // 5 mm/rev screw, motor turns twice per screw revolution.
+      // DRV8711 microsteps stay X/Y=32 and Z=16.
+      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*32.0*2.0/5.0) // 2560 steps/mm
+      #define DEFAULT_AXIS2_STEPS_PER_UNIT (200.0*32.0*2.0/5.0)
+      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*16.0*2.0/5.0) // 1280 steps/mm
+      #define DEFAULT_AXIS1_MAX_RATE 100.0 // mm/min; 4266.67 steps/s, below 5 kHz
+      #define DEFAULT_AXIS2_MAX_RATE 100.0
+    #else
+      // Original RF2000v2 Repetier mechanics for the separate test profiles.
+      #define DEFAULT_AXIS1_STEPS_PER_UNIT (4.761875*32.0) // 152.38 steps/mm
+      #define DEFAULT_AXIS2_STEPS_PER_UNIT (4.761875*32.0)
+      #define DEFAULT_AXIS3_STEPS_PER_UNIT (80.0*16.0) // 1280 steps/mm
+      #define DEFAULT_AXIS1_MAX_RATE 500.0 // mm/min; 1270 steps/s
+      #define DEFAULT_AXIS2_MAX_RATE 500.0
+    #endif
     #define DEFAULT_AXIS3_MAX_RATE 150.0 // mm/min; 3200 steps/s
     #define DEFAULT_AXIS1_ACCELERATION (10.0*60.0*60.0) // mm/min^2
     #define DEFAULT_AXIS2_ACCELERATION (10.0*60.0*60.0)

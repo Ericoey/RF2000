@@ -1,50 +1,50 @@
-Tested AVR ELF SHA256: b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3
-Loaded 38312 .text at address 0x0
+Firmware ELF SHA256 f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: HD44780 init/20x4 bus/backlight/pullups; held startup OK, bounce and multiple keys cannot move/unlock
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: direct DOWN-/UP+ jog produces15+15 Y-only steps; held key never repeats; busy key never queues
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: two separate OK edges run full Y homing; actual negative machine coordinate and R:JA shown; limit clears reference
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: jog settings0.01/0.10/0.50mm and F10/20/30 bounded; real F10/F30 timing, actual LCD position, no selector motion/EEPROM
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: locked jog displays action error; only OK/RIGHT acknowledge without changing settings or starting motion
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: key begun near end of tiny jog never queues after Idle; full release then fresh press permits one jog
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: raw PB5 stops homing phase0 within one Timer2 tick; no later STEP, LCD alarm remains live
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: raw PH7 stops homing phase1 within one Timer2 tick; no later STEP, LCD alarm remains live
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: raw PH2 stops homing phase2 within one Timer2 tick; no later STEP, LCD alarm remains live
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: raw PB5 stops homing phase3 within one Timer2 tick; no later STEP, LCD alarm remains live
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: LEFT stops an active panel jog without waiting for key debounce
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS:1us FAULTn pulse stops Y and displays retained alarm12 while serial waits
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: held PB5 blocks UART unlock/home/jog at startup and after reset without motor wake; release permits bounded jog
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: held PH7 blocks UART unlock/home/jog at startup and after reset without motor wake; release permits bounded jog
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: held PH2 blocks UART unlock/home/jog at startup and after reset without motor wake; release permits bounded jog
-Loaded 38312 .text at address 0x0
+Loaded 38334 .text at address 0x0
 Loaded 114 .data
 PASS: UART jog cancels open homing confirmation; LCD shows JOG/BEREIT and next OK only reopens dialog
 PASS: 14 local-panel real-AVR cases; retained EEPROM unchanged

@@ -38,8 +38,12 @@ HEX/ELF/MAP liegen unter `.pio/build/rf2000_cnc/`.
 Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 
 Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-`$I` enthält `20261019-rf2000-cnc-gsender`. Das Y-Testprofil bleibt mit
+`$I` enthält `20261019-rf2000-cnc-sfu1605`. Das Y-Testprofil bleibt mit
 `-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
+
+**Nach einem Update einer bestehenden CNC-Version zuerst die unten
+beschriebene [Kalibrierung umstellen](#bestehende-cnc-einstellungen-umstellen).**
+Das Aufspielen allein ersetzt gespeicherte Einstellungen nicht.
 
 ## gSender verwenden
 
@@ -78,8 +82,8 @@ manuelle Spindel bleibt auch während Pause und Abbruch separat zu bedienen.
 gSender 1.6.4 fragt beim Verbinden `$I` ab und sucht in den Antworten nach
 dem Firmwarenamen. Ohne passende Kennung verwendet es den gespeicherten
 Standardtyp. Wurde die einmalige Startmeldung verpasst, konnte unsere alte
-Antwort so als grblHAL eingeordnet werden. Die CNC-Version
-`20261019-rf2000-cnc-gsender` antwortet zusätzlich mit
+Antwort so als grblHAL eingeordnet werden. Seit der CNC-Version
+`20261019-rf2000-cnc-gsender` antwortet die Firmware zusätzlich mit
 **`[MSG:Grbl-Mega-5X RF2000]`**. Die echte Versionsnummer 1.2i bleibt erhalten.
 Nach dem Aufspielen gSender trennen und neu verbinden; oben links muss
 **Grbl** stehen. Eine manuelle Typauswahl ist dafür nicht erforderlich.
@@ -123,10 +127,18 @@ Seitenwechsel verursachen keine Bewegung.
 
 ## Einstellungen und Speicherung
 
+Die CNC-Vorgaben beruhen auf der vom Nutzer angenommenen Mechanik auf
+**allen drei Achsen**: Motor mit 1,8° bzw. 200 Vollschritten/Umdrehung,
+SFU1605-Kugelgewindespindel mit 5 mm Steigung und einer Übersetzung von 2:1
+zwischen Motor und Spindel. Zwei Motorumdrehungen bewegen die Achse damit 5 mm. Mit
+1/32-Mikroschritten für X/Y und 1/16 für Z ergibt
+`200 × Mikroschritte × 2 / 5` die folgenden Schritte/mm. Die Übersetzung
+ist eine Nutzervorgabe, keine neue Messung an der Maschine.
+
 | Einstellung | Vorgabe |
 | --- | --- |
-| Schritte/mm X/Y/Z | 152,38 / 152,38 / 1280 |
-| Maximaltempo X/Y/Z | 500 / 500 / 150 mm/min |
+| Schritte/mm X/Y/Z | 2560 / 2560 / 1280 |
+| Maximaltempo X/Y/Z | 100 / 100 / 150 mm/min |
 | Beschleunigung | 10 mm/s² |
 | Referenzrichtung `$23` | 3: X/Y-Min, Z-Max |
 | Homing `$22`, Hard Limits `$21` | jeweils 1 |
@@ -138,8 +150,41 @@ Seitenwechsel verursachen keine Bewegung.
 | Pulsbreite | 10 µs; einstellbar 10–20 µs |
 
 Das CNC-Profil speichert GRBL-Einstellungen und Arbeitsnullpunkte im EEPROM
-(Profilversion 74). Beim ersten Start werden CNC-Standardwerte initialisiert;
+(Profilversion weiterhin 74). Beim ersten Start mit leerem EEPROM werden
+CNC-Standardwerte initialisiert;
 die EEPROM-Belegung ist nicht mit Repetier bzw. dem XYZ-Testprofil kompatibel.
+Ein Update einer bestehenden CNC-Version behält deren Einstellungen und
+Arbeitskoordinaten. Die getrennten XYZ- und Y-Testprofile verwenden weiterhin
+ihre bisherige Repetier-Kalibrierung.
+
+Die geprüfte Schrittfrequenzgrenze bleibt 5000 Hz. Bei 2560 Schritten/mm
+entsprechen 100 mm/min auf X/Y etwa **4266,7 Schritten/s**; die rechnerische
+Obergrenze beträgt **117,1875 mm/min**. Die bisherigen 500 mm/min sind mit
+dieser Übersetzung nicht zulässig. Z erreicht bei 150 mm/min 3200 Schritte/s.
+
+### Bestehende CNC-Einstellungen umstellen
+
+Bei ruhender Maschine in der gSender-Konsole nacheinander senden und jede
+Antwort `ok` abwarten:
+
+```text
+$110=100
+$111=100
+$112=150
+$100=2560
+$101=2560
+$102=1280
+$$
+```
+
+Zuerst das Maximaltempo senken: Andernfalls würde das Einstellen von 2560
+Schritten/mm bei noch gespeicherten 500 mm/min die 5-kHz-Grenze verletzen
+und zurückgewiesen. `$$` muss anschließend die sechs Werte bestätigen.
+Die Befehle werden im EEPROM gespeichert; es ist kein Reset der Einstellungen
+nötig. Insbesondere **kein `$RST=*`** senden, denn das würde auch die
+gespeicherten Arbeitskoordinaten löschen. Nach der Kalibrierungsänderung
+erneut referenzieren und den Werkstücknullpunkt neu prüfen bzw. setzen.
+
 Die lokale Auswahl von Achse, Schrittweite und Jogtempo bleibt im RAM und
 startet nach Reset wieder bei X, 0,10 mm und 20 mm/min. Nach Änderungen von
 Kalibrierung, Richtung oder Mechanik erneut referenzieren.

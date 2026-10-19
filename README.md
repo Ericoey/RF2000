@@ -11,6 +11,13 @@ ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
 freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
 und das bisherige XYZ-Testprofil bleiben verfügbar.
 
+Das CNC-Profil verwendet die vom Nutzer angenommene Fräsmechanik auf allen
+drei Achsen: 200 Vollschritte/Umdrehung, SFU1605 mit 5 mm Steigung und
+2:1 Motor-zu-Spindel-Übersetzung. Mit X/Y 1/32 und Z 1/16 ergeben sich
+**2560 / 2560 / 1280 Schritte/mm**. Die CNC-Maximalgeschwindigkeiten sind
+**100 / 100 / 150 mm/min**. Die getrennten Testprofile behalten ihre
+bisherige Repetier-Kalibrierung.
+
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
 `baaa1be3fe6c33a287695bbd57121da0b2979d9c` von
@@ -50,7 +57,14 @@ pio device monitor --port /dev/cu.usbserial-AL03P2K9
 ```
 
 Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-115200 Baud** verbinden. Home / `$H` referenziert Z-Max, danach X/Y-Min;
+115200 Baud** verbinden. `$I` enthält `20261019-rf2000-cnc-sfu1605`.
+**Bei bestehender CNC-Firmware bleiben die bisherigen EEPROM-Werte erhalten.**
+Vor der ersten Bewegung die [geordneten Einstellbefehle](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
+anwenden: zuerst X/Y-Maximaltempo senken, dann Schritte/mm ändern. Dafür
+ist kein EEPROM-Reset nötig; Arbeitskoordinaten bleiben gespeichert.
+Anschließend Referenz und Werkstücknull neu prüfen.
+
+Home / `$H` referenziert Z-Max, danach X/Y-Min;
 `$HX`, `$HY`, `$HZ` funktionieren einzeln. XYZ-Jogs und normale GRBL-Dateien
 werden angenommen. Das Display zeigt XYZ-Arbeitspositionen, G54–G59,
 Referenzstatus, Zustand und Vorschub. Arbeitsnull am Werkstück setzen und
