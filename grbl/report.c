@@ -250,6 +250,9 @@ void report_init_message()
 // Grbl help message
 void report_grbl_help() {
   printPgmString(PSTR("[HLP:$$ $# $D $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H ~ ! ? ctrl-x]\r\n"));
+  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
+    printPgmString(PSTR("[MSG:$LR: reset then withdraw one active limit; home again]\r\n"));
+  #endif
 }
 
 

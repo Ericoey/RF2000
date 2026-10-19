@@ -9,8 +9,8 @@
   "physical_driver_count": 5,
   "reserve_enabled": false,
   "homing_verified": false,
-  "flash_bytes": 42162,
-  "static_sram_bytes": 3690,
+  "flash_bytes": 45258,
+  "static_sram_bytes": 3710,
   "compiler": "avr-gcc (GCC) 14.2.0",
   "upstream_commit": "baaa1be3fe6c33a287695bbd57121da0b2979d9c",
   "source_sha256": {
@@ -29,11 +29,11 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "bd76eb78db10467eaa725c8442274ff842c11a48f73b9898d5885858dd062392",
+    "grbl/grbl.h": "af2eb0e14dcdb93291c68947ed9cba898ea1626071a831669565cb2c7305b737",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
-    "grbl/limits.c": "875f8d4ba715c3b7e966984f3414d8a01052a9ca0ebb7b17bf4455736748e410",
-    "grbl/limits.h": "8d34528451e0ffb4cfaacbb6018b36e4a4df79c3054dfd3b4e0a625ac9332512",
+    "grbl/limits.c": "644591245f11e0934610fcffce578ae74ece7df9ce98ffacd9d1dcb1c56bb7e1",
+    "grbl/limits.h": "fdf0bb10d4b63c0d3d87d5eee9d55e866c7bfa6d02249a6ef7246d92c4858fed",
     "grbl/main.c": "c59ce7da83da24f520166f6d6d3d41d679306ffded68b8cfec6d218f9a8cca09",
     "grbl/motion_control.c": "e6e42ac35fb4fd4ed3e18a58b2a576232b07d6838c06fef4bd0672562a0818f7",
     "grbl/motion_control.h": "25445b9ac9e46a31d57ae56afa4f1c25f7beb4bb0977b3e6f8629207ff67793e",
@@ -47,7 +47,7 @@
     "grbl/probe.h": "fb309aed7a9e4af6ac832d679cf14d553cc1a40bc6f6a2a08621b51a24ad000d",
     "grbl/protocol.c": "48451a926b894cc3a40535280ff1c6a62f0dfaf1f536d4e66b7940a4f32e549c",
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
-    "grbl/report.c": "95d9fec5ceae1bcee3206b698d628e522133be4eac27a26490bd11c42d921023",
+    "grbl/report.c": "dafcb7c7487bfe1674abcab9b87dbae6f431378306770b2f3a5da61fd0f10a96",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
@@ -55,9 +55,9 @@
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
-    "grbl/rf2000_panel.c": "97bc65ee602184f307bb34ace424ab088d2f96757043d43c2cab2518a80e98dc",
-    "grbl/rf2000_panel.h": "7d3bd682688149305630b2c77812057eafdafce9f0266d7332cb30c0f0bb338c",
-    "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
+    "grbl/rf2000_panel.c": "e20f60ec184fc4b3fff9eb9b2e8ac5303946fad343be6aa64b357a1e982bc252",
+    "grbl/rf2000_panel.h": "94891eb3869841bfe46db005ada0d55ee9b4b8dc952a3a67e8d64548863a05e6",
+    "grbl/serial.c": "58af1b5c941678f3f32d3cdbc463706a082d157d22df1163f33557fd879d4e70",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
     "grbl/settings.c": "59ebd0602f9929c2a1a75e63e0ad68c5ed73a073ac663ad612a50e264b718457",
     "grbl/settings.h": "b794195201b518d390b9bf76fe57d501b45384cd8c74d3602f1e2cca5709e98e",
@@ -65,15 +65,15 @@
     "grbl/sleep.h": "045ca702271be6e45bb7963157e45cbe4374f6ace3c239eee22847efe2679d2f",
     "grbl/spindle_control.c": "6fed236c47a04c559bc7c8f7dfd3b59987b263e2677cd00dd8c2831b325e81dc",
     "grbl/spindle_control.h": "b8fa30fb2ba7c1ad0100afae98c95c53f193da5c11e134a66eaec8fef9207e93",
-    "grbl/stepper.c": "ba42ef38dfb9e5f8ce41be0a6fc072ac3a654c4623ede0f267217f911eef1e9c",
-    "grbl/stepper.h": "e9b74fd1c7589fd2010a52c0efc1155712511fa65f18462d8799d983443fe345",
-    "grbl/system.c": "ceff92894b5dc1e97dbebdea32fbebdaeb464b9f7a6fadd7510f781290adf389",
+    "grbl/stepper.c": "2beb45d0e311d0468beb423fd01ad97abe708373b9f9711546322f2a063bd6ac",
+    "grbl/stepper.h": "b0a56e8cbfa6bbec1cbdecaaac68606891d15232fad12d189d78149e3279b1cc",
+    "grbl/system.c": "1c35909af384a6868331f69df96a6af07f7348a8bb2201228a824916b42b991f",
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "71a19ef1514c161a79c4aad896e73cc47ebcf1e1e1e3d5e78359661856eec22e",
-    "rf2000-grbl.hex": "494575328d1ea6bb6a4ade19042fec3990d39b5de43ea58e6f17fbc2ab73651c",
-    "rf2000-grbl.map": "6e3d0ba8a059c90e6bee7d885b8dbb1cde400a1eae9c6cbc67b22b8b301f31fc"
+    "rf2000-grbl.elf": "449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446",
+    "rf2000-grbl.hex": "d869cd2ba480c6df88d53bca8ad426610f245b44c6aa2454e1e73e871834859a",
+    "rf2000-grbl.map": "e1937ce66476c2c946017167936c53ae8b7e10dfd4bccb77334f1e62cc7aed4e"
   },
   "hardware_test_performed": false,
   "hardware_authority": {
@@ -111,27 +111,50 @@
       30
     ],
     "stop_keys": [
-      "LEFT",
-      "PH7",
-      "PH2"
+      "PAUSE / PH2"
     ],
     "physical_test_of_cnc_ui": false,
-    "lcd_spacing": "Two Timer2 ticks measured from completed transfer; formatting latency excluded; no wait inside step ISR"
+    "lcd_spacing": "Two Timer2 ticks measured from completed transfer; formatting latency excluded; no wait inside step ISR",
+    "stop_behavior": "II holds normal cycle, cancels jog; II during homing/recovery/idle/alarm or driver wake resets; II held 1s or Play+II resets; held II blocks UART admission; Play resumes only completed normal feed hold",
+    "reset_keys": [
+      "PAUSE held 1s",
+      "CONTINUE + PAUSE",
+      "confirmed Abbruch / Reset menu"
+    ],
+    "menu": [
+      "Freigeben",
+      "Verfahren XYZ",
+      "Referenzieren",
+      "Arbeitsnull",
+      "Diagnose",
+      "Endschalter frei",
+      "Jogtempo",
+      "Abbruch / Reset"
+    ],
+    "jog_keys": "Cross Left/Right X-/X+, Up/Down Y+/Y-; PJ2/PJ4 Z+/Z-; PJ5/PJ6 step smaller/larger; OK back to menu; separate jog feed menu",
+    "homing_display": "Actual Z cycle followed by XY cycle for $H; selected axis for $HX/$HY/$HZ; search, pull-off, locate, final pull-off phases",
+    "cycle_axis_display": "Actual executing STEP block, atomically read; no future planner coordinates",
+    "documentation": "docs/bedienfeld-menue.md"
   },
   "validation": {
     "date": "2026-10-19",
     "standard_make_check": "passed; artifacts/validation.log",
-    "tested_elf_sha256": "71a19ef1514c161a79c4aad896e73cc47ebcf1e1e1e3d5e78359661856eec22e",
+    "tested_elf_sha256": "449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446",
     "cnc_real_avr_function_cases": 9,
     "additional_real_avr_timing_cases": 1,
     "cnc_log": "artifacts/cnc-simulation.log",
     "max_rate_test_steps": 6400,
-    "measured_fastest_64_edge_rate_hz": 4994.44,
+    "measured_fastest_64_edge_rate_hz": 4994.59,
     "measured_minimum_pulse_us": 14.312,
     "simavr_eeprom_model": "Fixture adds datasheet EEPM erase-only/write-only semantics missing from stock simavr1.6; production EEPROM code unchanged.",
     "gsender_detection": "passed against gSender v1.6.4 Connection.js from eb2df2d2073d9dd1a762c0ed150d9be19360cf49; artifacts/gsender-detection.log",
     "all_ten_cases_rerun_together": true,
-    "calibration_update": "Actual version74 EEPROM record retained until ordered commands; updated values and G54 survive new MCU; 1mm XYZ jogs emit2560/2560/1280 pulses"
+    "calibration_update": "Actual version74 EEPROM record retained until ordered commands; updated values and G54 survive new MCU; 1mm XYZ jogs emit2560/2560/1280 pulses",
+    "cnc_menu_real_avr_groups": 8,
+    "menu_log": "artifacts/menu-simulation.log",
+    "limit_release_real_avr_cases": 20,
+    "limit_release_log": "artifacts/recovery-simulation.log",
+    "all_38_cnc_menu_recovery_cases_same_elf": true
   },
   "platformio_default_environment": "rf2000_cnc",
   "profile": "rf2000_cnc",
@@ -201,9 +224,9 @@
     ],
     "soft_limits": false
   },
-  "firmware_identification": "20261019-rf2000-cnc-sfu1605; $I starts with standard [MSG:Grbl-Mega-5X RF2000] feedback even on reconnect without startup banner",
+  "firmware_identification": "20261019-rf2000-cnc-panel; $I starts with standard [MSG:Grbl-Mega-5X RF2000] feedback even on reconnect without startup banner",
   "mechanics": {
-    "basis": "User-specified assumption on all three axes; not physically measured",
+    "basis": "User-specified mechanics on all three axes; Y travel at2560 steps/mm confirmed by user; X/Z not physically measured",
     "motor_full_steps_per_revolution": 200,
     "screw_lead_mm": 5,
     "motor_revolutions_per_screw_revolution": 2,
@@ -212,5 +235,26 @@
       32,
       16
     ]
+  },
+  "limit_recovery": {
+    "command": "$LR",
+    "automatic_after_limit": false,
+    "requires_alarm_and_one_active_physical_switch": true,
+    "distance_mm": 2,
+    "requested_feed_mm_min": 20,
+    "feed_override": false,
+    "direction": {
+      "X-MIN": "+X",
+      "Y-MIN": "+Y",
+      "Z-MIN": "+Z",
+      "Z-MAX": "-Z"
+    },
+    "other_limits_and_driver_fault_active": true,
+    "selected_sensor_rearms_after_free_samples": 5,
+    "remains_alarm_after_success": true,
+    "references_invalidated": true,
+    "job_automatically_resumed": false,
+    "temporary_status_positions": "Rebased during protected system move; not a valid new machine reference",
+    "physical_test_performed": false
   }
 }

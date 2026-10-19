@@ -133,6 +133,9 @@ uint8_t system_execute_line(char *line)
   uint8_t helper_var = 0; // Helper variable
   float parameter, value;
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
+    #if RF2000_CNC
+      if (!strcmp(line, "$LR")) return rf2000_limits_recover();
+    #endif
     // Read-only diagnostic; cached startup registers only, never SPI or enable.
     if (!strcmp(line, "$DRV")) {
       printPgmString(PSTR("[DRV:READY="));

@@ -12,7 +12,7 @@ das ist ein Anwenderbericht vom 19.10.2026, kein Messprotokoll der Cloud.
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
 | GRBL separater Y-Test mit Bedienfeld | 38.448 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-| XYZ-CNC mit Display und manueller Spindel | 42.162 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
+| XYZ-CNC mit Display und manueller Spindel | 45.258 / 253.952 Byte | 3.710 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
@@ -37,7 +37,12 @@ Nach der SFU1605-Anpassung bleibt das XYZ-Test-HEX bytegleich zum zuvor
 vollständig getesteten Stand. Dessen früheres Testprotokoll bezieht sich
 weiterhin auf den dort genannten ELF-Hash; `rebuilt_elf_sha256` kennzeichnet
 den Neubuild. Das separate Y-Profil erhält ebenfalls den unten beschriebenen
-LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert.
+LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert. Nach der
+aktuellen CNC-Menü-/Freifahrerweiterung wurden Standard und Y erneut gebaut:
+Beide HEX-Dateien bleiben bytegleich zu ihren vollständig geprüften Vorgängern.
+Ihre ELF-Dateien enthalten neue Debug-/Link-Metadaten. Die alten Prüfprotokolle
+behalten ihren tatsächlich simulierten ELF-Hash; die Buildmanifeste nennen
+zusätzlich den Hash des jeweiligen Neubuilds.
 
 Firmware-SHA256:
 
@@ -45,7 +50,7 @@ Firmware-SHA256:
 GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
 Y-Test   3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa
-CNC      494575328d1ea6bb6a4ade19042fec3990d39b5de43ea58e6f17fbc2ab73651c
+CNC      d869cd2ba480c6df88d53bca8ad426610f245b44c6aa2454e1e73e871834859a
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -96,11 +101,11 @@ Das Y-Testprofil bleibt explizit als `rf2000_y_homing_test` verfügbar;
 PlatformIO wählt jetzt standardmäßig `rf2000_cnc`. Die aufgelöste Konfiguration wurde
 mit `pio project config --json-output` geprüft: Default, geerbte Buildflags,
 `RF2000_Y_HOMING_TEST=1`, C-Quellen und Monitorparameter stimmen. Bei dieser
-früheren Umstellung wurde nur die Auswahl geändert. Die neue Menüführung
-wurde anschließend separat gebaut und mit dem aktuellen ELF geprüft.
+früheren Umstellung wurde nur die Auswahl geändert. Die damalige Y-Menüführung
+wurde separat gebaut und mit dem im Prüfprotokoll genannten ELF geprüft.
 
-Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem aktuellen
-Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem damaligen
+Y-Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
 `artifacts/y-homing-simulation.log`; dieses ELF wurde auch für die unten
 beschriebenen 14 Panel-Fälle verwendet.
 
@@ -127,7 +132,7 @@ ein fehlender erster Kontakt beendet die Suche nicht. Strg-X, Treiberfehler
 und andere Endschalter brechen sie ab. Die zweite Annäherung bleibt auf 5 mm
 begrenzt. Beim Phasenwechsel wird ein eventuell noch gesetztes CYCLE_STOP
 verworfen, ohne RESET- oder Fehlerflags zu löschen. Das Standardprofil
-behält seine bisherige Funktion und wurde auf seinem aktuellen ELF geprüft.
+behält seine bisherige Funktion; dessen vollständiger Prüflauf ist oben belegt.
 
 Beide PlatformIO-Umgebungen wurden mit geerbten Buildflags und Monitoroptionen
 korrekt eingelesen. Ein tatsächlicher PlatformIO-Build ist in der Cloud
@@ -138,11 +143,11 @@ lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 ## XYZ-CNC und gSender-Protokoll
 
 Ergebnis: **zehn CNC-Fälle bestanden**,
-alle mit ELF `71a19ef1514c161a79c4aad896e73cc47ebcf1e1e1e3d5e78359661856eec22e`.
-Protokoll: `artifacts/cnc-simulation.log`. Nach der SFU1605-Kalibrierung
-und Korrektur des LCD-Abstands wurden alle neun Funktionsfälle und der
-Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet `.text=42058`, `.data=104`,
-`.bss=3586`; Buildprotokoll: `artifacts/cnc-build.log`.
+alle mit ELF `449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446`.
+Protokoll: `artifacts/cnc-simulation.log`. Nach der neuen Menüführung und
+dem begrenzten Endschalter-Freifahren wurden alle neun Funktionsfälle und
+der Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet
+`.text=45140`, `.data=118`, `.bss=3592`; Buildprotokoll: `artifacts/cnc-build.log`.
 
 Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
 `Connection`-Klasse von [gSender v1.6.4](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/server/lib/Connection.js)
@@ -166,7 +171,7 @@ und zwei Freigaben in vier Phasen. Einzelbefehle `$HX/$HY/$HZ` bewegen nur die
 gewählte Achse und ergänzen die Referenzanzeige. G54-Rechteck, Z-Zustellung,
 Kreisbahnen G2/G3 sowie Echtzeit-Pause `!` und Fortsetzen `~` bestehen. M3/M4/S
 werden für die manuelle Spindel angenommen, ohne einen Ausgang einzuschalten.
-A/B bleiben ohne STEP und Freigabe. Z-Min, lokaler STOP und ein 1-µs-FAULT-Puls
+A/B bleiben ohne STEP und Freigabe. Z-Min, lokale Pause/Reset-Taste und ein 1-µs-FAULT-Puls
 schalten ab; Alarm 12 bleibt auf dem Display sichtbar.
 
 Ein zusätzlicher Kalibrierungsfall startet mit einem gültigen alten
@@ -195,7 +200,7 @@ EEMPE-Fenster, Read-Pfad und vorhandene Simulator-Timer werden weiter benutzt.
 Der Firmware-EEPROM-Treiber wurde dafür nicht verändert.
 
 Mit aktivem CNC-LCD und 100-Hz-UART-Status entstehen genau **6400 Z-Pulse**,
-bei **4994,44 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
+bei **4994,59 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
 **14,312 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
 die Firmwarevorgabe für Z bleibt 150 mm/min.
 
@@ -206,11 +211,61 @@ die angenommene Zuordnung zur Implementierung freigegeben. Es wird keine
 vollständig gemessene Hardwarefreigabe behauptet. Bedienung und Grenzen:
 [cnc-gsender.md](cnc-gsender.md).
 
+## Neues CNC-Menü und Tastensteuerung
+
+Ergebnis: **acht Gruppen bestanden**, Exitstatus 0 mit dem oben genannten
+finalen CNC-ELF. Protokoll: `artifacts/menu-simulation.log`.
+Reproduktion: `make check-menu`. Die Tests bedienen die elf realen GPIO-
+Eingänge im Simulator und dekodieren den LCD-Bus; sie lesen keine privaten
+Menüvariablen der Firmware.
+
+Geprüft sind Navigation und Zurück ohne Bewegung, Start-/Freigabesperre für
+Play, Jogschritt- und Tempogrenzen, alle sechs Achsrichtungstasten mit
+256/256/128 Pulsen für 0,1 mm, Einzelnull nur für Y mit getrenntem
+Bestätigungsdruck und die vier Homingphasen mit Z vor X+Y. Normale Fräsfahrt
+zeigt ihren tatsächlich ausgeführten Achsblock; II bremst ab, ein zu früher
+Play-Druck wird verworfen, Play setzt erst nach Stillstand fort. Vorschub-
+korrekturen wirken von 10 bis 100 Prozent. II beendet Jog ohne Reset oder
+Fortsetzung; langes II und Play+II brechen ab. II während des 25-ms-Wake
+bricht ohne Schritte ab. Eine neue II-Flanke wirkt auch bei weiterhin
+gehaltener Play-Taste nach einem früheren Reset.
+
+Weitere Fälle prüfen gehaltenes II beim Einschalten und zur Laufzeit,
+verworfene Tastendrücke kurz vor Bewegungsende, veraltete lokale
+Bestätigungen bei UART-Fahrten sowie neue und wiederholte Alarme in
+ruhenden Untermenüs. Diagnose bleibt nach Reset erreichbar. Diese neue
+CNC-Belegung ist noch am Gerät zu prüfen; der frühere Anwenderbericht
+bestätigt die Hardwareeingänge, nicht diesen neuen Bedienablauf.
+
+## Begrenztes Endschalter-Freifahren
+
+Ergebnis: **20 Fälle bestanden** auf demselben finalen CNC-ELF.
+Protokoll mit Hash und Kommando: `artifacts/recovery-simulation.log`.
+Reproduktion: `make check-recovery`.
+
+Die realen STEP-/DIR-Ausgänge werden für X-Min, Y-Min, Z-Min und Z-Max
+geprüft: genau 2 mm in der jeweiligen Freifahrrichtung bei angefordertem
+F20, ohne Bewegung anderer Achsen oder A/B. Der Erfolg bleibt im Alarm und
+löscht den Referenzstatus. Ein beim Einschalten aktiver Schalter und kurze
+Kontaktpreller werden behandelt; ein voriger Fräsjob und während des
+Rückzugs empfangene Zeilen werden nicht fortgesetzt.
+
+Kein/mehrere aktive Schalter, falscher Betriebszustand, gehaltener Stop,
+Treiberfehler und unbrauchbare Kalibrierungen werden ohne Bewegung
+abgewiesen. Ein dauerhaft aktiver Schalter endet exakt nach 2 mm mit
+Alarm 8. Wiederkontakt nach fünf freien Samples, ein anderer Endschalter
+und ein 1-µs-FAULT-Puls stoppen mit ihrem spezifischen Alarm. Ctrl-X, `!`,
+Jog-Abbruch `0x85` und lokale II brechen ab; Links/Play starten keine andere
+Aktion und verändern den begrenzten Rückzug nicht. Die Displayfunktion
+verlangt einen getrennten Bestätigungsdruck und zeigt den laufenden Rückzug.
+Die elektrische Polarität und mechanische Freifahrrichtung an realer
+Hardware werden damit nicht gemessen.
+
 ## Codeprüfung und Grenzen
 
 ### Originaldisplay und lokales Tastenfeld
 
-Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
+Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem damals geprüften
 Y-ELF `f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8`.
 Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.

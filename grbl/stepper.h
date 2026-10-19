@@ -23,6 +23,11 @@
 #ifndef stepper_h
 #define stepper_h
 
+#if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
+// Axes in the block currently executing in the STEP ISR, not a future G-code line.
+uint8_t rf2000_stepper_active_axes(void);
+#endif
+
 #ifndef SEGMENT_BUFFER_SIZE
   #define SEGMENT_BUFFER_SIZE 10
 #endif

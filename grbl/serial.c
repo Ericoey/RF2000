@@ -173,7 +173,11 @@ ISR(SERIAL_RX)
         switch(data) {
           case CMD_SAFETY_DOOR:   system_set_exec_state_flag(EXEC_SAFETY_DOOR); break; // Set as true
           case CMD_JOG_CANCEL:
-            if (sys.state & STATE_JOG) { // Block all other states from invoking motion cancel.
+            if ((sys.state & STATE_JOG)
+                #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
+                  || rf2000_limits_recovery_active()
+                #endif
+                ) { // Normal homing still ignores jog-cancel; bounded recovery accepts it.
               system_set_exec_state_flag(EXEC_MOTION_CANCEL);
               serial_reset_read_buffer(); // Vide un reste éventuel de données dans le buffer
             }

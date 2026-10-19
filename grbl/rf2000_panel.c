@@ -21,16 +21,24 @@
 #define KEY_FEED_DOWN (1u << 8)
 #define KEY_CONTINUE (1u << 9)
 #define KEY_PAUSE    (1u << 10)
+#if RF2000_CNC
+#define STOP_KEYS KEY_PAUSE
+#else
 #define STOP_KEYS (KEY_LEFT | KEY_CONTINUE | KEY_PAUSE)
+#endif
 #define KEY_DEBOUNCE_MS 20
 #if RF2000_CNC
-#define MENU_ITEMS 6
+#define MENU_ITEMS 8
 #else
 #define MENU_ITEMS 5
 #endif
 #define PAGE_MAIN 0
 #define PAGE_JOG 1
 #define PAGE_DIAGNOSTICS 2
+#define PAGE_MENU 3
+#define PAGE_REFERENCE 4
+#define PAGE_ZERO 5
+#define PAGE_SPEED 6
 
 static volatile uint16_t panel_ms;
 static volatile uint8_t key_event, keys_ready, dispatch_busy;
@@ -39,6 +47,9 @@ static volatile uint8_t candidate_ms, stop_was_down, initialized;
 static uint8_t selection, confirm_home, page, step_index, feed_index, referenced;
 #if RF2000_CNC
 static uint8_t selected_axis, homing_axes;
+static uint8_t subselection, candidate_busy;
+static uint16_t pause_ticks;
+static uint8_t pause_reset_latched;
 #endif
 static uint8_t last_alarm, homing_phase, command_error;
 static uint8_t dirty, frame_slot;
@@ -103,6 +114,8 @@ void rf2000_panel_reset(void)
   #if RF2000_CNC
     selected_axis = AXIS_1;
     homing_axes = 0;
+    subselection = 0;
+    candidate_busy = false;
   #endif
   last_position_ms = 0;
   previous_state = previous_limits = previous_fault = previous_ready = 0xff;
@@ -116,26 +129,73 @@ void rf2000_panel_tick_isr(void)
   ++panel_ms;
   const uint16_t keys = read_keys();
   const uint8_t stop_down = !!(keys & STOP_KEYS);
+  #if RF2000_CNC
+    if (stop_down && !stop_was_down) {
+      pause_ticks = 0;
+      // A fresh II edge must always stop, even if another key stayed held
+      // since the previous reset chord. Only suppress repeated held-II resets.
+      pause_reset_latched = false;
+      key_event = 0;
+      keys_ready = false;
+      if (sys.state == STATE_CYCLE || sys.state == STATE_HOLD) {
+        system_set_exec_state_flag(EXEC_FEED_HOLD);
+      } else if (sys.state == STATE_JOG) {
+        system_set_exec_state_flag(EXEC_MOTION_CANCEL);
+      } else {
+        pause_reset_latched = true;
+        mc_reset(); // Homing/recovery has no resumable feed hold.
+      }
+    }
+    if (stop_down) {
+      if (pause_ticks < 1000) ++pause_ticks;
+      if (!pause_reset_latched && (pause_ticks == 1000 || (keys & KEY_CONTINUE))) {
+        pause_reset_latched = true;
+        mc_reset(); // Hold II for one second, or press > and II together.
+      }
+    }
+  #else
   if (stop_down && !stop_was_down) {
     key_event = 0;
     keys_ready = false;
     mc_reset(); // Same immediate GPIO shutdown as serial Ctrl-X; no LCD/SPI.
   }
+  #endif
   stop_was_down = stop_down;
   if (keys != candidate_keys) {
     candidate_keys = keys;
     candidate_ms = 0;
+    #if RF2000_CNC
+      candidate_busy = sys.state != STATE_IDLE && sys.state != STATE_ALARM;
+    #endif
   } else if (candidate_ms < KEY_DEBOUNCE_MS) {
     ++candidate_ms;
     if (candidate_ms == KEY_DEBOUNCE_MS) {
       if (!keys) {
         keys_ready = true;
+        #if RF2000_CNC
+          pause_ticks = 0;
+          pause_reset_latched = false;
+        #endif
       } else {
+        #if RF2000_CNC
+          const uint8_t stable = keys_ready && !(keys & (keys - 1)) &&
+            !(sys_rt_exec_state & EXEC_RESET) && !sys_rt_exec_alarm;
+          if (stable && (sys.state == STATE_CYCLE || sys.state == STATE_HOLD)) {
+            if (keys == KEY_FEED_UP) system_set_exec_motion_override_flag(EXEC_FEED_OVR_COARSE_MINUS);
+            else if (keys == KEY_FEED_DOWN) system_set_exec_motion_override_flag(EXEC_FEED_OVR_COARSE_PLUS);
+            else if (keys == KEY_CONTINUE && sys.state == STATE_HOLD &&
+                     (sys.suspend & SUSPEND_HOLD_COMPLETE)) system_set_exec_state_flag(EXEC_CYCLE_START);
+          }
+        #endif
         const uint8_t accept = keys_ready && !dispatch_busy &&
           (sys.state == STATE_IDLE || sys.state == STATE_ALARM) &&
           !(sys_rt_exec_state & EXEC_RESET) && !sys_rt_exec_alarm;
         keys_ready = false; // Every action requires a full stable release.
-        if (accept && !(keys & (keys - 1))) {
+        if (accept && !(keys & (keys - 1))
+            #if RF2000_CNC
+              && !candidate_busy
+            #endif
+            ) {
           if (keys == KEY_OK) key_event = 1;
           else if (keys == KEY_DOWN) key_event = 2;
           else if (keys == KEY_RIGHT) key_event = 3;
@@ -144,6 +204,10 @@ void rf2000_panel_tick_isr(void)
           else if (keys == KEY_STEP_DOWN) key_event = 6;
           else if (keys == KEY_FEED_UP) key_event = 7;
           else if (keys == KEY_FEED_DOWN) key_event = 8;
+          #if RF2000_CNC
+            else if (keys == KEY_LEFT) key_event = 9;
+            else if (keys == KEY_CONTINUE) key_event = 10;
+          #endif
         }
       }
     }
@@ -152,19 +216,32 @@ void rf2000_panel_tick_isr(void)
     key_event = 0; // Never queue a movement while another action is running.
     // Reject at the first busy sample, even if a very short jog ends before
     // this new key has completed its 20-ms debounce interval.
-    if (keys) keys_ready = false;
+    #if RF2000_CNC
+      if (keys && !(keys & (KEY_CONTINUE | KEY_FEED_UP | KEY_FEED_DOWN))) keys_ready = false;
+    #else
+      if (keys) keys_ready = false;
+    #endif
   }
 }
 
 uint8_t rf2000_panel_stop_active(void)
 {
   // Also gate UART admission while STOP is held, including at power-up.
+  #if RF2000_CNC
+    return !(PINH & _BV(PH2));
+  #else
   return !(PINB & _BV(PB5)) || !(PINH & _BV(PH2)) || !(PINH & _BV(PH7));
+  #endif
 }
 
 void rf2000_panel_note_alarm(uint8_t alarm)
 {
   if (alarm) {
+    #if RF2000_CNC
+      if (page != PAGE_MAIN || command_error) dirty = true;
+      page = PAGE_MAIN;
+      command_error = 0;
+    #endif
     if (last_alarm != alarm || confirm_home || referenced) dirty = true;
     last_alarm = alarm;
     confirm_home = false;
@@ -201,10 +278,19 @@ void rf2000_panel_homing_begin(uint8_t axes)
   referenced &= ~axes;
   dirty = true;
 }
+
+void rf2000_panel_homing_axes(uint8_t axes)
+{
+  homing_axes = axes; // Actual Z or XY cycle, not the whole $H request.
+  dirty = true;
+}
 #endif
 
 static void row_P(uint8_t row, PGM_P text)
 {
+  #if RF2000_CNC
+    memset(frame + row * 20, ' ', 20);
+  #endif
   uint8_t col = 0;
   char c;
   while (col < 20 && (c = pgm_read_byte(text++))) frame[row * 20 + col++] = c;
@@ -294,9 +380,10 @@ static void compose_cnc_frame(uint8_t limits, uint8_t ready)
   row_P(0, PSTR("CNC BEREIT   G54 ---"));
   PGM_P state = PSTR("BEREIT  ");
   if (sys.state == STATE_ALARM) state = PSTR("ALARM00 ");
-  else if (sys.state == STATE_HOMING) state = PSTR("REFERENZ");
+  else if (sys.state == STATE_HOMING) state = rf2000_limits_recovery_active() ? PSTR("RUECKZUG") : PSTR("REFERENZ");
   else if (sys.state == STATE_CYCLE) state = PSTR("FAHRT   ");
-  else if (sys.state & STATE_HOLD) state = PSTR("PAUSE   ");
+  else if (sys.state & STATE_HOLD) state = (sys.suspend & SUSPEND_HOLD_COMPLETE) ?
+    PSTR("HALT    ") : PSTR("BREMSEN ");
   else if (sys.state == STATE_JOG) state = PSTR("JOG     ");
   else if (sys.state == STATE_CHECK_MODE) state = PSTR("PRUEFEN ");
   memcpy_P(frame + 4, state, 8);
@@ -304,11 +391,35 @@ static void compose_cnc_frame(uint8_t limits, uint8_t ready)
   frame[15] = '4' + gc_state.modal.coord_select;
   for (uint8_t axis = 0; axis < 3; ++axis) frame[17 + axis] = (referenced & bit(axis)) ? 'X' + axis : '-';
   if (sys.state == STATE_HOMING) {
-    row_P(1, PSTR("Referenzfahrt ---"));
-    for (uint8_t axis = 0; axis < 3; ++axis) frame[34 + axis] = (homing_axes & bit(axis)) ? 'X' + axis : '-';
-    row_P(2, homing_phase == 1 ? PSTR("Schalter suchen") : homing_phase == 2 ?
-      PSTR("Rueckzug") : homing_phase == 3 ? PSTR("Langsam anfahren") : PSTR("Freifahren"));
-    row_P(3, PSTR("LINKS/PAUSE:STOP"));
+    if (rf2000_limits_recovery_active()) {
+      row_P(1, PSTR("FREIFAHREN ---"));
+      for (uint8_t axis = 0; axis < 3; ++axis) frame[31 + axis] = (homing_axes & bit(axis)) ? 'X' + axis : '-';
+      row_P(2, PSTR("2mm max, F20"));
+      row_P(3, PSTR("II:Abbruch SP:MAN."));
+      return;
+    }
+    row_P(0, PSTR("REF "));
+    uint8_t col = 4;
+    for (uint8_t axis = 0; axis < 3; ++axis) if (homing_axes & bit(axis)) {
+      if (col > 4) frame[col++] = '+';
+      frame[col++] = 'X' + axis;
+    }
+    frame[col++] = ':'; frame[col++] = ' ';
+    PGM_P phase = homing_phase == 1 ? PSTR("SUCHEN") : homing_phase == 2 ?
+      PSTR("RUECKZUG") : homing_phase == 3 ? PSTR("FEINANFAHRT") : PSTR("FREIFAHREN");
+    char c;
+    while (col < 20 && (c = pgm_read_byte(phase++))) frame[col++] = c;
+    row_P(1, (homing_axes & bit(AXIS_3)) ?
+      ((settings.homing_dir_mask & bit(AXIS_3)) ? PSTR("Schalter: Z-MIN") : PSTR("Schalter: Z-MAX")) :
+      homing_axes == bit(AXIS_1) ? PSTR("Schalter: X-MIN") : homing_axes == bit(AXIS_2) ?
+      PSTR("Schalter: Y-MIN") : PSTR("X-MIN und Y-MIN"));
+    row_P(2, PSTR("F:"));
+    char speed[12];
+    const float rate = homing_phase == 3 ? settings.homing_feed_rate : settings.homing_seek_rate;
+    ultoa((uint32_t)fminf(999999.0f, fmaxf(0.0f, rate)), speed, 10);
+    memcpy(frame + 42, speed, strlen(speed));
+    memcpy_P(frame + 42 + strlen(speed), PSTR(" mm/min"), 7);
+    row_P(3, PSTR("II:Abbruch SP:MAN."));
     return;
   }
   if (page == PAGE_DIAGNOSTICS && (sys.state == STATE_IDLE || sys.state == STATE_ALARM)) {
@@ -318,16 +429,28 @@ static void compose_cnc_frame(uint8_t limits, uint8_t ready)
     row_P(2, PSTR("DRV F00 R00 A00"));
     two_digits(45, rf2000_drivers_fault_reason());
     two_digits(49, rf2000_drivers_readback_failed_mask()); two_digits(53, last_alarm);
-    row_P(3, PSTR("RECHTS:Menue <-STOP"));
+    row_P(3, PSTR("OK/<:Zurueck"));
     return;
   }
-  if (page == PAGE_JOG && (sys.state == STATE_IDLE || sys.state == STATE_ALARM || sys.state == STATE_JOG)) {
-    row_P(0, PSTR("VERFAHREN X")); frame[10] = 'X' + selected_axis;
-    if (sys.state == STATE_ALARM) row_P(0, PSTR("GESPERRT - Freigeben"));
-    position_row();
-    row_P(2, PSTR("Weg:0.10mm F:20"));
-    memcpy_P(frame + 44, step_labels[step_index], 4); two_digits(53, jog_feeds[feed_index]);
-    row_P(3, PSTR("HO:+ RU:- OK:Achse"));
+  if ((sys.state == STATE_IDLE || sys.state == STATE_ALARM) &&
+      (page == PAGE_MENU || page == PAGE_REFERENCE || page == PAGE_ZERO || page == PAGE_SPEED)) {
+    if (page == PAGE_SPEED) {
+      row_P(0, PSTR("JOG-VORSCHUB"));
+      row_P(1, PSTR("F:20 mm/min")); two_digits(22, jog_feeds[feed_index]);
+      row_P(2, PSTR("+/- oder Hoch/Runter"));
+    } else {
+      static const char labels[MENU_ITEMS][20] PROGMEM = {"Freigeben", "Verfahren XYZ",
+        "Referenzieren", "Arbeitsnull", "Diagnose", "Endschalter frei", "Jogtempo", "Abbruch / Reset"};
+      static const char axes[4][20] PROGMEM = {"Alle: X/Y/Z", "Nur X", "Nur Y", "Nur Z"};
+      row_P(0, page == PAGE_MENU ? PSTR("CNC MENUE") : page == PAGE_REFERENCE ? PSTR("REFERENZIEREN") : PSTR("ARBEITSNULL SETZEN"));
+      const uint8_t chosen = page == PAGE_MENU ? selection : subselection;
+      const uint8_t count = page == PAGE_MENU ? MENU_ITEMS : 4;
+      row_P(1, page == PAGE_MENU ? labels[chosen] : axes[chosen]);
+      row_P(2, page == PAGE_MENU ? labels[(chosen + 1) % count] : axes[(chosen + 1) % count]);
+      for (int8_t i = 19; i > 0; --i) frame[20 + i] = frame[20 + i - 1];
+      frame[20] = '>';
+    }
+    row_P(3, PSTR("OK:Wahl <:Zurueck"));
     return;
   }
   int32_t steps[N_AXIS];
@@ -347,11 +470,29 @@ static void compose_cnc_frame(uint8_t limits, uint8_t ready)
   if (rate > 999999) rate = 999999;
   char feed[8]; ultoa((uint32_t)lroundf(rate), feed, 10);
   memcpy(frame + 59 - strlen(feed), feed, strlen(feed));
-  if (sys.state == STATE_IDLE || sys.state == STATE_ALARM) {
-    static const char labels[MENU_ITEMS][20] PROGMEM = {">Freigeben", ">Verfahren XYZ",
-      ">XYZ referenzieren", ">Arbeitsnull setzen", ">Diagnose", ">Abbruch / Reset"};
-    row_P(3, labels[selection]);
-  } else row_P(3, PSTR("SPINDEL: MANUELL"));
+  if (page == PAGE_JOG && sys.state != STATE_CYCLE && sys.state != STATE_HOLD) {
+    row_P(0, sys.state == STATE_ALARM ? PSTR("JOG GESPERRT") : sys.state == STATE_JOG ?
+      PSTR("JOG ---    S0.10 F20") : PSTR("JOG BEREIT S0.10 F20"));
+    if (sys.state != STATE_ALARM) {
+      memcpy_P(frame + 12, step_labels[step_index], 4); two_digits(18, jog_feeds[feed_index]);
+      if (sys.state == STATE_JOG) {
+        const uint8_t axes = rf2000_stepper_active_axes();
+        for (uint8_t axis = 0; axis < 3; ++axis) frame[4 + axis] = (axes & bit(axis)) ? 'X' + axis : '-';
+      }
+    }
+    row_P(3, PSTR("OK:Menue +/-:Weg"));
+  } else if (sys.state == STATE_IDLE || sys.state == STATE_ALARM) {
+    row_P(3, PSTR("OK:Menue SP:MANUELL"));
+  } else {
+    if (sys.state == STATE_CYCLE || sys.state == STATE_JOG) {
+      row_P(0, sys.state == STATE_CYCLE ? PSTR("CNC FAHRT ") : PSTR("CNC JOG "));
+      const uint8_t axes = rf2000_stepper_active_axes();
+      uint8_t col = sys.state == STATE_CYCLE ? 10 : 8;
+      for (uint8_t axis = 0; axis < 3; ++axis) if (axes & bit(axis)) frame[col++] = 'X' + axis;
+      frame[17] = 'G'; frame[18] = '5'; frame[19] = '4' + gc_state.modal.coord_select;
+    }
+    row_P(3, PSTR("II:Pause >:Weiter"));
+  }
   (void)ready;
 }
 #endif
@@ -367,20 +508,42 @@ static void compose_frame(uint8_t limits, uint8_t ready)
     else if (sys.state == STATE_ALARM) row_P(1, PSTR("Erst freigeben"));
     else row_P(1, PSTR("Befehl abgewiesen"));
     row_P(2, PSTR("Keine Bewegung"));
-    row_P(3, PSTR("OK/>:Zurueck <-STOP"));
+    #if RF2000_CNC
+      row_P(3, PSTR("OK/>/<:Zurueck"));
+    #else
+      row_P(3, PSTR("OK/>:Zurueck <-STOP"));
+    #endif
     return;
   }
   if (confirm_home) {
     #if RF2000_CNC
-      row_P(0, confirm_home == 2 ? PSTR("Arbeitsnull setzen?") : PSTR("XYZ referenzieren?"));
-      row_P(1, confirm_home == 2 ? PSTR("X/Y/Z hier = 0") : PSTR("Zmax dann X/Ymin"));
+      if (confirm_home == 10) {
+        row_P(0, PSTR("Abbruch / Reset?")); row_P(1, PSTR("Referenz wird unklar"));
+      } else if (confirm_home == 3) {
+        row_P(0, PSTR("Endschalter frei?")); row_P(1, PSTR("2mm zurueck, F20"));
+      } else if (confirm_home == 2 || confirm_home >= 7) {
+        row_P(0, PSTR("Arbeitsnull setzen?"));
+        row_P(1, confirm_home == 2 ? PSTR("X/Y/Z hier = 0") : PSTR("Nur X hier = 0"));
+        if (confirm_home >= 7) frame[24] = 'X' + confirm_home - 7;
+      } else {
+        row_P(0, confirm_home == 1 ? PSTR("XYZ referenzieren?") : PSTR("X referenzieren?"));
+        if (confirm_home >= 4) frame[0] = 'X' + confirm_home - 4;
+        row_P(1, confirm_home == 1 ? PSTR("Zmax dann X/Ymin") : confirm_home == 6 ?
+          PSTR("Zum Z-Max-Schalter") : PSTR("Zum Min-Schalter"));
+      }
       row_P(2, PSTR("Spindel manuell"));
     #else
     row_P(0, PSTR("Y-Referenz starten?"));
     row_P(1, PSTR("Richtung geprueft?"));
     row_P(2, PSTR("Schalter geprueft?"));
     #endif
-    row_P(3, PSTR("OK:Start LINKS:STOP"));
+    row_P(3,
+      #if RF2000_CNC
+        PSTR("OK:Start <:Abbruch")
+      #else
+        PSTR("OK:Start LINKS:STOP")
+      #endif
+    );
     return;
   }
   #if RF2000_CNC
@@ -458,6 +621,12 @@ void rf2000_panel_service(void)
     confirm_home = false; // A UART-originated move invalidates local consent.
     dirty = true;
   }
+  #if RF2000_CNC
+    if (sys.state != STATE_IDLE && sys.state != STATE_ALARM) {
+      command_error = 0; // A stale menu error must not hide a running action.
+      if (sys.state != STATE_JOG && page != PAGE_MAIN) { page = PAGE_MAIN; dirty = true; }
+    }
+  #endif
   if (sys_rt_exec_alarm) rf2000_panel_note_alarm(sys_rt_exec_alarm);
   if (sys.state == STATE_ALARM) {
     if (referenced) { referenced = false; dirty = true; }
@@ -503,6 +672,103 @@ static uint8_t jog(uint8_t positive)
   return system_execute_line(command);
 }
 
+#if RF2000_CNC
+static void dispatch_cnc(uint8_t event)
+{
+  if (command_error) {
+    if (event == 1 || event == 3 || event == 9) command_error = 0;
+    return;
+  }
+  if (confirm_home) {
+    if (event == 9) { confirm_home = 0; return; }
+    if (event != 1 && event != 3) return;
+    const uint8_t action = confirm_home;
+    confirm_home = 0;
+    page = PAGE_MAIN;
+    dispatch_busy = true;
+    if (action == 10) mc_reset();
+    else if (action == 3) command_error = execute("$LR");
+    else if (action == 2 || action >= 7) {
+      char command[24] = "G10L20P1";
+      command[7] = '1' + gc_state.modal.coord_select;
+      if (action == 2) strcpy(command + 8, "X0Y0Z0");
+      else { command[8] = 'X' + action - 7; command[9] = '0'; command[10] = 0; }
+      command_error = sys.state == STATE_IDLE ? gc_execute_line(command) : STATUS_SYSTEM_GC_LOCK;
+    } else {
+      char command[] = "$HX";
+      if (action == 1) command[2] = 0;
+      else command[2] = 'X' + action - 4;
+      command_error = execute(command);
+    }
+    dispatch_busy = false;
+    return;
+  }
+  if (page == PAGE_MAIN) {
+    if (event == 1 || event == 3) page = PAGE_MENU;
+    else if (event == 5 || event == 6) page = PAGE_JOG; // First press only opens jog.
+    else if (event == 10 && sys.state == STATE_ALARM) command_error = STATUS_SYSTEM_GC_LOCK;
+    return;
+  }
+  if (page == PAGE_DIAGNOSTICS) {
+    if (event == 1 || event == 3 || event == 9) page = PAGE_MENU;
+    return;
+  }
+  if (page == PAGE_JOG) {
+    if (event == 1) page = PAGE_MENU;
+    else if (event == 7 && step_index) --step_index; // Physical minus (PJ5).
+    else if (event == 8 && step_index < 2) ++step_index; // Physical plus (PJ6).
+    else if (event == 2 || event == 3 || event == 4 || event == 5 || event == 6 || event == 9) {
+      selected_axis = (event == 3 || event == 9) ? AXIS_1 : (event == 2 || event == 4) ? AXIS_2 : AXIS_3;
+      dispatch_busy = true;
+      command_error = jog(event == 3 || event == 4 || event == 5);
+      dispatch_busy = false;
+    }
+    return;
+  }
+  if (page == PAGE_SPEED) {
+    if (event == 4 || event == 8) { if (feed_index < 2) ++feed_index; }
+    else if (event == 2 || event == 7) { if (feed_index) --feed_index; }
+    else if (event == 1 || event == 3 || event == 9) page = PAGE_MENU;
+    return;
+  }
+  if (page == PAGE_REFERENCE || page == PAGE_ZERO) {
+    if (event == 9) page = PAGE_MENU;
+    else if (event == 2 || event == 4 || event == 7 || event == 8) {
+      subselection = (subselection + ((event == 2 || event == 8) ? 1 : 3)) % 4;
+    } else if (event == 1 || event == 3) {
+      if (page == PAGE_REFERENCE) {
+        if (limits_motion_allowed()) confirm_home = subselection ? 3 + subselection : 1;
+        else command_error = STATUS_SYSTEM_GC_LOCK;
+      } else {
+        if (sys.state == STATE_IDLE) confirm_home = subselection ? 6 + subselection : 2;
+        else command_error = STATUS_SYSTEM_GC_LOCK;
+      }
+    }
+    return;
+  }
+  if (event == 9) { page = PAGE_MAIN; return; }
+  if (event == 2 || event == 4 || event == 7 || event == 8) {
+    selection = (selection + ((event == 2 || event == 8) ? 1 : MENU_ITEMS - 1)) % MENU_ITEMS;
+  } else if (event == 1 || event == 3) {
+    if (selection == 0) {
+      dispatch_busy = true;
+      command_error = execute("$X");
+      dispatch_busy = false;
+      if (!command_error) { last_alarm = 0; page = PAGE_MAIN; }
+    } else if (selection == 1) page = PAGE_JOG;
+    else if (selection == 2 || selection == 3) {
+      page = selection == 2 ? PAGE_REFERENCE : PAGE_ZERO;
+      subselection = 0;
+    } else if (selection == 4) page = PAGE_DIAGNOSTICS;
+    else if (selection == 5) {
+      if (sys.state == STATE_ALARM) confirm_home = 3;
+      else command_error = STATUS_SYSTEM_GC_LOCK;
+    } else if (selection == 6) page = PAGE_SPEED;
+    else confirm_home = 10;
+  }
+}
+#endif
+
 void rf2000_panel_dispatch(uint8_t command_boundary)
 {
   uint8_t event;
@@ -511,6 +777,10 @@ void rf2000_panel_dispatch(uint8_t command_boundary)
       sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET) ||
       (sys.state != STATE_IDLE && sys.state != STATE_ALARM)) return;
   dirty = true;
+  #if RF2000_CNC
+    dispatch_cnc(event);
+    return;
+  #endif
   if (command_error) {
     if (event == 1 || event == 3) command_error = 0;
     return; // Acknowledging an error never executes the selected action.
@@ -549,7 +819,10 @@ void rf2000_panel_dispatch(uint8_t command_boundary)
     dispatch_busy = true;
     if (confirm_home) {
       #if RF2000_CNC
-        if (confirm_home == 2) {
+        if (confirm_home == 3) {
+          confirm_home = false;
+          command_error = execute("$LR");
+        } else if (confirm_home == 2) {
           char command[] = "G10L20P1X0Y0Z0";
           command[7] = '1' + gc_state.modal.coord_select;
           confirm_home = false;
@@ -575,6 +848,10 @@ void rf2000_panel_dispatch(uint8_t command_boundary)
       if (sys.state == STATE_IDLE) confirm_home = 2;
       else command_error = STATUS_SYSTEM_GC_LOCK;
     } else if (selection == 4) page = PAGE_DIAGNOSTICS;
+    else if (selection == 5) {
+      if (sys.state == STATE_ALARM) confirm_home = 3;
+      else command_error = STATUS_SYSTEM_GC_LOCK;
+    }
     #else
     } else if (selection == 3) page = PAGE_DIAGNOSTICS;
     #endif

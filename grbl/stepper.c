@@ -158,6 +158,21 @@ typedef struct {
 } stepper_t;
 static stepper_t st;
 
+#if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
+uint8_t rf2000_stepper_active_axes(void)
+{
+  uint8_t axes = 0;
+  const uint8_t saved_sreg = SREG;
+  cli();
+  if (st.exec_block) {
+    for (uint8_t axis = 0; axis < N_AXIS; ++axis)
+      if (st.exec_block->steps[axis]) axes |= bit(axis);
+  }
+  SREG = saved_sreg;
+  return axes;
+}
+#endif
+
 // Step segment ring buffer indices
 static volatile uint8_t segment_buffer_tail;
 static uint8_t segment_buffer_head;
@@ -300,6 +315,9 @@ void st_wake_up()
     if (!limits_motion_allowed() || sys_rt_exec_alarm ||
         bit_istrue(sys_rt_exec_state, EXEC_RESET)) {
       rf2000_stop_step_outputs();
+      #if RF2000_CNC && RF2000_LOCAL_PANEL
+        if (rf2000_panel_stop_active()) mc_reset();
+      #endif
       return;
     }
     #if RF2000_Y_HOMING_TEST
@@ -377,6 +395,11 @@ void st_wake_up()
     if (sys_rt_exec_alarm || bit_istrue(sys_rt_exec_state, EXEC_RESET) ||
         !limits_motion_allowed()) {
       rf2000_stop_step_outputs();
+      #if RF2000_CNC && RF2000_LOCAL_PANEL
+        // II during the 25-ms wake delay must abort. There is no running
+        // STEP ISR to finish a resumable feed hold yet.
+        if (rf2000_panel_stop_active()) mc_reset();
+      #endif
     } else {
       // Start with a defined interval, not the power-on OCR1A=0 condition.
       // The first ISR loads the prepared segment's actual timing.

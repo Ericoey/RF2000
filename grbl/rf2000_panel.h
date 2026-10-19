@@ -15,8 +15,10 @@ void rf2000_panel_homing_phase(uint8_t phase);
 void rf2000_panel_homing_complete(uint8_t axes);
 #if RF2000_CNC
 void rf2000_panel_homing_begin(uint8_t axes);
+void rf2000_panel_homing_axes(uint8_t axes);
 #else
 #define rf2000_panel_homing_begin(axes) ((void)0)
+#define rf2000_panel_homing_axes(axes) ((void)0)
 #endif
 #else
 #define rf2000_panel_init() ((void)0)
@@ -28,5 +30,6 @@ void rf2000_panel_homing_begin(uint8_t axes);
 #define rf2000_panel_homing_phase(phase) ((void)0)
 #define rf2000_panel_homing_complete(axes) ((void)0)
 #define rf2000_panel_homing_begin(axes) ((void)0)
+#define rf2000_panel_homing_axes(axes) ((void)0)
 #endif
 #endif

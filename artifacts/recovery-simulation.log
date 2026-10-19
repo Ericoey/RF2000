@@ -1,0 +1,64 @@
+Tested ELF SHA256: 449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446
+Command: ./tests/run-recovery-sim.sh build/tests/menu-tested.elf
+Exit status: 0
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR rejects no switch, malformed syntax, multiple physical switches, held STOP and sticky driver fault without motion
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: UART0x85 jog-cancel aborts bounded recovery with alarm6, no later pulses and all drivers asleep
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR rejects a2mm signed-counter overflow, more than30000 pulses/5kHz, and sub-one-pulse calibration before any motor movement
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: LCD Endschalter frei menu requires two distinct OK presses, cancellation clears consent, live RUECKZUG then Alarm without reference
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR X-MIN: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR Y-MIN: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR Z-MIN: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR Z-MAX: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR Y-MIN active at power-on: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: $LR Y-MIN with sub-five-tick contact bounce: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: runtime hard limit stops queued job; Ctrl-X then $LR releases only Y; unlock/jog/home cannot bypass active switch; queued X never runs
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: stuck selected Y switch stops exactly after2mm with alarm8 and all drivers asleep
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: selected switch is rearmed after stable release; recontact during escape stops within1ms as hard-limit alarm1
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: nonselected physical Z-MAX remains armed throughout Y release and stops all drivers within1ms
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: one-microsecond driver FAULT pulse aborts $LR with sticky alarm12 and all five drivers asleep
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: Ctrl-X aborts bounded recovery with alarm6, no later pulses and all drivers asleep
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: serial ! aborts bounded recovery with alarm6, no later pulses and all drivers asleep
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: local LEFT navigation cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: local PH7 Play cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds
+Loaded 45140 .text at address 0x0
+Loaded 118 .data
+PASS: local PH2 STOP aborts bounded recovery with alarm6, no later pulses and all drivers asleep
+PASS: 20 real-AVR limit-release cases

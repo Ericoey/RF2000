@@ -46,6 +46,14 @@ static volatile uint8_t rf2000_limit_release_ticks;
 // Only selected, verified homing switches may be ignored by the hard-limit
 // monitor. The opposite Z switch remains a hard limit throughout homing.
 static volatile uint8_t rf2000_homing_expected;
+#if RF2000_CNC
+static volatile uint8_t rf2000_recovering;
+
+uint8_t rf2000_limits_recovery_active(void)
+{
+  return rf2000_recovering;
+}
+#endif
 
 uint8_t rf2000_limits_raw_state(void)
 {
@@ -91,6 +99,9 @@ void limits_init(void)
   rf2000_limit_held = rf2000_limits_raw_state();
   rf2000_limit_release_ticks = 0;
   rf2000_homing_expected = 0;
+  #if RF2000_CNC
+    rf2000_recovering = 0;
+  #endif
   // Timer2 CTC: 16 MHz / 64 / 250 = 1 kHz. OC2A/B remain disconnected;
   // this timer cannot also be used for a spindle, heater, fan or analog PWM.
   TIMSK2 = 0;
@@ -126,6 +137,11 @@ ISR(TIMER2_COMPA_vect)
       rf2000_limit_held = 0;
     }
   }
+  #if RF2000_CNC
+    // After five fully free samples the withdrawn switch is a hard limit
+    // again, including during the remainder of the bounded recovery move.
+    if (rf2000_recovering && !rf2000_limit_held) rf2000_homing_expected = 0;
+  #endif
   uint8_t active = raw | rf2000_limit_held;
   if (sys.state == STATE_HOMING) { active &= ~rf2000_homing_expected; }
   const uint8_t fault = rf2000_drivers_fault_active() || !rf2000_drivers_ready();
@@ -363,6 +379,7 @@ void limits_go_home(uint8_t cycle_mask)
       rf2000_homing_expected |= (settings.homing_dir_mask & bit(AXIS_3)) ?
         RF2000_LIMIT_Z_MIN : RF2000_LIMIT_Z_MAX;
     }
+    rf2000_panel_homing_axes(cycle_mask);
   #endif
 
   // Initialize plan data struct for homing motion. Spindle and coolant are disabled.
@@ -640,3 +657,123 @@ void limits_soft_check(float *target)
     return;
   }
 }
+
+#if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
+// Deliberate limit withdrawal, not homing and not a resumed job. A critical
+// hard-limit alarm must first be reset so the old stream/planner is discarded.
+uint8_t rf2000_limits_recover(void)
+{
+  const uint8_t selected = rf2000_limits_raw_state();
+  if (sys.state != STATE_ALARM || sys.abort || sys_rt_exec_alarm ||
+      (sys_rt_exec_state & EXEC_RESET) ||
+      !rf2000_drivers_ready() || rf2000_drivers_fault_active() ||
+      !selected || (selected & (selected - 1)) ||
+      (rf2000_limit_held & (uint8_t)~selected)) return STATUS_SYSTEM_GC_LOCK;
+  #if RF2000_LOCAL_PANEL
+    if (rf2000_panel_stop_active()) return STATUS_SYSTEM_GC_LOCK;
+  #endif
+
+  const uint8_t axis = (selected & (RF2000_LIMIT_X_MIN | RF2000_LIMIT_Y_MIN)) ?
+    (selected == RF2000_LIMIT_X_MIN ? AXIS_1 : AXIS_2) : AXIS_3;
+  const float pulses = 2.0f * settings.steps_per_mm[axis];
+  if (!isfinite(pulses) || pulses < 1.0f) return STATUS_INVALID_STATEMENT;
+  // Two mm at F20 take six seconds: keep that requested pulse rate within
+  // the tested ceiling and the planner's signed/AMASS integer range. A tiny
+  // stored max_rate must not allow an extreme steps/mm value to overflow.
+  if (pulses > MAX_STEP_RATE_HZ * 6.0f || pulses >= 2147483648.0f)
+    return STATUS_MAX_STEP_RATE_EXCEEDED;
+  int32_t origin[N_AXIS];
+  float target[N_AXIS] = {0};
+  target[axis] = selected == RF2000_LIMIT_Z_MAX ? -2.0f : 2.0f;
+  plan_line_data_t move;
+  memset(&move, 0, sizeof(move));
+  move.condition = PL_COND_FLAG_SYSTEM_MOTION | PL_COND_FLAG_NO_FEED_OVERRIDE;
+  move.feed_rate = 20.0f;
+
+  st_reset();
+  plan_reset();
+  serial_reset_read_buffer();
+  // Plan a strictly relative, single-axis displacement without float rounding
+  // at large machine coordinates. Preserve the counters, but never certify
+  // them as a reference after a hard stop.
+  memcpy(origin, sys_position, sizeof(origin));
+  memset(sys_position, 0, sizeof(origin));
+  memset(sys.homing_axis_lock, 0, sizeof(sys.homing_axis_lock));
+  sys.homing_axis_lock[axis] = get_step_pin_mask(axis);
+  rf2000_panel_note_alarm(EXEC_ALARM_HARD_LIMIT); // Invalidate all references.
+  rf2000_panel_homing_begin(bit(axis));
+  const uint8_t saved_sreg = SREG;
+  cli();
+  rf2000_homing_expected = selected;
+  rf2000_recovering = true;
+  sys.state = STATE_HOMING; // Existing protected system-motion/axis-lock path.
+  SREG = saved_sreg;
+  system_clear_exec_state_flag(EXEC_CYCLE_STOP | EXEC_CYCLE_START);
+
+  if (plan_buffer_line(target, &move)) {
+    sys.step_control = STEP_CONTROL_EXECUTE_SYS_MOTION;
+    st_prep_buffer();
+    st_wake_up();
+    for (;;) {
+      // Full protocol execution here would consume CYCLE_STOP and enter IDLE,
+      // prematurely removing the exception for the initially asserted input.
+      const uint8_t stop = EXEC_RESET | EXEC_FEED_HOLD | EXEC_MOTION_CANCEL | EXEC_SAFETY_DOOR | EXEC_SLEEP;
+      if (sys_rt_exec_alarm || (sys_rt_exec_state & stop)) {
+        if (!sys_rt_exec_alarm) system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
+        mc_reset();
+        break;
+      }
+      if (sys_rt_exec_state & EXEC_STATUS_REPORT) {
+        report_realtime_status();
+        system_clear_exec_state_flag(EXEC_STATUS_REPORT);
+      }
+      if (sys_rt_exec_state & EXEC_CYCLE_STOP) {
+        system_clear_exec_state_flag(EXEC_CYCLE_STOP);
+        break;
+      }
+      st_prep_buffer();
+      rf2000_panel_service();
+    }
+  } else system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF);
+
+  st_reset();
+  // Allow a contact that released at the last step to complete its normal
+  // five-free-sample debounce. No further step may be emitted in this wait.
+  for (uint8_t wait = 0; wait < 6 && (rf2000_limits_raw_state() | rf2000_limit_held) &&
+       !sys_rt_exec_alarm && !(sys_rt_exec_state & EXEC_RESET); ++wait) {
+    _delay_ms(1);
+    rf2000_panel_service();
+  }
+  if (!sys_rt_exec_alarm && (sys_rt_exec_state &
+      (EXEC_RESET | EXEC_FEED_HOLD | EXEC_MOTION_CANCEL | EXEC_SAFETY_DOOR | EXEC_SLEEP))) {
+    system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
+  }
+  if (!sys_rt_exec_alarm && (rf2000_limits_raw_state() | rf2000_limit_held)) {
+    system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF);
+  }
+  if (sys_rt_exec_alarm) mc_reset();
+  rf2000_drivers_disable();
+  const uint8_t finish_sreg = SREG;
+  cli();
+  rf2000_homing_expected = 0;
+  rf2000_recovering = false;
+  sys.state = STATE_ALARM;
+  sys.step_control = STEP_CONTROL_NORMAL_OP;
+  memset(sys.homing_axis_lock, 0, sizeof(sys.homing_axis_lock));
+  SREG = finish_sreg;
+  for (uint8_t i = 0; i < N_AXIS; ++i) {
+    const int64_t position = (int64_t)origin[i] + sys_position[i];
+    sys_position[i] = position > INT32_MAX ? INT32_MAX : position < INT32_MIN ? INT32_MIN : (int32_t)position;
+  }
+  plan_reset();
+  gc_sync_position();
+  plan_sync_position();
+  serial_reset_read_buffer();
+  if (sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET)) {
+    protocol_execute_realtime(); // Preserve specific ISR alarms and reset behavior.
+    return STATUS_SYSTEM_GC_LOCK;
+  }
+  printPgmString(PSTR("[MSG:RF2000 limit released; home again]\r\n"));
+  return STATUS_OK; // Remain ALARM. No startup script, homing flag or job resume.
+}
+#endif

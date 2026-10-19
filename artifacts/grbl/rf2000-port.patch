@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,112 +1,77 @@
+@@ -1,112 +1,83 @@
 -#  Part of Grbl
 -#
 -#  Copyright (c) 2017-2022 Gauthier Briere
@@ -35,7 +35,7 @@
 +CFLAGS += -std=gnu99 -Os -g -Wall -Wextra -mmcu=$(MCU) -ffunction-sections -fdata-sections -flto
 +LDFLAGS += -mmcu=$(MCU) -flto -Wl,--gc-sections,-Map,$(BUILD)/main.map
  
-+.PHONY: all clean check check-y-homing check-panel y-homing-test cnc check-cnc disasm repetier flash fuse install load
++.PHONY: all clean check check-y-homing check-panel y-homing-test cnc check-cnc check-recovery check-menu disasm repetier flash fuse install load
 +all: $(ARTIFACTS)/rf2000-grbl.hex $(ARTIFACTS)/rf2000-grbl.elf $(ARTIFACTS)/rf2000-grbl.map
  
 -# This is a prototype Makefile. Modify it according to your needs.
@@ -125,10 +125,14 @@
 -# file type for the .S (with capital S) extension. However, upper case
 -# characters are not always preserved on Windows. To ensure WinAVR
 -# compatibility define the file type manually.
--
++check-recovery: cnc
++	tests/run-recovery-sim.sh build/cnc/main.elf
+ 
 -#.c.s:
 -	$(COMPILE) -S $< -o $(BUILDDIR)/$@
--
++check-menu: cnc
++	tests/run-menu-sim.sh build/cnc/main.elf
+ 
 -flash:	all
 -	$(AVRDUDE) -U flash:w:grbl.hex:i
 -
@@ -186,7 +190,7 @@
 +*.log
 --- a/README.md
 +++ b/README.md
-@@ -1,74 +1,162 @@
+@@ -1,74 +1,190 @@
 -![GitHub Logo](https://github.com/fra589/grbl-Mega-5X/blob/edge/doc/images/Mega-5X-logo.svg)
 +# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
  
@@ -198,18 +202,20 @@
 +keinen Ausgang. Anleitung: [CNC und gSender](docs/cnc-gsender.md).
  
 -Grbl is a no-compromise, high performance, low cost alternative to parallel-port-based motion control for CNC milling. This version of Grbl runs on an Arduino Mega2560 only.
-+Y wurde vom Nutzer am Gerät bestätigt. XYZ-Homing ist nach dessen neuer
++Y einschließlich der Kalibrierung mit 2560 Schritten/mm wurde vom Nutzer
++am Gerät bestätigt. XYZ-Homing ist nach dessen neuer
 +ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
 +freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
 +und das bisherige XYZ-Testprofil bleiben verfügbar.
  
 -The controller is written in highly optimized C utilizing every clever feature of the AVR-chips to achieve precise timing and asynchronous operation. It is able to maintain up to 30kHz of stable, jitter free control pulses.
-+Das CNC-Profil verwendet die vom Nutzer angenommene Fräsmechanik auf allen
++Das CNC-Profil verwendet die vom Nutzer vorgegebene Fräsmechanik auf allen
 +drei Achsen: 200 Vollschritte/Umdrehung, SFU1605 mit 5 mm Steigung und
 +2:1 Motor-zu-Spindel-Übersetzung. Mit X/Y 1/32 und Z 1/16 ergeben sich
 +**2560 / 2560 / 1280 Schritte/mm**. Die CNC-Maximalgeschwindigkeiten sind
 +**100 / 100 / 150 mm/min**. Die getrennten Testprofile behalten ihre
-+bisherige Repetier-Kalibrierung.
++bisherige Repetier-Kalibrierung. X und Z übernehmen dieselbe Übersetzung;
++deren tatsächlichen Fahrweg hat der Nutzer noch nicht durch Messung bestätigt.
  
 -It accepts standards-compliant g-code and has been tested with the output of several CAM tools with no problems. Arcs, circles and helical motion are fully supported, as well as, all other primary g-code commands. Macro functions, variables, and most canned cycles are not supported, but we think GUIs can do a much better job at translating them into straight g-code anyhow.
 +Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
@@ -310,7 +316,7 @@
 +```
 +
 +Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-+115200 Baud** verbinden. `$I` enthält `20261019-rf2000-cnc-sfu1605`.
++115200 Baud** verbinden. `$I` enthält `20261019-rf2000-cnc-panel`.
 +**Bei bestehender CNC-Firmware bleiben die bisherigen EEPROM-Werte erhalten.**
 +Vor der ersten Bewegung die [geordneten Einstellbefehle](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
 +anwenden: zuerst X/Y-Maximaltempo senken, dann Schritte/mm ändern. Dafür
@@ -320,8 +326,32 @@
 +Home / `$H` referenziert Z-Max, danach X/Y-Min;
 +`$HX`, `$HY`, `$HZ` funktionieren einzeln. XYZ-Jogs und normale GRBL-Dateien
 +werden angenommen. Das Display zeigt XYZ-Arbeitspositionen, G54–G59,
-+Referenzstatus, Zustand und Vorschub. Arbeitsnull am Werkstück setzen und
-+Spindel vor dem Job manuell starten. [Vollständiger Ablauf](docs/cnc-gsender.md).
++Referenzstatus, Zustand und Vorschub sowie die gerade bewegten Achsen.
++Beim Referenzieren zeigt es die konkrete Achse und Phase: zuerst Z-Max,
++danach gemeinsam X/Y-Min. Arbeitsnull am Werkstück setzen und Spindel vor
++dem Job manuell starten. [Vollständiger Ablauf](docs/cnc-gsender.md).
++
++**OK/Rechts** öffnet das Hauptmenü mit Freigeben, Verfahren XYZ,
++Referenzieren, Arbeitsnull, Diagnose, Endschalter frei, Jogtempo und
++Abbruch/Reset. Referenzieren und Arbeitsnull erlauben alle oder einzelne
++Achsen. Im Menü dient das Steuerkreuz der Navigation; beim Verfahren fährt
++es X/Y, die oberen rechten Tasten fahren Z+/Z− und die mittleren −/+ ändern
++die Schrittweite. **Pause II** hält normale Fahrten an und bricht Jogfahrten
++ab; **Play** setzt nur eine vollständig angehaltene normale Fahrt fort.
++Während Referenzieren/Freifahren sowie bei Stillstand/Alarm führt Pause
++sofort einen Reset aus. Eine Sekunde Pause halten oder Play+Pause setzt
++ebenfalls zurück. [Bedienfeld und Menü im Detail](docs/bedienfeld-menue.md).
++
++Nach versehentlichem Anfahren eines Endschalters stoppt der Hard Limit den
++Job. Im CNC-Profil lässt sich die betroffene Achse anschließend gezielt
++freifahren: zuerst **Reset**, dann **`$LR`** in gSender senden, ohne vorheriges
++`$X`. Genau ein Schalter muss aktiv sein. Der Rückzug erfolgt vom Schalter weg,
++mit 20 mm/min und höchstens 2 mm; danach bleibt die Steuerung verriegelt.
++Anschließend neu referenzieren und Werkstücknull prüfen. Am Display löst
++**Endschalter frei** nach zwei getrennten OK-Betätigungen dieselbe Funktion aus.
++Es gibt kein selbsttätiges Zurückfahren nach einem Anschlag, weil der
++Maschinenbezug durch den abrupten Stopp unsicher sein kann.
++[Ablauf und Abbruchbedingungen](docs/cnc-gsender.md#nach-einem-hard-limit-freifahren).
 +
 +Weitere Profile ausdrücklich wählen: `-e rf2000_y_homing_test` für den
 +isolierten Y-Test mit endloser erster Suche und `-e rf2000_grbl` für den
@@ -355,6 +385,7 @@
 +- Fünfkanaliges HIGH-aktives Software-SPI mit kontrollierter ENBL0-Wake-/Resetsequenz und verpflichtendem Registerreadback.
 +- Mikroschritte X/Y 1/32, Z 1/16, Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN 20.
 +- LOW-aktive X-/Y-/Z-Min und Z-Max auf Port C/H, Timer2-Abfrage mit 1 kHz, sofortige Stopentscheidung und fünf freie Samples vor Wiederfreigabe.
++- CNC: ausdrücklich angefordertes `$LR` zum begrenzten Freifahren eines einzelnen aktiven Endschalters; danach erneutes Referenzieren erforderlich.
 +- Treiberfehler über INT6 auch bei kurzen FAULTn-Pulsen verriegelt bis zum echten MCU-Neustart; Boot und Softreset starten verriegelt, Freigabe über Homing oder `$X` bei freien Eingängen.
 +- Heizungen, P230, Lüfter-/RGB-/sonstige Leistungsfunktionen aus; Probe und physische GRBL-Kontrolltasten unzugeordnet.
 +- G38.x, M7/M8 und digitale/analoge Ausgangskommandos zurückgewiesen. CNC nimmt M3/M4/M5 nur als manuelle Spindel-Programmmodalität an; es schaltet keine Spindel.
@@ -401,6 +432,7 @@
 +
 +- [Verifizierte Hardwarebelegung und Quellenkonflikte](docs/hardware-verification.md)
 +- [XYZ-CNC mit gSender und Display](docs/cnc-gsender.md)
++- [CNC-Bedienfeld und Menü](docs/bedienfeld-menue.md)
 +- [DRV8711-Protokoll, Register, Stromberechnung](docs/drv8711.md)
 +- [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 +- [Endschalter und Diagnose](docs/limits.md)
@@ -962,7 +994,7 @@
  #define GRBL_VERSION "1.2i"
 -#define GRBL_VERSION_BUILD "20260521"
 +#if defined(RF2000_CNC) && RF2000_CNC
-+  #define GRBL_VERSION_BUILD "20261019-rf2000-cnc-sfu1605"
++  #define GRBL_VERSION_BUILD "20261019-rf2000-cnc-panel"
 +#else
 +  #define GRBL_VERSION_BUILD "20261018-rf2000"
 +#endif
@@ -1003,7 +1035,7 @@
    pl_data->feed_rate = gc_block->values.f;
 --- a/grbl/limits.c
 +++ b/grbl/limits.c
-@@ -30,6 +30,120 @@
+@@ -30,6 +30,136 @@
    #define HOMING_AXIS_LOCATE_SCALAR  5.0 // Must be > 1 to ensure limit switch is cleared.
  #endif
  
@@ -1023,6 +1055,14 @@
 +// Only selected, verified homing switches may be ignored by the hard-limit
 +// monitor. The opposite Z switch remains a hard limit throughout homing.
 +static volatile uint8_t rf2000_homing_expected;
++#if RF2000_CNC
++static volatile uint8_t rf2000_recovering;
++
++uint8_t rf2000_limits_recovery_active(void)
++{
++  return rf2000_recovering;
++}
++#endif
 +
 +uint8_t rf2000_limits_raw_state(void)
 +{
@@ -1068,6 +1108,9 @@
 +  rf2000_limit_held = rf2000_limits_raw_state();
 +  rf2000_limit_release_ticks = 0;
 +  rf2000_homing_expected = 0;
++  #if RF2000_CNC
++    rf2000_recovering = 0;
++  #endif
 +  // Timer2 CTC: 16 MHz / 64 / 250 = 1 kHz. OC2A/B remain disconnected;
 +  // this timer cannot also be used for a spindle, heater, fan or analog PWM.
 +  TIMSK2 = 0;
@@ -1103,6 +1146,11 @@
 +      rf2000_limit_held = 0;
 +    }
 +  }
++  #if RF2000_CNC
++    // After five fully free samples the withdrawn switch is a hard limit
++    // again, including during the remainder of the bounded recovery move.
++    if (rf2000_recovering && !rf2000_limit_held) rf2000_homing_expected = 0;
++  #endif
 +  uint8_t active = raw | rf2000_limit_held;
 +  if (sys.state == STATE_HOMING) { active &= ~rf2000_homing_expected; }
 +  const uint8_t fault = rf2000_drivers_fault_active() || !rf2000_drivers_ready();
@@ -1124,7 +1172,7 @@
  void limits_init()
  {
    // Set as input pins
-@@ -170,6 +284,8 @@
+@@ -170,6 +300,8 @@
      return(limit_state_max | limit_state_min);
    }
  }
@@ -1133,7 +1181,7 @@
  
  #ifdef ENABLE_RAMPS_HW_LIMITS
    void ramps_hard_limit()
-@@ -222,8 +338,32 @@
+@@ -222,8 +354,33 @@
  // TODO: Move limit pin-specific calls to a general function for portability.
  void limits_go_home(uint8_t cycle_mask)
  {
@@ -1162,11 +1210,12 @@
 +      rf2000_homing_expected |= (settings.homing_dir_mask & bit(AXIS_3)) ?
 +        RF2000_LIMIT_Z_MIN : RF2000_LIMIT_Z_MAX;
 +    }
++    rf2000_panel_homing_axes(cycle_mask);
 +  #endif
  
    // Initialize plan data struct for homing motion. Spindle and coolant are disabled.
    plan_line_data_t plan_data;
-@@ -256,12 +396,22 @@
+@@ -256,12 +413,22 @@
    }
  
    // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
@@ -1190,7 +1239,7 @@
      system_convert_array_steps_to_mpos(target,sys_position);
  
      // Initialize and declare variables needed for homing routine.
-@@ -307,6 +457,14 @@
+@@ -307,6 +474,14 @@
      plan_buffer_line(target, pl_data); // Bypass mc_line(). Directly plan homing motion.
  
      sys.step_control = STEP_CONTROL_EXECUTE_SYS_MOTION; // Set to execute homing motion and clear existing flags.
@@ -1205,7 +1254,7 @@
      st_prep_buffer(); // Prep and fill segment buffer from newly planned block.
      st_wake_up(); // Initiate motion
      do {
-@@ -338,20 +496,36 @@
+@@ -338,20 +513,36 @@
        }
  
        st_prep_buffer(); // Check and prep segment buffer. NOTE: Should take no longer than 200us.
@@ -1249,7 +1298,7 @@
            protocol_execute_realtime();
            return;
          } else {
-@@ -363,7 +537,23 @@
+@@ -363,7 +554,23 @@
  
      } while (axislock_active(axislock));
      st_reset(); // Immediately force kill steppers and reset step segment buffer.
@@ -1274,7 +1323,7 @@
  
      // Reverse direction and reset homing rate for locate cycle(s).
      approach = !approach;
-@@ -371,6 +561,9 @@
+@@ -371,6 +578,9 @@
      // After first cycle, homing enters locating phase. Shorten search to pull-off distance.
      if (approach) {
        max_travel = settings.homing_pulloff*HOMING_AXIS_LOCATE_SCALAR;
@@ -1284,7 +1333,7 @@
        homing_rate = settings.homing_feed_rate;
      } else {
        max_travel = settings.homing_pulloff;
-@@ -418,6 +611,9 @@
+@@ -418,6 +628,9 @@
      }
    }
    sys.step_control = STEP_CONTROL_NORMAL_OP; // Return step control to normal operation.
@@ -1294,9 +1343,133 @@
  }
  
  
+@@ -444,3 +657,123 @@
+     return;
+   }
+ }
++
++#if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
++// Deliberate limit withdrawal, not homing and not a resumed job. A critical
++// hard-limit alarm must first be reset so the old stream/planner is discarded.
++uint8_t rf2000_limits_recover(void)
++{
++  const uint8_t selected = rf2000_limits_raw_state();
++  if (sys.state != STATE_ALARM || sys.abort || sys_rt_exec_alarm ||
++      (sys_rt_exec_state & EXEC_RESET) ||
++      !rf2000_drivers_ready() || rf2000_drivers_fault_active() ||
++      !selected || (selected & (selected - 1)) ||
++      (rf2000_limit_held & (uint8_t)~selected)) return STATUS_SYSTEM_GC_LOCK;
++  #if RF2000_LOCAL_PANEL
++    if (rf2000_panel_stop_active()) return STATUS_SYSTEM_GC_LOCK;
++  #endif
++
++  const uint8_t axis = (selected & (RF2000_LIMIT_X_MIN | RF2000_LIMIT_Y_MIN)) ?
++    (selected == RF2000_LIMIT_X_MIN ? AXIS_1 : AXIS_2) : AXIS_3;
++  const float pulses = 2.0f * settings.steps_per_mm[axis];
++  if (!isfinite(pulses) || pulses < 1.0f) return STATUS_INVALID_STATEMENT;
++  // Two mm at F20 take six seconds: keep that requested pulse rate within
++  // the tested ceiling and the planner's signed/AMASS integer range. A tiny
++  // stored max_rate must not allow an extreme steps/mm value to overflow.
++  if (pulses > MAX_STEP_RATE_HZ * 6.0f || pulses >= 2147483648.0f)
++    return STATUS_MAX_STEP_RATE_EXCEEDED;
++  int32_t origin[N_AXIS];
++  float target[N_AXIS] = {0};
++  target[axis] = selected == RF2000_LIMIT_Z_MAX ? -2.0f : 2.0f;
++  plan_line_data_t move;
++  memset(&move, 0, sizeof(move));
++  move.condition = PL_COND_FLAG_SYSTEM_MOTION | PL_COND_FLAG_NO_FEED_OVERRIDE;
++  move.feed_rate = 20.0f;
++
++  st_reset();
++  plan_reset();
++  serial_reset_read_buffer();
++  // Plan a strictly relative, single-axis displacement without float rounding
++  // at large machine coordinates. Preserve the counters, but never certify
++  // them as a reference after a hard stop.
++  memcpy(origin, sys_position, sizeof(origin));
++  memset(sys_position, 0, sizeof(origin));
++  memset(sys.homing_axis_lock, 0, sizeof(sys.homing_axis_lock));
++  sys.homing_axis_lock[axis] = get_step_pin_mask(axis);
++  rf2000_panel_note_alarm(EXEC_ALARM_HARD_LIMIT); // Invalidate all references.
++  rf2000_panel_homing_begin(bit(axis));
++  const uint8_t saved_sreg = SREG;
++  cli();
++  rf2000_homing_expected = selected;
++  rf2000_recovering = true;
++  sys.state = STATE_HOMING; // Existing protected system-motion/axis-lock path.
++  SREG = saved_sreg;
++  system_clear_exec_state_flag(EXEC_CYCLE_STOP | EXEC_CYCLE_START);
++
++  if (plan_buffer_line(target, &move)) {
++    sys.step_control = STEP_CONTROL_EXECUTE_SYS_MOTION;
++    st_prep_buffer();
++    st_wake_up();
++    for (;;) {
++      // Full protocol execution here would consume CYCLE_STOP and enter IDLE,
++      // prematurely removing the exception for the initially asserted input.
++      const uint8_t stop = EXEC_RESET | EXEC_FEED_HOLD | EXEC_MOTION_CANCEL | EXEC_SAFETY_DOOR | EXEC_SLEEP;
++      if (sys_rt_exec_alarm || (sys_rt_exec_state & stop)) {
++        if (!sys_rt_exec_alarm) system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
++        mc_reset();
++        break;
++      }
++      if (sys_rt_exec_state & EXEC_STATUS_REPORT) {
++        report_realtime_status();
++        system_clear_exec_state_flag(EXEC_STATUS_REPORT);
++      }
++      if (sys_rt_exec_state & EXEC_CYCLE_STOP) {
++        system_clear_exec_state_flag(EXEC_CYCLE_STOP);
++        break;
++      }
++      st_prep_buffer();
++      rf2000_panel_service();
++    }
++  } else system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF);
++
++  st_reset();
++  // Allow a contact that released at the last step to complete its normal
++  // five-free-sample debounce. No further step may be emitted in this wait.
++  for (uint8_t wait = 0; wait < 6 && (rf2000_limits_raw_state() | rf2000_limit_held) &&
++       !sys_rt_exec_alarm && !(sys_rt_exec_state & EXEC_RESET); ++wait) {
++    _delay_ms(1);
++    rf2000_panel_service();
++  }
++  if (!sys_rt_exec_alarm && (sys_rt_exec_state &
++      (EXEC_RESET | EXEC_FEED_HOLD | EXEC_MOTION_CANCEL | EXEC_SAFETY_DOOR | EXEC_SLEEP))) {
++    system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_RESET);
++  }
++  if (!sys_rt_exec_alarm && (rf2000_limits_raw_state() | rf2000_limit_held)) {
++    system_set_exec_alarm(EXEC_ALARM_HOMING_FAIL_PULLOFF);
++  }
++  if (sys_rt_exec_alarm) mc_reset();
++  rf2000_drivers_disable();
++  const uint8_t finish_sreg = SREG;
++  cli();
++  rf2000_homing_expected = 0;
++  rf2000_recovering = false;
++  sys.state = STATE_ALARM;
++  sys.step_control = STEP_CONTROL_NORMAL_OP;
++  memset(sys.homing_axis_lock, 0, sizeof(sys.homing_axis_lock));
++  SREG = finish_sreg;
++  for (uint8_t i = 0; i < N_AXIS; ++i) {
++    const int64_t position = (int64_t)origin[i] + sys_position[i];
++    sys_position[i] = position > INT32_MAX ? INT32_MAX : position < INT32_MIN ? INT32_MIN : (int32_t)position;
++  }
++  plan_reset();
++  gc_sync_position();
++  plan_sync_position();
++  serial_reset_read_buffer();
++  if (sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET)) {
++    protocol_execute_realtime(); // Preserve specific ISR alarms and reset behavior.
++    return STATUS_SYSTEM_GC_LOCK;
++  }
++  printPgmString(PSTR("[MSG:RF2000 limit released; home again]\r\n"));
++  return STATUS_OK; // Remain ALARM. No startup script, homing flag or job resume.
++}
++#endif
 --- a/grbl/limits.h
 +++ b/grbl/limits.h
-@@ -30,6 +30,13 @@
+@@ -30,6 +30,18 @@
  // Returns limit state as a bit-wise uint8 variable.
  uint8_t limits_get_state();
  
@@ -1305,6 +1478,11 @@
 +uint8_t rf2000_limits_raw_state(void);
 +// Mandatory start/unlock interlock: physical inputs, stable release, and driver health.
 +uint8_t limits_motion_allowed(void);
++#if RF2000_CNC
++// Explicit, bounded withdrawal from exactly one asserted physical limit.
++uint8_t rf2000_limits_recover(void);
++uint8_t rf2000_limits_recovery_active(void);
++#endif
 +#endif
 +
  // Perform one portion of the homing cycle based on the input settings.
@@ -1511,7 +1689,17 @@
                st_prep_buffer(); // Initialize step segment buffer before beginning cycle.
 --- a/grbl/report.c
 +++ b/grbl/report.c
-@@ -451,6 +451,12 @@
+@@ -250,6 +250,9 @@
+ // Grbl help message
+ void report_grbl_help() {
+   printPgmString(PSTR("[HLP:$$ $# $D $G $I $N $x=val $Nx=line $J=line $SLP $C $X $H ~ ! ? ctrl-x]\r\n"));
++  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
++    printPgmString(PSTR("[MSG:$LR: reset then withdraw one active limit; home again]\r\n"));
++  #endif
+ }
+ 
+ 
+@@ -451,6 +454,12 @@
      char axis_name_order[] = AXIS_NAME_SORT_ORDER;
    #endif
  
@@ -1524,7 +1712,7 @@
    printPgmString(PSTR("[VER:" GRBL_VERSION "." GRBL_VERSION_BUILD ":"));
    printString(line);
    report_util_feedback_line_feed();
-@@ -632,6 +638,7 @@
+@@ -632,6 +641,7 @@
          else { serial_write('1'); } // Actively holding
          break;
        } // Continues to print jog state during jog cancel.
@@ -2141,7 +2329,7 @@
 +#endif
 --- /dev/null
 +++ b/grbl/rf2000_panel.c
-@@ -0,0 +1,587 @@
+@@ -0,0 +1,864 @@
 +/*
 + * Local Y-test controls for the RF2000v2 20x4 LCD and original keypad.
 + * GPIO mapping and active-LOW input handling derived from RF Repetier
@@ -2165,16 +2353,24 @@
 +#define KEY_FEED_DOWN (1u << 8)
 +#define KEY_CONTINUE (1u << 9)
 +#define KEY_PAUSE    (1u << 10)
++#if RF2000_CNC
++#define STOP_KEYS KEY_PAUSE
++#else
 +#define STOP_KEYS (KEY_LEFT | KEY_CONTINUE | KEY_PAUSE)
++#endif
 +#define KEY_DEBOUNCE_MS 20
 +#if RF2000_CNC
-+#define MENU_ITEMS 6
++#define MENU_ITEMS 8
 +#else
 +#define MENU_ITEMS 5
 +#endif
 +#define PAGE_MAIN 0
 +#define PAGE_JOG 1
 +#define PAGE_DIAGNOSTICS 2
++#define PAGE_MENU 3
++#define PAGE_REFERENCE 4
++#define PAGE_ZERO 5
++#define PAGE_SPEED 6
 +
 +static volatile uint16_t panel_ms;
 +static volatile uint8_t key_event, keys_ready, dispatch_busy;
@@ -2183,6 +2379,9 @@
 +static uint8_t selection, confirm_home, page, step_index, feed_index, referenced;
 +#if RF2000_CNC
 +static uint8_t selected_axis, homing_axes;
++static uint8_t subselection, candidate_busy;
++static uint16_t pause_ticks;
++static uint8_t pause_reset_latched;
 +#endif
 +static uint8_t last_alarm, homing_phase, command_error;
 +static uint8_t dirty, frame_slot;
@@ -2247,6 +2446,8 @@
 +  #if RF2000_CNC
 +    selected_axis = AXIS_1;
 +    homing_axes = 0;
++    subselection = 0;
++    candidate_busy = false;
 +  #endif
 +  last_position_ms = 0;
 +  previous_state = previous_limits = previous_fault = previous_ready = 0xff;
@@ -2260,26 +2461,73 @@
 +  ++panel_ms;
 +  const uint16_t keys = read_keys();
 +  const uint8_t stop_down = !!(keys & STOP_KEYS);
++  #if RF2000_CNC
++    if (stop_down && !stop_was_down) {
++      pause_ticks = 0;
++      // A fresh II edge must always stop, even if another key stayed held
++      // since the previous reset chord. Only suppress repeated held-II resets.
++      pause_reset_latched = false;
++      key_event = 0;
++      keys_ready = false;
++      if (sys.state == STATE_CYCLE || sys.state == STATE_HOLD) {
++        system_set_exec_state_flag(EXEC_FEED_HOLD);
++      } else if (sys.state == STATE_JOG) {
++        system_set_exec_state_flag(EXEC_MOTION_CANCEL);
++      } else {
++        pause_reset_latched = true;
++        mc_reset(); // Homing/recovery has no resumable feed hold.
++      }
++    }
++    if (stop_down) {
++      if (pause_ticks < 1000) ++pause_ticks;
++      if (!pause_reset_latched && (pause_ticks == 1000 || (keys & KEY_CONTINUE))) {
++        pause_reset_latched = true;
++        mc_reset(); // Hold II for one second, or press > and II together.
++      }
++    }
++  #else
 +  if (stop_down && !stop_was_down) {
 +    key_event = 0;
 +    keys_ready = false;
 +    mc_reset(); // Same immediate GPIO shutdown as serial Ctrl-X; no LCD/SPI.
 +  }
++  #endif
 +  stop_was_down = stop_down;
 +  if (keys != candidate_keys) {
 +    candidate_keys = keys;
 +    candidate_ms = 0;
++    #if RF2000_CNC
++      candidate_busy = sys.state != STATE_IDLE && sys.state != STATE_ALARM;
++    #endif
 +  } else if (candidate_ms < KEY_DEBOUNCE_MS) {
 +    ++candidate_ms;
 +    if (candidate_ms == KEY_DEBOUNCE_MS) {
 +      if (!keys) {
 +        keys_ready = true;
++        #if RF2000_CNC
++          pause_ticks = 0;
++          pause_reset_latched = false;
++        #endif
 +      } else {
++        #if RF2000_CNC
++          const uint8_t stable = keys_ready && !(keys & (keys - 1)) &&
++            !(sys_rt_exec_state & EXEC_RESET) && !sys_rt_exec_alarm;
++          if (stable && (sys.state == STATE_CYCLE || sys.state == STATE_HOLD)) {
++            if (keys == KEY_FEED_UP) system_set_exec_motion_override_flag(EXEC_FEED_OVR_COARSE_MINUS);
++            else if (keys == KEY_FEED_DOWN) system_set_exec_motion_override_flag(EXEC_FEED_OVR_COARSE_PLUS);
++            else if (keys == KEY_CONTINUE && sys.state == STATE_HOLD &&
++                     (sys.suspend & SUSPEND_HOLD_COMPLETE)) system_set_exec_state_flag(EXEC_CYCLE_START);
++          }
++        #endif
 +        const uint8_t accept = keys_ready && !dispatch_busy &&
 +          (sys.state == STATE_IDLE || sys.state == STATE_ALARM) &&
 +          !(sys_rt_exec_state & EXEC_RESET) && !sys_rt_exec_alarm;
 +        keys_ready = false; // Every action requires a full stable release.
-+        if (accept && !(keys & (keys - 1))) {
++        if (accept && !(keys & (keys - 1))
++            #if RF2000_CNC
++              && !candidate_busy
++            #endif
++            ) {
 +          if (keys == KEY_OK) key_event = 1;
 +          else if (keys == KEY_DOWN) key_event = 2;
 +          else if (keys == KEY_RIGHT) key_event = 3;
@@ -2288,6 +2536,10 @@
 +          else if (keys == KEY_STEP_DOWN) key_event = 6;
 +          else if (keys == KEY_FEED_UP) key_event = 7;
 +          else if (keys == KEY_FEED_DOWN) key_event = 8;
++          #if RF2000_CNC
++            else if (keys == KEY_LEFT) key_event = 9;
++            else if (keys == KEY_CONTINUE) key_event = 10;
++          #endif
 +        }
 +      }
 +    }
@@ -2296,19 +2548,32 @@
 +    key_event = 0; // Never queue a movement while another action is running.
 +    // Reject at the first busy sample, even if a very short jog ends before
 +    // this new key has completed its 20-ms debounce interval.
-+    if (keys) keys_ready = false;
++    #if RF2000_CNC
++      if (keys && !(keys & (KEY_CONTINUE | KEY_FEED_UP | KEY_FEED_DOWN))) keys_ready = false;
++    #else
++      if (keys) keys_ready = false;
++    #endif
 +  }
 +}
 +
 +uint8_t rf2000_panel_stop_active(void)
 +{
 +  // Also gate UART admission while STOP is held, including at power-up.
++  #if RF2000_CNC
++    return !(PINH & _BV(PH2));
++  #else
 +  return !(PINB & _BV(PB5)) || !(PINH & _BV(PH2)) || !(PINH & _BV(PH7));
++  #endif
 +}
 +
 +void rf2000_panel_note_alarm(uint8_t alarm)
 +{
 +  if (alarm) {
++    #if RF2000_CNC
++      if (page != PAGE_MAIN || command_error) dirty = true;
++      page = PAGE_MAIN;
++      command_error = 0;
++    #endif
 +    if (last_alarm != alarm || confirm_home || referenced) dirty = true;
 +    last_alarm = alarm;
 +    confirm_home = false;
@@ -2345,10 +2610,19 @@
 +  referenced &= ~axes;
 +  dirty = true;
 +}
++
++void rf2000_panel_homing_axes(uint8_t axes)
++{
++  homing_axes = axes; // Actual Z or XY cycle, not the whole $H request.
++  dirty = true;
++}
 +#endif
 +
 +static void row_P(uint8_t row, PGM_P text)
 +{
++  #if RF2000_CNC
++    memset(frame + row * 20, ' ', 20);
++  #endif
 +  uint8_t col = 0;
 +  char c;
 +  while (col < 20 && (c = pgm_read_byte(text++))) frame[row * 20 + col++] = c;
@@ -2438,9 +2712,10 @@
 +  row_P(0, PSTR("CNC BEREIT   G54 ---"));
 +  PGM_P state = PSTR("BEREIT  ");
 +  if (sys.state == STATE_ALARM) state = PSTR("ALARM00 ");
-+  else if (sys.state == STATE_HOMING) state = PSTR("REFERENZ");
++  else if (sys.state == STATE_HOMING) state = rf2000_limits_recovery_active() ? PSTR("RUECKZUG") : PSTR("REFERENZ");
 +  else if (sys.state == STATE_CYCLE) state = PSTR("FAHRT   ");
-+  else if (sys.state & STATE_HOLD) state = PSTR("PAUSE   ");
++  else if (sys.state & STATE_HOLD) state = (sys.suspend & SUSPEND_HOLD_COMPLETE) ?
++    PSTR("HALT    ") : PSTR("BREMSEN ");
 +  else if (sys.state == STATE_JOG) state = PSTR("JOG     ");
 +  else if (sys.state == STATE_CHECK_MODE) state = PSTR("PRUEFEN ");
 +  memcpy_P(frame + 4, state, 8);
@@ -2448,11 +2723,35 @@
 +  frame[15] = '4' + gc_state.modal.coord_select;
 +  for (uint8_t axis = 0; axis < 3; ++axis) frame[17 + axis] = (referenced & bit(axis)) ? 'X' + axis : '-';
 +  if (sys.state == STATE_HOMING) {
-+    row_P(1, PSTR("Referenzfahrt ---"));
-+    for (uint8_t axis = 0; axis < 3; ++axis) frame[34 + axis] = (homing_axes & bit(axis)) ? 'X' + axis : '-';
-+    row_P(2, homing_phase == 1 ? PSTR("Schalter suchen") : homing_phase == 2 ?
-+      PSTR("Rueckzug") : homing_phase == 3 ? PSTR("Langsam anfahren") : PSTR("Freifahren"));
-+    row_P(3, PSTR("LINKS/PAUSE:STOP"));
++    if (rf2000_limits_recovery_active()) {
++      row_P(1, PSTR("FREIFAHREN ---"));
++      for (uint8_t axis = 0; axis < 3; ++axis) frame[31 + axis] = (homing_axes & bit(axis)) ? 'X' + axis : '-';
++      row_P(2, PSTR("2mm max, F20"));
++      row_P(3, PSTR("II:Abbruch SP:MAN."));
++      return;
++    }
++    row_P(0, PSTR("REF "));
++    uint8_t col = 4;
++    for (uint8_t axis = 0; axis < 3; ++axis) if (homing_axes & bit(axis)) {
++      if (col > 4) frame[col++] = '+';
++      frame[col++] = 'X' + axis;
++    }
++    frame[col++] = ':'; frame[col++] = ' ';
++    PGM_P phase = homing_phase == 1 ? PSTR("SUCHEN") : homing_phase == 2 ?
++      PSTR("RUECKZUG") : homing_phase == 3 ? PSTR("FEINANFAHRT") : PSTR("FREIFAHREN");
++    char c;
++    while (col < 20 && (c = pgm_read_byte(phase++))) frame[col++] = c;
++    row_P(1, (homing_axes & bit(AXIS_3)) ?
++      ((settings.homing_dir_mask & bit(AXIS_3)) ? PSTR("Schalter: Z-MIN") : PSTR("Schalter: Z-MAX")) :
++      homing_axes == bit(AXIS_1) ? PSTR("Schalter: X-MIN") : homing_axes == bit(AXIS_2) ?
++      PSTR("Schalter: Y-MIN") : PSTR("X-MIN und Y-MIN"));
++    row_P(2, PSTR("F:"));
++    char speed[12];
++    const float rate = homing_phase == 3 ? settings.homing_feed_rate : settings.homing_seek_rate;
++    ultoa((uint32_t)fminf(999999.0f, fmaxf(0.0f, rate)), speed, 10);
++    memcpy(frame + 42, speed, strlen(speed));
++    memcpy_P(frame + 42 + strlen(speed), PSTR(" mm/min"), 7);
++    row_P(3, PSTR("II:Abbruch SP:MAN."));
 +    return;
 +  }
 +  if (page == PAGE_DIAGNOSTICS && (sys.state == STATE_IDLE || sys.state == STATE_ALARM)) {
@@ -2462,16 +2761,28 @@
 +    row_P(2, PSTR("DRV F00 R00 A00"));
 +    two_digits(45, rf2000_drivers_fault_reason());
 +    two_digits(49, rf2000_drivers_readback_failed_mask()); two_digits(53, last_alarm);
-+    row_P(3, PSTR("RECHTS:Menue <-STOP"));
++    row_P(3, PSTR("OK/<:Zurueck"));
 +    return;
 +  }
-+  if (page == PAGE_JOG && (sys.state == STATE_IDLE || sys.state == STATE_ALARM || sys.state == STATE_JOG)) {
-+    row_P(0, PSTR("VERFAHREN X")); frame[10] = 'X' + selected_axis;
-+    if (sys.state == STATE_ALARM) row_P(0, PSTR("GESPERRT - Freigeben"));
-+    position_row();
-+    row_P(2, PSTR("Weg:0.10mm F:20"));
-+    memcpy_P(frame + 44, step_labels[step_index], 4); two_digits(53, jog_feeds[feed_index]);
-+    row_P(3, PSTR("HO:+ RU:- OK:Achse"));
++  if ((sys.state == STATE_IDLE || sys.state == STATE_ALARM) &&
++      (page == PAGE_MENU || page == PAGE_REFERENCE || page == PAGE_ZERO || page == PAGE_SPEED)) {
++    if (page == PAGE_SPEED) {
++      row_P(0, PSTR("JOG-VORSCHUB"));
++      row_P(1, PSTR("F:20 mm/min")); two_digits(22, jog_feeds[feed_index]);
++      row_P(2, PSTR("+/- oder Hoch/Runter"));
++    } else {
++      static const char labels[MENU_ITEMS][20] PROGMEM = {"Freigeben", "Verfahren XYZ",
++        "Referenzieren", "Arbeitsnull", "Diagnose", "Endschalter frei", "Jogtempo", "Abbruch / Reset"};
++      static const char axes[4][20] PROGMEM = {"Alle: X/Y/Z", "Nur X", "Nur Y", "Nur Z"};
++      row_P(0, page == PAGE_MENU ? PSTR("CNC MENUE") : page == PAGE_REFERENCE ? PSTR("REFERENZIEREN") : PSTR("ARBEITSNULL SETZEN"));
++      const uint8_t chosen = page == PAGE_MENU ? selection : subselection;
++      const uint8_t count = page == PAGE_MENU ? MENU_ITEMS : 4;
++      row_P(1, page == PAGE_MENU ? labels[chosen] : axes[chosen]);
++      row_P(2, page == PAGE_MENU ? labels[(chosen + 1) % count] : axes[(chosen + 1) % count]);
++      for (int8_t i = 19; i > 0; --i) frame[20 + i] = frame[20 + i - 1];
++      frame[20] = '>';
++    }
++    row_P(3, PSTR("OK:Wahl <:Zurueck"));
 +    return;
 +  }
 +  int32_t steps[N_AXIS];
@@ -2491,11 +2802,29 @@
 +  if (rate > 999999) rate = 999999;
 +  char feed[8]; ultoa((uint32_t)lroundf(rate), feed, 10);
 +  memcpy(frame + 59 - strlen(feed), feed, strlen(feed));
-+  if (sys.state == STATE_IDLE || sys.state == STATE_ALARM) {
-+    static const char labels[MENU_ITEMS][20] PROGMEM = {">Freigeben", ">Verfahren XYZ",
-+      ">XYZ referenzieren", ">Arbeitsnull setzen", ">Diagnose", ">Abbruch / Reset"};
-+    row_P(3, labels[selection]);
-+  } else row_P(3, PSTR("SPINDEL: MANUELL"));
++  if (page == PAGE_JOG && sys.state != STATE_CYCLE && sys.state != STATE_HOLD) {
++    row_P(0, sys.state == STATE_ALARM ? PSTR("JOG GESPERRT") : sys.state == STATE_JOG ?
++      PSTR("JOG ---    S0.10 F20") : PSTR("JOG BEREIT S0.10 F20"));
++    if (sys.state != STATE_ALARM) {
++      memcpy_P(frame + 12, step_labels[step_index], 4); two_digits(18, jog_feeds[feed_index]);
++      if (sys.state == STATE_JOG) {
++        const uint8_t axes = rf2000_stepper_active_axes();
++        for (uint8_t axis = 0; axis < 3; ++axis) frame[4 + axis] = (axes & bit(axis)) ? 'X' + axis : '-';
++      }
++    }
++    row_P(3, PSTR("OK:Menue +/-:Weg"));
++  } else if (sys.state == STATE_IDLE || sys.state == STATE_ALARM) {
++    row_P(3, PSTR("OK:Menue SP:MANUELL"));
++  } else {
++    if (sys.state == STATE_CYCLE || sys.state == STATE_JOG) {
++      row_P(0, sys.state == STATE_CYCLE ? PSTR("CNC FAHRT ") : PSTR("CNC JOG "));
++      const uint8_t axes = rf2000_stepper_active_axes();
++      uint8_t col = sys.state == STATE_CYCLE ? 10 : 8;
++      for (uint8_t axis = 0; axis < 3; ++axis) if (axes & bit(axis)) frame[col++] = 'X' + axis;
++      frame[17] = 'G'; frame[18] = '5'; frame[19] = '4' + gc_state.modal.coord_select;
++    }
++    row_P(3, PSTR("II:Pause >:Weiter"));
++  }
 +  (void)ready;
 +}
 +#endif
@@ -2511,20 +2840,42 @@
 +    else if (sys.state == STATE_ALARM) row_P(1, PSTR("Erst freigeben"));
 +    else row_P(1, PSTR("Befehl abgewiesen"));
 +    row_P(2, PSTR("Keine Bewegung"));
-+    row_P(3, PSTR("OK/>:Zurueck <-STOP"));
++    #if RF2000_CNC
++      row_P(3, PSTR("OK/>/<:Zurueck"));
++    #else
++      row_P(3, PSTR("OK/>:Zurueck <-STOP"));
++    #endif
 +    return;
 +  }
 +  if (confirm_home) {
 +    #if RF2000_CNC
-+      row_P(0, confirm_home == 2 ? PSTR("Arbeitsnull setzen?") : PSTR("XYZ referenzieren?"));
-+      row_P(1, confirm_home == 2 ? PSTR("X/Y/Z hier = 0") : PSTR("Zmax dann X/Ymin"));
++      if (confirm_home == 10) {
++        row_P(0, PSTR("Abbruch / Reset?")); row_P(1, PSTR("Referenz wird unklar"));
++      } else if (confirm_home == 3) {
++        row_P(0, PSTR("Endschalter frei?")); row_P(1, PSTR("2mm zurueck, F20"));
++      } else if (confirm_home == 2 || confirm_home >= 7) {
++        row_P(0, PSTR("Arbeitsnull setzen?"));
++        row_P(1, confirm_home == 2 ? PSTR("X/Y/Z hier = 0") : PSTR("Nur X hier = 0"));
++        if (confirm_home >= 7) frame[24] = 'X' + confirm_home - 7;
++      } else {
++        row_P(0, confirm_home == 1 ? PSTR("XYZ referenzieren?") : PSTR("X referenzieren?"));
++        if (confirm_home >= 4) frame[0] = 'X' + confirm_home - 4;
++        row_P(1, confirm_home == 1 ? PSTR("Zmax dann X/Ymin") : confirm_home == 6 ?
++          PSTR("Zum Z-Max-Schalter") : PSTR("Zum Min-Schalter"));
++      }
 +      row_P(2, PSTR("Spindel manuell"));
 +    #else
 +    row_P(0, PSTR("Y-Referenz starten?"));
 +    row_P(1, PSTR("Richtung geprueft?"));
 +    row_P(2, PSTR("Schalter geprueft?"));
 +    #endif
-+    row_P(3, PSTR("OK:Start LINKS:STOP"));
++    row_P(3,
++      #if RF2000_CNC
++        PSTR("OK:Start <:Abbruch")
++      #else
++        PSTR("OK:Start LINKS:STOP")
++      #endif
++    );
 +    return;
 +  }
 +  #if RF2000_CNC
@@ -2602,6 +2953,12 @@
 +    confirm_home = false; // A UART-originated move invalidates local consent.
 +    dirty = true;
 +  }
++  #if RF2000_CNC
++    if (sys.state != STATE_IDLE && sys.state != STATE_ALARM) {
++      command_error = 0; // A stale menu error must not hide a running action.
++      if (sys.state != STATE_JOG && page != PAGE_MAIN) { page = PAGE_MAIN; dirty = true; }
++    }
++  #endif
 +  if (sys_rt_exec_alarm) rf2000_panel_note_alarm(sys_rt_exec_alarm);
 +  if (sys.state == STATE_ALARM) {
 +    if (referenced) { referenced = false; dirty = true; }
@@ -2647,6 +3004,103 @@
 +  return system_execute_line(command);
 +}
 +
++#if RF2000_CNC
++static void dispatch_cnc(uint8_t event)
++{
++  if (command_error) {
++    if (event == 1 || event == 3 || event == 9) command_error = 0;
++    return;
++  }
++  if (confirm_home) {
++    if (event == 9) { confirm_home = 0; return; }
++    if (event != 1 && event != 3) return;
++    const uint8_t action = confirm_home;
++    confirm_home = 0;
++    page = PAGE_MAIN;
++    dispatch_busy = true;
++    if (action == 10) mc_reset();
++    else if (action == 3) command_error = execute("$LR");
++    else if (action == 2 || action >= 7) {
++      char command[24] = "G10L20P1";
++      command[7] = '1' + gc_state.modal.coord_select;
++      if (action == 2) strcpy(command + 8, "X0Y0Z0");
++      else { command[8] = 'X' + action - 7; command[9] = '0'; command[10] = 0; }
++      command_error = sys.state == STATE_IDLE ? gc_execute_line(command) : STATUS_SYSTEM_GC_LOCK;
++    } else {
++      char command[] = "$HX";
++      if (action == 1) command[2] = 0;
++      else command[2] = 'X' + action - 4;
++      command_error = execute(command);
++    }
++    dispatch_busy = false;
++    return;
++  }
++  if (page == PAGE_MAIN) {
++    if (event == 1 || event == 3) page = PAGE_MENU;
++    else if (event == 5 || event == 6) page = PAGE_JOG; // First press only opens jog.
++    else if (event == 10 && sys.state == STATE_ALARM) command_error = STATUS_SYSTEM_GC_LOCK;
++    return;
++  }
++  if (page == PAGE_DIAGNOSTICS) {
++    if (event == 1 || event == 3 || event == 9) page = PAGE_MENU;
++    return;
++  }
++  if (page == PAGE_JOG) {
++    if (event == 1) page = PAGE_MENU;
++    else if (event == 7 && step_index) --step_index; // Physical minus (PJ5).
++    else if (event == 8 && step_index < 2) ++step_index; // Physical plus (PJ6).
++    else if (event == 2 || event == 3 || event == 4 || event == 5 || event == 6 || event == 9) {
++      selected_axis = (event == 3 || event == 9) ? AXIS_1 : (event == 2 || event == 4) ? AXIS_2 : AXIS_3;
++      dispatch_busy = true;
++      command_error = jog(event == 3 || event == 4 || event == 5);
++      dispatch_busy = false;
++    }
++    return;
++  }
++  if (page == PAGE_SPEED) {
++    if (event == 4 || event == 8) { if (feed_index < 2) ++feed_index; }
++    else if (event == 2 || event == 7) { if (feed_index) --feed_index; }
++    else if (event == 1 || event == 3 || event == 9) page = PAGE_MENU;
++    return;
++  }
++  if (page == PAGE_REFERENCE || page == PAGE_ZERO) {
++    if (event == 9) page = PAGE_MENU;
++    else if (event == 2 || event == 4 || event == 7 || event == 8) {
++      subselection = (subselection + ((event == 2 || event == 8) ? 1 : 3)) % 4;
++    } else if (event == 1 || event == 3) {
++      if (page == PAGE_REFERENCE) {
++        if (limits_motion_allowed()) confirm_home = subselection ? 3 + subselection : 1;
++        else command_error = STATUS_SYSTEM_GC_LOCK;
++      } else {
++        if (sys.state == STATE_IDLE) confirm_home = subselection ? 6 + subselection : 2;
++        else command_error = STATUS_SYSTEM_GC_LOCK;
++      }
++    }
++    return;
++  }
++  if (event == 9) { page = PAGE_MAIN; return; }
++  if (event == 2 || event == 4 || event == 7 || event == 8) {
++    selection = (selection + ((event == 2 || event == 8) ? 1 : MENU_ITEMS - 1)) % MENU_ITEMS;
++  } else if (event == 1 || event == 3) {
++    if (selection == 0) {
++      dispatch_busy = true;
++      command_error = execute("$X");
++      dispatch_busy = false;
++      if (!command_error) { last_alarm = 0; page = PAGE_MAIN; }
++    } else if (selection == 1) page = PAGE_JOG;
++    else if (selection == 2 || selection == 3) {
++      page = selection == 2 ? PAGE_REFERENCE : PAGE_ZERO;
++      subselection = 0;
++    } else if (selection == 4) page = PAGE_DIAGNOSTICS;
++    else if (selection == 5) {
++      if (sys.state == STATE_ALARM) confirm_home = 3;
++      else command_error = STATUS_SYSTEM_GC_LOCK;
++    } else if (selection == 6) page = PAGE_SPEED;
++    else confirm_home = 10;
++  }
++}
++#endif
++
 +void rf2000_panel_dispatch(uint8_t command_boundary)
 +{
 +  uint8_t event;
@@ -2655,6 +3109,10 @@
 +      sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET) ||
 +      (sys.state != STATE_IDLE && sys.state != STATE_ALARM)) return;
 +  dirty = true;
++  #if RF2000_CNC
++    dispatch_cnc(event);
++    return;
++  #endif
 +  if (command_error) {
 +    if (event == 1 || event == 3) command_error = 0;
 +    return; // Acknowledging an error never executes the selected action.
@@ -2693,7 +3151,10 @@
 +    dispatch_busy = true;
 +    if (confirm_home) {
 +      #if RF2000_CNC
-+        if (confirm_home == 2) {
++        if (confirm_home == 3) {
++          confirm_home = false;
++          command_error = execute("$LR");
++        } else if (confirm_home == 2) {
 +          char command[] = "G10L20P1X0Y0Z0";
 +          command[7] = '1' + gc_state.modal.coord_select;
 +          confirm_home = false;
@@ -2719,6 +3180,10 @@
 +      if (sys.state == STATE_IDLE) confirm_home = 2;
 +      else command_error = STATUS_SYSTEM_GC_LOCK;
 +    } else if (selection == 4) page = PAGE_DIAGNOSTICS;
++    else if (selection == 5) {
++      if (sys.state == STATE_ALARM) confirm_home = 3;
++      else command_error = STATUS_SYSTEM_GC_LOCK;
++    }
 +    #else
 +    } else if (selection == 3) page = PAGE_DIAGNOSTICS;
 +    #endif
@@ -2731,7 +3196,7 @@
 +#endif
 --- /dev/null
 +++ b/grbl/rf2000_panel.h
-@@ -0,0 +1,32 @@
+@@ -0,0 +1,35 @@
 +/* Original RF2000v2 display/keypad, isolated Y commissioning UI. GPL-3.0+. */
 +#ifndef RF2000_PANEL_H
 +#define RF2000_PANEL_H
@@ -2749,8 +3214,10 @@
 +void rf2000_panel_homing_complete(uint8_t axes);
 +#if RF2000_CNC
 +void rf2000_panel_homing_begin(uint8_t axes);
++void rf2000_panel_homing_axes(uint8_t axes);
 +#else
 +#define rf2000_panel_homing_begin(axes) ((void)0)
++#define rf2000_panel_homing_axes(axes) ((void)0)
 +#endif
 +#else
 +#define rf2000_panel_init() ((void)0)
@@ -2762,6 +3229,7 @@
 +#define rf2000_panel_homing_phase(phase) ((void)0)
 +#define rf2000_panel_homing_complete(axes) ((void)0)
 +#define rf2000_panel_homing_begin(axes) ((void)0)
++#define rf2000_panel_homing_axes(axes) ((void)0)
 +#endif
 +#endif
 --- a/grbl/serial.c
@@ -2824,7 +3292,20 @@
      serial_rx_buffer_tail = tail;
  
      return data;
-@@ -186,7 +201,9 @@
+@@ -158,7 +173,11 @@
+         switch(data) {
+           case CMD_SAFETY_DOOR:   system_set_exec_state_flag(EXEC_SAFETY_DOOR); break; // Set as true
+           case CMD_JOG_CANCEL:
+-            if (sys.state & STATE_JOG) { // Block all other states from invoking motion cancel.
++            if ((sys.state & STATE_JOG)
++                #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
++                  || rf2000_limits_recovery_active()
++                #endif
++                ) { // Normal homing still ignores jog-cancel; bounded recovery accepts it.
+               system_set_exec_state_flag(EXEC_MOTION_CANCEL);
+               serial_reset_read_buffer(); // Vide un reste éventuel de données dans le buffer
+             }
+@@ -186,7 +205,9 @@
          // Throw away any unfound extended-ASCII character by not passing it to the serial buffer.
        } else { // Write character to buffer
          next_head = serial_rx_buffer_head + 1;
@@ -2835,7 +3316,7 @@
  
          // Write data to buffer unless it is full.
          if (next_head != serial_rx_buffer_tail) {
-@@ -194,6 +211,11 @@
+@@ -194,6 +215,11 @@
            serial_rx_buffer_head = next_head;
          } else {
            // Indicate serial buffer overflow critical event.
@@ -3160,7 +3641,29 @@
    #endif
  
    uint8_t execute_step;         // Flags step execution for each interrupt.
-@@ -131,6 +166,38 @@
+@@ -123,6 +158,21 @@
+ } stepper_t;
+ static stepper_t st;
+ 
++#if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
++uint8_t rf2000_stepper_active_axes(void)
++{
++  uint8_t axes = 0;
++  const uint8_t saved_sreg = SREG;
++  cli();
++  if (st.exec_block) {
++    for (uint8_t axis = 0; axis < N_AXIS; ++axis)
++      if (st.exec_block->steps[axis]) axes |= bit(axis);
++  }
++  SREG = saved_sreg;
++  return axes;
++}
++#endif
++
+ // Step segment ring buffer indices
+ static volatile uint8_t segment_buffer_tail;
+ static uint8_t segment_buffer_head;
+@@ -131,6 +181,38 @@
  // Step and direction port invert masks.
  static uint8_t step_port_invert_mask[N_AXIS];
  static uint8_t dir_port_invert_mask[N_AXIS];
@@ -3199,7 +3702,7 @@
  
  // Used to avoid ISR nesting of the "Stepper Driver Interrupt". Should never occur though.
  static volatile uint8_t busy;
-@@ -222,6 +289,33 @@
+@@ -222,6 +304,36 @@
    int idx;
  
    // Enable stepper drivers.
@@ -3214,6 +3717,9 @@
 +    if (!limits_motion_allowed() || sys_rt_exec_alarm ||
 +        bit_istrue(sys_rt_exec_state, EXEC_RESET)) {
 +      rf2000_stop_step_outputs();
++      #if RF2000_CNC && RF2000_LOCAL_PANEL
++        if (rf2000_panel_stop_active()) mc_reset();
++      #endif
 +      return;
 +    }
 +    #if RF2000_Y_HOMING_TEST
@@ -3233,7 +3739,7 @@
    if (bit_istrue(settings.flags,BITFLAG_INVERT_ST_ENABLE)) {
      STEPPER_DISABLE_PORT(0) |= (1 << STEPPER_DISABLE_BIT(0));
      STEPPER_DISABLE_PORT(1) |= (1 << STEPPER_DISABLE_BIT(1));
-@@ -249,13 +343,23 @@
+@@ -249,13 +361,23 @@
        STEPPER_DISABLE_PORT(5) &= ~(1 << STEPPER_DISABLE_BIT(5));
      #endif
    }
@@ -3258,7 +3764,7 @@
      // Set total step pulse time after direction pin set. Ad hoc computation from oscilloscope.
      st.step_pulse_time = -(((settings.pulse_microseconds+STEP_PULSE_DELAY-2)*TICKS_PER_MICROSECOND) >> 3);
      // Set delay between direction pin write and step command.
-@@ -266,7 +370,25 @@
+@@ -266,7 +388,30 @@
    #endif
  
    // Enable Stepper Driver Interrupt
@@ -3270,6 +3776,11 @@
 +    if (sys_rt_exec_alarm || bit_istrue(sys_rt_exec_state, EXEC_RESET) ||
 +        !limits_motion_allowed()) {
 +      rf2000_stop_step_outputs();
++      #if RF2000_CNC && RF2000_LOCAL_PANEL
++        // II during the 25-ms wake delay must abort. There is no running
++        // STEP ISR to finish a resumable feed hold yet.
++        if (rf2000_panel_stop_active()) mc_reset();
++      #endif
 +    } else {
 +      // Start with a defined interval, not the power-on OCR1A=0 condition.
 +      // The first ISR loads the prepared segment's actual timing.
@@ -3285,7 +3796,7 @@
  }
  
  
-@@ -280,12 +402,25 @@
+@@ -280,12 +425,25 @@
  
    // Set stepper driver idle state, disabled or enabled, depending on settings and circumstances.
    bool pin_state = false; // Keep enabled.
@@ -3311,7 +3822,7 @@
    if (bit_istrue(settings.flags,BITFLAG_INVERT_ST_ENABLE)) { pin_state = !pin_state; } // Apply pin invert.
    if (pin_state) {
      STEPPER_DISABLE_PORT(0) |= (1 << STEPPER_DISABLE_BIT(0));
-@@ -314,6 +449,7 @@
+@@ -314,6 +472,7 @@
        STEPPER_DISABLE_PORT(5) &= ~(1 << STEPPER_DISABLE_BIT(5));
      #endif
    }
@@ -3319,7 +3830,7 @@
  }
  
  
-@@ -371,6 +507,26 @@
+@@ -371,6 +530,26 @@
  
    if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
  
@@ -3346,7 +3857,7 @@
    // Adding limit check status to implement hardware limits for RAMPS
    // outside the changepin interrupt wich cannot be used
    #ifdef ENABLE_RAMPS_HW_LIMITS
-@@ -380,6 +536,9 @@
+@@ -380,6 +559,9 @@
    #endif
  
    // Set the direction pins a couple of nanoseconds before we step the steppers
@@ -3356,7 +3867,7 @@
    DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | st.dir_outbits[0];
    DIRECTION_PORT(1) = (DIRECTION_PORT(1) & ~(1 << DIRECTION_BIT(1))) | st.dir_outbits[1];
    DIRECTION_PORT(2) = (DIRECTION_PORT(2) & ~(1 << DIRECTION_BIT(2))) | st.dir_outbits[2];
-@@ -392,9 +551,12 @@
+@@ -392,9 +574,12 @@
    #if N_AXIS > 5
    DIRECTION_PORT(5) = (DIRECTION_PORT(5) & ~(1 << DIRECTION_BIT(5))) | st.dir_outbits[5];
    #endif
@@ -3370,7 +3881,7 @@
      st.step_bits[0] = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | st.step_outbits[0]; // Store out_bits to prevent overwriting.
      st.step_bits[1] = (STEP_PORT(1) & ~(1 << STEP_BIT(1))) | st.step_outbits[1]; // Store out_bits to prevent overwriting.
      st.step_bits[2] = (STEP_PORT(2) & ~(1 << STEP_BIT(2))) | st.step_outbits[2]; // Store out_bits to prevent overwriting.
-@@ -424,8 +586,19 @@
+@@ -424,8 +609,19 @@
  
    // Enable step pulse reset timer so that The Stepper Port Reset Interrupt can reset the signal after
    // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
@@ -3392,7 +3903,7 @@
  
    busy = true;
    sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
-@@ -607,6 +780,12 @@
+@@ -607,6 +803,12 @@
  ISR(TIMER0_OVF_vect)
  {
    // Reset stepping pins (leave the direction pins)
@@ -3405,7 +3916,7 @@
    STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
    STEP_PORT(1) = (STEP_PORT(1) & ~(1 << STEP_BIT(1))) | step_port_invert_mask[1];
    STEP_PORT(2) = (STEP_PORT(2) & ~(1 << STEP_BIT(2))) | step_port_invert_mask[2];
-@@ -620,6 +799,7 @@
+@@ -620,6 +822,7 @@
      STEP_PORT(5) = (STEP_PORT(5) & ~(1 << STEP_BIT(5))) | step_port_invert_mask[5];
    #endif
    TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
@@ -3413,7 +3924,7 @@
  }
  #ifdef STEP_PULSE_DELAY
    // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
-@@ -629,6 +809,26 @@
+@@ -629,6 +832,26 @@
    // st_wake_up() routine.
    ISR(TIMER0_COMPA_vect)
    {
@@ -3440,7 +3951,7 @@
      STEP_PORT(0) = st.step_bits[0]; // Begin step pulse.
      STEP_PORT(1) = st.step_bits[1]; // Begin step pulse.
      STEP_PORT(2) = st.step_bits[2]; // Begin step pulse.
-@@ -640,6 +840,7 @@
+@@ -640,6 +863,7 @@
      #endif
      #if N_AXIS > 5
        STEP_PORT(5) = st.step_bits[5]; // Begin step pulse.
@@ -3448,7 +3959,7 @@
      #endif
    }
  #endif
-@@ -666,6 +867,15 @@
+@@ -666,6 +890,15 @@
  
    // Initialize stepper driver idle state.
    st_go_idle();
@@ -3464,7 +3975,7 @@
  
    // Initialize stepper algorithm variables.
    memset(&prep, 0, sizeof(st_prep_t));
-@@ -682,6 +892,11 @@
+@@ -682,6 +915,11 @@
      st.dir_outbits[idx] = dir_port_invert_mask[idx]; // Initialize direction bits to default.
    }
  
@@ -3476,7 +3987,7 @@
    STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
    DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | dir_port_invert_mask[0];
  
-@@ -701,6 +916,7 @@
+@@ -701,6 +939,7 @@
    #if N_AXIS > 5
      STEP_PORT(5) = (STEP_PORT(5) & ~(1 << STEP_BIT(5))) | step_port_invert_mask[5];
      DIRECTION_PORT(5) = (DIRECTION_PORT(5) & ~(1 << DIRECTION_BIT(5))) | dir_port_invert_mask[5];
@@ -3484,7 +3995,7 @@
    #endif
  }
  
-@@ -760,9 +976,14 @@
+@@ -760,9 +999,14 @@
    TIMSK0 &= ~((1<<OCIE0B) | (1<<OCIE0A) | (1<<TOIE0)); // Disconnect OC0 outputs and OVF interrupt.
    TCCR0A = 0; // Normal operation
    TCCR0B = 0; // Disable Timer0 until needed
@@ -3499,6 +4010,20 @@
    #endif
  }
  
+--- a/grbl/stepper.h
++++ b/grbl/stepper.h
+@@ -22,6 +22,11 @@
+ 
+ #ifndef stepper_h
+ #define stepper_h
++
++#if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
++// Axes in the block currently executing in the STEP ISR, not a future G-code line.
++uint8_t rf2000_stepper_active_axes(void);
++#endif
+ 
+ #ifndef SEGMENT_BUFFER_SIZE
+   #define SEGMENT_BUFFER_SIZE 10
 --- a/grbl/system.c
 +++ b/grbl/system.c
 @@ -20,10 +20,14 @@
@@ -3572,11 +4097,14 @@
    uint8_t n;
    for (n=0; n < N_STARTUP_LINE; n++) {
      if (!(settings_read_startup_line(n, line))) {
-@@ -114,9 +132,34 @@
+@@ -114,9 +132,37 @@
    uint8_t char_counter = 1;
    uint8_t helper_var = 0; // Helper variable
    float parameter, value;
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
++    #if RF2000_CNC
++      if (!strcmp(line, "$LR")) return rf2000_limits_recover();
++    #endif
 +    // Read-only diagnostic; cached startup registers only, never SPI or enable.
 +    if (!strcmp(line, "$DRV")) {
 +      printPgmString(PSTR("[DRV:READY="));
@@ -3607,7 +4135,7 @@
        // Execute only if in IDLE or JOG states.
        if (sys.state != STATE_IDLE && sys.state != STATE_JOG) { return(STATUS_IDLE_ERROR); }
        if(line[2] != '=') { return(STATUS_INVALID_STATEMENT); }
-@@ -147,6 +190,9 @@
+@@ -147,6 +193,9 @@
            }
            break;
          case 'X' : // Disable alarm lock [ALARM]
@@ -3617,7 +4145,7 @@
            if (sys.state == STATE_ALARM) {
              // Block if safety door is ajar.
              if (system_check_safety_door_ajar()) { return(STATUS_CHECK_DOOR); }
-@@ -175,6 +221,16 @@
+@@ -175,6 +224,16 @@
            else { report_ngc_parameters(); }
            break;
          case 'H' : // Perform homing cycle [IDLE/ALARM]
@@ -3634,7 +4162,7 @@
            if (bit_isfalse(settings.flags,BITFLAG_HOMING_ENABLE)) {return(STATUS_SETTING_DISABLED); }
            if (system_check_safety_door_ajar()) { return(STATUS_CHECK_DOOR); } // Block if safety door is ajar.
            sys.state = STATE_HOMING; // Set system state variable
-@@ -270,15 +326,16 @@
+@@ -270,15 +329,16 @@
            #ifdef ENABLE_BUILD_INFO_WRITE_COMMAND
              } else { // Store startup line [IDLE/ALARM]
                if(line[char_counter++] != '=') { return(STATUS_INVALID_STATEMENT); }
@@ -3655,7 +4183,7 @@
            if ((line[2] != 'S') || (line[3] != 'T') || (line[4] != '=') || (line[6] != 0)) { return(STATUS_INVALID_STATEMENT); }
            switch (line[5]) {
              #ifdef ENABLE_RESTORE_EEPROM_DEFAULT_SETTINGS
-@@ -306,20 +363,25 @@
+@@ -306,20 +366,25 @@
              }
              break;
            } else { // Store startup line [IDLE Only] Prevents motion during ALARM.
@@ -4008,7 +4536,7 @@
 +for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
 +             'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
 +             'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log',
-+             'gsender-detection.log'):
++             'gsender-detection.log', 'menu-simulation.log', 'recovery-simulation.log'):
 +    p = artifacts / name
 +    if p.is_file():
 +        files.append(p)
@@ -4925,7 +5453,7 @@
 +    print("Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS")
 --- /dev/null
 +++ b/tests/rf2000_cnc_sim.c
-@@ -0,0 +1,385 @@
+@@ -0,0 +1,388 @@
 +/* Actual AVR CNC profile: gSender commands, XYZ hardware, LCD, jobs and faults.
 + * Reuse the real LCD decoder and five-DRV8711 peripheral model. GPL-3.0+. */
 +#define RF2000_PANEL_TEST_MAIN unused_y_panel_suite
@@ -5038,7 +5566,7 @@
 +  // $I alone must identify Grbl on reconnect, without a reset/banner.
 +  const char *identity=command("$I\n",80);
 +  CHECK(strstr(identity,"[MSG:Grbl-Mega-5X RF2000]\r\n"),"reconnect firmware name missing: %s",identity);
-+  CHECK(strstr(identity,"20261019-rf2000-cnc-sfu1605"),"CNC build identity missing");
++  CHECK(strstr(identity,"20261019-rf2000-cnc-panel"),"CNC build identity missing");
 +  CHECK(strstr(identity,"[VER:1.2i.") && strstr(identity,"ok\r\n"),"GRBL version or acknowledgement missing: %s",identity);
 +  // Optional transcript for running a sender's actual detection code.
 +  const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
@@ -5070,21 +5598,21 @@
 +static void test_cnc_panel(const char *elf)
 +{
 +  cnc_boot(elf);
-+  press(KEY_OK); run_us(250000); // Unlock, selection remains0.
++  press(KEY_OK); press(KEY_OK); run_us(250000); // Menu, then explicit unlock.
 +  CHECK(display_has("BEREIT"),"front-panel CNC unlock failed");
-+  press(KEY_DOWN); press(KEY_OK); run_us(200000);
-+  CHECK(display_has("VERFAHREN X") && !sim.step_count[0],"CNC jog page entry moved or selected wrong axis");
-+  press(KEY_UP); run_us(600000);
++  press(KEY_OK); press(KEY_DOWN); press(KEY_OK); run_us(200000);
++  CHECK(display_has("JOG BEREIT") && !sim.step_count[0],"CNC jog page entry moved an axis");
++  press(KEY_RIGHT); run_us(600000);
 +  CHECK(sim.step_count[0]==256 && !sim.step_count[1] && !sim.step_count[2],"local X 0.1mm jog not256 X-only steps");
-+  press(KEY_OK); press(KEY_UP); run_us(600000);
++  press(KEY_UP); run_us(600000);
 +  CHECK(sim.step_count[1]==256 && sim.step_count[0]==256,"local Y 0.1mm jog not256 Y-only steps");
-+  press(KEY_OK); press(KEY_DOWN); run_us(600000);
++  press(KEY_E2); run_us(600000);
 +  CHECK(sim.step_count[2]==128,"local Z jog not128 steps");
-+  press(KEY_RIGHT); run_us(250000);
++  run_us(250000);
 +  CHECK(display_has("X:") && display_has("Y:") && display_has("Z:"),"three-axis status missing:\n%s",display_text());
 +  CHECK(display_has("0.10") && display_has("-0.10"),"work coordinates not updated:\n%s",display_text());
 +  // Select zero, then acknowledge twice. Neither confirmation may move.
-+  press(KEY_DOWN); press(KEY_DOWN); press(KEY_OK); run_us(200000);
++  press(KEY_OK); press(KEY_DOWN); press(KEY_DOWN); press(KEY_OK); press(KEY_OK); run_us(200000);
 +  CHECK(display_has("Arbeitsnull setzen?"),"local work-zero confirmation missing:\n%s",display_text());
 +  const unsigned count=sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
 +  press(KEY_OK); run_us(400000);
@@ -5099,7 +5627,7 @@
 +    "work-zero not reflected on all LCD coordinates:\n%s",screen);
 +  reserves_off();
 +  CHECK(awake(0) && awake(1) && awake(2),"CNC idle hold255 did not retain XYZ torque");
-+  key_level(KEY_LEFT,0); run_us(1200); all_asleep(); run_us(600000);
++  key_level(KEY_STOP2,0); run_us(1200); all_asleep(); run_us(600000);
 +  CHECK(display_has("Alarm"),"CNC reset not visible");
 +  printf("PASS: LCD XYZ work coordinates; front-panel X/Y/Z jog; two-press work zero without motion; idle hold and raw STOP\n");
 +  avr_terminate(sim.avr);
@@ -5294,7 +5822,10 @@
 +  avr_terminate(sim.avr);
 +}
 +
-+int main(int argc,char **argv)
++#ifndef RF2000_CNC_TEST_MAIN
++#define RF2000_CNC_TEST_MAIN main
++#endif
++int RF2000_CNC_TEST_MAIN(int argc,char **argv)
 +{
 +  setvbuf(stdout,NULL,_IOLBF,0);
 +  if (argc<2 || argc>3) return 2;
@@ -5309,6 +5840,335 @@
 +  #undef CASE
 +  if (!selected) return 2;
 +  printf("PASS: %u real-AVR CNC cases\n",selected);
++  return 0;
++}
+--- /dev/null
++++ b/tests/rf2000_menu_sim.c
+@@ -0,0 +1,326 @@
++/* Actual ATmega2560 panel/menu regression. Decode the physical HD44780 bus
++ * and STEP/DIR pins; never read the firmware's private menu state. GPL-3.0+. */
++#define RF2000_CNC_TEST_MAIN unused_cnc_suite
++#include "rf2000_cnc_sim.c"
++#include "sim_cycle_timers.h"
++
++static unsigned menu_selection;
++static void menu_boot(const char *elf)
++{
++  cnc_boot(elf); menu_selection=0;
++}
++static unsigned menu_steps(void)
++{
++  return sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
++}
++static void menu_set_selection(unsigned wanted)
++{
++  while (menu_selection!=wanted) { press(KEY_DOWN); menu_selection=(menu_selection+1)%8; }
++}
++static void menu_enter(unsigned wanted)
++{
++  press(KEY_OK); menu_set_selection(wanted); press(KEY_OK); run_us(220000);
++}
++static void menu_wait_idle(unsigned milliseconds)
++{
++  const uint64_t deadline=sim.avr->cycle+(uint64_t)milliseconds*16000;
++  while (sim.avr->cycle<deadline) {
++    if (strstr(command("?",20),"<Idle")) { run_us(220000); return; }
++  }
++  CHECK(0,"panel motion did not return to Idle: %s",sim.log);
++}
++static void menu_no_motion(unsigned before)
++{
++  CHECK(menu_steps()==before,"navigation/settings unexpectedly emitted steps"); reserves_off();
++}
++static void menu_reference_start(unsigned chosen)
++{
++  menu_enter(2);
++  for (unsigned i=0;i<chosen;++i) press(KEY_DOWN);
++  press(KEY_OK); run_us(220000);
++  CHECK(display_has("referenzieren?"),"reference confirmation missing:\n%s",display_text());
++  menu_no_motion(0);
++  press(KEY_OK);
++}
++
++static void test_menu_navigation(const char *elf)
++{
++  menu_boot(elf);
++  press(KEY_STOP1); run_us(220000);
++  CHECK(strstr(command("?",30),"<Alarm"),"Play at startup unlocked/started machine");
++  CHECK(display_has("GESPERRT"),"startup Play rejection absent:\n%s",display_text());
++  press(KEY_OK); // Acknowledge error, never execute Freigeben.
++  CHECK(strstr(command("?",30),"<Alarm"),"error acknowledgement unlocked machine");
++  press(KEY_OK); run_us(220000);
++  CHECK(display_has("CNC MENUE") && display_has("Freigeben"),"OK did not open main menu");
++  press(KEY_LEFT); run_us(220000);
++  CHECK(display_has("OK:Menue") && !display_has("CNC MENUE"),"Left did not return to status");
++  menu_enter(0);
++  CHECK(strstr(command("?",30),"<Idle"),"menu unlock failed");
++  menu_enter(6);
++  CHECK(display_has("JOG-VORSCHUB") && display_has("F:20"),"jog speed page missing");
++  for (unsigned i=0;i<5;++i) press(KEY_E4);
++  run_us(220000); CHECK(display_has("F:30"),"jog feed upper bound not30");
++  for (unsigned i=0;i<7;++i) press(KEY_E3);
++  run_us(220000); CHECK(display_has("F:10"),"jog feed lower bound not10");
++  press(KEY_UP); run_us(220000); CHECK(display_has("F:20"),"Up did not increase jog feed");
++  press(KEY_LEFT); menu_set_selection(4); press(KEY_RIGHT); run_us(220000);
++  CHECK(display_has("L X0 Y0 Z-0 Z+0") && display_has("DRV"),"Right did not enter diagnostics");
++  press(KEY_LEFT); press(KEY_LEFT); run_us(220000);
++  CHECK(display_has("OK:Menue"),"two Back presses did not return to start");
++  menu_no_motion(0); all_asleep();
++  printf("PASS: startup Play cannot unlock; status/menu/back/Right navigation; diagnostics and jog-feed10..30 bounds never move\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_menu_jogs(const char *elf)
++{
++  menu_boot(elf); cnc_unlock(); menu_enter(1);
++  CHECK(display_has("JOG BEREIT") && display_has("S0.10"),"jog screen/settings missing:\n%s",display_text());
++  const enum panel_key keys[6]={KEY_RIGHT,KEY_LEFT,KEY_UP,KEY_DOWN,KEY_E1,KEY_E2};
++  for (unsigned i=0;i<6;++i) {
++    const unsigned axis=i/2, before=sim.step_count[axis];
++    press(keys[i]); menu_wait_idle(1500);
++    CHECK(sim.step_count[axis]-before==(axis==2 ? 128 : 256),"physical key%u wrong0.1mm pulse count",keys[i]);
++    CHECK(machine.position[axis]==(i%2 ? (axis==0 ? 64 : axis==1 ? 80 : -100) :
++      (axis==0 ? 320 : axis==1 ? 336 : 28)),"physical direction of key%u incorrect",keys[i]);
++  }
++  const unsigned count=menu_steps();
++  for (unsigned i=0;i<4;++i) press(KEY_E4);
++  run_us(220000); CHECK(display_has("S0.50"),"plus did not clamp jog distance at0.50mm");
++  for (unsigned i=0;i<5;++i) press(KEY_E3);
++  run_us(220000); CHECK(display_has("S0.01"),"minus did not clamp jog distance at0.01mm");
++  press(KEY_OK); run_us(220000); CHECK(display_has("CNC MENUE"),"jog OK did not return to menu");
++  menu_no_motion(count); reserves_off();
++  printf("PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit256/256/128 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_menu_zero(const char *elf)
++{
++  menu_boot(elf); cnc_unlock();
++  assert_ok("G10L2P1X1.25Y2.5Z3.75\n",180);
++  menu_enter(3); press(KEY_DOWN); press(KEY_DOWN); // Only Y.
++  press(KEY_OK); run_us(220000);
++  CHECK(display_has("Nur Y hier = 0"),"axis-specific work-zero confirmation wrong:\n%s",display_text());
++  menu_no_motion(0);
++  press(KEY_LEFT); run_us(220000);
++  CHECK(display_has("ARBEITSNULL SETZEN"),"cancel zero did not return to submenu");
++  CHECK(strstr(command("$#\n",80),"[G54:1.250,2.500,3.750]"),"cancelled zero changed coordinates");
++  press(KEY_OK); run_us(220000); menu_no_motion(0); press(KEY_OK); run_us(300000);
++  CHECK(strstr(command("$#\n",80),"[G54:1.250,0.000,3.750]"),"Y-zero changed another axis or failed");
++  menu_no_motion(0);
++  printf("PASS: independent Y work zero requires a separate confirmation; Back cancels; only G54 Y changes, XYZ never step\n");
++  avr_terminate(sim.avr);
++}
++
++static void menu_home_observe(unsigned expected_mask,uint8_t *observed)
++{
++  const char *screen=display_text();
++  if (expected_mask==2 && strstr(screen,"REF Y:")) {
++    if (strstr(screen,"SUCHEN")) *observed|=1;
++    if (strstr(screen,"RUECKZUG")) *observed|=2;
++    if (strstr(screen,"FEINANFAHRT")) *observed|=4;
++    if (strstr(screen,"FREIFAHREN")) *observed|=8;
++  } else if (expected_mask==7) {
++    if (strstr(screen,"REF Z:")) *observed|=1;
++    if (strstr(screen,"REF X+Y:")) {
++      CHECK(*observed&1,"LCD showed XY phase before Z phase"); *observed|=2;
++    }
++  }
++}
++static void menu_await_home(unsigned mask,uint8_t *observed)
++{
++  const uint64_t deadline=sim.avr->cycle+20*CPU_HZ;
++  while (sim.avr->cycle<deadline) {
++    run_us(10000); menu_home_observe(mask,observed);
++    if (machine.contacts[1]==2 && machine.releases[1]==2 &&
++      (mask==2 || (machine.contacts[0]==2 && machine.releases[0]==2 &&
++                  machine.contacts[2]==2 && machine.releases[2]==2))) {
++      if (strstr(command("?",20),"<Idle")) { run_us(220000); return; }
++    }
++  }
++  CHECK(0,"home did not complete within20s:\n%s",display_text());
++}
++static void test_menu_home(const char *elf)
++{
++  menu_boot(elf);
++  assert_ok("$27=0.5\n",350); assert_ok("$26=100\n",350);
++  machine.position[0]=2048; machine.position[1]=2048; machine.position[2]=-1024;
++  machine.enabled=1;
++  menu_reference_start(2); // Only Y from local submenu.
++  uint8_t observed=0; menu_await_home(2,&observed);
++  CHECK(observed==15,"Y LCD missed actual seek/pull-off/locate/final-pull-off: mask%u",observed);
++  CHECK(!sim.step_count[0] && !sim.step_count[2] && display_has("-Y-"),"Y-only homing moved/referenced another axis");
++  reserves_off(); avr_terminate(sim.avr);
++  menu_boot(elf);
++  assert_ok("$27=0.5\n",350); assert_ok("$26=100\n",350);
++  machine.position[0]=2048; machine.position[1]=2048; machine.position[2]=-1024;
++  machine.enabled=1;
++  command("$H\n",1); observed=0; menu_await_home(7,&observed);
++  CHECK(observed==3 && machine.first_axis==3,"full home did not report Z then XY on physical LCD");
++  for (unsigned axis=0;axis<3;++axis)
++    CHECK(machine.contacts[axis]==2 && machine.releases[axis]==2 && machine.phases[axis]==4,
++      "axis%u standard four-phase homing changed",axis);
++  CHECK(display_has("XYZ"),"completed full home lacks XYZ reference"); reserves_off();
++  printf("PASS: local Y-only submenu+confirmation reports every actual four-phase action; full $H LCD reports Z then X+Y; contacts/releases/reference masks correct\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_menu_pause_resume(const char *elf)
++{
++  menu_boot(elf); cnc_unlock();
++  assert_ok("G91G1X2F60\n",60); run_us(250000);
++  CHECK(display_has("CNC FAHRT X"),"start screen does not name active X block:\n%s",display_text());
++  key_level(KEY_STOP2,0); run_us(1200); key_level(KEY_STOP2,1); run_us(25000);
++  // The X axis needs about100ms to decelerate from1mm/s. A debounced Play
++  // during that braking interval must be consumed, never deferred to resume.
++  press(KEY_STOP1); run_us(250000);
++  CHECK(strstr(command("?",30),"<Hold"),"physical Pause failed or early Play resumed during braking");
++  unsigned held=sim.step_count[0]; run_us(200000); CHECK(sim.step_count[0]==held,"held job still steps");
++  for (unsigned i=0;i<12;++i) press(KEY_E3);
++  CHECK(strstr(command("?",30),"Ov:10,100,100"),"physical minus did not clamp real feed override to10%%");
++  for (unsigned i=0;i<12;++i) press(KEY_E4);
++  CHECK(strstr(command("?",30),"Ov:100,100,100"),"physical plus did not clamp real feed override to100%%");
++  CHECK(sim.step_count[0]==held,"feed override keys moved a held job");
++  press(KEY_STOP1); menu_wait_idle(4000);
++  CHECK(sim.step_count[0]==5120 && !sim.step_count[1] && !sim.step_count[2],"Play did not finish exactly the same2mm job");
++  reserves_off();
++  printf("PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100%% while stopped; Play resumes same5120-pulse job\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_menu_jog_cancel(const char *elf)
++{
++  menu_boot(elf); cnc_unlock();
++  assert_ok("$J=G91G21Y5F60\n",60); run_us(250000);
++  press(KEY_STOP2); menu_wait_idle(1500);
++  const unsigned stopped=sim.step_count[1];
++  CHECK(stopped>0 && stopped<12800,"physical Pause did not cancel partial jog");
++  press(KEY_STOP1); run_us(500000);
++  CHECK(strstr(command("?",30),"<Idle") && sim.step_count[1]==stopped,"Play restarted a cancelled jog");
++  CHECK(!strstr(sim.log,"ALARM:"),"short jog Pause unnecessarily reset/alarmed machine");
++  reserves_off();
++  printf("PASS: physical II decelerates/cancels jog to Idle; Play never restarts cancelled motion; no reset/alarm\n");
++  avr_terminate(sim.avr);
++}
++
++static uint8_t wake_pause_armed;
++static avr_cycle_count_t menu_pause_in_wake(avr_t *avr,avr_cycle_count_t when,void *opaque)
++{
++  (void)avr; (void)when; (void)opaque;
++  key_level(KEY_STOP2,0);
++  return 0;
++}
++static void menu_wake_changed(struct avr_irq_t *irq,uint32_t value,void *opaque)
++{
++  (void)irq; (void)opaque;
++  if (wake_pause_armed && (value&1)) {
++    wake_pause_armed=0;
++    avr_cycle_timer_register_usec(sim.avr,1000,menu_pause_in_wake,NULL);
++  }
++}
++static void test_menu_resets(const char *elf)
++{
++  menu_boot(elf); cnc_unlock(); wake_pause_armed=1;
++  avr_irq_register_notify(pin_irq('D',7),menu_wake_changed,NULL);
++  command("G91G1X1F60\n",900);
++  CHECK(!wake_pause_armed,"test never reached driver wake-up");
++  CHECK(strstr(sim.log,"ALARM:3") && strstr(command("?",30),"<Alarm"),
++    "Pause during25ms driver wake did not reset cleanly");
++  menu_no_motion(0); all_asleep();
++  key_level(KEY_STOP2,1); run_us(60000); cnc_unlock();
++  assert_ok("$J=G91G21X0.1F20\n",40); menu_wait_idle(1500);
++  CHECK(sim.step_count[0]==256,"machine not reusable after a wake-up Pause/reset");
++  reserves_off(); avr_terminate(sim.avr);
++  menu_boot(elf); cnc_unlock();
++  assert_ok("G91G1X2F60\n",60); run_us(100000);
++  key_level(KEY_STOP2,0); run_us(1200000); all_asleep();
++  CHECK(strstr(command("?",30),"<Alarm"),"holding Pause1s failed to reset");
++  const unsigned count=menu_steps(); assert_error("$X\n"); assert_error("$J=G91G21Y1F20\n");
++  menu_no_motion(count); key_level(KEY_STOP2,1); run_us(60000);
++  avr_terminate(sim.avr);
++  menu_boot(elf); cnc_unlock();
++  assert_ok("G91G1X2F60\n",60); run_us(100000);
++  key_level(KEY_STOP1,0); key_level(KEY_STOP2,0); run_us(1200); all_asleep();
++  const unsigned chord_stopped=menu_steps(); run_us(800000);
++  CHECK(strstr(command("?",30),"<Alarm") && menu_steps()==chord_stopped,"Play+Pause chord failed immediate reset");
++  // Keep Play physically held, release only Pause, then admit a fresh UART
++  // move. A second Pause edge must work despite the previous reset latch.
++  key_level(KEY_STOP2,1); run_us(60000);
++  assert_ok("$X\n",60); assert_ok("G91G1Y1F60\n",60); run_us(100000);
++  CHECK(sim.step_count[1]>0,"held-Play latch regression never began its second job");
++  key_level(KEY_STOP2,0); run_us(1200); all_asleep();
++  const unsigned second_stop=menu_steps(); run_us(800000);
++  CHECK(strstr(command("?",30),"<Alarm") && menu_steps()==second_stop,
++    "fresh Pause edge was suppressed after a Play-held chord reset");
++  reserves_off(); avr_terminate(sim.avr);
++  held_at_boot=KEY_STOP2; extra_peripheral_init=cnc_peripheral_init;
++  boot(elf,0); extra_peripheral_init=NULL; run_us(1200000);
++  assert_error("$X\n"); assert_error("$J=G91G21Y1F20\n"); menu_no_motion(0); all_asleep();
++  held_at_boot=-1; key_level(KEY_STOP2,1); run_us(60000);
++  printf("PASS: holding II1s resets; Play+II chord stops within1ms; held Pause at runtime and power-up blocks UART unlock/jog with all five drivers asleep\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_menu_busy_alarm(const char *elf)
++{
++  menu_boot(elf); cnc_unlock(); menu_enter(1);
++  press(KEY_RIGHT);
++  const uint64_t deadline=sim.avr->cycle+CPU_HZ;
++  while (sim.step_count[0]<240 && sim.avr->cycle<deadline) run_us(1000);
++  CHECK(sim.step_count[0]>=240,"short X jog did not progress");
++  key_level(KEY_UP,0); run_us(250000);
++  CHECK(sim.step_count[0]==256 && !sim.step_count[1],"busy-edge key queued Y after X ended");
++  key_level(KEY_UP,1); run_us(60000); press(KEY_OK); press(KEY_LEFT);
++  menu_enter(2); press(KEY_OK); run_us(220000);
++  CHECK(display_has("XYZ referenzieren?"),"reference consent screen not present");
++  assert_ok("$J=G91G21Z0.5F30\n",40); run_us(220000);
++  CHECK(display_has("JOG") && !display_has("referenzieren?"),"stale menu confirmation hides a UART movement");
++  input_pin('E',6,0); run_us(1); input_pin('E',6,1); run_us(1200); all_asleep();
++  run_us(800000);
++  CHECK(display_has("Alarm12") && !display_has("referenzieren?"),"driver alarm did not replace stale menu overlay:\n%s",display_text());
++  const unsigned count=menu_steps(); press(KEY_OK); run_us(220000); menu_no_motion(count);
++  CHECK(strstr(command("?",30),"<Alarm"),"acknowledgement unlocked sticky fault"); reserves_off();
++  avr_terminate(sim.avr);
++  menu_boot(elf); cnc_unlock(); menu_enter(3);
++  CHECK(display_has("ARBEITSNULL SETZEN"),"idle submenu fixture not open");
++  input_pin('E',6,0); run_us(1); input_pin('E',6,1); run_us(801200);
++  CHECK(display_has("Alarm12") && !display_has("ARBEITSNULL SETZEN"),
++    "new alarm did not dismiss an idle submenu:\n%s",display_text());
++  all_asleep(); menu_no_motion(0);
++  // Critical faults deliberately require reset before normal menu dispatch.
++  // Physical Pause acknowledges that lock, without clearing the sticky fault.
++  press(KEY_STOP2); run_us(800000); menu_selection=0;
++  press(KEY_OK); menu_set_selection(4); press(KEY_OK); run_us(220000);
++  CHECK(display_has("DRV F") && display_has("A12"),"diagnostics not reachable after fault alarm");
++  menu_no_motion(0); avr_terminate(sim.avr);
++  menu_boot(elf); cnc_unlock();
++  input_pin('C',0,0); run_us(801200);
++  CHECK(display_has("ALARM01"),"first idle hard limit alarm missing");
++  press(KEY_STOP2); run_us(800000); menu_selection=0;
++  input_pin('C',0,1); run_us(12000); cnc_unlock(); menu_enter(3);
++  CHECK(display_has("ARBEITSNULL SETZEN"),"repeat-alarm fixture not browsing submenu");
++  input_pin('C',0,0); run_us(801200);
++  CHECK(display_has("ALARM01") && !display_has("ARBEITSNULL SETZEN"),
++    "a second alarm of the same number did not dismiss the menu:\n%s",display_text());
++  all_asleep(); menu_no_motion(0);
++  printf("PASS: near-end busy key cannot queue motion; UART action replaces confirmation; new/repeated alarms replace active/idle menus; diagnostics remain reachable after reset\n");
++  avr_terminate(sim.avr);
++}
++
++int main(int argc,char **argv)
++{
++  setvbuf(stdout,NULL,_IOLBF,0);
++  if (argc<2 || argc>3) return 2;
++  unsigned selected=0;
++  #define CASE(name,fn) do { if (argc==2 || !strcmp(argv[2],name)) { fn(argv[1]); ++selected; } } while (0)
++  CASE("navigation",test_menu_navigation); CASE("jogs",test_menu_jogs);
++  CASE("zero",test_menu_zero); CASE("home",test_menu_home);
++  CASE("pause-resume",test_menu_pause_resume); CASE("jog-cancel",test_menu_jog_cancel);
++  CASE("resets",test_menu_resets); CASE("busy-alarm",test_menu_busy_alarm);
++  #undef CASE
++  if (!selected) return 2;
++  printf("PASS: %u actual-AVR menu/control cases\n",selected);
 +  return 0;
 +}
 --- /dev/null
@@ -5985,6 +6845,379 @@
 +  #undef RUN_CASE
 +  if (!selected) { fprintf(stderr,"unknown test case: %s\n",argv[2]); return 2; }
 +  printf("PASS: %u local-panel real-AVR cases; retained EEPROM unchanged\n",selected);
++  return 0;
++}
+--- /dev/null
++++ b/tests/rf2000_recovery_sim.c
+@@ -0,0 +1,370 @@
++/* Actual ATmega2560 tests for the bounded, explicitly requested $LR escape.
++ * Reuse the CNC EEPROM model, five DRV8711 channels and physical LCD decoder.
++ * These checks do not prove switch polarity, mechanics or analog motor current.
++ * GPL-3.0+. */
++#define RF2000_CNC_TEST_MAIN unused_cnc_suite
++#include "rf2000_cnc_sim.c"
++#include "sim_cycle_timers.h"
++
++static const char recovery_limit_port[4]={'C','C','C','H'};
++static const uint8_t recovery_limit_bit[4]={2,0,6,1};
++static const unsigned recovery_axis[4]={0,1,2,2};
++static struct {
++  unsigned sensor, pulses[3], releases, release_after, recontact_after;
++  uint8_t last_step[3], active, bounce;
++  int displacement[3];
++  uint64_t first_step_cycle,last_step_cycle;
++} escape;
++static unsigned active_boot_sensor;
++
++static void recovery_limit(unsigned sensor,uint8_t active)
++{
++  CHECK(sensor<4,"invalid simulated physical sensor");
++  input_pin(recovery_limit_port[sensor],recovery_limit_bit[sensor],!active);
++  if (sensor==escape.sensor) escape.active=active;
++}
++
++static avr_cycle_count_t recovery_bounce_close(avr_t *avr,avr_cycle_count_t when,void *opaque)
++{
++  (void)avr; (void)when; (void)opaque;
++  recovery_limit(escape.sensor,1);
++  return 0;
++}
++
++static void recovery_step(struct avr_irq_t *irq,uint32_t value,void *opaque)
++{
++  (void)irq;
++  const unsigned axis=(uintptr_t)opaque;
++  const uint8_t level=value&1, previous=escape.last_step[axis];
++  escape.last_step[axis]=level;
++  if (!level || previous) return;
++  const char port=axis==2 ? 'L' : 'F';
++  const uint8_t bit=axis==0 ? 1 : axis==1 ? 7 : 1;
++  const int direction=gpio_level(port,bit) ? (axis==0 ? -1 : 1) : (axis==0 ? 1 : -1);
++  ++escape.pulses[axis];
++  if (!escape.first_step_cycle) escape.first_step_cycle=sim.avr->cycle;
++  escape.last_step_cycle=sim.avr->cycle;
++  escape.displacement[axis]+=direction;
++  CHECK(axis==recovery_axis[escape.sensor],"$LR moved unselected axis%u",axis);
++  CHECK(direction==(escape.sensor==3 ? -1 : 1),"$LR moved axis%u toward its physical switch",axis);
++  if (escape.bounce && escape.pulses[axis]==20) {
++    recovery_limit(escape.sensor,0);
++    avr_cycle_timer_register_usec(sim.avr,2500,recovery_bounce_close,NULL);
++  }
++  if (escape.release_after && escape.pulses[axis]==escape.release_after) {
++    recovery_limit(escape.sensor,0); ++escape.releases;
++  }
++  if (escape.recontact_after && escape.pulses[axis]==escape.recontact_after)
++    recovery_limit(escape.sensor,1);
++}
++
++static void recovery_observe(unsigned sensor)
++{
++  memset(&escape,0,sizeof(escape)); escape.sensor=sensor;
++  const uint8_t bits[3]={0,6,3};
++  for (uintptr_t axis=0;axis<3;++axis)
++    avr_irq_register_notify(pin_irq('F',bits[axis]),recovery_step,(void *)axis);
++}
++
++static avr_cycle_count_t activate_at_boot(avr_t *avr,avr_cycle_count_t when,void *opaque)
++{
++  (void)avr; (void)when; (void)opaque;
++  recovery_limit(active_boot_sensor,1);
++  return 0;
++}
++
++static void recovery_boot_peripheral(avr_t *avr)
++{
++  cnc_peripheral_init(avr);
++  // Base boot() drives idle pins before the first AVR instruction. Assert the
++  // physical switch ten microseconds later, well before GPIO/driver startup.
++  avr_cycle_timer_register_usec(avr,10,activate_at_boot,NULL);
++}
++
++static void recovery_boot(const char *elf,unsigned sensor,uint8_t active_at_power_on)
++{
++  if (active_at_power_on) {
++    held_at_boot=-1; active_boot_sensor=sensor;
++    extra_peripheral_init=recovery_boot_peripheral;
++    boot(elf,0); extra_peripheral_init=NULL;
++    run_us(300000);
++    CHECK(strstr(sim.log,"RF2000 XYZ CNC"),"wrong CNC startup");
++    verify_registers(); all_asleep();
++    CHECK(lcd.four_bit && display_has("Alarm"),"CNC LCD failed with an active boot sensor");
++  } else cnc_boot(elf);
++  CHECK(!sim.step_count[0] && !sim.step_count[1] && !sim.step_count[2],
++    "an active boot/alarm sensor triggered unsolicited motion");
++  recovery_observe(sensor);
++  recovery_limit(sensor,1); run_us(12000);
++}
++
++static unsigned escape_steps(void)
++{
++  return escape.pulses[0]+escape.pulses[1]+escape.pulses[2];
++}
++
++static void assert_no_escape(void)
++{
++  CHECK(!escape_steps(),"rejected recovery emitted %u steps",escape_steps());
++  reserves_off(); all_asleep();
++}
++
++static size_t recovery_start(void)
++{
++  const size_t start=sim.log_len;
++  const char *reply=command("$LR\n",20);
++  CHECK(!strstr(reply,"error:"),"valid $LR request rejected: %s",reply);
++  return start;
++}
++
++static void wait_for_escape_steps(unsigned minimum)
++{
++  const uint64_t deadline=sim.avr->cycle+2*CPU_HZ;
++  while (escape_steps()<minimum && sim.avr->cycle<deadline) run_us(1000);
++  CHECK(escape_steps()>=minimum,"$LR failed to begin its bounded escape");
++}
++
++static const char *await_recovery(size_t start,unsigned timeout_ms)
++{
++  const uint64_t deadline=sim.avr->cycle+(uint64_t)timeout_ms*16000;
++  const char *reply=sim.log+start;
++  while (!strstr(reply,"RF2000 limit released; home again") &&
++    !strstr(reply,"ALARM:") && !strstr(reply,"error:") && sim.avr->cycle<deadline)
++    run_us(1000);
++  CHECK(sim.avr->cycle<deadline,"$LR did not terminate within %ums",timeout_ms);
++  run_us(800000); // Complete alarm UART output and one physical LCD frame.
++  return sim.log+start;
++}
++
++static void assert_success(size_t start,unsigned expected)
++{
++  const char *reply=await_recovery(start,8000);
++  CHECK(strstr(reply,"RF2000 limit released; home again") && !strstr(reply,"ALARM:"),
++    "bounded release failed: %s",reply);
++  CHECK(escape_steps()==expected,"$LR emitted %u rather than %u pulses",escape_steps(),expected);
++  CHECK(abs(escape.displacement[recovery_axis[escape.sensor]])==(int)expected,
++    "$LR reversed or lost physical displacement");
++  const double motion_seconds=(double)(escape.last_step_cycle-escape.first_step_cycle)/CPU_HZ;
++  CHECK(motion_seconds>5.95 && motion_seconds<6.2,
++    "$LR2mm did not run at20mm/min: %.4fs",motion_seconds);
++  CHECK(strstr(command("?",40),"<Alarm"),"successful release unlocked the machine");
++  CHECK(display_has("---"),"successful release claimed a known reference:\n%s",display_text());
++  reserves_off(); all_asleep();
++  const unsigned frozen=escape_steps(); run_us(500000);
++  CHECK(escape_steps()==frozen,"old planner motion resumed after release");
++}
++
++static void successful_sensor(const char *elf,unsigned sensor,uint8_t power_on,uint8_t bounce)
++{
++  recovery_boot(elf,sensor,power_on);
++  // Withdrawal direction belongs to the identified physical MIN/MAX input,
++  // never to the independently configurable homing-direction mask.
++  if (sensor==0) assert_ok("$23=0\n",350);
++  if (sensor==3) assert_ok("$23=7\n",350);
++  escape.release_after=80; escape.bounce=bounce;
++  const size_t start=recovery_start();
++  assert_success(start,sensor<2 ? 5120 : 2560);
++  CHECK(escape.releases==1 && !escape.active,"selected physical sensor was not released");
++  CHECK(sim.min_pulse>=160,"recovery pulse below10us");
++  printf("PASS: $LR %s%s%s: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced\n",
++    sensor==0 ? "X-MIN" : sensor==1 ? "Y-MIN" : sensor==2 ? "Z-MIN" : "Z-MAX",
++    power_on ? " active at power-on" : "",bounce ? " with sub-five-tick contact bounce" : "");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_x(const char *elf) { successful_sensor(elf,0,0,0); }
++static void test_release_y(const char *elf) { successful_sensor(elf,1,0,0); }
++static void test_release_zmin(const char *elf) { successful_sensor(elf,2,0,0); }
++static void test_release_zmax(const char *elf) { successful_sensor(elf,3,0,0); }
++static void test_release_active_boot(const char *elf) { successful_sensor(elf,1,1,0); }
++static void test_release_bounce(const char *elf) { successful_sensor(elf,1,0,1); }
++
++static void test_release_runtime_reset(const char *elf)
++{
++  cnc_boot(elf); cnc_unlock();
++  assert_ok("G91G1Y10F60\n",60); assert_ok("G91G1X10F60\n",60);
++  run_us(100000);
++  CHECK(sim.step_count[1] && !sim.step_count[0],"queued pre-limit motion did not start on Y");
++  recovery_limit(1,1); run_us(1200); all_asleep(); run_us(800000);
++  CHECK(strstr(sim.log,"ALARM:1"),"running Y limit did not trigger alarm1");
++  command("\030",800);
++  CHECK(strstr(command("?",40),"<Alarm"),"reset with active switch lost alarm lock");
++  const unsigned x_before=sim.step_count[0];
++  const unsigned y_before=sim.step_count[1];
++  recovery_observe(1); escape.active=1; escape.release_after=80;
++  assert_error("$X\n"); assert_error("$J=G91G21Y1F20\n"); assert_error("$HY\n");
++  assert_no_escape();
++  const size_t start=recovery_start(); assert_success(start,5120);
++  CHECK(sim.step_count[0]==x_before && sim.step_count[1]==y_before+5120,
++    "recovery resumed or retained pre-limit planner blocks");
++  printf("PASS: runtime hard limit stops queued job; Ctrl-X then $LR releases only Y; unlock/jog/home cannot bypass active switch; queued X never runs\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_rejected(const char *elf)
++{
++  cnc_boot(elf); recovery_observe(1);
++  assert_error("$LR\n"); assert_error("$LRX\n"); assert_error("$LR=1\n"); assert_error("$LRY\n");
++  assert_no_escape();
++  recovery_limit(1,1); recovery_limit(0,1); run_us(10000);
++  assert_error("$LR\n"); assert_no_escape();
++  recovery_limit(0,0); run_us(10000);
++  key_level(KEY_STOP2,0); run_us(1200);
++  assert_error("$LR\n"); assert_no_escape();
++  key_level(KEY_STOP2,1); run_us(60000);
++  input_pin('E',6,0); run_us(1); input_pin('E',6,1); run_us(800000);
++  command("\030",800);
++  assert_error("$LR\n"); assert_no_escape();
++  printf("PASS: $LR rejects no switch, malformed syntax, multiple physical switches, held STOP and sticky driver fault without motion\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_calibration_bounds(const char *elf)
++{
++  cnc_boot(elf); recovery_observe(1);
++  // Existing GRBL settings admit these products at a very low maximum feed.
++  // The fixed20mm/min escape must validate its own2mm pulse/rate budget.
++  assert_ok("$111=0.0001\n",350);
++  assert_ok("$101=2000000000\n",350);
++  recovery_limit(1,1); run_us(12000);
++  assert_error("$LR\n"); assert_no_escape();
++  assert_ok("$101=20000\n",350);
++  assert_error("$LR\n"); assert_no_escape();
++  assert_ok("$101=0.1\n",350);
++  assert_error("$LR\n"); assert_no_escape();
++  printf("PASS: $LR rejects a2mm signed-counter overflow, more than30000 pulses/5kHz, and sub-one-pulse calibration before any motor movement\n");
++  avr_terminate(sim.avr);
++}
++
++static void assert_recovery_alarm(size_t start,unsigned alarm,unsigned maximum)
++{
++  const char *reply=await_recovery(start,8000);
++  char expected[24]; snprintf(expected,sizeof(expected),"ALARM:%u",alarm);
++  CHECK(strstr(reply,expected),"recovery expected %s: %s",expected,reply);
++  CHECK(!strstr(reply,"RF2000 limit released; home again"),"failed recovery emitted success text");
++  CHECK(escape_steps() && escape_steps()<=maximum,"recovery escaped unboundedly: %u steps",escape_steps());
++  all_asleep(); reserves_off();
++  const unsigned stopped=escape_steps(); run_us(500000);
++  CHECK(escape_steps()==stopped,"recovery continued stepping after alarm%u",alarm);
++}
++
++static void test_release_stuck(const char *elf)
++{
++  recovery_boot(elf,1,0);
++  const size_t start=recovery_start(); assert_recovery_alarm(start,8,5120);
++  CHECK(escape_steps()==5120,"stuck switch did not stop exactly at2mm");
++  printf("PASS: stuck selected Y switch stops exactly after2mm with alarm8 and all drivers asleep\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_recontact(const char *elf)
++{
++  recovery_boot(elf,1,0);
++  escape.release_after=30; escape.recontact_after=90;
++  const size_t start=recovery_start(); assert_recovery_alarm(start,1,92);
++  CHECK(escape_steps()>=90,"recontact test did not reach its deliberate second contact");
++  printf("PASS: selected switch is rearmed after stable release; recontact during escape stops within1ms as hard-limit alarm1\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_other_limit(const char *elf)
++{
++  recovery_boot(elf,1,0);
++  const size_t start=recovery_start(); wait_for_escape_steps(40);
++  const unsigned before=escape_steps();
++  recovery_limit(3,1); run_us(1200); all_asleep();
++  assert_recovery_alarm(start,1,before+2);
++  printf("PASS: nonselected physical Z-MAX remains armed throughout Y release and stops all drivers within1ms\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_fault(const char *elf)
++{
++  recovery_boot(elf,1,0);
++  const size_t start=recovery_start(); wait_for_escape_steps(40);
++  const unsigned before=escape_steps();
++  input_pin('E',6,0); run_us(1); input_pin('E',6,1); run_us(1200); all_asleep();
++  assert_recovery_alarm(start,12,before+1);
++  printf("PASS: one-microsecond driver FAULT pulse aborts $LR with sticky alarm12 and all five drivers asleep\n");
++  avr_terminate(sim.avr);
++}
++
++static void interrupt_recovery(const char *elf,int control)
++{
++  recovery_boot(elf,1,0);
++  const size_t start=recovery_start(); wait_for_escape_steps(40);
++  const unsigned before=escape_steps();
++  if (control<0) command(control==-1 ? "\030" : control==-2 ? "!" : "\205",2);
++  else { key_level((enum panel_key)control,0); run_us(1200); }
++  all_asleep();
++  assert_recovery_alarm(start,6,before+2);
++  printf("PASS: %s aborts bounded recovery with alarm6, no later pulses and all drivers asleep\n",
++    control==-1 ? "Ctrl-X" : control==-2 ? "serial !" : control==-3 ? "UART0x85 jog-cancel" : control==KEY_LEFT ? "local LEFT/STOP" :
++    control==KEY_STOP1 ? "local PH7 STOP" : "local PH2 STOP");
++  avr_terminate(sim.avr);
++}
++
++static void test_release_reset(const char *elf) { interrupt_recovery(elf,-1); }
++static void test_release_hold(const char *elf) { interrupt_recovery(elf,-2); }
++static void test_release_jog_cancel(const char *elf) { interrupt_recovery(elf,-3); }
++static void ignored_recovery_key(const char *elf,enum panel_key key)
++{
++  recovery_boot(elf,1,0); escape.release_after=80;
++  const size_t start=recovery_start(); wait_for_escape_steps(40);
++  press(key);
++  assert_success(start,5120);
++  CHECK(!escape.active,"ignored navigation/play prevented the switch release");
++  printf("PASS: %s cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds\n",
++    key==KEY_LEFT ? "local LEFT navigation" : "local PH7 Play");
++  avr_terminate(sim.avr);
++}
++static void test_release_local_left(const char *elf) { ignored_recovery_key(elf,KEY_LEFT); }
++static void test_release_local_stop1(const char *elf) { ignored_recovery_key(elf,KEY_STOP1); }
++static void test_release_local_stop2(const char *elf) { interrupt_recovery(elf,KEY_STOP2); }
++
++static void test_release_panel_confirm(const char *elf)
++{
++  recovery_boot(elf,1,0); escape.release_after=80;
++  press(KEY_OK); // Startup status -> menu, never unlock.
++  for (unsigned i=0;i<5;++i) press(KEY_DOWN);
++  run_us(250000);
++  CHECK(display_has("Endschalter frei"),"front-panel release menu missing:\n%s",display_text());
++  assert_no_escape();
++  press(KEY_OK); run_us(250000);
++  CHECK(display_has("Endschalter frei?"),"first OK did not show release confirmation:\n%s",display_text());
++  assert_no_escape();
++  // Leaving the menu cancels consent; returning must ask again.
++  press(KEY_LEFT); press(KEY_OK); run_us(250000);
++  CHECK(display_has("Endschalter frei?"),"cancelled release confirmation was not reset");
++  assert_no_escape();
++  const size_t start=sim.log_len;
++  press(KEY_OK); run_us(200000);
++  CHECK(display_has("RUECKZUG"),"active withdrawal phase not visible:\n%s",display_text());
++  assert_success(start,5120);
++  printf("PASS: LCD Endschalter frei menu requires two distinct OK presses, cancellation clears consent, live RUECKZUG then Alarm without reference\n");
++  avr_terminate(sim.avr);
++}
++
++int main(int argc,char **argv)
++{
++  setvbuf(stdout,NULL,_IOLBF,0);
++  if (argc<2 || argc>3) return 2;
++  unsigned selected=0;
++  #define CASE(name,fn) do { if (argc==2 || !strcmp(argv[2],name)) { fn(argv[1]); ++selected; } } while (0)
++  CASE("deny",test_release_rejected); CASE("jog-cancel",test_release_jog_cancel);
++  CASE("calibration-bounds",test_release_calibration_bounds);
++  CASE("panel-confirm",test_release_panel_confirm);
++  CASE("x-min",test_release_x); CASE("y-min",test_release_y);
++  CASE("z-min",test_release_zmin); CASE("z-max",test_release_zmax);
++  CASE("active-boot",test_release_active_boot); CASE("bounce",test_release_bounce);
++  CASE("runtime-reset",test_release_runtime_reset);
++  CASE("stuck",test_release_stuck); CASE("recontact",test_release_recontact);
++  CASE("other-limit",test_release_other_limit); CASE("fault",test_release_fault);
++  CASE("reset",test_release_reset); CASE("feed-hold",test_release_hold);
++  CASE("local-left",test_release_local_left); CASE("local-stop1",test_release_local_stop1);
++  CASE("local-stop2",test_release_local_stop2);
++  #undef CASE
++  if (!selected) return 2;
++  printf("PASS: %u real-AVR limit-release cases\n",selected);
 +  return 0;
 +}
 --- /dev/null
@@ -6789,6 +8022,20 @@
 +  -Wl,-rpath,"$sim_lib" -lsimavr -lm -o "$repo_root/build/tests/rf2000_cnc_sim"
 +"$repo_root/build/tests/rf2000_cnc_sim" "${1:-$repo_root/build/cnc/main.elf}" "${@:2}"
 --- /dev/null
++++ b/tests/run-menu-sim.sh
+@@ -0,0 +1,11 @@
++#!/usr/bin/env bash
++set -euo pipefail
++repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++tool_root="${RF2000_AVR_ROOT:-/workspace/.tools/avr}"
++sim_lib="$tool_root/usr/lib/x86_64-linux-gnu"
++mkdir -p "$repo_root/build/tests"
++cc -std=c11 -O2 -Wall -Wextra -Werror \
++  -I"$tool_root/usr/include/simavr" \
++  "$repo_root/tests/rf2000_menu_sim.c" -L"$sim_lib" \
++  -Wl,-rpath,"$sim_lib" -lsimavr -lm -o "$repo_root/build/tests/rf2000_menu_sim"
++"$repo_root/build/tests/rf2000_menu_sim" "${1:-$repo_root/build/cnc/main.elf}" "${@:2}"
+--- /dev/null
 +++ b/tests/run-panel-sim.sh
 @@ -0,0 +1,11 @@
 +#!/usr/bin/env bash
@@ -6802,6 +8049,20 @@
 +  "$repo_root/tests/rf2000_panel_sim.c" -L"$sim_lib" \
 +  -Wl,-rpath,"$sim_lib" -lsimavr -o "$repo_root/build/tests/rf2000_panel_sim"
 +"$repo_root/build/tests/rf2000_panel_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
+--- /dev/null
++++ b/tests/run-recovery-sim.sh
+@@ -0,0 +1,11 @@
++#!/usr/bin/env bash
++set -euo pipefail
++repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++tool_root="${RF2000_AVR_ROOT:-/workspace/.tools/avr}"
++sim_lib="$tool_root/usr/lib/x86_64-linux-gnu"
++mkdir -p "$repo_root/build/tests"
++cc -std=c11 -O2 -Wall -Wextra -Werror \
++  -I"$tool_root/usr/include/simavr" \
++  "$repo_root/tests/rf2000_recovery_sim.c" -L"$sim_lib" \
++  -Wl,-rpath,"$sim_lib" -lsimavr -lm -o "$repo_root/build/tests/rf2000_recovery_sim"
++"$repo_root/build/tests/rf2000_recovery_sim" "${1:-$repo_root/build/cnc/main.elf}" "${@:2}"
 --- /dev/null
 +++ b/tests/run-sim.sh
 @@ -0,0 +1,11 @@
@@ -6831,8 +8092,240 @@
 +  -Wl,-rpath,"$sim_lib" -lsimavr -o "$repo_root/build/tests/rf2000_y_homing_sim"
 +"$repo_root/build/tests/rf2000_y_homing_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
 --- /dev/null
++++ b/docs/bedienfeld-menue.md
+@@ -0,0 +1,229 @@
++# RF2000-CNC: Display, Tasten und Menü
++
++Diese Anleitung gilt für das Profil **`rf2000_cnc`** und das originale
++20×4-Zeichen-Display mit elf Tasten. Fräsprogramme werden über **gSender**
++gestartet; ein Start von SD-Karte ist nicht eingerichtet.
++
++Die Spindel wird weiterhin **von Hand am Spindelgerät eingeschaltet und
++ausgeschaltet**. Pause, Reset und `M5` schalten diese Spindel nicht aus.
++
++## Die Tasten an deinem Bedienfeld
++
++Die Anordnung folgt den Gerätefotos. Die Bezeichnung „Weiter“ meint die
++bisherige Continue-Taste, „Pause“ die bisherige Pause-Taste der Repetier-Firmware.
++
++```text
++         LINKS                         RECHTS
++
++          Hoch                       Z+       Z−
++           ▲
++  Links ◀  OK  ▶ Rechts               −        +
++           ▼
++         Runter                    Weiter    Pause
++```
++
++| Taste | Auf der Startseite / im Menü | Beim Verfahren | Während eines Fräsprogramms |
++| --- | --- | --- | --- |
++| Hoch / Runter | Menüpunkt wählen | Y+ / Y− | Keine manuelle Achsfahrt |
++| Links / Rechts | Links: zurück; Rechts: Menü öffnen bzw. auswählen | X− / X+ | Keine manuelle Achsfahrt |
++| OK | Menü öffnen, auswählen oder bestätigen | Zurück zum Menü | Keine manuelle Achsfahrt |
++| Z+ / Z−, rechte obere Reihe | Auf der Startseite: Verfahren öffnen, ohne zu fahren | Z positiv / negativ bewegen | Keine manuelle Achsfahrt |
++| − / +, rechte mittlere Reihe | Keine Achsfahrt | Schrittweite kleiner / größer | Vorschubkorrektur −10 / +10 Prozentpunkte, höchstens 100 % |
++| Weiter, rechts unten links | Keinen Fräsjob starten | Keine Bewegung starten | Einen vollständig angehaltenen Fräsjob fortsetzen |
++| Pause, rechts unten rechts | Bei Stillstand oder Alarm: sofort Reset | Aktuelle Jogfahrt abbrechen; eine Sekunde halten: Reset | Kontrolliert anhalten; eine Sekunde halten: Reset |
++
++**Weiter und Pause gleichzeitig führen sofort einen Software-Reset aus.**
++Bei Stillstand, Alarm, Referenzfahrt oder Endschalter-Freifahren löst bereits
++**Pause allein sofort einen Reset** aus. Die Achsreferenz ist nach einem
++Reset ungültig. Der Software-Reset ersetzt keinen physischen Not-Aus.
++
++Die geänderte Belegung ist beabsichtigt: **Links ist jetzt „Zurück“**, und
++**Weiter setzt einen pausierten Fräsjob fort**. Diese Tasten waren im alten
++Testmenü ebenfalls Reset-Tasten. Die unteren Tasten folgen der tatsächlich
++verwendeten Original-Repetier-Zuordnung, nicht den abweichenden
++PAUSE/CONTINUE-Beschriftungen einzelner Schaltplanstellen.
++
++## Menüführung
++
++Auf der Startseite **OK oder Rechts** drücken. Im Menü mit **Hoch/Runter**
++wählen, mit **OK oder Rechts** öffnen und mit **Links** zurückgehen.
++Achsen bewegen sich nur auf der Seite **Verfahren XYZ** oder nach einer
++ausdrücklich bestätigten Referenz-/Freifahraktion.
++
++```text
++Startseite
++└─ Hauptmenü
++   ├─ Freigeben              Startsperre bei freien Eingängen lösen
++   ├─ Verfahren XYZ          Achsen schrittweise bewegen
++   ├─ Referenzieren
++   │  ├─ XYZ                 Z-Max, danach X-Min und Y-Min
++   │  ├─ X                   nur X
++   │  ├─ Y                   nur Y
++   │  └─ Z                   nur Z
++   ├─ Arbeitsnull
++   │  ├─ XYZ                 alle drei Arbeitskoordinaten nullen
++   │  ├─ X                   nur X nullen
++   │  ├─ Y                   nur Y nullen
++   │  └─ Z                   nur Z nullen
++   ├─ Diagnose               Schalter- und Treiberzustände ansehen
++   ├─ Endschalter frei       begrenzter Rückzug vom aktiven Schalter
++   ├─ Jogtempo               10 / 20 / 30 mm/min wählen
++   └─ Abbruch / Reset        Bewegung und Sitzung abbrechen
++```
++
++**Referenzieren, Arbeitsnull und Endschalter frei benötigen eine zweite,
++getrennte OK-Betätigung.** Erst auswählen, Taste loslassen, die angezeigte
++Aktion prüfen und nochmals OK drücken. Mit Links wird die Bestätigung
++verlassen. Ein gehaltener oder versehentlich doppelt belegter Tastendruck
++soll keine Aktion auslösen.
++
++**Freigeben** entspricht `$X`: Es löst die Startsperre, sofern die Eingänge
++frei und die Treiber bereit sind. Es ersetzt keine Referenzfahrt und fährt
++einen betätigten Schalter nicht frei.
++
++**Arbeitsnull** setzt die gewählten Achsen im aktuell aktiven
++Arbeitskoordinatensystem **G54–G59** auf null. Dabei bewegt sich keine Achse.
++Arbeitsnull und Maschinenreferenz sind zwei verschiedene Dinge.
++
++## Was die Startseite zeigt
++
++Die Startseite zeigt **die gerade ausgeführte Aktion**, den Betriebszustand,
++die XYZ-Arbeitspositionen in Millimetern, das aktive Arbeitskoordinatensystem
++und den tatsächlichen Vorschub. Die Positionen beziehen sich auf den gerade
++aktiven Werkstücknullpunkt; sie sind keine Anzeige der noch ausstehenden
++Programmfahrt.
++
++Bei einer Referenzfahrt wird die **wirklich aktive Achse oder Achsgruppe**
++mit der aktuellen Phase angezeigt. Eine XYZ-Referenzfahrt bleibt deshalb
++nicht während des ganzen Ablaufs mit „REF XYZ“ beschriftet. Der Verlauf ist:
++
++```text
++REF Z: SUCHEN
++REF Z: RUECKZUG
++REF Z: FEINANFAHRT
++REF Z: FREIFAHREN
++REF X+Y: SUCHEN
++REF X+Y: RUECKZUG
++REF X+Y: FEINANFAHRT
++REF X+Y: FREIFAHREN
++```
++
++X und Y werden im zweiten Teil gemeinsam angefahren; jeder Schalter stoppt
++seine eigene Achse. Bei einer Einzelreferenzfahrt steht entsprechend nur
++`REF X`, `REF Y` oder `REF Z`. Die Referenzanzeige `XYZ`, `X--` usw. wird erst
++nach erfolgreichem Abschluss aktualisiert; `---` bedeutet keinen gültigen
++Maschinenbezug nach Einschalten, Alarm oder Reset.
++
++So sehen die 20×4-Anzeigen mit beispielhaften Positionen aus. Nach einer
++erfolgreichen XYZ-Referenzfahrt und bei aktivem G54:
++
++```text
++CNC BEREIT   G54 XYZ
++X:   12.34Y:   56.78
++Z:    5.00 F:     0
++OK:Menue SP:MANUELL
++```
++
++```text
++REF Y: FEINANFAHRT
++Schalter: Y-MIN
++F:20 mm/min
++II:Abbruch SP:MAN.
++```
++
++`SP:MANUELL` bzw. `SP:MAN.` erinnert an die manuelle Spindelbedienung.
++`II` steht für Pause, `>` für Weiter und `<` für Links/Zurück. Beim Fräsen
++steht oben beispielsweise `CNC FAHRT XY`: Die Buchstaben zeigen die im
++aktuellen Bewegungsabschnitt beteiligten Achsen. Beim Anhalten steht dort
++zunächst `BREMSEN` und nach dem Stillstand `HALT`. Weiter
++wirkt erst nach vollständigem Stillstand. Ein Alarm zeigt die Fehlernummer; Diagnose und
++Endschalter-Freifahren helfen anschließend bei der Einordnung.
++
++Wird Pause noch während der kurzen Treiber-Aktivierung vor dem ersten
++Schritt gedrückt, wird die Fahrt abgebrochen. Nach diesem Reset erneut
++referenzieren bzw. für die manuelle Einrichtung freigeben.
++
++## Achsen am Gerät einrichten
++
++1. Bei freien Schaltern **Freigeben** auswählen oder zuerst referenzieren.
++2. **Verfahren XYZ** öffnen; alternativ auf der Startseite einmal Z+ oder
++   Z− drücken. Dieser erste Tastendruck öffnet nur die Seite. Danach fährt
++   die linke/rechte Kreuztaste X−/X+,
++   unten/oben fährt Y−/Y+, die rechte obere Tastenreihe fährt Z+/Z−.
++3. Mit **−/+** die Schrittweite **0,01 / 0,10 / 0,50 mm** wählen. Das allein
++   bewegt noch keine Achse. Jeder getrennte Richtungstastendruck fährt genau
++   einen Schritt der gewählten Länge; Halten löst keine Folgefahrten aus.
++4. Mit OK zurückgehen. Das lokale Tempo lässt sich unter **Jogtempo** auf
++   **10, 20 oder 30 mm/min** einstellen.
++5. Am gewünschten Werkstücknullpunkt **Arbeitsnull → XYZ** oder eine einzelne
++   Achse wählen und mit einer zweiten OK-Betätigung bestätigen.
++
++Schrittweite und lokales Jogtempo gelten für die aktuelle Sitzung. Nach
++Reset sind wieder **0,10 mm** und **20 mm/min** eingestellt.
++
++Die CNC-Grundeinstellungen sind **2560 Schritte/mm für X/Y**, **1280 für Z**
++und maximale Vorschübe **100 / 100 / 150 mm/min**. Das passt zu 2:1-Übersetzung,
++5-mm-Spindelsteigung und 1/32-Mikroschritten für X/Y bzw. 1/16 für Z.
++Gespeicherte GRBL-Einstellungen bleiben beim Firmwareupdate erhalten;
++gegebenenfalls zuerst die [Kalibrierung in gSender umstellen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
++Y ist am Gerät bestätigt; X/Z-Fahrweg und Schalter sind noch am Gerät zu prüfen.
++
++## Referenzieren am Display oder über gSender
++
++Am Display **Referenzieren → Y → OK zur Bestätigung** wählen, um nur Y zu
++referenzieren. Für alle Achsen entsprechend **XYZ** wählen. Über die
++gSender-Konsole ist derselbe Ablauf direkt erreichbar:
++
++| Befehl | Referenzfahrt |
++| --- | --- |
++| `$H` | Z-Max, danach X-Min und Y-Min |
++| `$HX` | Nur X-Min |
++| `$HY` | Nur Y-Min |
++| `$HZ` | Nur Z-Max |
++
++Jede Referenzfahrt umfasst Suche, Rückzug, langsames erneutes Anfahren und
++abschließendes Freifahren. Ein schon vor dem Start betätigter Endschalter
++verhindert die normale Referenzfahrt; dafür ist zunächst der begrenzte
++Freifahrablauf vorgesehen.
++
++## Wenn eine Achse im normalen Betrieb einen Endschalter trifft
++
++Der Hard Limit hält die Achsen sofort an. Das Programm wird **nicht
++automatisch zurückgefahren oder fortgesetzt**: Durch den abrupten Halt kann
++die Positionszuordnung verloren gegangen sein.
++
++1. Den Fräsjob in gSender beenden und die manuelle Spindel ausschalten.
++2. Zunächst Reset ausführen, um den kritischen Alarmzustand zu verlassen.
++   Am Gerät geht das mit **Weiter + Pause gleichzeitig**.
++3. Unter **Diagnose** prüfen, welcher Schalter aktiv ist. Es darf nur ein
++   physischer Endschalter aktiv sein und kein Treiberfehler vorliegen.
++4. **Endschalter frei** auswählen und mit einer zweiten OK-Betätigung
++   bestätigen. Alternativ in gSender **`$LR`** senden.
++5. Die betroffene Achse fährt höchstens **2 mm mit bis zu 20 mm/min** vom Schalter
++   weg. Andere Schalter und die Treiberüberwachung bleiben aktiv. Nachdem
++   der gewählte Schalter fünf aufeinanderfolgende Abfragen frei war, löst
++   auch seine erneute Betätigung sofort wieder einen Alarm aus.
++6. Danach bleibt die Steuerung im Alarm. Erneut referenzieren und den
++   Werkstücknullpunkt prüfen. Den unterbrochenen Job neu einrichten.
++
++Bleibt der Schalter innerhalb des Rückzugswegs betätigt, endet der Ablauf mit
++`ALARM:8`. **Pause**, Reset, ein anderer betätigter Endschalter oder ein
++Treiberfehler brechen den Versuch ab. Details stehen unter
++[Endschalter freifahren](cnc-gsender.md#nach-einem-hard-limit-freifahren).
++
++## Quellen und Zuordnung
++
++Die Menüführung trennt Navigation, schrittweises Einrichten, Referenzfahrt
++und laufenden Fräsjob entsprechend den GRBL-Betriebsarten. Für Pause,
++Fortsetzen und Jog-Abbruch wurden die offiziellen GRBL-Unterlagen verwendet:
++
++- [GRBL v1.1 Commands: `$H`, `$X`, Pause, Fortsetzen und Reset](https://github.com/gnea/grbl/wiki/Grbl-v1.1-Commands)
++- [GRBL v1.1 Jogging: `$J` und Jog-Abbruch](https://github.com/gnea/grbl/wiki/Grbl-v1.1-Jogging)
++- [GRBL v1.1 Interface: Zustände und Statusmeldungen](https://github.com/gnea/grbl/wiki/Grbl-v1.1-Interface)
++
++Die konkreten Tasten folgen den Nutzerfotos und der Originalfirmware:
++[ui.cpp](../references/repetier/Repetier/ui.cpp),
++`UIDisplay::ui_init_keys()` / `ui_check_keys()`, sowie
++[pins.h](../references/repetier/Repetier/pins.h). Rechts oben liegen PJ2/PJ4,
++rechts mittig PJ5/PJ6 und unten PH7/PH2. Die neue CNC-Belegung ist im Projekt
++implementiert; sie ist keine allgemeine GRBL-Standardbelegung.
+--- /dev/null
 +++ b/docs/cnc-gsender.md
-@@ -0,0 +1,195 @@
+@@ -0,0 +1,269 @@
 +# XYZ fräsen mit gSender und Originaldisplay
 +
 +**`rf2000_cnc` ist das Standardprofil in PlatformIO.** Es unterstützt XYZ-
@@ -6849,8 +8342,9 @@
 +## Stand der Hardwareprüfung
 +
 +Der Nutzer hat Display, Tastenerkennung, Y-Motor, Y-Referenzfahrt und
-+Y-Referenzschalter am 19.10.2026 als funktionierend bestätigt. Anschließend
-+wurde XYZ-Homing ausdrücklich auf Basis der Annahme freigegeben, dass die
++Y-Referenzschalter am 19.10.2026 als funktionierend bestätigt. Auch der
++Y-Fahrweg mit **2560 Schritten/mm** wurde inzwischen durch den Nutzer
++bestätigt. XYZ-Homing wurde ausdrücklich auf Basis der Annahme freigegeben, dass die
 +Repetier-Zuordnung funktioniert: **X/Y nach MIN, Z nach MAX**. X-/Z-Richtung
 +und Schalter wurden dabei ausdrücklich noch nicht physisch geprüft. Das
 +CNC-Profil setzt `RF2000_CNC=1`; es behauptet keine vollständige
@@ -6873,7 +8367,7 @@
 +Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 +
 +Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-+`$I` enthält `20261019-rf2000-cnc-sfu1605`. Das Y-Testprofil bleibt mit
++`$I` enthält `20261019-rf2000-cnc-panel`. Das Y-Testprofil bleibt mit
 +`-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 +
 +**Nach einem Update einer bestehenden CNC-Version zuerst die unten
@@ -6888,7 +8382,9 @@
 +   beabsichtigt.
 +2. Die Eingänge über `$DRV` oder die Displaydiagnose kontrollieren. Betätigte
 +   Schalter oder ein Treiberfehler verhindern die Freigabe. Ein anfangs
-+   betätigter Schalter wird nicht automatisch freigefahren.
++   betätigter Schalter wird nicht automatisch freigefahren. Für einen einzelnen
++   betätigten Endschalter gibt es den ausdrücklich anzufordernden
++   [Freifahrablauf `$LR`](#nach-einem-hard-limit-freifahren).
 +3. Zum Referenzieren **Home** in gSender wählen oder **`$H`** senden.
 +   Z fährt nach Z-Max, danach X/Y nach ihren Min-Schaltern. Jede Achse führt
 +   Anfahren, Rückzug, langsames Wiederanfahren und abschließenden Rückzug aus.
@@ -6899,9 +8395,9 @@
 +   dadurch entsteht noch kein gesicherter Maschinenbezug.
 +5. Werkzeug am gewünschten Werkstücknullpunkt positionieren und die
 +   gewünschten Achsen in gSender auf null setzen. Die Firmware unterstützt
-+   die üblichen G10-/G54-Kommandos. Am Display ist dasselbe für alle drei
-+   Achsen über **Arbeitsnull setzen**, gefolgt von einer zweiten Bestätigung,
-+   möglich. Es wird das gerade aktive System G54–G59 gesetzt.
++   die üblichen G10-/G54-Kommandos. Am Display unter **Arbeitsnull** alle
++   oder einzelne Achsen auswählen und mit einer zweiten Betätigung bestätigen.
++   Es wird das gerade aktive System G54–G59 gesetzt.
 +6. Fräsdatei mit einem **GRBL-Postprozessor** laden, Spindel manuell starten
 +   und den Job senden. Kühlmittelbefehle M7/M8, G38-Probing, automatische
 +   Werkzeugwechsel M6 und GRBL-fremde Bohrzyklen sind nicht eingerichtet.
@@ -6909,7 +8405,7 @@
 +
 +gSender-Pause sendet `!` und hält normale Fräsbewegungen kontrolliert an;
 +Fortsetzen sendet `~`. Während einer Referenzfahrt wirkt `!` nicht als Stopp:
-+dafür Reset/Ctrl-X oder eine der lokalen Abbruchtasten verwenden. Die
++dafür Reset/Ctrl-X oder die lokale **Pause-II-Taste** verwenden. Die
 +manuelle Spindel bleibt auch während Pause und Abbruch separat zu bedienen.
 +
 +### gSender zeigt automatisch grblHAL oder „Alarm()“
@@ -6931,44 +8427,115 @@
 +`$X` für die manuelle Einrichtung entriegeln. Ein echter `ALARM:n` bzw.
 +abweichende Diagnosewerte müssen anhand der Konsolenausgabe geklärt werden.
 +
++## Nach einem Hard Limit freifahren
++
++Ein im normalen Betrieb betätigter Endschalter stoppt die Bewegung sofort
++mit `ALARM:1`. Der abrupte Halt kann Schritte und damit den Maschinenbezug
++verlieren lassen. Die Firmware fährt deshalb nach dem Anschlag nicht
++selbsttätig zurück und setzt den unterbrochenen Fräsjob nicht automatisch fort.
++
++Das CNC-Profil bietet dafür **`$LR`** (Limit Release). Der Befehl bewegt nur
++die Achse des aktiven Schalters vom Schalter weg. Er ist auch bei einem
++bereits beim Einschalten betätigten Schalter verwendbar, sofern genau ein
++physischer Endschalter aktiv ist und kein Treiberfehler oder STOP vorliegt.
++
++1. Den unterbrochenen Job in gSender beenden und die manuelle Spindel am
++   Spindelgerät ausschalten.
++2. Nach dem Hard-Limit-Alarm zunächst **Reset** in gSender bzw. **Ctrl-X**
++   senden. Erst dieser Reset beendet den kritischen Alarm-Wartezustand.
++   Die lokale **Pause-II-Taste** führt im Alarmzustand ebenfalls sofort einen
++   Reset aus; alternativ **Play und Pause zusammen**. `$X` ist für diesen
++   Ablauf weder nötig noch bei aktivem Schalter zulässig.
++3. Mit `$DRV` oder der Displaydiagnose prüfen, welcher Schalter aktiv ist.
++   Bei mehreren aktiven Schaltern wird `$LR` abgewiesen; die Ursache muss
++   zuerst geprüft werden.
++4. In der gSender-Konsole senden:
++
++   ```text
++   $LR
++   ```
++
++   Alternativ im CNC-Hauptmenü **Endschalter frei** auswählen und mit einer
++   zweiten, getrennten OK-Betätigung bestätigen. Die Menüfunktion verwendet
++   denselben Freifahrbefehl. Während der Bewegung zeigt das Display
++   **FREIFAHREN** und **2mm max, F20**.
++5. Die Achse fährt einen festen Rückzug von **2 mm mit höchstens 20 mm/min**;
++   ein niedriger eingestelltes Achsmaximum begrenzt das Tempo zusätzlich. X-Min, Y-Min und Z-Min
++   werden in positiver Richtung verlassen, Z-Max in negativer Richtung.
++   Sobald der ausgewählte Schalter für fünf aufeinanderfolgende Abfragen
++   frei ist, ist dessen Überwachung wieder aktiv: Eine erneute Betätigung
++   während des verbleibenden Rückzugs löst sofort wieder einen Hard Limit aus.
++   Die Fahrt endet regulär nach den 2 mm; dann muss der Schalter frei sein.
++6. Die Steuerung bleibt nach dem Rückzug im Alarmzustand; die
++   Referenzanzeige ist ungültig. Danach mit **`$HY`** nur Y oder **`$H`**
++   alle Achsen neu referenzieren und den Werkstücknullpunkt prüfen bzw.
++   neu setzen. Den alten Fräsjob nicht aus der unterbrochenen Position
++   fortsetzen.
++
++Während `$LR` kann die serielle `MPos`-Anzeige vorübergehend bei null
++beginnen: Sie bezieht sich dann auf diesen Rückzug. Daraus keinen neuen
++Werkstücknullpunkt ableiten. Die alte Zählerposition wird anschließend um
++den tatsächlichen Rückzug ergänzt, bleibt nach dem Hard Limit aber ungesichert.
++
++Wird der Schalter innerhalb des Rückzugswegs nicht frei, endet der Versuch
++mit **`ALARM:8`**. Ein anderer betätigter Endschalter, Treiberfehler, lokale
++**Pause-II-Taste**, **`!`** oder **Ctrl-X/Reset** bricht das Freifahren ab. Nur der
++gewählte Schalter wird während des begrenzten Rückzugs gesondert behandelt;
++die anderen Endschalter und der Treiberschutz bleiben wirksam. Bei einem
++Abbruch zunächst die Ursache klären und gegebenenfalls erneut zurücksetzen.
++
++Die Freifahrrichtungen beruhen auf derselben Repetier-Zuordnung wie das
++Homing. Y ist am Gerät bestätigt; X und Z bleiben bis zum eigenen
++Fahrweg- und Schaltertest Annahmen.
++
 +## Display und Tasten
 +
-+Die Hauptanzeige enthält Zustand, aktives Arbeitskoordinatensystem,
-+**XYZ-Arbeitspositionen in mm** und tatsächlichen Vorschub. Die letzten drei
-+Zeichen der ersten Zeile zeigen referenzierte Achsen: `XYZ`, teilweise
-+`X--`, oder `---` nach Neustart/Alarm. G54-Null und Maschinenreferenz sind
-+unterschiedliche Dinge. Während der Referenzfahrt erscheinen Phase und
-+betroffene Achsen; während eines Jobs steht unten `SPINDEL: MANUELL`.
++Die Hauptanzeige zeigt Zustand, aktives Arbeitskoordinatensystem,
++**XYZ-Arbeitspositionen in mm**, tatsächlichen Vorschub und bewegte Achsen.
++`XYZ`, teilweise `X--` oder `---` kennzeichnet den Referenzstatus;
++Arbeitsnull und Maschinenreferenz sind unterschiedliche Dinge. Während
++der Referenzfahrt erscheinen die konkrete Achse bzw. Achsgruppe, deren
++Schalter und die Phase: **SUCHEN, RUECKZUG, FEINANFAHRT, FREIFAHREN**.
++Bei `$H` steht zuerst `REF Z`, anschließend `REF X+Y` auf dem Display.
 +
-+| Taste | Funktion |
-+| --- | --- |
-+| Hoch / Runter im Menü | Menüpunkt wählen |
-+| OK im Menü | Auswählen; Referenzfahrt und Arbeitsnull benötigen eine zweite Betätigung |
-+| Rechts | Diagnose öffnen bzw. aus Unterseiten zum Hauptmenü zurück |
-+| Hoch / Runter unter Verfahren | Gewählte Achse positiv / negativ bewegen |
-+| OK unter Verfahren | Achse X → Y → Z → X wählen |
-+| Bisherige Z+ / Z−, PJ2 / PJ4 | Schrittweite 0,01 / 0,10 / 0,50 mm größer / kleiner |
-+| Bisherige Extrudertasten, PJ5 / PJ6 | Lokalen Jog-Vorschub 10 / 20 / 30 mm/min größer / kleiner |
-+| Links, Pause, Continue | Alle drei sofortiger Software-Abbruch und Reset |
++Mit **OK oder Rechts** auf der Startseite öffnet sich das Hauptmenü:
++**Freigeben, Verfahren XYZ, Referenzieren, Arbeitsnull, Diagnose,
++Endschalter frei, Jogtempo, Abbruch/Reset**. Hoch/Runter navigiert,
++OK/Rechts wählt und Links geht zurück. Referenzieren und Arbeitsnull bieten
++**alle Achsen oder nur X, Y bzw. Z**. Referenzfahrt, Arbeitsnull und
++Freifahren benötigen eine zweite, getrennte Bestätigung.
 +
-+Die beiden bisherigen Sondertasten bleiben bewusst Abbruch; zum pausierten
-+Fortsetzen eines Fräsprogramms die entsprechenden gSender-Schaltflächen
-+verwenden. Links ist auf jeder Seite Abbruch. Die alte PAUSE/CONTINUE-
-+Beschriftungsabweichung ist in [hardware-verification.md](hardware-verification.md)
-+dokumentiert. Gehaltene STOP-Tasten sperren auch neue serielle Bewegungen.
-+Andere gehaltene Tasten wiederholen keine Aktion und werden während einer
-+Bewegung nicht als spätere Bewegung gespeichert. Parameteränderung und
-+Seitenwechsel verursachen keine Bewegung.
++Unter **Verfahren XYZ** fährt das Steuerkreuz **X−/X+ und Y+/Y−**;
++die obere rechte Tastenreihe fährt **Z+/Z−**. Die mittleren **−/+** wählen
++die Schrittweite **0,01 / 0,10 / 0,50 mm**. **OK** kehrt zum Menü zurück.
++Das lokale Tempo wird separat unter **Jogtempo** auf **10/20/30 mm/min**
++gestellt. Jede Achsfahrt erfordert einen getrennten Tastendruck; Halten
++wiederholt keine Fahrt. Seitenwechsel und Parameterwahl bewegen keine Achse.
++
++**Pause II** hält normale Fräsfahrten kontrolliert an und bricht eine
++Jogfahrt ab. Während Referenzieren oder Endschalter-Freifahren sowie bei
++Stillstand oder Alarm führt sie sofort einen Software-Reset aus.
++**Eine Sekunde Pause halten oder Play+Pause** führt ebenfalls zum Reset.
++**Play** setzt ausschließlich eine vollständig angehaltene normale Fahrt
++fort; es startet keinen Job und löst weder Referenzfahrt noch Freigabe aus.
++Während normaler Fahrten verändern die mittleren **−/+** den Feed-Override
++in Schritten von zehn Prozentpunkten, höchstens bis **100 %**.
++
++Die vollständige Tastenanordnung und Menüführung stehen in
++[Bedienfeld und Menü](bedienfeld-menue.md). Die neue Belegung ist im Code
++implementiert und noch am Gerät zu prüfen; die bisher bestätigte
++Tastenerkennung ersetzt diesen Bedienungstest nicht.
 +
 +## Einstellungen und Speicherung
 +
-+Die CNC-Vorgaben beruhen auf der vom Nutzer angenommenen Mechanik auf
++Die CNC-Vorgaben beruhen auf der vom Nutzer vorgegebenen Mechanik auf
 +**allen drei Achsen**: Motor mit 1,8° bzw. 200 Vollschritten/Umdrehung,
 +SFU1605-Kugelgewindespindel mit 5 mm Steigung und einer Übersetzung von 2:1
 +zwischen Motor und Spindel. Zwei Motorumdrehungen bewegen die Achse damit 5 mm. Mit
 +1/32-Mikroschritten für X/Y und 1/16 für Z ergibt
-+`200 × Mikroschritte × 2 / 5` die folgenden Schritte/mm. Die Übersetzung
-+ist eine Nutzervorgabe, keine neue Messung an der Maschine.
++`200 × Mikroschritte × 2 / 5` die folgenden Schritte/mm. Der Nutzer hat
++den resultierenden Y-Fahrweg bestätigt. X/Z übernehmen dieselbe
++Übersetzung; deren Kalibrierung ist noch durch eine Fahrwegmessung zu prüfen.
 +
 +| Einstellung | Vorgabe |
 +| --- | --- |
@@ -7020,8 +8587,8 @@
 +gespeicherten Arbeitskoordinaten löschen. Nach der Kalibrierungsänderung
 +erneut referenzieren und den Werkstücknullpunkt neu prüfen bzw. setzen.
 +
-+Die lokale Auswahl von Achse, Schrittweite und Jogtempo bleibt im RAM und
-+startet nach Reset wieder bei X, 0,10 mm und 20 mm/min. Nach Änderungen von
++Die lokale Auswahl von Schrittweite und Jogtempo bleibt im RAM und
++startet nach Reset wieder bei 0,10 mm und 20 mm/min. Nach Änderungen von
 +Kalibrierung, Richtung oder Mechanik erneut referenzieren.
 +
 +Die Softwareprüfungen stehen in [validation.md](validation.md).
@@ -8334,7 +9901,7 @@
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,298 @@
+@@ -0,0 +1,353 @@
 +# Prüfbericht
 +
 +Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
@@ -8349,7 +9916,7 @@
 +| --- | ---: | ---: | --- |
 +| GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
 +| GRBL separater Y-Test mit Bedienfeld | 38.448 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-+| XYZ-CNC mit Display und manueller Spindel | 42.162 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
++| XYZ-CNC mit Display und manueller Spindel | 45.258 / 253.952 Byte | 3.710 / 8.192 Byte | gebaut |
 +| Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 +
 +Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
@@ -8374,7 +9941,12 @@
 +vollständig getesteten Stand. Dessen früheres Testprotokoll bezieht sich
 +weiterhin auf den dort genannten ELF-Hash; `rebuilt_elf_sha256` kennzeichnet
 +den Neubuild. Das separate Y-Profil erhält ebenfalls den unten beschriebenen
-+LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert.
++LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert. Nach der
++aktuellen CNC-Menü-/Freifahrerweiterung wurden Standard und Y erneut gebaut:
++Beide HEX-Dateien bleiben bytegleich zu ihren vollständig geprüften Vorgängern.
++Ihre ELF-Dateien enthalten neue Debug-/Link-Metadaten. Die alten Prüfprotokolle
++behalten ihren tatsächlich simulierten ELF-Hash; die Buildmanifeste nennen
++zusätzlich den Hash des jeweiligen Neubuilds.
 +
 +Firmware-SHA256:
 +
@@ -8382,7 +9954,7 @@
 +GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 +Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
 +Y-Test   3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa
-+CNC      494575328d1ea6bb6a4ade19042fec3990d39b5de43ea58e6f17fbc2ab73651c
++CNC      d869cd2ba480c6df88d53bca8ad426610f245b44c6aa2454e1e73e871834859a
 +```
 +
 +Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -8433,11 +10005,11 @@
 +PlatformIO wählt jetzt standardmäßig `rf2000_cnc`. Die aufgelöste Konfiguration wurde
 +mit `pio project config --json-output` geprüft: Default, geerbte Buildflags,
 +`RF2000_Y_HOMING_TEST=1`, C-Quellen und Monitorparameter stimmen. Bei dieser
-+früheren Umstellung wurde nur die Auswahl geändert. Die neue Menüführung
-+wurde anschließend separat gebaut und mit dem aktuellen ELF geprüft.
++früheren Umstellung wurde nur die Auswahl geändert. Die damalige Y-Menüführung
++wurde separat gebaut und mit dem im Prüfprotokoll genannten ELF geprüft.
 +
-+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem aktuellen
-+Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
++Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem damaligen
++Y-Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
 +`artifacts/y-homing-simulation.log`; dieses ELF wurde auch für die unten
 +beschriebenen 14 Panel-Fälle verwendet.
 +
@@ -8464,7 +10036,7 @@
 +und andere Endschalter brechen sie ab. Die zweite Annäherung bleibt auf 5 mm
 +begrenzt. Beim Phasenwechsel wird ein eventuell noch gesetztes CYCLE_STOP
 +verworfen, ohne RESET- oder Fehlerflags zu löschen. Das Standardprofil
-+behält seine bisherige Funktion und wurde auf seinem aktuellen ELF geprüft.
++behält seine bisherige Funktion; dessen vollständiger Prüflauf ist oben belegt.
 +
 +Beide PlatformIO-Umgebungen wurden mit geerbten Buildflags und Monitoroptionen
 +korrekt eingelesen. Ein tatsächlicher PlatformIO-Build ist in der Cloud
@@ -8475,11 +10047,11 @@
 +## XYZ-CNC und gSender-Protokoll
 +
 +Ergebnis: **zehn CNC-Fälle bestanden**,
-+alle mit ELF `71a19ef1514c161a79c4aad896e73cc47ebcf1e1e1e3d5e78359661856eec22e`.
-+Protokoll: `artifacts/cnc-simulation.log`. Nach der SFU1605-Kalibrierung
-+und Korrektur des LCD-Abstands wurden alle neun Funktionsfälle und der
-+Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet `.text=42058`, `.data=104`,
-+`.bss=3586`; Buildprotokoll: `artifacts/cnc-build.log`.
++alle mit ELF `449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446`.
++Protokoll: `artifacts/cnc-simulation.log`. Nach der neuen Menüführung und
++dem begrenzten Endschalter-Freifahren wurden alle neun Funktionsfälle und
++der Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet
++`.text=45140`, `.data=118`, `.bss=3592`; Buildprotokoll: `artifacts/cnc-build.log`.
 +
 +Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
 +`Connection`-Klasse von [gSender v1.6.4](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/server/lib/Connection.js)
@@ -8503,7 +10075,7 @@
 +gewählte Achse und ergänzen die Referenzanzeige. G54-Rechteck, Z-Zustellung,
 +Kreisbahnen G2/G3 sowie Echtzeit-Pause `!` und Fortsetzen `~` bestehen. M3/M4/S
 +werden für die manuelle Spindel angenommen, ohne einen Ausgang einzuschalten.
-+A/B bleiben ohne STEP und Freigabe. Z-Min, lokaler STOP und ein 1-µs-FAULT-Puls
++A/B bleiben ohne STEP und Freigabe. Z-Min, lokale Pause/Reset-Taste und ein 1-µs-FAULT-Puls
 +schalten ab; Alarm 12 bleibt auf dem Display sichtbar.
 +
 +Ein zusätzlicher Kalibrierungsfall startet mit einem gültigen alten
@@ -8532,7 +10104,7 @@
 +Der Firmware-EEPROM-Treiber wurde dafür nicht verändert.
 +
 +Mit aktivem CNC-LCD und 100-Hz-UART-Status entstehen genau **6400 Z-Pulse**,
-+bei **4994,44 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
++bei **4994,59 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
 +**14,312 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
 +die Firmwarevorgabe für Z bleibt 150 mm/min.
 +
@@ -8543,11 +10115,61 @@
 +vollständig gemessene Hardwarefreigabe behauptet. Bedienung und Grenzen:
 +[cnc-gsender.md](cnc-gsender.md).
 +
++## Neues CNC-Menü und Tastensteuerung
++
++Ergebnis: **acht Gruppen bestanden**, Exitstatus 0 mit dem oben genannten
++finalen CNC-ELF. Protokoll: `artifacts/menu-simulation.log`.
++Reproduktion: `make check-menu`. Die Tests bedienen die elf realen GPIO-
++Eingänge im Simulator und dekodieren den LCD-Bus; sie lesen keine privaten
++Menüvariablen der Firmware.
++
++Geprüft sind Navigation und Zurück ohne Bewegung, Start-/Freigabesperre für
++Play, Jogschritt- und Tempogrenzen, alle sechs Achsrichtungstasten mit
++256/256/128 Pulsen für 0,1 mm, Einzelnull nur für Y mit getrenntem
++Bestätigungsdruck und die vier Homingphasen mit Z vor X+Y. Normale Fräsfahrt
++zeigt ihren tatsächlich ausgeführten Achsblock; II bremst ab, ein zu früher
++Play-Druck wird verworfen, Play setzt erst nach Stillstand fort. Vorschub-
++korrekturen wirken von 10 bis 100 Prozent. II beendet Jog ohne Reset oder
++Fortsetzung; langes II und Play+II brechen ab. II während des 25-ms-Wake
++bricht ohne Schritte ab. Eine neue II-Flanke wirkt auch bei weiterhin
++gehaltener Play-Taste nach einem früheren Reset.
++
++Weitere Fälle prüfen gehaltenes II beim Einschalten und zur Laufzeit,
++verworfene Tastendrücke kurz vor Bewegungsende, veraltete lokale
++Bestätigungen bei UART-Fahrten sowie neue und wiederholte Alarme in
++ruhenden Untermenüs. Diagnose bleibt nach Reset erreichbar. Diese neue
++CNC-Belegung ist noch am Gerät zu prüfen; der frühere Anwenderbericht
++bestätigt die Hardwareeingänge, nicht diesen neuen Bedienablauf.
++
++## Begrenztes Endschalter-Freifahren
++
++Ergebnis: **20 Fälle bestanden** auf demselben finalen CNC-ELF.
++Protokoll mit Hash und Kommando: `artifacts/recovery-simulation.log`.
++Reproduktion: `make check-recovery`.
++
++Die realen STEP-/DIR-Ausgänge werden für X-Min, Y-Min, Z-Min und Z-Max
++geprüft: genau 2 mm in der jeweiligen Freifahrrichtung bei angefordertem
++F20, ohne Bewegung anderer Achsen oder A/B. Der Erfolg bleibt im Alarm und
++löscht den Referenzstatus. Ein beim Einschalten aktiver Schalter und kurze
++Kontaktpreller werden behandelt; ein voriger Fräsjob und während des
++Rückzugs empfangene Zeilen werden nicht fortgesetzt.
++
++Kein/mehrere aktive Schalter, falscher Betriebszustand, gehaltener Stop,
++Treiberfehler und unbrauchbare Kalibrierungen werden ohne Bewegung
++abgewiesen. Ein dauerhaft aktiver Schalter endet exakt nach 2 mm mit
++Alarm 8. Wiederkontakt nach fünf freien Samples, ein anderer Endschalter
++und ein 1-µs-FAULT-Puls stoppen mit ihrem spezifischen Alarm. Ctrl-X, `!`,
++Jog-Abbruch `0x85` und lokale II brechen ab; Links/Play starten keine andere
++Aktion und verändern den begrenzten Rückzug nicht. Die Displayfunktion
++verlangt einen getrennten Bestätigungsdruck und zeigt den laufenden Rückzug.
++Die elektrische Polarität und mechanische Freifahrrichtung an realer
++Hardware werden damit nicht gemessen.
++
 +## Codeprüfung und Grenzen
 +
 +### Originaldisplay und lokales Tastenfeld
 +
-+Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
++Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem damals geprüften
 +Y-ELF `f6f7eacb846587b9dc51a3036407e32d31aea0dca15ebf397c3c2510e93883f8`.
 +Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 +den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.

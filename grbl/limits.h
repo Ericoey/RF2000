@@ -35,6 +35,11 @@ uint8_t limits_get_state();
 uint8_t rf2000_limits_raw_state(void);
 // Mandatory start/unlock interlock: physical inputs, stable release, and driver health.
 uint8_t limits_motion_allowed(void);
+#if RF2000_CNC
+// Explicit, bounded withdrawal from exactly one asserted physical limit.
+uint8_t rf2000_limits_recover(void);
+uint8_t rf2000_limits_recovery_active(void);
+#endif
 #endif
 
 // Perform one portion of the homing cycle based on the input settings.

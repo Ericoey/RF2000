@@ -110,7 +110,7 @@ static void test_cnc_connect(const char *elf)
   // $I alone must identify Grbl on reconnect, without a reset/banner.
   const char *identity=command("$I\n",80);
   CHECK(strstr(identity,"[MSG:Grbl-Mega-5X RF2000]\r\n"),"reconnect firmware name missing: %s",identity);
-  CHECK(strstr(identity,"20261019-rf2000-cnc-sfu1605"),"CNC build identity missing");
+  CHECK(strstr(identity,"20261019-rf2000-cnc-panel"),"CNC build identity missing");
   CHECK(strstr(identity,"[VER:1.2i.") && strstr(identity,"ok\r\n"),"GRBL version or acknowledgement missing: %s",identity);
   // Optional transcript for running a sender's actual detection code.
   const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
@@ -142,21 +142,21 @@ static void test_cnc_connect(const char *elf)
 static void test_cnc_panel(const char *elf)
 {
   cnc_boot(elf);
-  press(KEY_OK); run_us(250000); // Unlock, selection remains0.
+  press(KEY_OK); press(KEY_OK); run_us(250000); // Menu, then explicit unlock.
   CHECK(display_has("BEREIT"),"front-panel CNC unlock failed");
-  press(KEY_DOWN); press(KEY_OK); run_us(200000);
-  CHECK(display_has("VERFAHREN X") && !sim.step_count[0],"CNC jog page entry moved or selected wrong axis");
-  press(KEY_UP); run_us(600000);
+  press(KEY_OK); press(KEY_DOWN); press(KEY_OK); run_us(200000);
+  CHECK(display_has("JOG BEREIT") && !sim.step_count[0],"CNC jog page entry moved an axis");
+  press(KEY_RIGHT); run_us(600000);
   CHECK(sim.step_count[0]==256 && !sim.step_count[1] && !sim.step_count[2],"local X 0.1mm jog not256 X-only steps");
-  press(KEY_OK); press(KEY_UP); run_us(600000);
+  press(KEY_UP); run_us(600000);
   CHECK(sim.step_count[1]==256 && sim.step_count[0]==256,"local Y 0.1mm jog not256 Y-only steps");
-  press(KEY_OK); press(KEY_DOWN); run_us(600000);
+  press(KEY_E2); run_us(600000);
   CHECK(sim.step_count[2]==128,"local Z jog not128 steps");
-  press(KEY_RIGHT); run_us(250000);
+  run_us(250000);
   CHECK(display_has("X:") && display_has("Y:") && display_has("Z:"),"three-axis status missing:\n%s",display_text());
   CHECK(display_has("0.10") && display_has("-0.10"),"work coordinates not updated:\n%s",display_text());
   // Select zero, then acknowledge twice. Neither confirmation may move.
-  press(KEY_DOWN); press(KEY_DOWN); press(KEY_OK); run_us(200000);
+  press(KEY_OK); press(KEY_DOWN); press(KEY_DOWN); press(KEY_OK); press(KEY_OK); run_us(200000);
   CHECK(display_has("Arbeitsnull setzen?"),"local work-zero confirmation missing:\n%s",display_text());
   const unsigned count=sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
   press(KEY_OK); run_us(400000);
@@ -171,7 +171,7 @@ static void test_cnc_panel(const char *elf)
     "work-zero not reflected on all LCD coordinates:\n%s",screen);
   reserves_off();
   CHECK(awake(0) && awake(1) && awake(2),"CNC idle hold255 did not retain XYZ torque");
-  key_level(KEY_LEFT,0); run_us(1200); all_asleep(); run_us(600000);
+  key_level(KEY_STOP2,0); run_us(1200); all_asleep(); run_us(600000);
   CHECK(display_has("Alarm"),"CNC reset not visible");
   printf("PASS: LCD XYZ work coordinates; front-panel X/Y/Z jog; two-press work zero without motion; idle hold and raw STOP\n");
   avr_terminate(sim.avr);
@@ -366,7 +366,10 @@ static void test_cnc_fault(const char *elf)
   avr_terminate(sim.avr);
 }
 
-int main(int argc,char **argv)
+#ifndef RF2000_CNC_TEST_MAIN
+#define RF2000_CNC_TEST_MAIN main
+#endif
+int RF2000_CNC_TEST_MAIN(int argc,char **argv)
 {
   setvbuf(stdout,NULL,_IOLBF,0);
   if (argc<2 || argc>3) return 2;
