@@ -68,6 +68,9 @@ static uint8_t rf2000_limits_axis_state(uint8_t physical)
 
 uint8_t limits_motion_allowed(void)
 {
+  #if RF2000_LOCAL_PANEL
+    if (rf2000_panel_stop_active()) return false;
+  #endif
   // Read physical levels again at every admission point. A low pulse between
   // poll ticks must also prevent a new movement. Runtime $5 cannot invert this.
   uint8_t active = rf2000_limits_raw_state() | rf2000_limit_held;
@@ -136,6 +139,9 @@ ISR(TIMER2_COMPA_vect)
       system_set_exec_alarm(fault ? EXEC_ALARM_DRIVER_FAULT : EXEC_ALARM_HARD_LIMIT);
     }
   }
+  #if RF2000_LOCAL_PANEL
+    rf2000_panel_tick_isr();
+  #endif
 }
 #else
 void limits_init()
@@ -451,6 +457,9 @@ void limits_go_home(uint8_t cycle_mask)
     plan_buffer_line(target, pl_data); // Bypass mc_line(). Directly plan homing motion.
 
     sys.step_control = STEP_CONTROL_EXECUTE_SYS_MOTION; // Set to execute homing motion and clear existing flags.
+    #if RF2000_LOCAL_PANEL
+      rf2000_panel_homing_phase(initial_search ? 1 : (approach ? 3 : (n_cycle == 2 ? 2 : 4)));
+    #endif
     st_prep_buffer(); // Prep and fill segment buffer from newly planned block.
     st_wake_up(); // Initiate motion
     do {
@@ -482,6 +491,7 @@ void limits_go_home(uint8_t cycle_mask)
       }
 
       st_prep_buffer(); // Check and prep segment buffer. NOTE: Should take no longer than 200us.
+      rf2000_panel_service(); // Foreground only; keys/STOP continue in Timer2.
 
       // Exit routines: No time to run protocol_execute_realtime() in this loop.
       if (sys_rt_exec_state & (EXEC_SAFETY_DOOR | EXEC_RESET | EXEC_CYCLE_STOP)) {
@@ -530,7 +540,15 @@ void limits_go_home(uint8_t cycle_mask)
       if (repeat_initial_search) { goto retry_initial_search; }
       initial_search = false;
     #endif
-    delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
+    #if RF2000_LOCAL_PANEL
+      for (uint16_t wait_ms = 0; wait_ms < settings.homing_debounce_delay; ++wait_ms) {
+        _delay_ms(1);
+        rf2000_panel_service();
+        if (sys_rt_exec_state & EXEC_RESET) break;
+      }
+    #else
+      delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
+    #endif
 
     // Reverse direction and reset homing rate for locate cycle(s).
     approach = !approach;

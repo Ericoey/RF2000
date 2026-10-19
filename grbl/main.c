@@ -71,6 +71,7 @@ int main(void)
     sei();
   #endif
   settings_init(); // Load Grbl settings from EEPROM
+  rf2000_panel_init(); // Original LCD/keys; startup only, motors still asleep.
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
     cli();
   #endif
@@ -524,6 +525,7 @@ int main(void)
       sys.state = STATE_ALARM;
       rf2000_drivers_disable();
       rf2000_board_outputs_off();
+      rf2000_panel_reset();
       #if RF2000_Y_HOMING_TEST
         // Homing must be explicitly armed with $22=1 after every reset.
         settings.flags &= ~(BITFLAG_HOMING_ENABLE | BITFLAG_SOFT_LIMIT_ENABLE);

@@ -185,6 +185,8 @@ void protocol_main_loop()
 
     protocol_execute_realtime();  // Runtime command check point.
     if (sys.abort) { return; } // Bail to main() program loop to reset system.
+    rf2000_panel_dispatch(char_counter == 0 && serial_get_rx_buffer_available() == RX_BUFFER_SIZE);
+    if (sys.abort) { return; }
 
     #ifdef SLEEP_ENABLE
       // Check for sleep conditions and execute auto-park, if timeout duration elapses.
@@ -246,6 +248,7 @@ void protocol_execute_realtime()
 // NOTE: Do not alter this unless you know exactly what you are doing!
 void protocol_exec_rt_system()
 {
+  rf2000_panel_service(); // Display only: this callback never dispatches motion.
   uint8_t rt_exec; // Temp variable to avoid calling volatile multiple times.
   rt_exec = sys_rt_exec_alarm; // Copy volatile sys_rt_exec_alarm.
   if (rt_exec) { // Enter only if any bit flag is true
@@ -253,6 +256,7 @@ void protocol_exec_rt_system()
     // the source of the error to the user. If critical, Grbl disables by entering an infinite
     // loop until system reset/abort.
     sys.state = STATE_ALARM; // Set system alarm state
+    rf2000_panel_note_alarm(rt_exec);
     report_alarm_message(rt_exec);
     // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
     if ((rt_exec == EXEC_ALARM_HARD_LIMIT) || (rt_exec == EXEC_ALARM_SOFT_LIMIT) ||
@@ -260,6 +264,7 @@ void protocol_exec_rt_system()
       report_feedback_message(MESSAGE_CRITICAL_EVENT);
       system_clear_exec_state_flag(EXEC_RESET); // Disable any existing reset
       do {
+        rf2000_panel_service(); // Keep fault details visible in the alarm wait.
         // Block everything, except reset and status reports, until user issues reset or power
         // cycles. Hard limits typically occur while unattended or not paying attention. Gives
         // the user and a GUI time to do what is needed before resetting, like killing the

@@ -8,10 +8,11 @@ ausgeführt. Es wurde keine Platine programmiert und kein Motor bewegt.
 | Variante | Flash | Statisches SRAM | Ergebnis |
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
-| GRBL separater Y-Test | 34.086 / 253.952 Byte | 3.545 / 8.192 Byte | gebaut |
+| GRBL separater Y-Test mit Bedienfeld | 37.080 / 253.952 Byte | 3.702 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
-GRBL verwendet `.text=35176`, `.data=50`, `.bss=3470`. Für SRAM werden
+Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
+das Y-Profil mit Bedienfeld `.text=36952`, `.data=128`, `.bss=3574`. Für SRAM werden
 `.data` und `.bss` addiert. Die neue Binutils-Kurzausgabe zählt initialisierte
 Daten bei dieser Zielplattform anders; die Kapazitätsprüfung verwendet
 deshalb die einzelnen ELF-Sektionen. Statische SRAM-Reserve belegt keine
@@ -21,15 +22,19 @@ Der Installer wurde aus einem leeren zweiten Werkzeugpräfix ausgeführt:
 signierte APT-Metadaten, festgelegte Debian-Paketversionen und der geprüfte
 Arduino-Core-Commit. Anschließend entstand ein vollständiger GRBL-Build in
 einem zweiten Buildverzeichnis. Sein HEX ist bytegleich zum Hauptbuild.
-Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
+Das Standardprofil wurde mit der Bedienfelderweiterung erneut in einem
+leeren zweiten Buildverzeichnis gebaut; sein HEX ist bytegleich zum
+aktuellen Hauptbuild. Gegenüber dem vorherigen Stand verändert sich die
+Binäranordnung trotz deaktiviertem Bedienfeld; der neue Hauptbuild wurde
+mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 
 Firmware-SHA256:
 
 ```text
-GRBL     6c9b5ba8fe9859a3fab238af9202e40301f7dc5b04248492e1af0d2472142050
+GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
-Y-Test   b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d
+Y-Test   b362bc6997204063a9d3751f904fcfa8a8ffac31dae3b8aab5d587cd65a2d81d
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -70,18 +75,16 @@ GPIO-Prüfungen ist erfolgreich. Die AVR-Simulation prüft PA7 als Eingang ohne
 Pullup, PC4 als LOW-Ausgang für OUT3 und PC0 als Endschaltereingang. Diese
 GPIO-Konfiguration entspricht für PA7 Repetiers `HAL::stopWatchdog()`.
 Die aktuelle Quellenpriorität bei abweichenden Hardwarezuordnungen liegt
-nach Nutzervorgabe bei der Repetier-RF2000v2-Konfiguration. Diese Änderung
-betrifft Kommentare und Dokumentation; die GPIO-Pegel bleiben gleich.
-Ein anschließender Make-Build und `tests/run-sim.sh` sind ebenfalls erfolgreich;
-das erzeugte HEX bleibt bytegleich. Vollständiger Test und dieser gezielte
-Nachlauf stehen in `artifacts/validation.log`.
+nach Nutzervorgabe bei der Repetier-RF2000v2-Konfiguration. Diese
+Quellenpriorität änderte keine GPIO-Pegel. Der aktuelle vollständige
+Test nach der Bedienfelderweiterung steht in `artifacts/validation.log`.
 
 ## Separates Y-Testprofil
 
-Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem am 18.10.2026
-geprüften Y-ELF. Das nach der Warnungsbereinigung am 19.10.2026 neu erzeugte
-Y-HEX ist bytegleich zu diesem geprüften Programm; Debugdaten im ELF können
-sich durch neue Quellzeilen ändern.
+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem aktuellen
+Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
+`artifacts/y-homing-simulation.log`; dieses ELF wurde auch für die unten
+beschriebenen elf Panel-Fälle verwendet.
 
 `make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
 Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
@@ -105,8 +108,8 @@ oder Zeitbegrenzung. Wiederholte 5-mm-Planerblöcke begrenzen die Zählergröße
 ein fehlender erster Kontakt beendet die Suche nicht. Strg-X, Treiberfehler
 und andere Endschalter brechen sie ab. Die zweite Annäherung bleibt auf 5 mm
 begrenzt. Beim Phasenwechsel wird ein eventuell noch gesetztes CYCLE_STOP
-verworfen, ohne RESET- oder Fehlerflags zu löschen. Der Standard-HEX bleibt
-bytegleich zum bereits vollständig geprüften Standardprofil.
+verworfen, ohne RESET- oder Fehlerflags zu löschen. Das Standardprofil
+behält seine bisherige Funktion und wurde auf seinem aktuellen ELF geprüft.
 
 Beide PlatformIO-Umgebungen wurden mit geerbten Buildflags und Monitoroptionen
 korrekt eingelesen. Ein tatsächlicher PlatformIO-Build ist in der Cloud
@@ -115,6 +118,39 @@ Firmwarebuild verwendet AVR-GCC 14.2.0. Das mit PlatformIO/AVR-GCC 7.3.0
 lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 
 ## Codeprüfung und Grenzen
+
+### Originaldisplay und lokales Tastenfeld
+
+Ergebnis: **11 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
+Y-ELF `2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d`.
+Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
+den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.
+
+Der HD44780-Test dekodiert die realen GPIO-Nibbles beim fallenden E-Signal:
+Initialisierung, vier DDRAM-Zeilen, Anzeigeinhalt, Hintergrundbeleuchtung,
+Pullups, E-Pulsbreite und mindestens 320 µs Abstand zwischen ganzen Bytes.
+Die Firmware lässt bei Laufzeitübertragungen mindestens 1 ms Abstand durch
+zwei Tickdifferenzen des 1-kHz-Timers. Sie wartet nicht im Schrittinterrupt.
+
+Weitere Fälle prüfen Start mit gehaltenem OK, Prellen, Mehrfachtasten,
+ignorierte Z-/Extrudertasten, Diagnose, Entriegeln, Y-Jogs mit genau 15+15
+Schritten, keine Wiederholung und keine während einer Bewegung gespeicherten
+Tastenaktionen. Zwei getrennte OK-Betätigungen führen den vollständigen
+Referenzablauf mit zwei Kontakten und zwei Freigaben aus. Ein serieller Jog
+verwirft einen geöffneten Bestätigungsdialog; OK öffnet anschließend nur
+einen neuen Dialog.
+
+Links, PH7 und PH2 wurden als Abbruch während aller vier Homingphasen und
+während Jogging geprüft: Abschaltung innerhalb eines Timer2-Abfrageintervalls
+(Testgrenze 1,2 ms), keine weiteren STEP-Pulse. Die Anzeige aktualisiert den
+Alarm auch in der kritischen Warteschleife. Ein 1-µs-FAULT-Puls bleibt als
+Alarm 12 sichtbar. Gehaltene STOP-Tasten bei Boot und nach Reset blockieren
+auch serielle Entriegelung und Bewegungsstarts, ohne Y aufzuwecken. Nach
+Loslassen funktioniert der begrenzte Jog wieder. X/Z/A/B bleiben gesperrt;
+alle 4096 vorbesetzten EEPROM-Bytes bleiben unverändert. Dies sind
+Simulatorbefunde, keine gemessenen Latenzen oder Displaytests an Hardware.
+
+### Bisherige Firmwareprüfungen
 
 Die unabhängigen Prüfungen fanden und korrigierten unter anderem die
 DRV4-Pinabweichung, RESET/UVLO im Sleep, A/B-ENBL, das Überschreiben geteilter
@@ -142,7 +178,7 @@ Belegung/Freiplatz, Echtzeitkommandos am vollen RX, Resetabbruch am vollen TX,
 Jog-Abbruch und RX-Überlaufalarm werden geprüft. Kapazitäten außerhalb 1–255
 werden beim Kompilieren zurückgewiesen. Der Test ist Bestandteil von `make check`.
 
-Beide GRBL-Profile wurden vollständig mit AVR-GCC 14.2.0 neu übersetzt:
+Zur damaligen Warnungsbereinigung wurden beide GRBL-Profile vollständig mit AVR-GCC 14.2.0 neu übersetzt:
 keine Compilerwarnungen oder Fehler, unveränderte Flash-/SRAM-Werte und
 bytegleiche HEX-Dateien gegenüber den zuvor simulierten Profilen. Damit sind
 Motor-, Limit- und Homingprogramm unverändert. Warnungen wurden nicht global

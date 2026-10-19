@@ -1,6 +1,6 @@
 # Hardwareabgleich RF2000v2 / I851 CTC V3.0
 
-Stand: 18.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
+Stand: 19.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
 
 ## Verbindliche Quellenpriorität und ergänzende Quellen
 
@@ -103,9 +103,45 @@ langsame zweite Annäherung folgen anschließend. Testwerte und Abweichungen
 zu Repetier stehen in [y-axis-test.md](y-axis-test.md). Eine physische
 Richtungs-/Pegelprüfung muss vor dem Start erfolgen.
 
+## Originaldisplay und Tasten im Y-Testprofil
+
+Das getrennte Y-Testprofil verwendet das originale **20×4-HD44780-Display im 4-Bit-Modus** und die elf direkten Taster. Die übrigen Druckermenüs und Druckerfunktionen werden nicht importiert. Im Standardprofil bleiben Display und Tasten unbenutzt. Maßgeblich sind `references/repetier/Repetier/pins.h:680–702` für die Taster und `pins.h:740–757` für das Display. Displaytyp, Größe und ursprüngliche Bytewartezeit stehen in `ui.h:257–265`; die Ansteuerung übernimmt die Initialisierungsfolge aus `ui.cpp:438–500`. Die Dateien unter `references/repetier/` bleiben unverändert.
+
+| LCD-Signal | AVR / Mega | Displaystecker X21 |
+|---|---|---|
+| RS | PK1 / D63 | Pin 13 |
+| E | PK3 / D65 | Pin 9 |
+| D4 | PF5 / D59 | Pin 7 |
+| D5 | PK2 / D64 | Pin 5 |
+| D6 | PA1 / D23 | Pin 3 |
+| D7 | PJ3 / Repetier-Sonderpin 98 | Pin 1 |
+| R/W | VSS, kein GPIO | Pin 11 |
+
+Blatt 2 zeigt 51-Ω-Serienwiderstände in den sechs Daten-/Steuerleitungen. R/W liegt fest an Masse; der Port schreibt ausschließlich und liest kein Busy-Bit. Die vier DDRAM-Zeilen beginnen bei `0x00`, `0x40`, `0x14`, `0x54`, entsprechend `ui.h:672–679`. Die Startfolge wartet zunächst 500 ms und überträgt die Nibbles `3, 3, 3, 2`, anschließend die Befehle `0x28`, `0x01`, `0x06`, `0x0C`, mit den ursprünglichen Initialisierungswartezeiten. Laufende Displayausgaben werden im Vordergrund zeitlich verteilt. Kurze atomare, maskierte Portzugriffe erhalten insbesondere die STEP-Bits auf PORTF, Z-SLEEP auf PK0 und DRV5-SCS auf PJ7; Wartezeiten und LCD-Pulse sperren die Schrittinterrupts nicht über einen gesamten Zeichentransfer.
+
+Die Tasten sind aktive LOW-Eingänge mit internen Pullups gemäß `ui.h:318–320` und `ui.cpp:566–593`. Blatt 2 ergänzt externe 3,3-kΩ-Pullups nach P5V. Die Zuordnung lautet:
+
+| Tasterfunktion der alten Firmware | AVR / Mega | Tastenstecker X23 |
+|---|---|---|
+| OK | PG5 / D4 | Pin 2 |
+| Abwärts / NEXT | PB7 / D13 | Pin 3 |
+| Rechts | PH0 / D17 | Pin 1 |
+| Links / BACK | PB5 / D11 | Pin 4 |
+| Aufwärts / PREVIOUS | PL7 / D42 | Pin 6 |
+| Z auf | PJ2 / Repetier-Sonderpin 80 | Pin 14 |
+| Z ab | PJ4 / Repetier-Sonderpin 81 | Pin 8 |
+| Filament zurück | PJ5 / Repetier-Sonderpin 82 | Pin 11 |
+| Filament vor | PJ6 / Repetier-Sonderpin 83 | Pin 13 |
+| CONTINUE | PH7 / Repetier-Sonderpin 85 | Pin 7 |
+| PAUSE | PH2 / Repetier-Sonderpin 86 | Pin 9 |
+
+**Weitere belegte Abweichung:** Auf Blatt 2 ist X23 Pin 7 als „PAUSE“ und Pin 9 als „CONT“ beschriftet. Die Repetier-Funktionen sind dazu vertauscht: `pins.h:689–692` verbindet E5 mit PH7 und E6 mit PH2; `ui.cpp:592–593` ordnet E5 `CONTINUE` und E6 `PAUSE` zu. Die elektrische GPIO-Zuordnung folgt weiterhin der alten Firmware. Für den neuen Y-Test dienen **beide Leitungen PH7 und PH2 bewusst als Abbruch**, ebenso Links. Diese neue Testfunktion ist keine unverändert übernommene Pause-/Fortsetzen-Funktion; keine der beiden Sondertasten setzt eine abgebrochene Bewegung fort. Die früheren Z-/Extrudertasten aktivieren keine Z- oder Extruderbewegungen.
+
+**Ergänzung zur alten Firmware:** Die Hintergrundbeleuchtung wird im Y-Profil über **PA0 / D22 (`D_LED`) HIGH** eingeschaltet. Blatt 2 zeigt den BC847-Masseschalter Q8, zwei 10-kΩ-Widerstände R76/R78 und die LED-Versorgung über R53 mit 22 Ω / 0,5 W. Die bereitgestellte Repetier-Firmware konfiguriert PA0 nicht ausdrücklich; diese Aktivierung folgt ergänzend dem Schaltplan. PA0 ist kein Motorpin. Die Display-/Tastenintegration und diese beiden bewussten Änderungen sind Quellen- und Softwarebefunde, keine bestätigten Messungen am Originalbedienteil.
+
 ## Unbenutzte Leistungsausgänge und Watchdog-Verhalten
 
-Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, LCD-, SD- oder Servo-Funktion. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
+Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, SD- oder Servo-Funktion. LCD und Tasten bleiben im Standardprofil unbenutzt; ausschließlich das Y-Testprofil verwendet das oben beschriebene lokale Bedienteil. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
 
 Die aktuelle Entscheidung zur abweichenden Zuordnung lautet:
 

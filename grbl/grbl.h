@@ -50,6 +50,7 @@
   #include "rf2000_board.h"
   #include "rf2000_drv8711.h"
 #endif
+#include "rf2000_panel.h"
 #include "planner.h"
 #include "coolant_control.h"
 #include "digital_control.h"

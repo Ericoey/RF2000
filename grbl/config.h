@@ -50,6 +50,12 @@
 #ifndef RF2000_Y_HOMING_TEST
   #define RF2000_Y_HOMING_TEST 0
 #endif
+#ifndef RF2000_LOCAL_PANEL
+  #define RF2000_LOCAL_PANEL RF2000_Y_HOMING_TEST
+#endif
+#if RF2000_LOCAL_PANEL && !RF2000_Y_HOMING_TEST
+  #error "Local RF2000 controls are commissioned only for the Y test profile."
+#endif
 #if RF2000_Y_HOMING_TEST
   #if RF2000_HOMING_VERIFIED
     #error "Y bench test and full homing verification are separate profiles."

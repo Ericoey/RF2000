@@ -1,9 +1,6 @@
-rm -f build/*.o build/*.d build/*.elf build/*.map build/*.lst
-rm -f artifacts/grbl/rf2000-grbl.hex artifacts/grbl/rf2000-grbl.elf artifacts/grbl/rf2000-grbl.map
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/analog_control.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/coolant_control.c -o build/coolant_control.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/digital_control.c -o build/digital_control.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/eeprom.c -o build/eeprom.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/gcode.c -o build/gcode.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/jog.c -o build/jog.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/limits.o
@@ -17,13 +14,15 @@ rm -f artifacts/grbl/rf2000-grbl.hex artifacts/grbl/rf2000-grbl.elf artifacts/gr
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/report.c -o build/report.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/rf2000_board.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_drv8711.c -o build/rf2000_drv8711.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_lcd.c -o build/rf2000_lcd.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_panel.c -o build/rf2000_panel.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/serial.c -o build/serial.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/settings.c -o build/settings.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/sleep.c -o build/sleep.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/spindle_control.c -o build/spindle_control.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/stepper.o
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/system.c -o build/system.o
-/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/main.map build/analog_control.o build/coolant_control.o build/digital_control.o build/eeprom.o build/gcode.o build/jog.o build/limits.o build/main.o build/motion_control.o build/nuts_bolts.o build/planner.o build/print.o build/probe.o build/protocol.o build/report.o build/rf2000_board.o build/rf2000_drv8711.o build/serial.o build/settings.o build/sleep.o build/spindle_control.o build/stepper.o build/system.o -lm -o build/main.elf
+/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/main.map build/analog_control.o build/coolant_control.o build/digital_control.o build/eeprom.o build/gcode.o build/jog.o build/limits.o build/main.o build/motion_control.o build/nuts_bolts.o build/planner.o build/print.o build/probe.o build/protocol.o build/report.o build/rf2000_board.o build/rf2000_drv8711.o build/rf2000_lcd.o build/rf2000_panel.o build/serial.o build/settings.o build/sleep.o build/spindle_control.o build/stepper.o build/system.o -lm -o build/main.elf
 /workspace/.tools/avr/usr/bin/avr-size build/main.elf
    text	   data	    bss	    dec	    hex	filename
   35226	      0	   3470	  38696	   9728	build/main.elf
@@ -73,3 +72,6 @@ PASS: deterministic FAULTn at Timer0 ISR entry cancels pending STEP, retains ala
 Loaded 35176 .text at address 0x0
 Loaded 50 .data
 PASS: INT6 latches a completed 1us FAULTn pulse and blocks unlock
+
+Final standard rebuild after inactive panel guard edits: HEX unchanged from the fully tested make check program.
+Standard HEX SHA256: fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f

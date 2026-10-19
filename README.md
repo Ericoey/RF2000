@@ -5,6 +5,8 @@ X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. Homing
 bleibt im Standardprofil gesperrt. Ein separat wählbares Y-Testprofil erlaubt
 nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
 Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
+Das Y-Profil bietet dafür ein lokales Testmenü auf dem originalen 20×4-LCD
+und dem vorhandenen Tastenfeld: [Bedienung am Gerät](docs/local-panel.md).
 
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
@@ -68,6 +70,7 @@ HEX/ELF/MAP: `artifacts/grbl/rf2000-grbl.*`.
 Repetier-Referenz: `artifacts/repetier/`.
 Für das separate Y-Profil: `make y-homing-test`, anschließend optional
 `make check-y-homing`; Dateien unter `artifacts/y-homing/rf2000-grbl.*`.
+`make check-panel` prüft zusätzlich Display, Tasten und lokale Y-Bedienung.
 Die Buildwerkzeuge führen keine Programmierung und keine Fuse-Änderung aus.
 Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunktionen.
 
@@ -126,6 +129,7 @@ Schalterverkabelung und Stopplatenz bleiben am Gerät zu messen.
 - [Endschalter und Diagnose](docs/limits.md)
 - [Kontrollierter Hardwaretest](docs/hardware-test.md)
 - [Separater Y-Achs- und Homingtest](docs/y-axis-test.md)
+- [Originaldisplay und Tasten für den Y-Test](docs/local-panel.md)
 - [Entwicklungsumgebung](docs/development.md)
 - [PlatformIO / VS Code](docs/platformio.md)
 - [Repetier-Referenzbuild](docs/repetier-build.md)

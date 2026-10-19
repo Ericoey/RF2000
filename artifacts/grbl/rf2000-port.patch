@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,112 +1,68 @@
+@@ -1,112 +1,71 @@
 -#  Part of Grbl
 -#
 -#  Copyright (c) 2017-2022 Gauthier Briere
@@ -35,7 +35,7 @@
 +CFLAGS += -std=gnu99 -Os -g -Wall -Wextra -mmcu=$(MCU) -ffunction-sections -fdata-sections -flto
 +LDFLAGS += -mmcu=$(MCU) -flto -Wl,--gc-sections,-Map,$(BUILD)/main.map
  
-+.PHONY: all clean check check-y-homing y-homing-test disasm repetier flash fuse install load
++.PHONY: all clean check check-y-homing check-panel y-homing-test disasm repetier flash fuse install load
 +all: $(ARTIFACTS)/rf2000-grbl.hex $(ARTIFACTS)/rf2000-grbl.elf $(ARTIFACTS)/rf2000-grbl.map
  
 -# This is a prototype Makefile. Modify it according to your needs.
@@ -106,7 +106,9 @@
 +	tests/run-y-homing-sim.sh build/y-homing/main.elf
  
 -OBJECTS = $(addprefix $(BUILDDIR)/,$(notdir $(SOURCE:.c=.o)))
--
++check-panel: y-homing-test
++	tests/run-panel-sim.sh build/y-homing/main.elf
+ 
 -# symbolic targets:
 -all:	grbl.hex
 -
@@ -180,7 +182,7 @@
 +*.log
 --- a/README.md
 +++ b/README.md
-@@ -1,74 +1,134 @@
+@@ -1,74 +1,138 @@
 -![GitHub Logo](https://github.com/fra589/grbl-Mega-5X/blob/edge/doc/images/Mega-5X-logo.svg)
 +# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
  
@@ -190,6 +192,8 @@
 +bleibt im Standardprofil gesperrt. Ein separat wählbares Y-Testprofil erlaubt
 +nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
 +Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
++Das Y-Profil bietet dafür ein lokales Testmenü auf dem originalen 20×4-LCD
++und dem vorhandenen Tastenfeld: [Bedienung am Gerät](docs/local-panel.md).
  
 -Grbl is a no-compromise, high performance, low cost alternative to parallel-port-based motion control for CNC milling. This version of Grbl runs on an Arduino Mega2560 only.
 +Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
@@ -317,6 +321,7 @@
 +Repetier-Referenz: `artifacts/repetier/`.
 +Für das separate Y-Profil: `make y-homing-test`, anschließend optional
 +`make check-y-homing`; Dateien unter `artifacts/y-homing/rf2000-grbl.*`.
++`make check-panel` prüft zusätzlich Display, Tasten und lokale Y-Bedienung.
 +Die Buildwerkzeuge führen keine Programmierung und keine Fuse-Änderung aus.
 +Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunktionen.
 +
@@ -375,6 +380,7 @@
 +- [Endschalter und Diagnose](docs/limits.md)
 +- [Kontrollierter Hardwaretest](docs/hardware-test.md)
 +- [Separater Y-Achs- und Homingtest](docs/y-axis-test.md)
++- [Originaldisplay und Tasten für den Y-Test](docs/local-panel.md)
 +- [Entwicklungsumgebung](docs/development.md)
 +- [PlatformIO / VS Code](docs/platformio.md)
 +- [Repetier-Referenzbuild](docs/repetier-build.md)
@@ -436,7 +442,7 @@
  
 --- a/grbl/config.h
 +++ b/grbl/config.h
-@@ -39,8 +39,39 @@
+@@ -39,8 +39,45 @@
  // NOTE: OEMs can avoid the need to maintain/update the defaults.h and cpu_map.h files and use only
  // one configuration file by placing their specific defaults and pin map at the bottom of this file.
  // If doing so, simply comment out these two defines and see instructions below.
@@ -452,6 +458,12 @@
 +#endif
 +#ifndef RF2000_Y_HOMING_TEST
 +  #define RF2000_Y_HOMING_TEST 0
++#endif
++#ifndef RF2000_LOCAL_PANEL
++  #define RF2000_LOCAL_PANEL RF2000_Y_HOMING_TEST
++#endif
++#if RF2000_LOCAL_PANEL && !RF2000_Y_HOMING_TEST
++  #error "Local RF2000 controls are commissioned only for the Y test profile."
 +#endif
 +#if RF2000_Y_HOMING_TEST
 +  #if RF2000_HOMING_VERIFIED
@@ -478,7 +490,7 @@
  
  //----------------------------------------------------------------------
  // Axis definitions :
-@@ -52,7 +83,7 @@
+@@ -52,7 +89,7 @@
  // unpredictable behavior!
  //----------------------------------------------------------------------
  
@@ -487,7 +499,7 @@
  #define N_AXIS_LINEAR 3 // Number of linears axis, must be <= N_AXIS
  
  // Axis indexing and names
-@@ -120,7 +151,8 @@
+@@ -120,7 +157,8 @@
  // SPINDLE_PWM_ON_D9  => 0-12v 8 bits PWM on RAMPS D9
  // SPINDLE_PWM_ON_D6  => 0-5v 8bits PWM on RAMPS Servo 2 signal (Mega 2560 D6)
  // Uncomment the line which correspond to your hardware
@@ -497,7 +509,7 @@
  //#define SPINDLE_PWM_ON_D6
  //#define SPINDLE_PWM_ON_D9
  
-@@ -407,7 +439,7 @@
+@@ -407,7 +445,7 @@
  // allowable override values and the coarse and fine increments per command received. Please
  // note the allowable values in the descriptions following each define.
  #define DEFAULT_FEED_OVERRIDE           100 // 100%. Don't change this value.
@@ -506,7 +518,7 @@
  #define MIN_FEED_RATE_OVERRIDE           10 // Percent of programmed feed rate (1-100). Usually 50% or 1%
  #define FEED_OVERRIDE_COARSE_INCREMENT   10 // (1-99). Usually 10%.
  #define FEED_OVERRIDE_FINE_INCREMENT      1 // (1-99). Usually 1%.
-@@ -475,7 +507,7 @@
+@@ -475,7 +513,7 @@
  // step rate is strictly limited by the CPU speed and will change if something other than an AVR running
  // at 16MHz is used.
  // NOTE: For now disabled, will enable if flash space permits.
@@ -515,7 +527,7 @@
  
  // By default, Grbl sets all input pins to normal-high operation with their internal pull-up resistors
  // enabled. This simplifies the wiring for users by requiring only a switch connected to ground,
-@@ -573,7 +605,7 @@
+@@ -573,7 +611,7 @@
  // NOTE: Uncomment to enable. The recommended delay must be > 3us, and, when added with the
  // user-supplied step pulse time, the total time must not exceed 127us. Reported successful
  // values for certain setups have ranged from 5 to 20us.
@@ -899,7 +911,7 @@
  
  // Define standard libraries used by Grbl.
  #include <avr/io.h>
-@@ -46,6 +46,10 @@
+@@ -46,6 +46,11 @@
  #include "system.h"
  #include "defaults.h"
  #include "cpu_map.h"
@@ -907,6 +919,7 @@
 +  #include "rf2000_board.h"
 +  #include "rf2000_drv8711.h"
 +#endif
++#include "rf2000_panel.h"
  #include "planner.h"
  #include "coolant_control.h"
  #include "digital_control.h"
@@ -932,7 +945,7 @@
    pl_data->feed_rate = gc_block->values.f;
 --- a/grbl/limits.c
 +++ b/grbl/limits.c
-@@ -30,6 +30,114 @@
+@@ -30,6 +30,120 @@
    #define HOMING_AXIS_LOCATE_SCALAR  5.0 // Must be > 1 to ensure limit switch is cleared.
  #endif
  
@@ -974,6 +987,9 @@
 +
 +uint8_t limits_motion_allowed(void)
 +{
++  #if RF2000_LOCAL_PANEL
++    if (rf2000_panel_stop_active()) return false;
++  #endif
 +  // Read physical levels again at every admission point. A low pulse between
 +  // poll ticks must also prevent a new movement. Runtime $5 cannot invert this.
 +  uint8_t active = rf2000_limits_raw_state() | rf2000_limit_held;
@@ -1042,12 +1058,15 @@
 +      system_set_exec_alarm(fault ? EXEC_ALARM_DRIVER_FAULT : EXEC_ALARM_HARD_LIMIT);
 +    }
 +  }
++  #if RF2000_LOCAL_PANEL
++    rf2000_panel_tick_isr();
++  #endif
 +}
 +#else
  void limits_init()
  {
    // Set as input pins
-@@ -170,6 +278,8 @@
+@@ -170,6 +284,8 @@
      return(limit_state_max | limit_state_min);
    }
  }
@@ -1056,7 +1075,7 @@
  
  #ifdef ENABLE_RAMPS_HW_LIMITS
    void ramps_hard_limit()
-@@ -222,8 +332,32 @@
+@@ -222,8 +338,32 @@
  // TODO: Move limit pin-specific calls to a general function for portability.
  void limits_go_home(uint8_t cycle_mask)
  {
@@ -1089,7 +1108,7 @@
  
    // Initialize plan data struct for homing motion. Spindle and coolant are disabled.
    plan_line_data_t plan_data;
-@@ -256,12 +390,22 @@
+@@ -256,12 +396,22 @@
    }
  
    // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
@@ -1113,7 +1132,23 @@
      system_convert_array_steps_to_mpos(target,sys_position);
  
      // Initialize and declare variables needed for homing routine.
-@@ -343,15 +487,30 @@
+@@ -307,6 +457,9 @@
+     plan_buffer_line(target, pl_data); // Bypass mc_line(). Directly plan homing motion.
+ 
+     sys.step_control = STEP_CONTROL_EXECUTE_SYS_MOTION; // Set to execute homing motion and clear existing flags.
++    #if RF2000_LOCAL_PANEL
++      rf2000_panel_homing_phase(initial_search ? 1 : (approach ? 3 : (n_cycle == 2 ? 2 : 4)));
++    #endif
+     st_prep_buffer(); // Prep and fill segment buffer from newly planned block.
+     st_wake_up(); // Initiate motion
+     do {
+@@ -338,20 +491,36 @@
+       }
+ 
+       st_prep_buffer(); // Check and prep segment buffer. NOTE: Should take no longer than 200us.
++      rf2000_panel_service(); // Foreground only; keys/STOP continue in Timer2.
+ 
+       // Exit routines: No time to run protocol_execute_realtime() in this loop.
        if (sys_rt_exec_state & (EXEC_SAFETY_DOOR | EXEC_RESET | EXEC_CYCLE_STOP)) {
          uint8_t rt_exec = sys_rt_exec_state;
          // Homing failure condition: Reset issued during cycle.
@@ -1151,10 +1186,11 @@
            protocol_execute_realtime();
            return;
          } else {
-@@ -363,6 +522,14 @@
+@@ -363,7 +532,23 @@
  
      } while (axislock_active(axislock));
      st_reset(); // Immediately force kill steppers and reset step segment buffer.
+-    delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
 +    #if RF2000_Y_HOMING_TEST
 +      // A contact can coincide with the final STEP of a planner block.
 +      // With timers stopped, discard only that stale completion flag so it
@@ -1163,10 +1199,19 @@
 +      if (repeat_initial_search) { goto retry_initial_search; }
 +      initial_search = false;
 +    #endif
-     delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
++    #if RF2000_LOCAL_PANEL
++      for (uint16_t wait_ms = 0; wait_ms < settings.homing_debounce_delay; ++wait_ms) {
++        _delay_ms(1);
++        rf2000_panel_service();
++        if (sys_rt_exec_state & EXEC_RESET) break;
++      }
++    #else
++      delay_ms(settings.homing_debounce_delay); // Delay to allow transient dynamics to dissipate.
++    #endif
  
      // Reverse direction and reset homing rate for locate cycle(s).
-@@ -371,6 +538,9 @@
+     approach = !approach;
+@@ -371,6 +556,9 @@
      // After first cycle, homing enters locating phase. Shorten search to pull-off distance.
      if (approach) {
        max_travel = settings.homing_pulloff*HOMING_AXIS_LOCATE_SCALAR;
@@ -1176,7 +1221,7 @@
        homing_rate = settings.homing_feed_rate;
      } else {
        max_travel = settings.homing_pulloff;
-@@ -418,6 +588,9 @@
+@@ -418,6 +606,9 @@
      }
    }
    sys.step_control = STEP_CONTROL_NORMAL_OP; // Return step control to normal operation.
@@ -1204,7 +1249,7 @@
  
 --- a/grbl/main.c
 +++ b/grbl/main.c
-@@ -56,9 +56,24 @@
+@@ -56,9 +56,25 @@
  
  int main(void)
  {
@@ -1223,13 +1268,14 @@
 +    sei();
 +  #endif
    settings_init(); // Load Grbl settings from EEPROM
++  rf2000_panel_init(); // Original LCD/keys; startup only, motors still asleep.
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
 +    cli();
 +  #endif
    stepper_init();  // Configure stepper pins and interrupt timers
    system_init();   // Configure pinout pins and pin-change interrupt
  
-@@ -503,7 +518,19 @@
+@@ -503,7 +519,20 @@
      // Reset system variables.
      uint8_t prior_state = sys.state;
      memset(&sys, 0, sizeof(system_t)); // Clear system struct variable.
@@ -1240,6 +1286,7 @@
 +      sys.state = STATE_ALARM;
 +      rf2000_drivers_disable();
 +      rf2000_board_outputs_off();
++      rf2000_panel_reset();
 +      #if RF2000_Y_HOMING_TEST
 +        // Homing must be explicitly armed with $22=1 after every reset.
 +        settings.flags &= ~(BITFLAG_HOMING_ENABLE | BITFLAG_SOFT_LIMIT_ENABLE);
@@ -1331,8 +1378,28 @@
    // Perform some machine checks to make sure everything is good to go.
    #ifdef CHECK_LIMITS_AT_INIT
      if (bit_istrue(settings.flags, BITFLAG_HARD_LIMIT_ENABLE)) {
-@@ -243,7 +255,8 @@
+@@ -173,6 +185,8 @@
+ 
+     protocol_execute_realtime();  // Runtime command check point.
+     if (sys.abort) { return; } // Bail to main() program loop to reset system.
++    rf2000_panel_dispatch(char_counter == 0 && serial_get_rx_buffer_available() == RX_BUFFER_SIZE);
++    if (sys.abort) { return; }
+ 
+     #ifdef SLEEP_ENABLE
+       // Check for sleep conditions and execute auto-park, if timeout duration elapses.
+@@ -234,6 +248,7 @@
+ // NOTE: Do not alter this unless you know exactly what you are doing!
+ void protocol_exec_rt_system()
+ {
++  rf2000_panel_service(); // Display only: this callback never dispatches motion.
+   uint8_t rt_exec; // Temp variable to avoid calling volatile multiple times.
+   rt_exec = sys_rt_exec_alarm; // Copy volatile sys_rt_exec_alarm.
+   if (rt_exec) { // Enter only if any bit flag is true
+@@ -241,12 +256,15 @@
+     // the source of the error to the user. If critical, Grbl disables by entering an infinite
+     // loop until system reset/abort.
      sys.state = STATE_ALARM; // Set system alarm state
++    rf2000_panel_note_alarm(rt_exec);
      report_alarm_message(rt_exec);
      // Halt everything upon a critical event flag. Currently hard and soft limits flag this.
 -    if ((rt_exec == EXEC_ALARM_HARD_LIMIT) || (rt_exec == EXEC_ALARM_SOFT_LIMIT)) {
@@ -1341,7 +1408,11 @@
        report_feedback_message(MESSAGE_CRITICAL_EVENT);
        system_clear_exec_state_flag(EXEC_RESET); // Disable any existing reset
        do {
-@@ -377,6 +390,15 @@
++        rf2000_panel_service(); // Keep fault details visible in the alarm wait.
+         // Block everything, except reset and status reports, until user issues reset or power
+         // cycles. Hard limits typically occur while unattended or not paying attention. Gives
+         // the user and a GUI time to do what is needed before resetting, like killing the
+@@ -377,6 +395,15 @@
              // Start cycle only if queued motions exist in planner buffer and the motion is not canceled.
              sys.step_control = STEP_CONTROL_NORMAL_OP; // Restore step control to normal operation
              if (plan_get_current_block() && bit_isfalse(sys.suspend,SUSPEND_MOTION_CANCEL)) {
@@ -1369,7 +1440,7 @@
      case STATE_ALARM: printPgmString(PSTR("Alarm")); break;
 --- /dev/null
 +++ b/grbl/rf2000_board.c
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,88 @@
 +/*
 + * Safe GPIO setup for the RF2000v2 I851 CTC V3 ATmega2560 board.
 + * Wiring reference: supplied Repetier RF2000v2 configuration; by user
@@ -1450,7 +1521,8 @@
 +    PORTA &= ~_BV(PA7);
 +    DDRA &= ~_BV(PA7);
 +
-+    // LCD, servos, temperature, SD and I2C/load cells remain unconfigured.
++    // Optional Y-test LCD/keypad is configured later by rf2000_panel_init().
++    // Servos, temperature, SD and I2C/load cells remain unconfigured.
 +    // DRV8711 owns all five nSLEEP, STEP/DIR, CS and reset lines. Limits owns
 +    // PC2/PC0/PC6/PH1 and enables its pull-ups before permitting motion.
 +  }
@@ -1840,6 +1912,461 @@
 +uint8_t rf2000_drivers_readback_failed_mask(void);
 +uint16_t rf2000_drivers_initial_status(uint8_t driver);
 +
++#endif
+--- /dev/null
++++ b/grbl/rf2000_lcd.c
+@@ -0,0 +1,105 @@
++/*
++ * RF2000v2 original HD44780 20x4 display transport. Part of Grbl.
++ * Derived from RF Repetier firmware (GPL-3.0-or-later):
++ *   references/repetier/Repetier/pins.h:740-757 (RF2000v2 wiring)
++ *   references/repetier/Repetier/ui.cpp:304-414,438-500 (4-bit protocol/init)
++ *   references/repetier/Repetier/ui.h:257-265 (320 us character delay)
++ * Copyright (c) 2026 RF2000 contributors
++ *
++ * The original printer menus are deliberately not imported. GPIO writes use
++ * short atomic masked updates because STEP, nSLEEP and driver CS share these
++ * ports. Startup delays and E pulse delays leave interrupts enabled. Runtime
++ * character spacing is owned by the foreground panel controller.
++ *
++ * PA0/D_LED backlight activation is an addition based on schematic sheet 2;
++ * the supplied Repetier code does not explicitly configure that signal.
++ */
++#include "grbl.h"
++#include "rf2000_lcd.h"
++#include <util/atomic.h>
++
++#if RF2000_LOCAL_PANEL
++
++#ifndef CPU_MAP_2560_RENKFORCE_CTC_V3
++#error "RF2000 local display requires the RF2000 CTC V3 CPU map"
++#endif
++
++#define LCD_PORTK_MASK (_BV(PK1) | _BV(PK2) | _BV(PK3))
++#define LCD_BACKLIGHT_MASK _BV(PA0)
++
++static void lcd_nibble(uint8_t value)
++{
++  /* E is LOW while changing data. Preserve the independent GPIO owners,
++   * particularly PORTF STEP bits and PORTK PK0 (Z nSLEEP). */
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
++    PORTF = (PORTF & (uint8_t)~_BV(PF5)) | ((value & 0x01u) ? _BV(PF5) : 0);
++    PORTK = (PORTK & (uint8_t)~_BV(PK2)) | ((value & 0x02u) ? _BV(PK2) : 0);
++    PORTA = (PORTA & (uint8_t)~_BV(PA1)) | ((value & 0x04u) ? _BV(PA1) : 0);
++    PORTJ = (PORTJ & (uint8_t)~_BV(PJ3)) | ((value & 0x08u) ? _BV(PJ3) : 0);
++  }
++  _delay_us(1);
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { PORTK |= _BV(PK3); }
++  /* An interrupt may extend E HIGH, but cannot shorten its >=1 us pulse. */
++  _delay_us(1);
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { PORTK &= (uint8_t)~_BV(PK3); }
++  _delay_us(1);
++}
++
++void rf2000_lcd_write(uint8_t rs, uint8_t value)
++{
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
++    PORTK = (PORTK & (uint8_t)~_BV(PK1)) | (rs ? _BV(PK1) : 0);
++  }
++  lcd_nibble(value >> 4);
++  lcd_nibble(value & 0x0fu);
++}
++
++static void lcd_startup_command(uint8_t value)
++{
++  /* Retain the original conservative command spacing during initialization.
++   * Runtime rendering schedules bytes instead of busy-waiting for 320 us. */
++  _delay_us(320);
++  rf2000_lcd_write(0, value);
++}
++
++void rf2000_lcd_init(void)
++{
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
++    /* E and all data/RS latches LOW before configuring output drivers.
++     * R/W is physically grounded, so no busy-read or direction reversal. */
++    PORTK &= (uint8_t)~LCD_PORTK_MASK;
++    PORTF &= (uint8_t)~_BV(PF5);
++    PORTA &= (uint8_t)~(_BV(PA1) | LCD_BACKLIGHT_MASK);
++    PORTJ &= (uint8_t)~_BV(PJ3);
++    DDRK &= (uint8_t)~LCD_PORTK_MASK;
++    DDRF &= (uint8_t)~_BV(PF5);
++    DDRA &= (uint8_t)~(_BV(PA1) | LCD_BACKLIGHT_MASK);
++    DDRJ &= (uint8_t)~_BV(PJ3);
++  }
++  _delay_ms(500);
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
++    DDRK |= LCD_PORTK_MASK;
++    DDRF |= _BV(PF5);
++    DDRA |= _BV(PA1);
++    DDRJ |= _BV(PJ3);
++    /* Q8 is a low-side backlight switch; a HIGH D_LED turns it on. */
++    PORTA |= LCD_BACKLIGHT_MASK;
++    DDRA |= LCD_BACKLIGHT_MASK;
++  }
++  _delay_us(10);
++  lcd_nibble(0x03);
++  _delay_ms(5);
++  lcd_nibble(0x03);
++  _delay_us(150);
++  lcd_nibble(0x03);
++  _delay_us(150);
++  lcd_nibble(0x02);
++  _delay_us(150);
++  lcd_startup_command(0x28); /* 4-bit, two controller lines, 5x7 font. */
++  lcd_startup_command(0x01); /* Clear DDRAM. */
++  _delay_ms(2);
++  lcd_startup_command(0x06); /* Increment cursor, no display shift. */
++  lcd_startup_command(0x0c); /* Display on, cursor and blink off. */
++}
++
++#endif
+--- /dev/null
++++ b/grbl/rf2000_lcd.h
+@@ -0,0 +1,21 @@
++/*
++ * RF2000v2 original HD44780 20x4 display transport. Part of Grbl.
++ * Copyright (c) 2026 RF2000 contributors
++ * GPL-3.0-or-later.
++ */
++#ifndef RF2000_LCD_H
++#define RF2000_LCD_H
++
++#include <stdint.h>
++
++/* Foreground only, once after safe board setup with all motors disabled.
++ * Uses the original Repetier 500 ms startup delay with interrupts enabled. */
++void rf2000_lcd_init(void);
++
++/* Foreground only. rs=0 sends a command; rs!=0 sends character data.
++ * No character execution delay is performed here. The caller must space
++ * runtime writes by at least 1 ms (2 ms after CLEAR or RETURN HOME).
++ * Interrupts must be enabled on entry; no LCD operation belongs in an ISR. */
++void rf2000_lcd_write(uint8_t rs, uint8_t value);
++
++#endif
+--- /dev/null
++++ b/grbl/rf2000_panel.c
+@@ -0,0 +1,293 @@
++/*
++ * Local Y-test controls for the RF2000v2 20x4 LCD and original keypad.
++ * GPIO mapping and active-LOW input handling derived from RF Repetier
++ * pins.h (RF2000v2) and ui.cpp:566-593. GPL-3.0-or-later.
++ * No printer menus or heater/extruder actions are imported.
++ */
++#include "grbl.h"
++#include "rf2000_lcd.h"
++#include <util/atomic.h>
++
++#if RF2000_LOCAL_PANEL
++
++#define KEY_OK       (1u << 0)
++#define KEY_DOWN     (1u << 1)
++#define KEY_RIGHT    (1u << 2)
++#define KEY_LEFT     (1u << 3)
++#define KEY_UP       (1u << 4)
++#define KEY_CONTINUE (1u << 9)
++#define KEY_PAUSE    (1u << 10)
++#define STOP_KEYS (KEY_LEFT | KEY_CONTINUE | KEY_PAUSE)
++#define KEY_DEBOUNCE_MS 20
++#define MENU_ITEMS 5
++
++static volatile uint16_t panel_ms;
++static volatile uint8_t key_event, keys_ready, dispatch_busy;
++static volatile uint16_t candidate_keys;
++static volatile uint8_t candidate_ms, stop_was_down, initialized;
++static uint8_t selection, confirm_home, diagnostics;
++static uint8_t last_alarm, homing_phase, command_error;
++static uint8_t dirty, frame_slot;
++static uint16_t last_service_ms;
++static uint8_t previous_state, previous_limits, previous_fault, previous_ready;
++static uint8_t previous_keys_ready;
++static char frame[80];
++
++static uint16_t read_keys(void)
++{
++  const uint8_t pg = PING, pb = PINB, ph = PINH, pl = PINL, pj = PINJ;
++  uint16_t keys = 0;
++  if (!(pg & _BV(PG5))) keys |= KEY_OK;
++  if (!(pb & _BV(PB7))) keys |= KEY_DOWN;
++  if (!(ph & _BV(PH0))) keys |= KEY_RIGHT;
++  if (!(pb & _BV(PB5))) keys |= KEY_LEFT;
++  if (!(pl & _BV(PL7))) keys |= KEY_UP;
++  if (!(pj & _BV(PJ2))) keys |= (1u << 5);
++  if (!(pj & _BV(PJ4))) keys |= (1u << 6);
++  if (!(pj & _BV(PJ5))) keys |= (1u << 7);
++  if (!(pj & _BV(PJ6))) keys |= (1u << 8);
++  if (!(ph & _BV(PH7))) keys |= KEY_CONTINUE;
++  if (!(ph & _BV(PH2))) keys |= KEY_PAUSE;
++  return keys;
++}
++
++void rf2000_panel_init(void)
++{
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
++    DDRG &= ~_BV(PG5); PORTG |= _BV(PG5);
++    DDRB &= ~(_BV(PB5) | _BV(PB7)); PORTB |= _BV(PB5) | _BV(PB7);
++    DDRH &= ~(_BV(PH0) | _BV(PH2) | _BV(PH7));
++    PORTH |= _BV(PH0) | _BV(PH2) | _BV(PH7);
++    DDRL &= ~_BV(PL7); PORTL |= _BV(PL7);
++    DDRJ &= ~(_BV(PJ2) | _BV(PJ4) | _BV(PJ5) | _BV(PJ6));
++    PORTJ |= _BV(PJ2) | _BV(PJ4) | _BV(PJ5) | _BV(PJ6);
++    stop_was_down = !!(read_keys() & STOP_KEYS);
++  }
++  rf2000_lcd_init(); // Startup only, while every motor is asleep.
++  initialized = true;
++}
++
++void rf2000_panel_reset(void)
++{
++  if (!initialized) return;
++  if (sys_rt_exec_alarm) last_alarm = sys_rt_exec_alarm;
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
++    key_event = 0;
++    keys_ready = false;
++    candidate_keys = read_keys();
++    candidate_ms = 0;
++    dispatch_busy = false;
++    // Preserve stop_was_down across soft reset: holding STOP is not a loop.
++  }
++  selection = 0;
++  confirm_home = diagnostics = command_error = homing_phase = 0;
++  previous_state = previous_limits = previous_fault = previous_ready = 0xff;
++  previous_keys_ready = 0xff;
++  dirty = true;
++}
++
++void rf2000_panel_tick_isr(void)
++{
++  if (!initialized) return;
++  ++panel_ms;
++  const uint16_t keys = read_keys();
++  const uint8_t stop_down = !!(keys & STOP_KEYS);
++  if (stop_down && !stop_was_down) {
++    key_event = 0;
++    keys_ready = false;
++    mc_reset(); // Same immediate GPIO shutdown as serial Ctrl-X; no LCD/SPI.
++  }
++  stop_was_down = stop_down;
++  if (keys != candidate_keys) {
++    candidate_keys = keys;
++    candidate_ms = 0;
++  } else if (candidate_ms < KEY_DEBOUNCE_MS) {
++    ++candidate_ms;
++    if (candidate_ms == KEY_DEBOUNCE_MS) {
++      if (!keys) {
++        keys_ready = true;
++      } else {
++        const uint8_t accept = keys_ready && !dispatch_busy &&
++          (sys.state == STATE_IDLE || sys.state == STATE_ALARM) &&
++          !(sys_rt_exec_state & EXEC_RESET) && !sys_rt_exec_alarm;
++        keys_ready = false; // Every action requires a full stable release.
++        if (accept && !(keys & (keys - 1))) {
++          if (keys == KEY_OK) key_event = 1;
++          else if (keys == KEY_DOWN) key_event = 2;
++          else if (keys == KEY_RIGHT) key_event = 3;
++          else if (keys == KEY_UP) key_event = 4;
++        }
++      }
++    }
++  }
++  if (dispatch_busy || (sys.state != STATE_IDLE && sys.state != STATE_ALARM)) {
++    key_event = 0; // Never queue a movement while another action is running.
++  }
++}
++
++uint8_t rf2000_panel_stop_active(void)
++{
++  // Also gate UART admission while STOP is held, including at power-up.
++  return !(PINB & _BV(PB5)) || !(PINH & _BV(PH2)) || !(PINH & _BV(PH7));
++}
++
++void rf2000_panel_note_alarm(uint8_t alarm)
++{
++  if (alarm) {
++    if (last_alarm != alarm || confirm_home) dirty = true;
++    last_alarm = alarm;
++    confirm_home = false;
++  }
++}
++
++void rf2000_panel_homing_phase(uint8_t phase)
++{
++  homing_phase = phase;
++  dirty = true;
++}
++
++static void row_P(uint8_t row, PGM_P text)
++{
++  uint8_t col = 0;
++  char c;
++  while (col < 20 && (c = pgm_read_byte(text++))) frame[row * 20 + col++] = c;
++}
++
++static void two_digits(uint8_t position, uint8_t value)
++{
++  frame[position] = '0' + (value / 10) % 10;
++  frame[position + 1] = '0' + value % 10;
++}
++
++static void compose_frame(uint8_t limits, uint8_t ready)
++{
++  memset(frame, ' ', sizeof(frame));
++  if (confirm_home) {
++    row_P(0, PSTR("Y-Referenz starten?"));
++    row_P(1, PSTR("Richtung geprueft?"));
++    row_P(2, PSTR("Schalter geprueft?"));
++    row_P(3, PSTR("OK:Start LINKS:STOP"));
++    return;
++  }
++  if (sys.state == STATE_HOMING) {
++    if (homing_phase == 1) row_P(0, PSTR("Y: REF-SUCHE"));
++    else if (homing_phase == 3) row_P(0, PSTR("Y: FEINANFAHRT"));
++    else if (homing_phase == 4) row_P(0, PSTR("Y: FREIFAHREN"));
++    else row_P(0, PSTR("Y: RUECKZUG"));
++  } else if (sys.state == STATE_JOG) row_P(0, PSTR("Y: JOG"));
++  else if (sys.state == STATE_ALARM) {
++    row_P(0, PSTR("RF2000 Y: ALARM 00"));
++    two_digits(16, last_alarm);
++  } else row_P(0, PSTR("RF2000 Y: BEREIT"));
++  if (diagnostics) {
++    row_P(1, PSTR("L X0 Y0 Z-0 Z+0"));
++    frame[23] = '0' + !!(limits & 1);
++    frame[26] = '0' + !!(limits & 2);
++    frame[30] = '0' + !!(limits & 4);
++    frame[34] = '0' + !!(limits & 8);
++    row_P(2, PSTR("DRV F00 R00 A00"));
++    two_digits(45, rf2000_drivers_fault_reason());
++    two_digits(49, rf2000_drivers_readback_failed_mask());
++    two_digits(53, last_alarm);
++    row_P(3, PSTR("RECHTS:Menue <-STOP"));
++    return;
++  }
++  row_P(1, ready ? PSTR("DRV:OK YMIN:") : PSTR("DRV:FEHL YMIN:"));
++  uint8_t col = ready ? 12 : 14;
++  PGM_P state = (limits & 2) ? PSTR("aktiv") : PSTR("frei");
++  char c;
++  while ((c = pgm_read_byte(state++)) && col < 20) frame[20 + col++] = c;
++  if (!keys_ready) row_P(2, PSTR("Tasten loslassen"));
++  else if (command_error) {
++    row_P(2, PSTR("Befehl gesperrt E00"));
++    two_digits(57, command_error);
++  } else {
++    static const char labels[MENU_ITEMS][20] PROGMEM = {
++      ">Entriegeln", ">Y -0.1 mm", ">Y +0.1 mm", ">Y referenzieren", ">Abbruch / Reset"
++    };
++    row_P(2, labels[selection]);
++  }
++  row_P(3, PSTR("OK:Wahl LINKS:STOP"));
++}
++
++void rf2000_panel_service(void)
++{
++  if (!initialized) return;
++  uint16_t now;
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { now = panel_ms; }
++  // Different tick numbers alone can be only microseconds apart. Two tick
++  // increments guarantee >=1 ms between bytes, even across an ISR boundary.
++  if ((uint16_t)(now - last_service_ms) < 2) return;
++  last_service_ms = now;
++  const uint8_t limits = rf2000_limits_raw_state();
++  const uint8_t fault = rf2000_drivers_fault_reason();
++  const uint8_t ready = rf2000_drivers_ready() && !fault;
++  if (confirm_home && sys.state != STATE_IDLE && sys.state != STATE_ALARM) {
++    confirm_home = false; // A UART-originated move invalidates local consent.
++    dirty = true;
++  }
++  if (sys_rt_exec_alarm) rf2000_panel_note_alarm(sys_rt_exec_alarm);
++  if (sys.state == STATE_ALARM) {
++    if (!ready) last_alarm = EXEC_ALARM_DRIVER_FAULT;
++    else if (limits && !last_alarm) last_alarm = EXEC_ALARM_HARD_LIMIT;
++  }
++  if (sys.state != previous_state || limits != previous_limits ||
++      fault != previous_fault || ready != previous_ready || keys_ready != previous_keys_ready) {
++    previous_state = sys.state; previous_limits = limits;
++    previous_fault = fault; previous_ready = ready; previous_keys_ready = keys_ready;
++    dirty = true;
++  }
++  if (dirty) { compose_frame(limits, ready); frame_slot = 0; dirty = false; }
++  if (frame_slot < 84) {
++    static const uint8_t row_address[4] = {0x00, 0x40, 0x14, 0x54};
++    const uint8_t row = frame_slot / 21, col = frame_slot % 21;
++    if (!col) rf2000_lcd_write(0, 0x80 | row_address[row]);
++    else rf2000_lcd_write(1, frame[row * 20 + col - 1]);
++    ++frame_slot;
++  }
++}
++
++static uint8_t execute(const char *text)
++{
++  char command[28];
++  strcpy(command, text);
++  return system_execute_line(command);
++}
++
++void rf2000_panel_dispatch(uint8_t command_boundary)
++{
++  uint8_t event;
++  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { event = key_event; key_event = 0; }
++  if (!command_boundary || !event || dispatch_busy || sys.abort ||
++      sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET) ||
++      (sys.state != STATE_IDLE && sys.state != STATE_ALARM)) return;
++  dirty = true;
++  command_error = 0;
++  if (event == 2 || event == 4) {
++    confirm_home = diagnostics = 0;
++    selection = (selection + (event == 2 ? 1 : MENU_ITEMS - 1)) % MENU_ITEMS;
++  } else if (event == 3) {
++    confirm_home = 0;
++    diagnostics = !diagnostics;
++  } else if (event == 1) {
++    if (diagnostics) { diagnostics = false; return; }
++    dispatch_busy = true;
++    if (confirm_home) {
++      confirm_home = false;
++      command_error = execute("$22=1");
++      if (!command_error) command_error = execute("$HY");
++    } else if (selection == 0) {
++      command_error = execute("$X");
++      if (!command_error) last_alarm = 0;
++    } else if (selection == 1) command_error = execute("$J=G91G21Y-0.1F20");
++    else if (selection == 2) command_error = execute("$J=G91G21Y0.1F20");
++    else if (selection == 3) {
++      if (limits_motion_allowed()) confirm_home = true;
++      else command_error = STATUS_SYSTEM_GC_LOCK;
++    } else mc_reset();
++    dispatch_busy = false;
++    dirty = true;
++  }
++}
++
++#endif
+--- /dev/null
++++ b/grbl/rf2000_panel.h
+@@ -0,0 +1,24 @@
++/* Original RF2000v2 display/keypad, isolated Y commissioning UI. GPL-3.0+. */
++#ifndef RF2000_PANEL_H
++#define RF2000_PANEL_H
++#include <stdint.h>
++
++#if RF2000_LOCAL_PANEL
++void rf2000_panel_init(void);
++void rf2000_panel_reset(void);
++void rf2000_panel_tick_isr(void);
++uint8_t rf2000_panel_stop_active(void);
++void rf2000_panel_service(void);
++void rf2000_panel_dispatch(uint8_t command_boundary);
++void rf2000_panel_note_alarm(uint8_t alarm);
++void rf2000_panel_homing_phase(uint8_t phase);
++#else
++#define rf2000_panel_init() ((void)0)
++#define rf2000_panel_reset() ((void)0)
++#define rf2000_panel_tick_isr() ((void)0)
++#define rf2000_panel_service() ((void)0)
++#define rf2000_panel_dispatch(boundary) ((void)0)
++#define rf2000_panel_note_alarm(alarm) ((void)0)
++#define rf2000_panel_homing_phase(phase) ((void)0)
++#endif
 +#endif
 --- a/grbl/serial.c
 +++ b/grbl/serial.c
@@ -3079,7 +3606,7 @@
 +for directory in ('grbl', 'repetier', 'y-homing'):
 +    files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
 +for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
-+             'y-homing-build.log', 'y-homing-simulation.log',
++             'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
 +             'platformio-y-homing-build.log'):
 +    p = artifacts / name
 +    if p.is_file():
@@ -3942,6 +4469,477 @@
 +            assert f"{name} must be between 1 and 255" in result.stdout, result.stdout
 +    print("Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS")
 --- /dev/null
++++ b/tests/rf2000_panel_sim.c
+@@ -0,0 +1,468 @@
++/* Real-ELF tests for the RF2000 20x4 LCD and local commissioning keys.
++ * Observe the actual HD44780 four-bit bus, not firmware framebuffer memory.
++ * Reuse the five-DRV8711 and GPIO model of the standard profile. GPL-3.0+. */
++#include "sim_elf.h"
++#include "avr_eeprom.h"
++#include <ctype.h>
++static void panel_load_firmware(avr_t *avr, elf_firmware_t *firmware);
++#define avr_load_firmware panel_load_firmware
++#define main rf2000_general_regression_main
++#include "rf2000_sim.c"
++#undef main
++#undef avr_load_firmware
++
++enum panel_key { KEY_OK, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_UP,
++  KEY_E1, KEY_E2, KEY_E3, KEY_E4, KEY_STOP1, KEY_STOP2, KEY_COUNT };
++static const char key_port[KEY_COUNT] = {'G','B','H','B','L','J','J','J','J','H','H'};
++static const uint8_t key_bit[KEY_COUNT] = {5,7,0,5,7,2,4,5,6,7,2};
++static int held_at_boot = -1;
++static uint8_t retained_eeprom[4096];
++static struct {
++  uint8_t four_bit, high_pending, high_nibble, high_rs, address;
++  uint8_t ddram[128];
++  unsigned raw_init, function_sets, display_on, entry_modes, data_bytes;
++  uint64_t enable_rise;
++  uint64_t shortest_enable;
++  uint64_t last_byte_cycle;
++} lcd;
++
++static uint8_t gpio_level(char port, uint8_t bit)
++{
++  avr_ioport_state_t state = {0};
++  avr_ioctl(sim.avr,AVR_IOCTL_IOPORT_GETSTATE(port),&state);
++  return (state.port >> bit) & 1;
++}
++
++static void lcd_enable_changed(struct avr_irq_t *irq, uint32_t value, void *opaque)
++{
++  (void)irq; (void)opaque;
++  if (!is_output('K',3)) return;
++  if (value & 1) { lcd.enable_rise = sim.avr->cycle; return; }
++  if (!lcd.enable_rise) return;
++  const uint64_t width = sim.avr->cycle-lcd.enable_rise;
++  if (width < lcd.shortest_enable) lcd.shortest_enable = width;
++  CHECK(width >= 8,"LCD E pulse shorter than450ns: %.3fus",width/16.0);
++  lcd.enable_rise = 0;
++  CHECK(is_output('K',1) && is_output('F',5) && is_output('K',2) &&
++    is_output('A',1) && is_output('J',3),"LCD bus pin configured as input");
++  const uint8_t rs = gpio_level('K',1);
++  const uint8_t nibble = gpio_level('F',5) | (gpio_level('K',2)<<1) |
++    (gpio_level('A',1)<<2) | (gpio_level('J',3)<<3);
++  if (!lcd.four_bit) {
++    CHECK(!rs,"LCD entered data mode before four-bit initialization");
++    if (nibble==3) ++lcd.raw_init;
++    else if (nibble==2) {
++      CHECK(lcd.raw_init>=3,"LCD entered four-bit mode without three reset nibbles");
++      lcd.four_bit = 1;
++    } else CHECK(0,"unexpected LCD initialization nibble %x",nibble);
++    return;
++  }
++  if (!lcd.high_pending) {
++    if (lcd.last_byte_cycle) {
++      const uint64_t spacing=sim.avr->cycle-lcd.last_byte_cycle;
++      CHECK(spacing>=5120,"LCD byte spacing shorter than320us: %.3fus",spacing/16.0);
++    }
++    lcd.high_pending=1; lcd.high_nibble=nibble; lcd.high_rs=rs; return;
++  }
++  CHECK(rs==lcd.high_rs,"LCD RS changed between nibbles");
++  const uint8_t byte = (lcd.high_nibble<<4)|nibble;
++  lcd.high_pending=0;
++  lcd.last_byte_cycle=sim.avr->cycle;
++  if (rs) {
++    lcd.ddram[lcd.address++ & 127]=byte; ++lcd.data_bytes;
++  } else if (byte & 0x80) lcd.address=byte&127;
++  else if (byte==1) { memset(lcd.ddram,' ',sizeof(lcd.ddram)); lcd.address=0; }
++  else if (byte==2) lcd.address=0;
++  else if ((byte&0xf0)==0x20) { CHECK(byte==0x28,"LCD function-set %02x is not20x4 four-bit mode",byte); ++lcd.function_sets; }
++  else if ((byte&0xf8)==0x08) { if (byte&4) ++lcd.display_on; }
++  else if ((byte&0xfc)==0x04) { CHECK(byte==6,"LCD must use increment/no-shift entry mode"); ++lcd.entry_modes; }
++}
++
++static const char *display_text(void)
++{
++  static char text[85];
++  const uint8_t offset[4] = {0,0x40,0x14,0x54};
++  for (unsigned row=0;row<4;++row) {
++    for (unsigned col=0;col<20;++col) text[row*21+col]=(char)lcd.ddram[offset[row]+col];
++    text[row*21+20]='\n';
++  }
++  text[84]=0;
++  return text;
++}
++
++static int display_has(const char *needle)
++{
++  char upper[85];
++  const char *text=display_text();
++  for (unsigned i=0;i<sizeof(upper);++i) upper[i]=(char)toupper((unsigned char)text[i]);
++  char target[48];
++  CHECK(strlen(needle)<sizeof(target),"display search too long");
++  unsigned i=0;
++  do { target[i]=(char)toupper((unsigned char)needle[i]); } while (needle[i++]);
++  return strstr(upper,target)!=NULL;
++}
++
++static void key_level(enum panel_key key, uint8_t released)
++{
++  input_pin(key_port[key],key_bit[key],released);
++}
++
++static void panel_load_firmware(avr_t *avr, elf_firmware_t *firmware)
++{
++  avr_load_firmware(avr,firmware);
++  memset(&lcd,0,sizeof(lcd));
++  memset(lcd.ddram,' ',sizeof(lcd.ddram));
++  lcd.shortest_enable=UINT64_MAX;
++  avr_irq_register_notify(pin_irq('K',3),lcd_enable_changed,NULL);
++  for (unsigned key=0;key<KEY_COUNT;++key) key_level((enum panel_key)key,(int)key!=held_at_boot);
++  for (unsigned i=0;i<sizeof(retained_eeprom);++i) retained_eeprom[i]=(uint8_t)(i*73+19);
++  avr_eeprom_desc_t eeprom = {.ee=NULL,.offset=0,.size=sizeof(retained_eeprom)};
++  avr_ioctl(avr,AVR_IOCTL_EEPROM_GET,&eeprom);
++  CHECK(eeprom.ee,"cannot inspect simulated EEPROM");
++  memcpy(eeprom.ee,retained_eeprom,sizeof(retained_eeprom));
++}
++
++static void panel_terminate(void)
++{
++  avr_eeprom_desc_t eeprom = {.ee=NULL,.offset=0,.size=sizeof(retained_eeprom)};
++  avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
++  CHECK(eeprom.ee && !memcmp(eeprom.ee,retained_eeprom,sizeof(retained_eeprom)),
++    "local panel altered the retained4096 EEPROM bytes");
++  avr_terminate(sim.avr);
++}
++
++static void no_other_steps(void)
++{
++  CHECK(!sim.step_count[0] && !sim.step_count[2] && !sim.step_count[3] && !sim.step_count[4],
++    "panel emitted non-Y steps: %u/%u/%u/%u",sim.step_count[0],sim.step_count[2],sim.step_count[3],sim.step_count[4]);
++}
++
++static struct {
++  int position;
++  uint8_t enabled, level, previous_step;
++  unsigned contacts, releases, phases, phase_steps[8], wakes;
++  int phase_direction[8];
++} switch_model;
++
++static void panel_y_sleep(struct avr_irq_t *irq, uint32_t value, void *opaque)
++{
++  (void)irq; (void)opaque;
++  if ((value&1) && is_output('F',2)) ++switch_model.wakes;
++}
++
++static void panel_y_step(struct avr_irq_t *irq, uint32_t value, void *opaque)
++{
++  (void)irq; (void)opaque;
++  const uint8_t level=value&1;
++  const uint8_t previous=switch_model.previous_step;
++  switch_model.previous_step=level;
++  if (!level || previous==level || !is_output('F',6)) return;
++  const int direction=gpio_level('F',7) ? 1 : -1;
++  if (!switch_model.phases || switch_model.phase_direction[switch_model.phases-1]!=direction) {
++    CHECK(switch_model.phases<8,"unexpected extra Y direction reversals");
++    switch_model.phase_direction[switch_model.phases++]=direction;
++  }
++  ++switch_model.phase_steps[switch_model.phases-1];
++  switch_model.position+=direction;
++  if (!switch_model.enabled) return;
++  const uint8_t active=switch_model.position<=0;
++  if (active!=switch_model.level) {
++    if (active) ++switch_model.contacts; else ++switch_model.releases;
++    switch_model.level=active;
++    input_pin('C',0,!active);
++  }
++}
++
++static void panel_y_enable(struct avr_irq_t *irq, uint32_t value, void *opaque)
++{
++  (void)irq;
++  watched_pin_t *pin=opaque;
++  if (is_output(pin->port,pin->bit)) CHECK(!(value&1),"panel woke non-Y driver P%c%u",pin->port,pin->bit);
++}
++
++static void boot_panel(const char *elf, int held)
++{
++  held_at_boot=held;
++  boot(elf,0);
++  all_asleep();
++  memset(&switch_model,0,sizeof(switch_model));
++  switch_model.position=150;
++  avr_irq_register_notify(pin_irq('F',6),panel_y_step,NULL);
++  avr_irq_register_notify(pin_irq('F',2),panel_y_sleep,NULL);
++  const char ports[]={'D','K','A','C'};
++  const uint8_t bits[]={7,0,2,7};
++  for (unsigned i=0;i<sizeof(bits);++i)
++    avr_irq_register_notify(pin_irq(ports[i],bits[i]),panel_y_enable,&sim.watch[ports[i]-'A'][bits[i]]);
++  CHECK(lcd.four_bit && lcd.raw_init==3 && lcd.function_sets && lcd.display_on && lcd.entry_modes,
++    "HD44780 initialization missing: init%u function%u on%u entry%u",lcd.raw_init,lcd.function_sets,lcd.display_on,lcd.entry_modes);
++  CHECK(lcd.data_bytes>=80,"LCD did not write all four rows");
++  CHECK(is_output('A',0) && gpio_level('A',0),"LCD backlight PA0 not HIGH output");
++  for (unsigned key=0;key<KEY_COUNT;++key) {
++    CHECK(!is_output(key_port[key],key_bit[key]),"key%u configured as output",key);
++    CHECK(gpio_level(key_port[key],key_bit[key]),"key%u missing internal pullup",key);
++  }
++  CHECK(display_has("Y") && display_has("Alarm"),"startup display lacks Y/alarm state:\n%s",display_text());
++}
++
++static void press(enum panel_key key)
++{
++  key_level(key,0); run_us(35000);
++  key_level(key,1); run_us(45000);
++}
++
++static void unlock_panel(void)
++{
++  press(KEY_OK);
++  run_us(120000);
++  CHECK(strstr(command("?",30),"<Idle"),"panel unlock did not leave Alarm:\n%s",display_text());
++  CHECK(display_has("Bereit"),"unlocked display lacks BEREIT:\n%s",display_text());
++  CHECK(!sim.step_count[1],"unlock emitted STEP");
++}
++
++static void select_homing(void)
++{
++  for (unsigned i=0;i<3;++i) press(KEY_DOWN);
++  run_us(100000);
++  CHECK(display_has("Y") && display_has("Refer"),"Y homing menu missing:\n%s",display_text());
++}
++
++static void confirm_homing(void)
++{
++  press(KEY_OK);
++  CHECK(!sim.step_count[1],"first homing confirmation already moved Y");
++  press(KEY_OK);
++}
++
++static void wait_steps(unsigned minimum)
++{
++  const uint64_t deadline=sim.avr->cycle+3*CPU_HZ;
++  while (sim.step_count[1]<minimum && sim.avr->cycle<deadline) run_us(1000);
++  CHECK(sim.step_count[1]>=minimum,"panel did not start Y motion:\n%s",display_text());
++  no_other_steps();
++}
++
++static void test_startup_and_keys(const char *elf)
++{
++  boot_panel(elf,KEY_OK);
++  run_us(800000);
++  CHECK(strstr(command("?",30),"<Alarm") && !sim.step_count[1],"held startup OK was accepted");
++  key_level(KEY_OK,1); run_us(60000);
++  for (enum panel_key key=KEY_E1;key<=KEY_E4;++key) press(key);
++  CHECK(!sim.step_count[1],"unused original printer key caused motion");
++  char before_diagnostic[85];
++  memcpy(before_diagnostic,display_text(),sizeof(before_diagnostic));
++  press(KEY_RIGHT); run_us(150000);
++  CHECK(strcmp(before_diagnostic,display_text()),"RIGHT did not change diagnostic display");
++  CHECK(!sim.step_count[1],"diagnostic navigation caused motion");
++  press(KEY_RIGHT); run_us(150000);
++  for (unsigned bounce=0;bounce<6;++bounce) {
++    key_level(KEY_OK,0); run_us(3000); key_level(KEY_OK,1); run_us(3000);
++  }
++  run_us(70000);
++  CHECK(strstr(command("?",30),"<Alarm"),"bouncing OK unlocked the machine");
++  unlock_panel();
++  press(KEY_DOWN); press(KEY_DOWN);
++  key_level(KEY_OK,0); key_level(KEY_DOWN,0); run_us(60000);
++  key_level(KEY_DOWN,1); run_us(60000);
++  CHECK(!sim.step_count[1],"multi-key press or partial release caused motion");
++  key_level(KEY_OK,1); run_us(60000);
++  all_asleep(); no_other_steps();
++  printf("PASS: HD44780 init/20x4 bus/backlight/pullups; held startup OK, bounce and multiple keys cannot move/unlock\n");
++  panel_terminate();
++}
++
++static void test_jogs(const char *elf)
++{
++  boot_panel(elf,-1); unlock_panel();
++  press(KEY_DOWN);
++  key_level(KEY_OK,0); run_us(1200000);
++  CHECK(sim.step_count[1]==15,"held negative-jog OK emitted%u steps instead of15",sim.step_count[1]);
++  CHECK(switch_model.position==135,"negative-jog direction is wrong");
++  key_level(KEY_OK,1); run_us(60000);
++  press(KEY_DOWN); press(KEY_OK); run_us(700000);
++  CHECK(sim.step_count[1]==30 && switch_model.position==150,"positive-jog did not return15 steps");
++  // The same physical key pressed during an existing jog is not a queued jog.
++  // Driver wake intentionally takes25ms before the serial command returns.
++  assert_ok("$J=G91G21Y0.5F20\n",50);
++  press(KEY_OK); run_us(1800000);
++  CHECK(sim.step_count[1]==106,"busy panel key queued a second jog, total%u",sim.step_count[1]);
++  all_asleep(); no_other_steps();
++  run_us(150000);
++  CHECK(display_has("Bereit"),"jog did not restore BEREIT on display:\n%s",display_text());
++  printf("PASS: menu -0.1/+0.1mm produces15+15 Y-only steps; held OK never repeats; busy key never queues\n");
++  panel_terminate();
++}
++
++static void test_home(const char *elf)
++{
++  boot_panel(elf,-1);
++  switch_model.enabled=1;
++  select_homing();
++  key_level(KEY_OK,0); run_us(800000);
++  CHECK(!sim.step_count[1],"held first homing OK bypassed separate confirmation");
++  key_level(KEY_OK,1); run_us(60000);
++  press(KEY_OK);
++  wait_steps(10);
++  run_us(150000);
++  CHECK(display_has("REF-SUCHE"),"moving homing state absent from LCD:\n%s",display_text());
++  const uint64_t deadline=sim.avr->cycle+12*CPU_HZ;
++  while ((switch_model.phases<4 || awake(1)) && sim.avr->cycle<deadline) run_us(10000);
++  CHECK(sim.avr->cycle<deadline,"panel homing did not finish:\n%s",display_text());
++  run_us(250000);
++  CHECK(switch_model.phases==4 && switch_model.contacts==2 && switch_model.releases==2,
++    "panel homing missed standard search/pull-off/locate/pull-off cycle: phases%u contacts%u releases%u",
++    switch_model.phases,switch_model.contacts,switch_model.releases);
++  for (unsigned p=0;p<4;++p) {
++    CHECK(switch_model.phase_direction[p]==(p%2 ? 1 : -1),"panel homing phase%u direction wrong",p);
++    CHECK(switch_model.phase_steps[p]>=150 && switch_model.phase_steps[p]<=155,
++      "panel homing phase%u travel wrong: %u steps",p,switch_model.phase_steps[p]);
++  }
++  CHECK(strstr(command("?",30),"<Idle") && display_has("Bereit"),"panel homing did not return Idle/BEREIT:\n%s",display_text());
++  all_asleep(); no_other_steps();
++  printf("PASS: two separate OK edges run complete Y-only standard homing,2 contacts/2 releases and LCD REF-SUCHE/BEREIT updates\n");
++  panel_terminate();
++}
++
++static void check_stopped(enum panel_key key)
++{
++  key_level(key,0);
++  run_us(1200);
++  all_asleep();
++  const unsigned steps=sim.step_count[1];
++  run_us(700000);
++  CHECK(sim.step_count[1]==steps,"Y STEP continued after raw panel stop");
++  CHECK(display_has("Alarm") || display_has("Abbruch"),"LCD failed to update during critical alarm wait:\n%s",display_text());
++  no_other_steps();
++}
++
++static void test_stop(const char *elf, enum panel_key key, unsigned phase)
++{
++  boot_panel(elf,-1);
++  switch_model.enabled=phase!=0;
++  select_homing(); confirm_homing();
++  const uint64_t deadline=sim.avr->cycle+10*CPU_HZ;
++  while ((switch_model.phases<phase+1 || switch_model.phase_steps[phase]<8) && sim.avr->cycle<deadline) run_us(1000);
++  CHECK(sim.avr->cycle<deadline,"homing phase%u did not start",phase);
++  check_stopped(key);
++  printf("PASS: raw P%c%u stops homing phase%u within one Timer2 tick; no later STEP, LCD alarm remains live\n",key_port[key],key_bit[key],phase);
++  panel_terminate();
++}
++
++static void test_stop_jog(const char *elf)
++{
++  boot_panel(elf,-1); unlock_panel();
++  press(KEY_DOWN); press(KEY_DOWN); press(KEY_OK);
++  wait_steps(3);
++  check_stopped(KEY_LEFT);
++  CHECK(sim.step_count[1]<15,"jog stop failed to interrupt bounded movement");
++  printf("PASS: LEFT stops an active panel jog without waiting for key debounce\n");
++  panel_terminate();
++}
++
++static void test_fault_display(const char *elf)
++{
++  boot_panel(elf,-1);
++  select_homing(); confirm_homing(); wait_steps(15);
++  input_pin('E',6,0); run_us(1); input_pin('E',6,1);
++  run_us(1800); all_asleep();
++  const unsigned steps=sim.step_count[1];
++  run_us(700000);
++  CHECK(strstr(sim.log,"ALARM:12"),"FAULTn did not report driver fault");
++  CHECK(display_has("12") && (display_has("Alarm") || display_has("Fault")),
++    "driver fault code absent from LCD critical-alarm screen:\n%s",display_text());
++  CHECK(sim.step_count[1]==steps,"driver fault allowed continuing Y steps");
++  no_other_steps();
++  printf("PASS:1us FAULTn pulse stops Y and displays retained alarm12 while serial waits\n");
++  panel_terminate();
++}
++
++static void commands_blocked_by_held_stop(void)
++{
++  const unsigned steps=sim.step_count[1], wakes=switch_model.wakes;
++  assert_error("$X\n");
++  // Session configuration itself may be accepted; it must never bypass STOP.
++  const char *setting=command("$22=1\n",50);
++  CHECK(strstr(setting,"ok\r\n") || strstr(setting,"error:"),"session-setting command produced no response");
++  assert_error("$HY\n");
++  assert_error("$J=G91G21Y0.1F20\n");
++  run_us(100000);
++  CHECK(sim.step_count[1]==steps && switch_model.wakes==wakes,
++    "held STOP allowed UART motion or motor wake: steps%u/%u wakes%u/%u",
++    steps,sim.step_count[1],wakes,switch_model.wakes);
++  CHECK(strstr(command("?",30),"<Alarm"),"held STOP allowed leaving startup/reset Alarm");
++  all_asleep(); no_other_steps();
++}
++
++static void test_held_stop(const char *elf)
++{
++  const enum panel_key stops[]={KEY_LEFT,KEY_STOP1,KEY_STOP2};
++  for (unsigned i=0;i<sizeof(stops)/sizeof(*stops);++i) {
++    const enum panel_key key=stops[i];
++    boot_panel(elf,key);
++    commands_blocked_by_held_stop();
++    key_level(key,1); run_us(60000);
++    assert_ok("$X\n",50);
++    assert_ok("$J=G91G21Y0.1F20\n",700);
++    CHECK(sim.step_count[1]==15,"release of startup STOP failed to permit bounded UART jog");
++    all_asleep();
++    key_level(key,0); run_us(100000);
++    commands_blocked_by_held_stop();
++    key_level(key,1); run_us(60000);
++    assert_ok("$X\n",50);
++    assert_ok("$J=G91G21Y-0.1F20\n",700);
++    CHECK(sim.step_count[1]==30 && switch_model.position==150,
++      "release of runtime STOP failed to permit bounded reverse UART jog");
++    all_asleep(); no_other_steps();
++    printf("PASS: held P%c%u blocks UART unlock/home/jog at startup and after reset without motor wake; release permits bounded jog\n",
++      key_port[key],key_bit[key]);
++    panel_terminate();
++  }
++}
++
++static void test_serial_cancels_confirmation(const char *elf)
++{
++  boot_panel(elf,-1);
++  select_homing(); press(KEY_OK); run_us(200000);
++  CHECK(display_has("Y-Referenz starten?"),"initial homing confirmation did not open:\n%s",display_text());
++  CHECK(!sim.step_count[1],"opening confirmation emitted STEP");
++  assert_ok("$X\n",50);
++  assert_ok("$J=G91G21Y0.5F20\n",80);
++  run_us(200000);
++  CHECK(display_has("Y: JOG") && !display_has("starten?"),
++    "serial jog retained stale homing confirmation:\n%s",display_text());
++  run_us(1500000);
++  CHECK(sim.step_count[1]==76 && display_has("Bereit"),
++    "serial jog did not finish its bounded76 steps/BEREIT:\n%s",display_text());
++  all_asleep();
++  const unsigned wakes=switch_model.wakes;
++  press(KEY_OK); run_us(200000);
++  CHECK(display_has("Y-Referenz starten?"),"first OK after serial jog did not reopen confirmation:\n%s",display_text());
++  CHECK(sim.step_count[1]==76 && switch_model.wakes==wakes,
++    "serial interruption left an armed homing confirmation; new OK started motion");
++  all_asleep(); no_other_steps();
++  printf("PASS: UART jog cancels open homing confirmation; LCD shows JOG/BEREIT and next OK only reopens dialog\n");
++  panel_terminate();
++}
++
++int main(int argc, char **argv)
++{
++  setvbuf(stdout,NULL,_IOLBF,0);
++  if (argc<2 || argc>3) { fprintf(stderr,"usage: %s y-panel-firmware.elf [case]\n",argv[0]); return 2; }
++  unsigned selected=0;
++  #define RUN_CASE(name, ...) do { if (argc==2 || !strcmp(argv[2],name)) { __VA_ARGS__; ++selected; } } while (0)
++  RUN_CASE("keys",test_startup_and_keys(argv[1]));
++  RUN_CASE("jog",test_jogs(argv[1]));
++  RUN_CASE("home",test_home(argv[1]));
++  RUN_CASE("stop-search",test_stop(argv[1],KEY_LEFT,0));
++  RUN_CASE("stop-pulloff",test_stop(argv[1],KEY_STOP1,1));
++  RUN_CASE("stop-locate",test_stop(argv[1],KEY_STOP2,2));
++  RUN_CASE("stop-final-pulloff",test_stop(argv[1],KEY_LEFT,3));
++  RUN_CASE("stop-jog",test_stop_jog(argv[1]));
++  RUN_CASE("fault-display",test_fault_display(argv[1]));
++  RUN_CASE("held-stop",test_held_stop(argv[1]));
++  RUN_CASE("serial-confirmation",test_serial_cancels_confirmation(argv[1]));
++  #undef RUN_CASE
++  if (!selected) { fprintf(stderr,"unknown test case: %s\n",argv[2]); return 2; }
++  printf("PASS: %u local-panel real-AVR cases; retained EEPROM unchanged\n",selected);
++  return 0;
++}
+--- /dev/null
 +++ b/tests/rf2000_sim.c
 @@ -0,0 +1,462 @@
 +/* Run the real ATmega2560 ELF in simavr with a five-channel DRV8711 SPI
@@ -4729,6 +5727,20 @@
 +  return 0;
 +}
 --- /dev/null
++++ b/tests/run-panel-sim.sh
+@@ -0,0 +1,11 @@
++#!/usr/bin/env bash
++set -euo pipefail
++repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++tool_root="${RF2000_AVR_ROOT:-/workspace/.tools/avr}"
++sim_lib="$tool_root/usr/lib/x86_64-linux-gnu"
++mkdir -p "$repo_root/build/tests"
++cc -std=c11 -O2 -Wall -Wextra -Werror \
++  -I"$tool_root/usr/include/simavr" \
++  "$repo_root/tests/rf2000_panel_sim.c" -L"$sim_lib" \
++  -Wl,-rpath,"$sim_lib" -lsimavr -o "$repo_root/build/tests/rf2000_panel_sim"
++"$repo_root/build/tests/rf2000_panel_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
+--- /dev/null
 +++ b/tests/run-sim.sh
 @@ -0,0 +1,11 @@
 +#!/usr/bin/env bash
@@ -4758,7 +5770,7 @@
 +"$repo_root/build/tests/rf2000_y_homing_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
 --- /dev/null
 +++ b/docs/development.md
-@@ -0,0 +1,103 @@
+@@ -0,0 +1,107 @@
 +# Entwicklung und Build
 +
 +Die Cloudumgebung verwendet den vorhandenen Checkout `/workspace/RF2000`.
@@ -4841,6 +5853,10 @@
 +ohne Gesamtweg- oder Zeitlimit. Reset löscht die Freigabe. Dieses Profil
 +übernimmt keine EEPROM-Einstellungen und schreibt kein EEPROM. Ablauf und
 +Testwerte stehen in [y-axis-test.md](y-axis-test.md).
++Dasselbe Y-Profil aktiviert das Original-LCD und Tastenfeld ohne zusätzliche
++Bibliothek. `make check-panel` prüft die lokale Bedienung am tatsächlichen
++AVR-ELF. Menü, Abbruchtasten und zweifache Referenzbestätigung stehen in
++[local-panel.md](local-panel.md). Das Standardprofil aktiviert diese UI nicht.
 +
 +`make flash`, `make fuse`, `make install` und `make load` brechen bewusst ab.
 +Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.
@@ -5181,10 +6197,10 @@
 +| Homing-Freigabe, verantwortliche Person, Datum | **nicht erteilt** |
 --- /dev/null
 +++ b/docs/hardware-verification.md
-@@ -0,0 +1,134 @@
+@@ -0,0 +1,170 @@
 +# Hardwareabgleich RF2000v2 / I851 CTC V3.0
 +
-+Stand: 18.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
++Stand: 19.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
 +
 +## Verbindliche Quellenpriorität und ergänzende Quellen
 +
@@ -5287,9 +6303,45 @@
 +zu Repetier stehen in [y-axis-test.md](y-axis-test.md). Eine physische
 +Richtungs-/Pegelprüfung muss vor dem Start erfolgen.
 +
++## Originaldisplay und Tasten im Y-Testprofil
++
++Das getrennte Y-Testprofil verwendet das originale **20×4-HD44780-Display im 4-Bit-Modus** und die elf direkten Taster. Die übrigen Druckermenüs und Druckerfunktionen werden nicht importiert. Im Standardprofil bleiben Display und Tasten unbenutzt. Maßgeblich sind `references/repetier/Repetier/pins.h:680–702` für die Taster und `pins.h:740–757` für das Display. Displaytyp, Größe und ursprüngliche Bytewartezeit stehen in `ui.h:257–265`; die Ansteuerung übernimmt die Initialisierungsfolge aus `ui.cpp:438–500`. Die Dateien unter `references/repetier/` bleiben unverändert.
++
++| LCD-Signal | AVR / Mega | Displaystecker X21 |
++|---|---|---|
++| RS | PK1 / D63 | Pin 13 |
++| E | PK3 / D65 | Pin 9 |
++| D4 | PF5 / D59 | Pin 7 |
++| D5 | PK2 / D64 | Pin 5 |
++| D6 | PA1 / D23 | Pin 3 |
++| D7 | PJ3 / Repetier-Sonderpin 98 | Pin 1 |
++| R/W | VSS, kein GPIO | Pin 11 |
++
++Blatt 2 zeigt 51-Ω-Serienwiderstände in den sechs Daten-/Steuerleitungen. R/W liegt fest an Masse; der Port schreibt ausschließlich und liest kein Busy-Bit. Die vier DDRAM-Zeilen beginnen bei `0x00`, `0x40`, `0x14`, `0x54`, entsprechend `ui.h:672–679`. Die Startfolge wartet zunächst 500 ms und überträgt die Nibbles `3, 3, 3, 2`, anschließend die Befehle `0x28`, `0x01`, `0x06`, `0x0C`, mit den ursprünglichen Initialisierungswartezeiten. Laufende Displayausgaben werden im Vordergrund zeitlich verteilt. Kurze atomare, maskierte Portzugriffe erhalten insbesondere die STEP-Bits auf PORTF, Z-SLEEP auf PK0 und DRV5-SCS auf PJ7; Wartezeiten und LCD-Pulse sperren die Schrittinterrupts nicht über einen gesamten Zeichentransfer.
++
++Die Tasten sind aktive LOW-Eingänge mit internen Pullups gemäß `ui.h:318–320` und `ui.cpp:566–593`. Blatt 2 ergänzt externe 3,3-kΩ-Pullups nach P5V. Die Zuordnung lautet:
++
++| Tasterfunktion der alten Firmware | AVR / Mega | Tastenstecker X23 |
++|---|---|---|
++| OK | PG5 / D4 | Pin 2 |
++| Abwärts / NEXT | PB7 / D13 | Pin 3 |
++| Rechts | PH0 / D17 | Pin 1 |
++| Links / BACK | PB5 / D11 | Pin 4 |
++| Aufwärts / PREVIOUS | PL7 / D42 | Pin 6 |
++| Z auf | PJ2 / Repetier-Sonderpin 80 | Pin 14 |
++| Z ab | PJ4 / Repetier-Sonderpin 81 | Pin 8 |
++| Filament zurück | PJ5 / Repetier-Sonderpin 82 | Pin 11 |
++| Filament vor | PJ6 / Repetier-Sonderpin 83 | Pin 13 |
++| CONTINUE | PH7 / Repetier-Sonderpin 85 | Pin 7 |
++| PAUSE | PH2 / Repetier-Sonderpin 86 | Pin 9 |
++
++**Weitere belegte Abweichung:** Auf Blatt 2 ist X23 Pin 7 als „PAUSE“ und Pin 9 als „CONT“ beschriftet. Die Repetier-Funktionen sind dazu vertauscht: `pins.h:689–692` verbindet E5 mit PH7 und E6 mit PH2; `ui.cpp:592–593` ordnet E5 `CONTINUE` und E6 `PAUSE` zu. Die elektrische GPIO-Zuordnung folgt weiterhin der alten Firmware. Für den neuen Y-Test dienen **beide Leitungen PH7 und PH2 bewusst als Abbruch**, ebenso Links. Diese neue Testfunktion ist keine unverändert übernommene Pause-/Fortsetzen-Funktion; keine der beiden Sondertasten setzt eine abgebrochene Bewegung fort. Die früheren Z-/Extrudertasten aktivieren keine Z- oder Extruderbewegungen.
++
++**Ergänzung zur alten Firmware:** Die Hintergrundbeleuchtung wird im Y-Profil über **PA0 / D22 (`D_LED`) HIGH** eingeschaltet. Blatt 2 zeigt den BC847-Masseschalter Q8, zwei 10-kΩ-Widerstände R76/R78 und die LED-Versorgung über R53 mit 22 Ω / 0,5 W. Die bereitgestellte Repetier-Firmware konfiguriert PA0 nicht ausdrücklich; diese Aktivierung folgt ergänzend dem Schaltplan. PA0 ist kein Motorpin. Die Display-/Tastenintegration und diese beiden bewussten Änderungen sind Quellen- und Softwarebefunde, keine bestätigten Messungen am Originalbedienteil.
++
 +## Unbenutzte Leistungsausgänge und Watchdog-Verhalten
 +
-+Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, LCD-, SD- oder Servo-Funktion. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
++Blatt 6 zeigt aktive HIGH-MOSFET-Ausgänge. HZ1/HZ2/HZ3 und OUT1–5 haben 100-kΩ-Pulldowns (R121–R128); diese wirken auch während Reset hochohmiger MCU-Pins. Für den CNC-Test werden HZ1/PB4, HZ2/PH6, HZ3/PE2, P230/PE5, OUT1/PA3, OUT2/PA5, OUT3/PC4, OUT4/PC5, OUT5/PF4, RGB/PH3–PH5 und Buzzer/PE3 inaktiv gehalten. Der Port bietet keine Heizer-, Extruder-, Temperatur-, Wägezellen-, SD- oder Servo-Funktion. LCD und Tasten bleiben im Standardprofil unbenutzt; ausschließlich das Y-Testprofil verwendet das oben beschriebene lokale Bedienteil. M3/M4/M7/M8 dürfen diese Verbraucher nicht freigeben. P230 ist eine potenziell netzspannungsführende Steckdose; der Port ist keine fertige Spindelschnittstelle.
 +
 +Die aktuelle Entscheidung zur abweichenden Zuordnung lautet:
 +
@@ -5492,8 +6544,118 @@
 +Es wurden keine physischen Hardwaremessungen oder Referenzfahrten in der
 +Cloud ausgeführt. Host-Tests bzw. AVR-Kompilation prüfen nur die Software.
 --- /dev/null
++++ b/docs/local-panel.md
+@@ -0,0 +1,107 @@
++# Y-Test mit originalem Display und Tastenfeld
++
++Das Profil **`rf2000_y_homing_test`** unterstützt das originale RF2000v2-
++HD44780-Display mit 20×4 Zeichen und das vorhandene Tastenfeld. Pinbelegung,
++4-Bit-Ansteuerung und Initialisierungsfolge stammen aus der bereitgestellten
++Repetier-Referenz. Die Bedienoberfläche ist ein eigenes kleines GRBL-Testmenü.
++Es werden keine Drucker-, Heizungs- oder Extrudermenüs übernommen.
++Das Standardprofil `rf2000_grbl` aktiviert dieses Bedienfeld nicht.
++
++## Bauen
++
++Repository aktualisieren und im Hauptordner kompilieren:
++
++```bash
++git pull
++pio run -e rf2000_y_homing_test
++```
++
++In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
++Ergebnis: `.pio/build/rf2000_y_homing_test/firmware.hex`.
++Nach dem gesonderten Programmieren dieser Firmware kann der Y-Test ohne
++seriellen Sender bedient werden. Ein Build überträgt keine Firmware.
++
++## Tasten und Anzeigen
++
++| Taste | Funktion |
++| --- | --- |
++| Hoch / Runter | Menüpunkt auswählen; eine Betätigung pro vollständigem Drücken und Loslassen |
++| OK | Ausgewählten Punkt ausführen oder Referenzstart bestätigen |
++| Rechts | Diagnose anzeigen / zurück zum Menü |
++| Links | Sofortiger Software-Abbruch und GRBL-Reset |
++| Pause und Continue | Beide sofortiger Software-Abbruch und GRBL-Reset; keine Wiederaufnahme |
++| Vier bisherige Z-/Extrudertasten | Ohne Bewegungsfunktion |
++
++Beim Einschalten alle Tasten loslassen. Die Eingaben werden mit 20 ms
++entprellt; gehaltene Tasten wiederholen keine Aktion. Bewegungsbefehle
++während einer laufenden Aktion werden verworfen. STOP wirkt bereits beim
++ersten LOW-Sample der 1-kHz-Abfrage, ohne die Entprellzeit abzuwarten.
++Eine gehaltene STOP-Taste sperrt auch neue Bewegungen über die serielle
++Schnittstelle. Nach Abbruch ist erneut zu entriegeln; nichts fährt selbst an.
++
++Das Display zeigt ALARM, BEREIT, JOG oder die aktuelle Referenzphase sowie
++`DRV:OK` / `DRV:FEHL` und `YMIN:frei` / `YMIN:aktiv`. Der Startalarm ist
++beabsichtigt. In der Diagnose bedeuten X/Y/Z-/Z+ jeweils `1` für betätigt
++und `0` für frei. `F` ist die DRV-Fehlerursache, `R` die Readbackfehler-Maske
++und `A` die letzte Alarmnummer; diese Zahlen erscheinen dezimal.
++`Befehl gesperrt E…` zeigt einen GRBL-Statusfehler, keine ausgeführte Bewegung.
++Hoch/Runter wählt anschließend wieder einen Menüpunkt.
++
++## Erster Y-Test am Bedienfeld
++
++Die elektrischen Prüfungen und Voraussetzungen aus
++[y-axis-test.md](y-axis-test.md) gelten unverändert. Ausschließlich Y wird
++freigegeben; X/Z/A/B bleiben gesperrt. Die physische Richtung und die
++Schalterfunktion müssen vor der Referenzfahrt geprüft sein.
++
++1. Nach dem Start alle Tasten loslassen. `DRV:OK` und bei freiem Schalter
++   `YMIN:frei` prüfen. Den Y-Schalter von Hand betätigen: Die Anzeige muss
++   auf `aktiv` wechseln und nach Loslassen wieder `frei` werden. Mit Rechts
++   lassen sich die anderen Eingänge ebenfalls ohne Bewegung prüfen.
++2. **Entriegeln → OK**. Aktive Schalter oder Treiberfehler verhindern die
++   Freigabe. Bei einem kritischen Alarm zuerst mit Links zurücksetzen;
++   ein verriegelter Treiberfehler erfordert nach Ursachenbehebung einen
++   echten MCU-Neustart.
++3. **Y -0.1 mm → OK**: genau ein kurzer Jog mit 20 mm/min. Y- muss zum
++   Min-Schalter zeigen. **Y +0.1 mm → OK** prüft die Gegenrichtung.
++   Vor jeder weiteren Aktion auf das Ende der Bewegung warten.
++4. Bei bestätigter Richtung und Schalterfunktion sowie freien Eingängen
++   **Y referenzieren → OK** wählen. Das Display fragt nach Richtung und
++   Schalterprüfung. **OK vollständig loslassen und erneut drücken** startet
++   die Fahrt. Hoch/Runter/Rechts verwirft diese Bestätigung. Eine zwischenzeitlich
++   über USB gestartete Bewegung verwirft sie ebenfalls.
++5. Die Anzeige wechselt durch **REF-SUCHE → RUECKZUG → FEINANFAHRT →
++   FREIFAHREN → BEREIT**. Der Ablauf entspricht den seriellen Befehlen
++   `$22=1` und `$HY`: 60 mm/min erste Suche, 1 mm Rückzug, 20 mm/min
++   zweite Annäherung, 1 mm abschließender Rückzug.
++
++Die erste Suche läuft entsprechend dem gewünschten endlosen Prüfaufbau
++ohne Gesamtweg- oder Zeitbegrenzung bis zum Y-Min-Kontakt. Die zweite
++Annäherung ist auf 5 mm begrenzt. Bei einem handbetätigten Prüfschalter
++beim ersten Rückzug loslassen, bei der zweiten Annäherung erneut betätigen
++und beim abschließenden Rückzug wieder loslassen.
++
++**Abbruch jederzeit mit Links, Pause oder Continue.** Diese Tasten wirken
++wie der serielle GRBL-Reset Ctrl-X; sie ersetzen keinen unabhängigen
++Hardware-Not-Aus. Ein dauerhaft betätigter Schalter wird nicht automatisch
++freigefahren. Alarm 8 bedeutet Rückzugfehler, 9 fehlenden zweiten Kontakt,
++6 Referenzabbruch und 12 Treiber-/Readbackfehler.
++
++## Implementierung und Nachweise
++
++`RF2000_LOCAL_PANEL` ist standardmäßig ausschließlich im Y-Testprofil aktiv.
++LCD-Schreibzugriffe erfolgen portmaskiert in kurzen atomaren Abschnitten;
++die gemeinsam genutzten Motor- und SPI-Portbits bleiben erhalten. Laufzeit-
++Updates übertragen höchstens ein LCD-Byte je zwei Timer-Ticks im Vordergrund;
++auch über Tickgrenzen liegt mindestens 1 ms zwischen Bytes.
++Der Timer-ISR liest nur Tasten und führt gegebenenfalls den GPIO-Abbruch aus.
++Auch die blockierende Referenzfahrt und der kritische Alarmzustand bedienen
++die Displayaktualisierung. Menüs lösen Befehle ausschließlich an einer
++freien Protokollgrenze über die vorhandenen GRBL-Prüfungen aus.
++
++`make check-panel` prüft das tatsächliche AVR-ELF einschließlich LCD-Bus,
++Tasten und Bewegungen; `make check-y-homing` prüft zusätzlich die seriellen
++Y-Abläufe. Ergebnisse und Grenzen stehen in [validation.md](validation.md).
++Eine reale Platine, ihr Display und ihre Tasten wurden in der Cloud nicht
++getestet. Die belegte Pinzuordnung und bewusste Änderungen gegenüber
++Repetier stehen in [hardware-verification.md](hardware-verification.md).
+--- /dev/null
 +++ b/docs/platformio.md
-@@ -0,0 +1,164 @@
+@@ -0,0 +1,169 @@
 +# GRBL mit PlatformIO kompilieren
 +
 +Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
@@ -5541,6 +6703,9 @@
 +ELF und MAP liegen daneben. Das Standardprofil bleibt unverändert ausgewählt,
 +wenn `-e` fehlt. Unterschiede und Prüfablauf stehen in
 +[y-axis-test.md](y-axis-test.md).
++Das Y-Profil aktiviert auch das originale LCD und Tastenfeld für den
++lokalen Test: [Bedienungsanleitung](local-panel.md). Weitere Bibliotheken
++oder Änderungen an `platformio.ini` sind dafür nicht nötig.
 +
 +In dieser Cloudumgebung liegt PlatformIO in einem beschreibbaren
 +Python-Virtualenv. Dafür stehen folgende Befehle bereit:
@@ -5658,6 +6823,8 @@
 +bauen und deren tatsächliches ELF prüfen: für das Standardprofil mit
 +`tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf`, für das Y-Profil mit
 +`tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf`.
++Die lokale Bedienung wird zusätzlich mit
++`tests/run-panel-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf` geprüft.
 --- /dev/null
 +++ b/docs/repetier-build.md
 @@ -0,0 +1,66 @@
@@ -5801,7 +6968,7 @@
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,163 @@
+@@ -0,0 +1,199 @@
 +# Prüfbericht
 +
 +Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
@@ -5812,10 +6979,11 @@
 +| Variante | Flash | Statisches SRAM | Ergebnis |
 +| --- | ---: | ---: | --- |
 +| GRBL RF2000 XYZ | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
-+| GRBL separater Y-Test | 34.086 / 253.952 Byte | 3.545 / 8.192 Byte | gebaut |
++| GRBL separater Y-Test mit Bedienfeld | 37.080 / 253.952 Byte | 3.702 / 8.192 Byte | gebaut |
 +| Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 +
-+GRBL verwendet `.text=35176`, `.data=50`, `.bss=3470`. Für SRAM werden
++Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
++das Y-Profil mit Bedienfeld `.text=36952`, `.data=128`, `.bss=3574`. Für SRAM werden
 +`.data` und `.bss` addiert. Die neue Binutils-Kurzausgabe zählt initialisierte
 +Daten bei dieser Zielplattform anders; die Kapazitätsprüfung verwendet
 +deshalb die einzelnen ELF-Sektionen. Statische SRAM-Reserve belegt keine
@@ -5825,15 +6993,19 @@
 +signierte APT-Metadaten, festgelegte Debian-Paketversionen und der geprüfte
 +Arduino-Core-Commit. Anschließend entstand ein vollständiger GRBL-Build in
 +einem zweiten Buildverzeichnis. Sein HEX ist bytegleich zum Hauptbuild.
-+Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
++Das Standardprofil wurde mit der Bedienfelderweiterung erneut in einem
++leeren zweiten Buildverzeichnis gebaut; sein HEX ist bytegleich zum
++aktuellen Hauptbuild. Gegenüber dem vorherigen Stand verändert sich die
++Binäranordnung trotz deaktiviertem Bedienfeld; der neue Hauptbuild wurde
++mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 +bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 +
 +Firmware-SHA256:
 +
 +```text
-+GRBL     6c9b5ba8fe9859a3fab238af9202e40301f7dc5b04248492e1af0d2472142050
++GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 +Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
-+Y-Test   b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d
++Y-Test   b362bc6997204063a9d3751f904fcfa8a8ffac31dae3b8aab5d587cd65a2d81d
 +```
 +
 +Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -5874,18 +7046,16 @@
 +Pullup, PC4 als LOW-Ausgang für OUT3 und PC0 als Endschaltereingang. Diese
 +GPIO-Konfiguration entspricht für PA7 Repetiers `HAL::stopWatchdog()`.
 +Die aktuelle Quellenpriorität bei abweichenden Hardwarezuordnungen liegt
-+nach Nutzervorgabe bei der Repetier-RF2000v2-Konfiguration. Diese Änderung
-+betrifft Kommentare und Dokumentation; die GPIO-Pegel bleiben gleich.
-+Ein anschließender Make-Build und `tests/run-sim.sh` sind ebenfalls erfolgreich;
-+das erzeugte HEX bleibt bytegleich. Vollständiger Test und dieser gezielte
-+Nachlauf stehen in `artifacts/validation.log`.
++nach Nutzervorgabe bei der Repetier-RF2000v2-Konfiguration. Diese
++Quellenpriorität änderte keine GPIO-Pegel. Der aktuelle vollständige
++Test nach der Bedienfelderweiterung steht in `artifacts/validation.log`.
 +
 +## Separates Y-Testprofil
 +
-+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem am 18.10.2026
-+geprüften Y-ELF. Das nach der Warnungsbereinigung am 19.10.2026 neu erzeugte
-+Y-HEX ist bytegleich zu diesem geprüften Programm; Debugdaten im ELF können
-+sich durch neue Quellzeilen ändern.
++Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem aktuellen
++Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
++`artifacts/y-homing-simulation.log`; dieses ELF wurde auch für die unten
++beschriebenen elf Panel-Fälle verwendet.
 +
 +`make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
 +Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
@@ -5909,8 +7079,8 @@
 +ein fehlender erster Kontakt beendet die Suche nicht. Strg-X, Treiberfehler
 +und andere Endschalter brechen sie ab. Die zweite Annäherung bleibt auf 5 mm
 +begrenzt. Beim Phasenwechsel wird ein eventuell noch gesetztes CYCLE_STOP
-+verworfen, ohne RESET- oder Fehlerflags zu löschen. Der Standard-HEX bleibt
-+bytegleich zum bereits vollständig geprüften Standardprofil.
++verworfen, ohne RESET- oder Fehlerflags zu löschen. Das Standardprofil
++behält seine bisherige Funktion und wurde auf seinem aktuellen ELF geprüft.
 +
 +Beide PlatformIO-Umgebungen wurden mit geerbten Buildflags und Monitoroptionen
 +korrekt eingelesen. Ein tatsächlicher PlatformIO-Build ist in der Cloud
@@ -5919,6 +7089,39 @@
 +lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 +
 +## Codeprüfung und Grenzen
++
++### Originaldisplay und lokales Tastenfeld
++
++Ergebnis: **11 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
++Y-ELF `2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d`.
++Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
++den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.
++
++Der HD44780-Test dekodiert die realen GPIO-Nibbles beim fallenden E-Signal:
++Initialisierung, vier DDRAM-Zeilen, Anzeigeinhalt, Hintergrundbeleuchtung,
++Pullups, E-Pulsbreite und mindestens 320 µs Abstand zwischen ganzen Bytes.
++Die Firmware lässt bei Laufzeitübertragungen mindestens 1 ms Abstand durch
++zwei Tickdifferenzen des 1-kHz-Timers. Sie wartet nicht im Schrittinterrupt.
++
++Weitere Fälle prüfen Start mit gehaltenem OK, Prellen, Mehrfachtasten,
++ignorierte Z-/Extrudertasten, Diagnose, Entriegeln, Y-Jogs mit genau 15+15
++Schritten, keine Wiederholung und keine während einer Bewegung gespeicherten
++Tastenaktionen. Zwei getrennte OK-Betätigungen führen den vollständigen
++Referenzablauf mit zwei Kontakten und zwei Freigaben aus. Ein serieller Jog
++verwirft einen geöffneten Bestätigungsdialog; OK öffnet anschließend nur
++einen neuen Dialog.
++
++Links, PH7 und PH2 wurden als Abbruch während aller vier Homingphasen und
++während Jogging geprüft: Abschaltung innerhalb eines Timer2-Abfrageintervalls
++(Testgrenze 1,2 ms), keine weiteren STEP-Pulse. Die Anzeige aktualisiert den
++Alarm auch in der kritischen Warteschleife. Ein 1-µs-FAULT-Puls bleibt als
++Alarm 12 sichtbar. Gehaltene STOP-Tasten bei Boot und nach Reset blockieren
++auch serielle Entriegelung und Bewegungsstarts, ohne Y aufzuwecken. Nach
++Loslassen funktioniert der begrenzte Jog wieder. X/Z/A/B bleiben gesperrt;
++alle 4096 vorbesetzten EEPROM-Bytes bleiben unverändert. Dies sind
++Simulatorbefunde, keine gemessenen Latenzen oder Displaytests an Hardware.
++
++### Bisherige Firmwareprüfungen
 +
 +Die unabhängigen Prüfungen fanden und korrigierten unter anderem die
 +DRV4-Pinabweichung, RESET/UVLO im Sleep, A/B-ENBL, das Überschreiben geteilter
@@ -5946,7 +7149,7 @@
 +Jog-Abbruch und RX-Überlaufalarm werden geprüft. Kapazitäten außerhalb 1–255
 +werden beim Kompilieren zurückgewiesen. Der Test ist Bestandteil von `make check`.
 +
-+Beide GRBL-Profile wurden vollständig mit AVR-GCC 14.2.0 neu übersetzt:
++Zur damaligen Warnungsbereinigung wurden beide GRBL-Profile vollständig mit AVR-GCC 14.2.0 neu übersetzt:
 +keine Compilerwarnungen oder Fehler, unveränderte Flash-/SRAM-Werte und
 +bytegleiche HEX-Dateien gegenüber den zuvor simulierten Profilen. Damit sind
 +Motor-, Limit- und Homingprogramm unverändert. Warnungen wurden nicht global
@@ -5967,7 +7170,7 @@
 +automatische Freigabe für eine Referenzfahrt oder den Fräsbetrieb.
 --- /dev/null
 +++ b/docs/y-axis-test.md
-@@ -0,0 +1,185 @@
+@@ -0,0 +1,191 @@
 +# Separater Y-Achs- und Homingtest
 +
 +Für den ersten Y-Test gibt es das zusätzliche Profil **`rf2000_y_homing_test`**.
@@ -5989,6 +7192,7 @@
 +| Normale G-Code-Bewegungen | XYZ-Testbetrieb | gesperrt; auch `$H`, `$HX` und `$HZ` sind gesperrt |
 +| Einstellungen | GRBL-Einstellungen mit Board-Grenzen | feste Testwerte; nur `$22=0` oder `$22=1` veränderbar |
 +| EEPROM | normale GRBL-Verwaltung | keine Übernahme gespeicherter Einstellungen oder Startprogramme, keine EEPROM-Schreibzugriffe |
++| Originaldisplay / Tastenfeld | nicht aktiv | lokales Menü für Diagnose, Entriegeln, 0,1-mm-Jogs und bestätigten Y-Referenzstart |
 +
 +Alle fünf DRV8711 werden auch im Y-Profil initialisiert und zurückgelesen.
 +Eine kurze gemeinsame Wake-Phase erfolgt dabei ausdrücklich mit gesperrten
@@ -5998,6 +7202,11 @@
 +Parameter einer anderen Firmware werden nicht übernommen.
 +
 +## Bauen und verbinden
++
++Der Test kann nach dem Programmieren auch direkt mit dem originalen Display
++und Tastenfeld bedient werden. Die [Bedienfeld-Anleitung](local-panel.md)
++beschreibt Menü und Tasten. Links, Pause und Continue brechen als Software-
++Reset ab; Richtung und Schalter sind vor dem Referenzstart zu prüfen.
 +
 +Im Repository-Hauptverzeichnis mit vorhandenem PlatformIO:
 +

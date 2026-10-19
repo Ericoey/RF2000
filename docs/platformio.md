@@ -45,6 +45,9 @@ Dieses Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`;
 ELF und MAP liegen daneben. Das Standardprofil bleibt unverändert ausgewählt,
 wenn `-e` fehlt. Unterschiede und Prüfablauf stehen in
 [y-axis-test.md](y-axis-test.md).
+Das Y-Profil aktiviert auch das originale LCD und Tastenfeld für den
+lokalen Test: [Bedienungsanleitung](local-panel.md). Weitere Bibliotheken
+oder Änderungen an `platformio.ini` sind dafür nicht nötig.
 
 In dieser Cloudumgebung liegt PlatformIO in einem beschreibbaren
 Python-Virtualenv. Dafür stehen folgende Befehle bereit:
@@ -162,3 +165,5 @@ Wenn der Registry-Zugriff verfügbar ist, die gewünschte PlatformIO-Umgebung
 bauen und deren tatsächliches ELF prüfen: für das Standardprofil mit
 `tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf`, für das Y-Profil mit
 `tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf`.
+Die lokale Bedienung wird zusätzlich mit
+`tests/run-panel-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf` geprüft.

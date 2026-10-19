@@ -19,6 +19,7 @@ abschließend freifahren; Geschwindigkeit und Rückzug sind bewusste Testwerte.
 | Normale G-Code-Bewegungen | XYZ-Testbetrieb | gesperrt; auch `$H`, `$HX` und `$HZ` sind gesperrt |
 | Einstellungen | GRBL-Einstellungen mit Board-Grenzen | feste Testwerte; nur `$22=0` oder `$22=1` veränderbar |
 | EEPROM | normale GRBL-Verwaltung | keine Übernahme gespeicherter Einstellungen oder Startprogramme, keine EEPROM-Schreibzugriffe |
+| Originaldisplay / Tastenfeld | nicht aktiv | lokales Menü für Diagnose, Entriegeln, 0,1-mm-Jogs und bestätigten Y-Referenzstart |
 
 Alle fünf DRV8711 werden auch im Y-Profil initialisiert und zurückgelesen.
 Eine kurze gemeinsame Wake-Phase erfolgt dabei ausdrücklich mit gesperrten
@@ -28,6 +29,11 @@ Leistungsausgänge bleiben deaktiviert. Homing-Freigabe und gespeicherte
 Parameter einer anderen Firmware werden nicht übernommen.
 
 ## Bauen und verbinden
+
+Der Test kann nach dem Programmieren auch direkt mit dem originalen Display
+und Tastenfeld bedient werden. Die [Bedienfeld-Anleitung](local-panel.md)
+beschreibt Menü und Tasten. Links, Pause und Continue brechen als Software-
+Reset ab; Richtung und Schalter sind vor dem Referenzstart zu prüfen.
 
 Im Repository-Hauptverzeichnis mit vorhandenem PlatformIO:
 

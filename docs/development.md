@@ -80,6 +80,10 @@ dessen tatsächliches AVR-ELF. Es erlaubt nur Y-Jogs und nach `$22=1` nur
 ohne Gesamtweg- oder Zeitlimit. Reset löscht die Freigabe. Dieses Profil
 übernimmt keine EEPROM-Einstellungen und schreibt kein EEPROM. Ablauf und
 Testwerte stehen in [y-axis-test.md](y-axis-test.md).
+Dasselbe Y-Profil aktiviert das Original-LCD und Tastenfeld ohne zusätzliche
+Bibliothek. `make check-panel` prüft die lokale Bedienung am tatsächlichen
+AVR-ELF. Menü, Abbruchtasten und zweifache Referenzbestätigung stehen in
+[local-panel.md](local-panel.md). Das Standardprofil aktiviert diese UI nicht.
 
 `make flash`, `make fuse`, `make install` und `make load` brechen bewusst ab.
 Quellcode und Artefakte werden bereitgestellt; es wurde nichts geflasht.

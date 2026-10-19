@@ -46,7 +46,7 @@ for p in sorted(root.rglob('*')):
 for directory in ('grbl', 'repetier', 'y-homing'):
     files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
 for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
-             'y-homing-build.log', 'y-homing-simulation.log',
+             'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
              'platformio-y-homing-build.log'):
     p = artifacts / name
     if p.is_file():

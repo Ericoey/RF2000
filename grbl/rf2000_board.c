@@ -78,7 +78,8 @@ void rf2000_board_init(void)
     PORTA &= ~_BV(PA7);
     DDRA &= ~_BV(PA7);
 
-    // LCD, servos, temperature, SD and I2C/load cells remain unconfigured.
+    // Optional Y-test LCD/keypad is configured later by rf2000_panel_init().
+    // Servos, temperature, SD and I2C/load cells remain unconfigured.
     // DRV8711 owns all five nSLEEP, STEP/DIR, CS and reset lines. Limits owns
     // PC2/PC0/PC6/PH1 and enables its pull-ups before permitting motion.
   }

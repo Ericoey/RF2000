@@ -1,86 +1,36 @@
-mkdir -p build/repro
-mkdir -p build/repro/artifacts
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/repro/analog_control.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/coolant_control.c -o build/repro/coolant_control.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/digital_control.c -o build/repro/digital_control.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/eeprom.c -o build/repro/eeprom.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/gcode.c -o build/repro/gcode.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/jog.c -o build/repro/jog.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/repro/limits.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/main.c -o build/repro/main.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/motion_control.c -o build/repro/motion_control.o
-grbl/gcode.c: In function ‘gc_execute_line’:
-grbl/gcode.c:177:16: warning: this statement may fall through [-Wimplicit-fallthrough=]
-  177 |             if (mantissa == 0) { // Ignore G28.1, G30.1, and G92.1
-      |                ^
-grbl/gcode.c:182:11: note: here
-  182 |           case 4: case 53:
-      |           ^~~~
-grbl/gcode.c:195:26: warning: this statement may fall through [-Wimplicit-fallthrough=]
-  195 |             axis_command = AXIS_COMMAND_MOTION_MODE;
-      |                          ^
-grbl/gcode.c:197:11: note: here
-  197 |           case 80:
-      |           ^~~~
-grbl/gcode.c:1002:27: warning: this statement may fall through [-Wimplicit-fallthrough=]
- 1002 |           gc_parser_flags |= GC_PARSER_ARC_IS_CLOCKWISE; // No break intentional.
-grbl/gcode.c:1003:9: note: here
- 1003 |         case MOTION_MODE_CCW_ARC:
-      |         ^~~~
-grbl/gcode.c:1225:27: warning: this statement may fall through [-Wimplicit-fallthrough=]
- 1225 |           gc_parser_flags |= GC_PARSER_PROBE_IS_NO_ERROR; // No break intentional.
-grbl/gcode.c:1226:9: note: here
- 1226 |         case MOTION_MODE_PROBE_TOWARD: case MOTION_MODE_PROBE_AWAY:
-      |         ^~~~
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/nuts_bolts.c -o build/repro/nuts_bolts.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/planner.c -o build/repro/planner.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/print.c -o build/repro/print.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/probe.c -o build/repro/probe.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/protocol.c -o build/repro/protocol.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/report.c -o build/repro/report.o
-grbl/report.c: In function ‘report_realtime_status’:
-grbl/report.c:629:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
-  629 |       if (!(sys.suspend & SUSPEND_JOG_CANCEL)) {
-      |          ^
-grbl/report.c:635:5: note: here
-  635 |     case STATE_JOG: printPgmString(PSTR("Jog")); break;
-      |     ^~~~
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/repro/rf2000_board.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_drv8711.c -o build/repro/rf2000_drv8711.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/serial.c -o build/repro/serial.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/settings.c -o build/repro/settings.o
-grbl/serial.c: In function ‘serial_write’:
-grbl/serial.c:90:17: warning: comparison is always false due to limited range of data type [-Wtype-limits]
-   90 |   if (next_head == TX_RING_BUFFER) { next_head = 0; }
-      |                 ^~
-grbl/serial.c: In function ‘__vector_26’:
-grbl/serial.c:117:12: warning: comparison is always false due to limited range of data type [-Wtype-limits]
-  117 |   if (tail == TX_RING_BUFFER) { tail = 0; }
-      |            ^~
-grbl/serial.c: In function ‘serial_read’:
-grbl/serial.c:136:14: warning: comparison is always false due to limited range of data type [-Wtype-limits]
-  136 |     if (tail == RX_RING_BUFFER) { tail = 0; }
-      |              ^~
-grbl/serial.c: In function ‘__vector_25’:
-grbl/serial.c:189:23: warning: comparison is always false due to limited range of data type [-Wtype-limits]
-  189 |         if (next_head == RX_RING_BUFFER) { next_head = 0; }
-      |                       ^~
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/sleep.c -o build/repro/sleep.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/spindle_control.c -o build/repro/spindle_control.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/repro/stepper.o
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/system.c -o build/repro/system.o
-grbl/system.c: In function ‘system_execute_line’:
-grbl/system.c:353:24: warning: this statement may fall through [-Wimplicit-fallthrough=]
-  353 |             helper_var = true;  // Set helper_var to flag storing method.
-grbl/system.c:356:9: note: here
-  356 |         default :  // Storing setting methods [IDLE/ALARM]
-      |         ^~~~~~~
-/workspace/.tools/repro-verified/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/repro/main.map build/repro/analog_control.o build/repro/coolant_control.o build/repro/digital_control.o build/repro/eeprom.o build/repro/gcode.o build/repro/jog.o build/repro/limits.o build/repro/main.o build/repro/motion_control.o build/repro/nuts_bolts.o build/repro/planner.o build/repro/print.o build/repro/probe.o build/repro/protocol.o build/repro/report.o build/repro/rf2000_board.o build/repro/rf2000_drv8711.o build/repro/serial.o build/repro/settings.o build/repro/sleep.o build/repro/spindle_control.o build/repro/stepper.o build/repro/system.o -lm -o build/repro/main.elf
-/workspace/.tools/repro-verified/avr/usr/bin/avr-size build/repro/main.elf
+mkdir -p build/panel-repro
+mkdir -p build/panel-repro/output
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/panel-repro/analog_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/coolant_control.c -o build/panel-repro/coolant_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/digital_control.c -o build/panel-repro/digital_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/eeprom.c -o build/panel-repro/eeprom.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/gcode.c -o build/panel-repro/gcode.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/jog.c -o build/panel-repro/jog.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/panel-repro/limits.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/main.c -o build/panel-repro/main.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/motion_control.c -o build/panel-repro/motion_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/nuts_bolts.c -o build/panel-repro/nuts_bolts.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/planner.c -o build/panel-repro/planner.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/print.c -o build/panel-repro/print.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/probe.c -o build/panel-repro/probe.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/protocol.c -o build/panel-repro/protocol.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/report.c -o build/panel-repro/report.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/panel-repro/rf2000_board.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_drv8711.c -o build/panel-repro/rf2000_drv8711.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_lcd.c -o build/panel-repro/rf2000_lcd.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_panel.c -o build/panel-repro/rf2000_panel.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/serial.c -o build/panel-repro/serial.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/settings.c -o build/panel-repro/settings.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/sleep.c -o build/panel-repro/sleep.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/spindle_control.c -o build/panel-repro/spindle_control.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/panel-repro/stepper.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/system.c -o build/panel-repro/system.o
+/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/panel-repro/main.map build/panel-repro/analog_control.o build/panel-repro/coolant_control.o build/panel-repro/digital_control.o build/panel-repro/eeprom.o build/panel-repro/gcode.o build/panel-repro/jog.o build/panel-repro/limits.o build/panel-repro/main.o build/panel-repro/motion_control.o build/panel-repro/nuts_bolts.o build/panel-repro/planner.o build/panel-repro/print.o build/panel-repro/probe.o build/panel-repro/protocol.o build/panel-repro/report.o build/panel-repro/rf2000_board.o build/panel-repro/rf2000_drv8711.o build/panel-repro/rf2000_lcd.o build/panel-repro/rf2000_panel.o build/panel-repro/serial.o build/panel-repro/settings.o build/panel-repro/sleep.o build/panel-repro/spindle_control.o build/panel-repro/stepper.o build/panel-repro/system.o -lm -o build/panel-repro/main.elf
+/workspace/.tools/avr/usr/bin/avr-size build/panel-repro/main.elf
    text	   data	    bss	    dec	    hex	filename
-  35226	      0	   3470	  38696	   9728	build/repro/main.elf
-python3 tools/check-avr-size.py build/repro/main.elf /workspace/.tools/repro-verified/avr/usr/bin/avr-size
-Flash 35226/253952 bytes; static SRAM 3470/8192 bytes
-/workspace/.tools/repro-verified/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/repro/main.elf build/repro/artifacts/rf2000-grbl.hex
-cp build/repro/main.elf build/repro/artifacts/rf2000-grbl.elf
-cp build/repro/main.map build/repro/artifacts/rf2000-grbl.map
+  35226	      0	   3470	  38696	   9728	build/panel-repro/main.elf
+python3 tools/check-avr-size.py build/panel-repro/main.elf /workspace/.tools/avr/usr/bin/avr-size
+Flash 35226/253952 bytes; static SRAM 3520/8192 bytes
+/workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/panel-repro/main.elf build/panel-repro/output/rf2000-grbl.hex
+cp build/panel-repro/main.elf build/panel-repro/output/rf2000-grbl.elf
+cp build/panel-repro/main.map build/panel-repro/output/rf2000-grbl.map

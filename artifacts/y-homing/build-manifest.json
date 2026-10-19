@@ -30,13 +30,13 @@
   "jog_max_mm_per_command": 0.5,
   "jog_max_mm_min": 30.0,
   "eeprom_writes": false,
-  "flash_bytes": 34086,
-  "static_sram_bytes": 3545,
+  "flash_bytes": 37080,
+  "static_sram_bytes": 3702,
   "compiler": "avr-gcc (GCC) 14.2.0",
   "source_sha256": {
     "grbl/analog_control.c": "c587acc887ea9d8e5fb3b152299120567ad523374a58541b1c29b5c185710aa2",
     "grbl/analog_control.h": "4f566ec634d19144ed0f1d5bfec2399d7a43384952a993fea15d5c3be5519ecc",
-    "grbl/config.h": "f2c2625d8782596121e1777c95df5805692d904d763efbee7bb41f796dce29b2",
+    "grbl/config.h": "18e005efaf004ae2cc6946903c49483e478ab065465122baea25b49d31de0bdb",
     "grbl/coolant_control.c": "bb0d14639388a171a5ead35c444ba2d146bdb2c0631972dea8d5c955260143e3",
     "grbl/coolant_control.h": "be1151afe71b4867b968e9a6b5f963f952ff59dd653230d5f11d2c843297915b",
     "grbl/cpu_map.h": "302886ddfe639b3da19908934d7ea02c3250dfed94a833bca33bd48da776d54f",
@@ -49,12 +49,12 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ef8559947827310ff395ee1671c226d6161e059d833df3a048b52a50f28762ff",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "cbaca1c1857fc426da1f0fe5ab5fa08d76d090ca92b63d2d7bbc72a6f4572fca",
+    "grbl/grbl.h": "394c04f0bcfb1a8e25fea0e8a3928c4d83ddfbec5f8fe4ab3b82db798fd3f0c3",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
-    "grbl/limits.c": "93b01907bdd00463af3b7565ed20764a25824c9fa26af98fd12bd87938028b68",
+    "grbl/limits.c": "ab090613310550a1bf9bc459655dbb86036fbe119a4ab5a4127dfcbc8ac92b72",
     "grbl/limits.h": "8d34528451e0ffb4cfaacbb6018b36e4a4df79c3054dfd3b4e0a625ac9332512",
-    "grbl/main.c": "989232f1c67dabc465144010304f4f6bf1934db2a829a87aa0ffb7d420703955",
+    "grbl/main.c": "c59ce7da83da24f520166f6d6d3d41d679306ffded68b8cfec6d218f9a8cca09",
     "grbl/motion_control.c": "7ab4419f068639f32196dfbc0ade159c8e432c0bf360f01ee568ee1bfbaaad93",
     "grbl/motion_control.h": "25445b9ac9e46a31d57ae56afa4f1c25f7beb4bb0977b3e6f8629207ff67793e",
     "grbl/nuts_bolts.c": "77aec3827f651f9958709d77d920aaed6f817b975d2989b655e66a37fcad7985",
@@ -65,14 +65,18 @@
     "grbl/print.h": "935c4b92f95224c6a30b92d2081d2fb8fbff5a23efc04852031b8022b9ad2f19",
     "grbl/probe.c": "24ab65fb1879a98709f09f9a877b373615503b8e8b6d1ffeb6536936e85d6841",
     "grbl/probe.h": "fb309aed7a9e4af6ac832d679cf14d553cc1a40bc6f6a2a08621b51a24ad000d",
-    "grbl/protocol.c": "7d703bae6469a03df8176f5b986bb292ed399b87f692c0b402040a940e54a6e4",
+    "grbl/protocol.c": "d5c7f350d2c9847bdca4ce8595c7d19f1d9bdaaab123394fe77201d235b30329",
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
     "grbl/report.c": "c9cfed46b53a133de1a96ed6e21be8e47ad174449ba26383370df26a0b343a8a",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
-    "grbl/rf2000_board.c": "bf758c7318fecb177ad790e5518ff93070108fb861b3e364a9d8913b3fc07d80",
+    "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
     "grbl/rf2000_drv8711.c": "0b36c59e9a2961ab241a4cef5e968fafea70fc91841daed992111e9506bcaa9d",
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
+    "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
+    "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
+    "grbl/rf2000_panel.c": "9d83d9243cc9182f21101273a8d2e9dfeb180a77cfa112957a129e7aaaf819c2",
+    "grbl/rf2000_panel.h": "22f43dd70af32bb7a1e087eb79ef1fb0c391f8a9780c05a2eba6461d251db545",
     "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
     "grbl/settings.c": "6b775ac6881018fa67b9ba547582a6bfd0ad1d86d11f25beb7634c02fdb6ca53",
@@ -87,9 +91,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "83568c2f409d86d96a0cf44052b48c9c41c57da88d39eb8da97b88f8f9243e2f",
-    "rf2000-grbl.hex": "b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d",
-    "rf2000-grbl.map": "ed0f07b238adcbad32df8d81e538c7d3a2079be316755502f4d69549862038bb"
+    "rf2000-grbl.elf": "2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d",
+    "rf2000-grbl.hex": "b362bc6997204063a9d3751f904fcfa8a8ffac31dae3b8aab5d587cd65a2d81d",
+    "rf2000-grbl.map": "d346d38845cbfa648acedfb6950abdf8cb3336eeeb00908682f63c4e130b8ef3"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -97,7 +101,9 @@
     "reference_files_sha256": {
       "references/repetier/Repetier/pins.h": "fce20625310fe1b5fdce50bc101514d9d0b11742ee684a4922ac2eeadf6364b8",
       "references/repetier/Repetier/RF2000v2.h": "e56d0dec0c5cf975f925592844dfa3c773cb9b1803223bffde41423a88356c33",
-      "references/repetier/Repetier/HAL.cpp": "f6102b12c56e71fc7f2e316fc6a0cdd2a032310c0ae0df0fbe6c1f9d938f0283"
+      "references/repetier/Repetier/HAL.cpp": "f6102b12c56e71fc7f2e316fc6a0cdd2a032310c0ae0df0fbe6c1f9d938f0283",
+      "references/repetier/Repetier/ui.cpp": "af128db68872665f499da409c044f99e7de548943bdf797b6d90d5230b707bd1",
+      "references/repetier/Repetier/ui.h": "c3a8b5c0347d4069ccdb38baedbb924119550f16127efa237bbf2c9c77121ecd"
     },
     "status": "Latest user direction: assume the existing RF2000 Repetier configuration works; prefer its RF2000v2 hardware assignments over conflicting schematic assignments.",
     "priority": "Repetier RF2000v2 configuration for conflicting hardware assignments; schematic as supporting electrical reference; TI datasheet for DRV8711 protocol and register semantics.",
@@ -109,6 +115,35 @@
     "date": "2026-10-19",
     "compiler_warnings": 0,
     "hex_unchanged": true,
-    "scope": "Explicit intentional fallthrough; valid uint8 ring wrap; corrected unused RX-count helper."
+    "scope": "Explicit intentional fallthrough; valid uint8 ring wrap; corrected unused RX-count helper.",
+    "historical_scope": "Warning-only change before the LCD/keypad addition; hex_unchanged describes that earlier change."
+  },
+  "local_panel": {
+    "enabled": true,
+    "configuration": "RF2000_LOCAL_PANEL defaults to RF2000_Y_HOMING_TEST",
+    "display": "original HD44780 20x4, 4-bit write-only",
+    "key_debounce_ms": 20,
+    "stop_keys": [
+      "LEFT / PB5",
+      "CONTINUE / PH7",
+      "PAUSE / PH2"
+    ],
+    "stop_behavior": "GPIO shutdown on first 1kHz sample; held STOP inhibits UART motion admission; no resume",
+    "home_confirmation": "two separate OK presses with full release; uses $22=1 then $HY",
+    "jog_mm": 0.1,
+    "jog_mm_min": 20,
+    "lcd_tick_spacing": 2,
+    "lcd_minimum_byte_interval_us": 1000,
+    "extra_libraries": [],
+    "physical_test_performed": false
+  },
+  "validation": {
+    "standard_make_check": "passed; artifacts/validation.log",
+    "date": "2026-10-19",
+    "local_panel_real_avr_cases": 11,
+    "panel_log": "artifacts/panel-validation.log",
+    "tested_elf_sha256": "2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d",
+    "serial_y_homing_real_avr_cases": 13,
+    "y_homing_log": "artifacts/y-homing-simulation.log"
   }
 }
