@@ -632,6 +632,7 @@ void report_realtime_status()
         else { serial_write('1'); } // Actively holding
         break;
       } // Continues to print jog state during jog cancel.
+      __attribute__((fallthrough));
     case STATE_JOG: printPgmString(PSTR("Jog")); break;
     case STATE_HOMING: printPgmString(PSTR("Home")); break;
     case STATE_ALARM: printPgmString(PSTR("Alarm")); break;

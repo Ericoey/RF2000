@@ -45,6 +45,7 @@ check: all
 	python3 tools/test_rf2000_limits.py
 	python3 tools/test_rf2000_drv8711.py
 	python3 tools/test_eeprom_records.py
+	python3 tools/test_serial_ring.py
 	tests/run-sim.sh
 
 repetier:

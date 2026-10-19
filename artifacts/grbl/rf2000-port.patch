@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,112 +1,67 @@
+@@ -1,112 +1,68 @@
 -#  Part of Grbl
 -#
 -#  Copyright (c) 2017-2022 Gauthier Briere
@@ -89,6 +89,7 @@
 +	python3 tools/test_rf2000_limits.py
 +	python3 tools/test_rf2000_drv8711.py
 +	python3 tools/test_eeprom_records.py
++	python3 tools/test_serial_ring.py
 +	tests/run-sim.sh
  
 -# Compile flags for avr-gcc v4.8.1. Does not produce -flto warnings.
@@ -834,7 +835,45 @@
      // NOTE: Rounding must be used to catch small floating point errors.
  
      // Check if the g-code word is supported or errors due to modal group violations or has
-@@ -1272,6 +1286,14 @@
+@@ -168,7 +182,7 @@
+               if (axis_command) { FAIL(STATUS_GCODE_AXIS_COMMAND_CONFLICT); } // [Axis word/command conflict]
+               axis_command = AXIS_COMMAND_NON_MODAL;
+             }
+-            // No break. Continues to next line.
++            __attribute__((fallthrough)); // Continue with non-modal group parsing.
+           case 4: case 53:
+             dword_bit = MODAL_GROUP_G0;
+             gc_block.non_modal_command = int_value;
+@@ -183,7 +197,7 @@
+             // * G43.1 is also an axis command but is not explicitly defined this way.
+             if (axis_command) { FAIL(STATUS_GCODE_AXIS_COMMAND_CONFLICT); } // [Axis word/command conflict]
+             axis_command = AXIS_COMMAND_MOTION_MODE;
+-            // No break. Continues to next line.
++            __attribute__((fallthrough)); // Continue with motion group parsing.
+           case 80:
+             dword_bit = MODAL_GROUP_G1;
+             gc_block.modal.motion = int_value;
+@@ -989,7 +1003,8 @@
+           if (!axis_dwords) { axis_command = AXIS_COMMAND_NONE; }
+           break;
+         case MOTION_MODE_CW_ARC:
+-          gc_parser_flags |= GC_PARSER_ARC_IS_CLOCKWISE; // No break intentional.
++          gc_parser_flags |= GC_PARSER_ARC_IS_CLOCKWISE;
++          __attribute__((fallthrough));
+         case MOTION_MODE_CCW_ARC:
+           // [G2/3 Errors All-Modes]: Feed rate undefined.
+           // [G2/3 Radius-Mode Errors]: No axis words in selected plane. Target point is same as current.
+@@ -1212,7 +1227,8 @@
+           }
+           break;
+         case MOTION_MODE_PROBE_TOWARD_NO_ERROR: case MOTION_MODE_PROBE_AWAY_NO_ERROR:
+-          gc_parser_flags |= GC_PARSER_PROBE_IS_NO_ERROR; // No break intentional.
++          gc_parser_flags |= GC_PARSER_PROBE_IS_NO_ERROR;
++          __attribute__((fallthrough));
+         case MOTION_MODE_PROBE_TOWARD: case MOTION_MODE_PROBE_AWAY:
+           if ((gc_block.modal.motion == MOTION_MODE_PROBE_AWAY) ||
+               (gc_block.modal.motion == MOTION_MODE_PROBE_AWAY_NO_ERROR)) { gc_parser_flags |= GC_PARSER_PROBE_IS_AWAY; }
+@@ -1272,6 +1288,14 @@
    // protocol_execute_realtime() when jogging completes or is canceled.
    if (gc_parser_flags & GC_PARSER_JOG_MOTION) {
      // Only distance and unit modal commands and G53 absolute override command are allowed.
@@ -1318,6 +1357,16 @@
                sys.suspend = SUSPEND_DISABLE; // Break suspend state.
                sys.state = STATE_CYCLE;
                st_prep_buffer(); // Initialize step segment buffer before beginning cycle.
+--- a/grbl/report.c
++++ b/grbl/report.c
+@@ -632,6 +632,7 @@
+         else { serial_write('1'); } // Actively holding
+         break;
+       } // Continues to print jog state during jog cancel.
++      __attribute__((fallthrough));
+     case STATE_JOG: printPgmString(PSTR("Jog")); break;
+     case STATE_HOMING: printPgmString(PSTR("Home")); break;
+     case STATE_ALARM: printPgmString(PSTR("Alarm")); break;
 --- /dev/null
 +++ b/grbl/rf2000_board.c
 @@ -0,0 +1,87 @@
@@ -1794,7 +1843,76 @@
 +#endif
 --- a/grbl/serial.c
 +++ b/grbl/serial.c
-@@ -194,6 +194,11 @@
+@@ -25,6 +25,15 @@
+ #define RX_RING_BUFFER (RX_BUFFER_SIZE+1)
+ #define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
+ 
++// Indices are uint8_t. A 256-byte ring uses its natural unsigned wrap;
++// smaller rings need the explicit comparisons below. One slot stays empty.
++#if RX_BUFFER_SIZE < 1 || RX_BUFFER_SIZE > 255
++  #error "RX_BUFFER_SIZE must be between 1 and 255"
++#endif
++#if TX_BUFFER_SIZE < 1 || TX_BUFFER_SIZE > 255
++  #error "TX_BUFFER_SIZE must be between 1 and 255"
++#endif
++
+ volatile uint8_t serial_rx_buffer[RX_RING_BUFFER];
+ volatile uint8_t serial_rx_buffer_head = 0;
+ volatile uint8_t serial_rx_buffer_tail = 0;
+@@ -49,7 +58,7 @@
+ {
+   uint8_t rtail = serial_rx_buffer_tail; // Copy to limit multiple calls to volatile
+   if (serial_rx_buffer_head >= rtail) { return(serial_rx_buffer_head-rtail); }
+-  return (RX_BUFFER_SIZE - (rtail-serial_rx_buffer_head));
++  return (RX_RING_BUFFER - (rtail-serial_rx_buffer_head));
+ }
+ 
+ 
+@@ -87,7 +96,9 @@
+ void serial_write(uint8_t data) {
+   // Calculate next head
+   uint8_t next_head = serial_tx_buffer_head + 1;
+-  if (next_head == TX_RING_BUFFER) { next_head = 0; }
++  #if TX_RING_BUFFER < 256
++    if (next_head == TX_RING_BUFFER) { next_head = 0; }
++  #endif
+ 
+   // Wait until there is space in the buffer
+   while (next_head == serial_tx_buffer_tail) {
+@@ -114,7 +125,9 @@
+ 
+   // Update tail position
+   tail++;
+-  if (tail == TX_RING_BUFFER) { tail = 0; }
++  #if TX_RING_BUFFER < 256
++    if (tail == TX_RING_BUFFER) { tail = 0; }
++  #endif
+ 
+   serial_tx_buffer_tail = tail;
+ 
+@@ -133,7 +146,9 @@
+     uint8_t data = serial_rx_buffer[tail];
+ 
+     tail++;
+-    if (tail == RX_RING_BUFFER) { tail = 0; }
++    #if RX_RING_BUFFER < 256
++      if (tail == RX_RING_BUFFER) { tail = 0; }
++    #endif
+     serial_rx_buffer_tail = tail;
+ 
+     return data;
+@@ -186,7 +201,9 @@
+         // Throw away any unfound extended-ASCII character by not passing it to the serial buffer.
+       } else { // Write character to buffer
+         next_head = serial_rx_buffer_head + 1;
+-        if (next_head == RX_RING_BUFFER) { next_head = 0; }
++        #if RX_RING_BUFFER < 256
++          if (next_head == RX_RING_BUFFER) { next_head = 0; }
++        #endif
+ 
+         // Write data to buffer unless it is full.
+         if (next_head != serial_rx_buffer_tail) {
+@@ -194,6 +211,11 @@
            serial_rx_buffer_head = next_head;
          } else {
            // Indicate serial buffer overflow critical event.
@@ -2610,7 +2728,7 @@
            if ((line[2] != 'S') || (line[3] != 'T') || (line[4] != '=') || (line[6] != 0)) { return(STATUS_INVALID_STATEMENT); }
            switch (line[5]) {
              #ifdef ENABLE_RESTORE_EEPROM_DEFAULT_SETTINGS
-@@ -306,20 +363,24 @@
+@@ -306,20 +363,25 @@
              }
              break;
            } else { // Store startup line [IDLE Only] Prevents motion during ALARM.
@@ -2621,6 +2739,7 @@
              helper_var = true;  // Set helper_var to flag storing method.
              // No break. Continues into default: to read remaining command characters.
            }
++          __attribute__((fallthrough));
          default :  // Storing setting methods [IDLE/ALARM]
            if(!read_float(line, &char_counter, &parameter)) { return(STATUS_BAD_NUMBER_FORMAT); }
 +          if (!isfinite(parameter) || parameter < 0 || parameter != floorf(parameter)) {
@@ -3618,6 +3737,210 @@
 +    subprocess.run([os.environ.get('CC', 'cc'), '-std=c99', '-Wall', '-Wextra',
 +                    '-Werror', '-O2', str(c_file), '-o', str(executable)], check=True)
 +    subprocess.run([str(executable)], check=True)
+--- /dev/null
++++ b/tools/test_serial_ring.py
+@@ -0,0 +1,201 @@
++#!/usr/bin/env python3
++"""Exercise actual serial.c with mocked UART registers and realtime callbacks.
++
++Compile with warnings as errors. Cover both 256-byte rings (natural uint8_t
++wrap) and smaller rings, including every initial head/tail position. Hardware
++interrupt timing is outside this host test.
++"""
++from pathlib import Path
++import os
++import re
++import subprocess
++import tempfile
++
++root = Path(__file__).resolve().parents[1]
++constants = []
++for filename in ("config.h", "system.h"):
++    for line in (root / "grbl" / filename).read_text().splitlines():
++        if re.match(r"^#define (?:CMD_|EXEC_|STATE_JOG\b)", line):
++            constants.append(line)
++
++mock = r'''
++#include <assert.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include "serial.h"
++#define bit(n) (1u << (n))
++#define CPU_MAP_2560_RENKFORCE_CTC_V3
++#define F_CPU 16000000UL
++#define BAUD_RATE 115200UL
++#define U2X0 1
++#define RXEN0 4
++#define TXEN0 3
++#define RXCIE0 7
++#define UDRIE0 5
++#define SERIAL_UDRE serial_udre_interrupt
++#define SERIAL_RX serial_rx_interrupt
++#define ISR(name) void name(void)
++static uint8_t UCSR0A, UCSR0B, UBRR0H, UBRR0L, UDR0;
++static uint8_t sys_rt_exec_state, alarm, motion_override, accessory_override;
++static struct { uint8_t state; } sys;
++static unsigned resets;
++static void mc_reset(void) { resets++; sys_rt_exec_state |= EXEC_RESET; }
++static void system_set_exec_state_flag(uint8_t flag) { sys_rt_exec_state |= flag; }
++static void system_set_exec_alarm(uint8_t flag) { alarm = flag; }
++static void system_set_exec_motion_override_flag(uint8_t flag) { motion_override |= flag; }
++static void system_set_exec_accessory_override_flag(uint8_t flag) { accessory_override |= flag; }
++'''
++
++tests = r'''
++#include "serial.c"
++
++static void receive(uint8_t data)
++{
++  UDR0 = data;
++  serial_rx_interrupt();
++}
++
++static uint8_t letter(unsigned index) { return 'A' + index % 26; }
++
++static void rx_count(unsigned count)
++{
++  assert(serial_get_rx_buffer_count() == count);
++  assert(serial_get_rx_buffer_available() == RX_BUFFER_SIZE - count);
++}
++
++static void test_rx(void)
++{
++  // Exercise every starting ring position. Filling, partially draining and
++  // refilling also checks FIFO order through the wrap boundary.
++  for (unsigned start = 0; start < RX_RING_BUFFER; start++) {
++    serial_rx_buffer_head = serial_rx_buffer_tail = start;
++    sys_rt_exec_state = 0; resets = 0; alarm = 0;
++    rx_count(0);
++    assert(serial_read() == SERIAL_NO_DATA);
++    for (unsigned i = 0; i < RX_BUFFER_SIZE; i++) {
++      receive(letter(i));
++      rx_count(i + 1);
++    }
++    uint8_t head = serial_rx_buffer_head;
++    // Realtime commands bypass even a full RX ring.
++    receive(CMD_STATUS_REPORT);
++    assert(sys_rt_exec_state == EXEC_STATUS_REPORT);
++    receive(CMD_RESET);
++    assert(resets == 1 && (sys_rt_exec_state & EXEC_RESET));
++    assert(serial_rx_buffer_head == head && alarm == 0);
++    rx_count(RX_BUFFER_SIZE);
++    // A normal character at capacity cannot overwrite a queued character.
++    sys_rt_exec_state = 0;
++    receive('Z');
++    assert(resets == 2 && (sys_rt_exec_state & EXEC_RESET));
++    assert(alarm == EXEC_ALARM_SERIAL_RX_OVERFLOW);
++    assert(serial_rx_buffer_head == head);
++    rx_count(RX_BUFFER_SIZE);
++
++    const unsigned chunk = (RX_BUFFER_SIZE + 1) / 2;
++    for (unsigned i = 0; i < chunk; i++) {
++      assert(serial_read() == letter(i));
++      rx_count(RX_BUFFER_SIZE - i - 1);
++    }
++    for (unsigned i = 0; i < chunk; i++) {
++      receive(letter(RX_BUFFER_SIZE + i));
++      rx_count(RX_BUFFER_SIZE - chunk + i + 1);
++    }
++    for (unsigned i = chunk; i < RX_BUFFER_SIZE + chunk; i++) {
++      assert(serial_read() == letter(i));
++      rx_count(RX_BUFFER_SIZE + chunk - i - 1);
++    }
++    assert(serial_read() == SERIAL_NO_DATA);
++
++    receive('G');
++    receive(CMD_FEED_OVR_FINE_PLUS);
++    receive(CMD_COOLANT_FLOOD_OVR_TOGGLE);
++    assert(motion_override & EXEC_FEED_OVR_FINE_PLUS);
++    assert(accessory_override & EXEC_COOLANT_FLOOD_OVR_TOGGLE);
++    rx_count(1);
++    serial_reset_read_buffer();
++    rx_count(0);
++    assert(serial_read() == SERIAL_NO_DATA);
++    // Jog cancellation flushes queued bytes immediately.
++    receive('Y'); sys.state = STATE_JOG;
++    receive(CMD_JOG_CANCEL);
++    assert(sys_rt_exec_state & EXEC_MOTION_CANCEL);
++    rx_count(0); sys.state = 0;
++  }
++}
++
++static void test_tx(void)
++{
++  for (unsigned start = 0; start < TX_RING_BUFFER; start++) {
++    serial_tx_buffer_head = serial_tx_buffer_tail = start;
++    sys_rt_exec_state = 0; UCSR0B = 0;
++    assert(serial_get_tx_buffer_count() == 0);
++    for (unsigned i = 0; i < TX_BUFFER_SIZE; i++) {
++      serial_write((uint8_t)i);
++      assert(serial_get_tx_buffer_count() == i + 1);
++      assert(UCSR0B & bit(UDRIE0));
++    }
++    // A pending reset breaks a full-buffer wait without adding data.
++    uint8_t head = serial_tx_buffer_head;
++    sys_rt_exec_state = EXEC_RESET;
++    serial_write(0xff);
++    assert(serial_tx_buffer_head == head);
++    assert(serial_get_tx_buffer_count() == TX_BUFFER_SIZE);
++    sys_rt_exec_state = 0;
++
++    const unsigned chunk = (TX_BUFFER_SIZE + 1) / 2;
++    for (unsigned i = 0; i < chunk; i++) {
++      serial_udre_interrupt();
++      assert(UDR0 == (uint8_t)i);
++      assert(serial_get_tx_buffer_count() == TX_BUFFER_SIZE - i - 1);
++    }
++    for (unsigned i = 0; i < chunk; i++) {
++      serial_write((uint8_t)(TX_BUFFER_SIZE + i));
++      assert(serial_get_tx_buffer_count() == TX_BUFFER_SIZE - chunk + i + 1);
++    }
++    for (unsigned i = chunk; i < TX_BUFFER_SIZE + chunk; i++) {
++      serial_udre_interrupt();
++      assert(UDR0 == (uint8_t)i);
++      unsigned count = TX_BUFFER_SIZE + chunk - i - 1;
++      assert(serial_get_tx_buffer_count() == count);
++      assert(!!(UCSR0B & bit(UDRIE0)) == !!count);
++    }
++  }
++}
++
++int main(void)
++{
++  serial_init();
++  assert(UCSR0A & bit(U2X0));
++  assert(UCSR0B == (bit(RXEN0) | bit(TXEN0) | bit(RXCIE0)));
++  assert(UBRR0H == 0 && UBRR0L == 16);
++  test_rx();
++  test_tx();
++  printf("Serial RX=%u TX=%u: all ring positions, FIFO, counts, overflow/reset and realtime bypass PASS\n",
++         (unsigned)RX_BUFFER_SIZE, (unsigned)TX_BUFFER_SIZE);
++  return 0;
++}
++'''
++
++with tempfile.TemporaryDirectory(prefix="rf2000-serial-") as directory:
++    directory = Path(directory)
++    (directory / "serial.c").write_text((root / "grbl/serial.c").read_text())
++    (directory / "serial.h").write_text((root / "grbl/serial.h").read_text())
++    (directory / "grbl.h").write_text("\n".join(constants) + "\n" + mock)
++    c_file = directory / "serial_host.c"
++    c_file.write_text(tests)
++    executable = directory / "serial_host"
++    command = [os.environ.get("CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2"]
++    for rx_size, tx_size in ((255, 255), (128, 64), (1, 1), (254, 255), (255, 2)):
++        subprocess.run(command + [f"-DRX_BUFFER_SIZE={rx_size}", f"-DTX_BUFFER_SIZE={tx_size}",
++                                 str(c_file), "-o", str(executable)], check=True)
++        subprocess.run([str(executable)], check=True)
++
++    for name in ("RX_BUFFER_SIZE", "TX_BUFFER_SIZE"):
++        for size in (0, 256, -1):
++            result = subprocess.run(command + [f"-D{name}={size}", "-fsyntax-only", str(c_file)],
++                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
++            assert result.returncode != 0, (name, size)
++            assert f"{name} must be between 1 and 255" in result.stdout, result.stdout
++    print("Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS")
 --- /dev/null
 +++ b/tests/rf2000_sim.c
 @@ -0,0 +1,462 @@
@@ -5478,10 +5801,10 @@
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,141 @@
+@@ -0,0 +1,163 @@
 +# Prüfbericht
 +
-+Stand: 18.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
++Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
 +ausgeführt. Es wurde keine Platine programmiert und kein Motor bewegt.
 +
 +## Build und Wiederholbarkeit
@@ -5528,6 +5851,7 @@
 +| Tatsächlicher Limit-Code mit GPIO-Modell | Alle 16 Kombinationen der vier Eingänge; feste Polarität; aktiver Eingang beim Init; sofortige Stopentscheidung; fünf freie Samples; Prellen; Z-Min/Z-Max; Fehlersperre; spätere Homing-Schalterauswahl |
 +| Tatsächliche DRV8711-Zustandsmaschine | Alle fünf Registerprofile; ENBL0 vor Wake; wirksamer Awake-Reset; UVLO-Löschung; Readbackfehler in allen drei Phasen; XYZ-Maske; Reserve ENBL0; 25-ms-Wake; persistenter Fault; Fehler während Wake; INT6-Flankenkonfiguration |
 +| Tatsächliche EEPROM-Funktionen mit ASAN/UBSAN | Getrennte Datensätze; Längen-/Indexgrenzen; NUL-Behandlung; Wiederherstellen; SREG-Erhaltung |
++| Tatsächlicher serieller Treiber mit Host-UART-Modell | Fünf RX/TX-Konfigurationen, alle Startpositionen, FIFO/Umlauf, Voll/Leer, counts/available, Reset, Echtzeitbefehle, Jog-Abbruch und Überlaufalarm; sechs ungültige Kapazitäten abgewiesen |
 +| Echter AVR-ELF in simavr | Fünf DRV8711-SPI-Modelle; fabrikleeres EEPROM; Bootalarm; Befehls-/Einstellungsgrenzen; EEPROM über UART; STEP-/DIR-GPIO; bewegter Z-Max-Test; Fault-/Readback-Fehler; zwei gezielte ISR-Fehlerzeitpunkte; kurzer INT6-Puls |
 +
 +Der ELF-Simulator prüfte genau 32/32/16 XYZ-Schritte vorwärts und dieselbe
@@ -5558,7 +5882,10 @@
 +
 +## Separates Y-Testprofil
 +
-+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem finalen Y-ELF.
++Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem am 18.10.2026
++geprüften Y-ELF. Das nach der Warnungsbereinigung am 19.10.2026 neu erzeugte
++Y-HEX ist bytegleich zu diesem geprüften Programm; Debugdaten im ELF können
++sich durch neue Quellzeilen ändern.
 +
 +`make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
 +Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
@@ -5598,15 +5925,33 @@
 +STEP-Portbits, einen undefinierten Timerstart, die Alarmreihenfolge nach
 +`mc_reset`, EEPROM-Überlappung und den unbedingten Interrupt-Reenable im
 +EEPROM-Treiber. Serieller RX-Überlauf erzwingt nun einen Bewegungsreset und
-+die Quittierung eines kritischen Alarms. Dieser Überlaufpfad wurde gelesen
-+und kompiliert; eine gezielte Überlaufinjektion war nicht Teil des
-+beschriebenen Simulatorlaufs.
++die Quittierung eines kritischen Alarms. Der neue serielle Hosttest injiziert
++gezielt RX-Überläufe und prüft Resetaufruf, Alarm und unveränderte FIFO-Daten.
++Eine gezielte RX-Überlaufinjektion am tatsächlichen AVR-ELF war nicht Teil
++des beschriebenen Simulatorlaufs.
 +
-+Im vollständigen GRBL-Build verbleiben Upstream-Warnungen zu absichtlichem
-+Switch-Fallthrough und den 256-Byte-Ringpuffern mit uint8-Überlauf. Die
-+separaten RF2000-Board-/Treiber-/Steppermodule wurden ohne Warnungen
-+kompiliert. Repetier enthält die dokumentierten ursprünglichen fehlenden
-+Return-Pfade in `Printer.h`. Warnungen wurden nicht global abgeschaltet.
++Die gemeldeten GRBL-Warnungen wurden am 19.10.2026 behoben. Sechs
++beabsichtigte Switch-Übergänge sind mit `__attribute__((fallthrough))`
++ausdrücklich markiert; diese Schreibweise unterstützt auch das festgelegte
++PlatformIO-AVR-GCC 7.3.0. Die vier Ringindexvergleiche werden nur bei
++Ringen kleiner als 256 Byte übersetzt. Bei 256 Byte erfolgt der definierte
++uint8-Umlauf automatisch. Eine fehlerhafte RX-Belegungszählung im Wrap-Fall
++verwendet nun die Ringgröße statt der nutzbaren Kapazität. Die normale
++Statusmeldung verwendet bereits die davon unabhängige verfügbare Kapazität.
++
++`tools/test_serial_ring.py` kompiliert den tatsächlichen `serial.c` mit
++`-Wall -Wextra -Werror` für RX/TX-Kapazitäten 255/255, 128/64, 1/1, 254/255
++und 255/2. Alle Ringstartpositionen, Umlauf und FIFO-Reihenfolge, Voll/Leer,
++Belegung/Freiplatz, Echtzeitkommandos am vollen RX, Resetabbruch am vollen TX,
++Jog-Abbruch und RX-Überlaufalarm werden geprüft. Kapazitäten außerhalb 1–255
++werden beim Kompilieren zurückgewiesen. Der Test ist Bestandteil von `make check`.
++
++Beide GRBL-Profile wurden vollständig mit AVR-GCC 14.2.0 neu übersetzt:
++keine Compilerwarnungen oder Fehler, unveränderte Flash-/SRAM-Werte und
++bytegleiche HEX-Dateien gegenüber den zuvor simulierten Profilen. Damit sind
++Motor-, Limit- und Homingprogramm unverändert. Warnungen wurden nicht global
++abgeschaltet. Die unveränderte Repetier-Referenz enthält weiterhin die
++ursprünglichen fehlenden Return-Pfade in `Printer.h`.
 +
 +Die bisherige Repetier-Konfiguration wird nach Nutzervorgabe als
 +funktionierend zugrunde gelegt; abweichende Hardwarezuordnungen im Plan

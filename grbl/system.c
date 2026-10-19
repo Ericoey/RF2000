@@ -370,6 +370,7 @@ uint8_t system_execute_line(char *line)
             helper_var = true;  // Set helper_var to flag storing method.
             // No break. Continues into default: to read remaining command characters.
           }
+          __attribute__((fallthrough));
         default :  // Storing setting methods [IDLE/ALARM]
           if(!read_float(line, &char_counter, &parameter)) { return(STATUS_BAD_NUMBER_FORMAT); }
           if (!isfinite(parameter) || parameter < 0 || parameter != floorf(parameter)) {

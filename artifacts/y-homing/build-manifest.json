@@ -47,7 +47,7 @@
     "grbl/eeprom.h": "fcb6c0d3d51eae11aa00b8b0e850fe7d1603999c77202651c5459ea61c0b0e7d",
     "grbl/examples/grblUpload/grblUpload.ino": "9d1a1054f2d7ad97a7c0862e81a3cee4db8c6cf95236d68d6c925c1d8996567b",
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
-    "grbl/gcode.c": "38215c9242d8c85db3dfb146ee439ed5486eec7e492cd2c1d7e7301465fe5bb1",
+    "grbl/gcode.c": "ef8559947827310ff395ee1671c226d6161e059d833df3a048b52a50f28762ff",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
     "grbl/grbl.h": "cbaca1c1857fc426da1f0fe5ab5fa08d76d090ca92b63d2d7bbc72a6f4572fca",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
@@ -67,13 +67,13 @@
     "grbl/probe.h": "fb309aed7a9e4af6ac832d679cf14d553cc1a40bc6f6a2a08621b51a24ad000d",
     "grbl/protocol.c": "7d703bae6469a03df8176f5b986bb292ed399b87f692c0b402040a940e54a6e4",
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
-    "grbl/report.c": "14fcb9923f437ab90402f992d26e63cab8ea57f79eb2e72c02d655aa83a519fc",
+    "grbl/report.c": "c9cfed46b53a133de1a96ed6e21be8e47ad174449ba26383370df26a0b343a8a",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
     "grbl/rf2000_board.c": "bf758c7318fecb177ad790e5518ff93070108fb861b3e364a9d8913b3fc07d80",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
     "grbl/rf2000_drv8711.c": "0b36c59e9a2961ab241a4cef5e968fafea70fc91841daed992111e9506bcaa9d",
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
-    "grbl/serial.c": "cb4969dcf2e74445e03cc716ea6b2577115d15cbdd265dd78a2ba8e634eac181",
+    "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
     "grbl/settings.c": "6b775ac6881018fa67b9ba547582a6bfd0ad1d86d11f25beb7634c02fdb6ca53",
     "grbl/settings.h": "a92ab3c3a9164ded715b23e1d2ee25812c2b8a952813d921bc2be9c1d31c3362",
@@ -83,13 +83,13 @@
     "grbl/spindle_control.h": "b8fa30fb2ba7c1ad0100afae98c95c53f193da5c11e134a66eaec8fef9207e93",
     "grbl/stepper.c": "ba42ef38dfb9e5f8ce41be0a6fc072ac3a654c4623ede0f267217f911eef1e9c",
     "grbl/stepper.h": "e9b74fd1c7589fd2010a52c0efc1155712511fa65f18462d8799d983443fe345",
-    "grbl/system.c": "1b1b980620aa0dce506e9e8682c3ae3de4288c8f2ff5bfc4c0ef387f247bc323",
+    "grbl/system.c": "576b564818d74a3c2b1d7fe7d902e0f6a20d50dbe87782032ddb640b7477d62c",
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "1e494e9e754dea93479c2deed807d98b64000cd28f6eeebb57d28e9363ed9834",
+    "rf2000-grbl.elf": "83568c2f409d86d96a0cf44052b48c9c41c57da88d39eb8da97b88f8f9243e2f",
     "rf2000-grbl.hex": "b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d",
-    "rf2000-grbl.map": "80cada65d7065c90bf811abe09fa16e16a883acd2acff689637124e99a7930b0"
+    "rf2000-grbl.map": "ed0f07b238adcbad32df8d81e538c7d3a2079be316755502f4d69549862038bb"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -104,5 +104,11 @@
     "notification_policy": "Tell the user each adopted schematic/Repetier difference and record the selected mapping in docs/hardware-verification.md.",
     "physical_validation_claimed": false
   },
-  "hardware_test_performed": false
+  "hardware_test_performed": false,
+  "warning_cleanup": {
+    "date": "2026-10-19",
+    "compiler_warnings": 0,
+    "hex_unchanged": true,
+    "scope": "Explicit intentional fallthrough; valid uint8 ring wrap; corrected unused RX-count helper."
+  }
 }

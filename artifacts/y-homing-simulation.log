@@ -47,3 +47,7 @@ Loaded 34010 .text at address 0x0
 Loaded 76 .data
 PASS: Y homing aborted by Ctrl-X, all five drivers asleep, no continuing STEP
 PASS: all4096 patterned EEPROM bytes preserved across 13 selected cases
+
+2026-10-19 warning cleanup: rebuilt Y HEX is byte-identical to the program tested above.
+HEX SHA256 b8c71ef3357b936023c321a51ee9a744890fe609bc9b13bf8431f73f275f548d
+The newly generated ELF contains updated debug information; no machine-code or initial-data change.

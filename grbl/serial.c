@@ -25,6 +25,15 @@
 #define RX_RING_BUFFER (RX_BUFFER_SIZE+1)
 #define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
 
+// Indices are uint8_t. A 256-byte ring uses its natural unsigned wrap;
+// smaller rings need the explicit comparisons below. One slot stays empty.
+#if RX_BUFFER_SIZE < 1 || RX_BUFFER_SIZE > 255
+  #error "RX_BUFFER_SIZE must be between 1 and 255"
+#endif
+#if TX_BUFFER_SIZE < 1 || TX_BUFFER_SIZE > 255
+  #error "TX_BUFFER_SIZE must be between 1 and 255"
+#endif
+
 volatile uint8_t serial_rx_buffer[RX_RING_BUFFER];
 volatile uint8_t serial_rx_buffer_head = 0;
 volatile uint8_t serial_rx_buffer_tail = 0;
@@ -49,7 +58,7 @@ uint8_t serial_get_rx_buffer_count()
 {
   uint8_t rtail = serial_rx_buffer_tail; // Copy to limit multiple calls to volatile
   if (serial_rx_buffer_head >= rtail) { return(serial_rx_buffer_head-rtail); }
-  return (RX_BUFFER_SIZE - (rtail-serial_rx_buffer_head));
+  return (RX_RING_BUFFER - (rtail-serial_rx_buffer_head));
 }
 
 
@@ -87,7 +96,9 @@ void serial_init()
 void serial_write(uint8_t data) {
   // Calculate next head
   uint8_t next_head = serial_tx_buffer_head + 1;
-  if (next_head == TX_RING_BUFFER) { next_head = 0; }
+  #if TX_RING_BUFFER < 256
+    if (next_head == TX_RING_BUFFER) { next_head = 0; }
+  #endif
 
   // Wait until there is space in the buffer
   while (next_head == serial_tx_buffer_tail) {
@@ -114,7 +125,9 @@ ISR(SERIAL_UDRE)
 
   // Update tail position
   tail++;
-  if (tail == TX_RING_BUFFER) { tail = 0; }
+  #if TX_RING_BUFFER < 256
+    if (tail == TX_RING_BUFFER) { tail = 0; }
+  #endif
 
   serial_tx_buffer_tail = tail;
 
@@ -133,7 +146,9 @@ uint8_t serial_read()
     uint8_t data = serial_rx_buffer[tail];
 
     tail++;
-    if (tail == RX_RING_BUFFER) { tail = 0; }
+    #if RX_RING_BUFFER < 256
+      if (tail == RX_RING_BUFFER) { tail = 0; }
+    #endif
     serial_rx_buffer_tail = tail;
 
     return data;
@@ -186,7 +201,9 @@ ISR(SERIAL_RX)
         // Throw away any unfound extended-ASCII character by not passing it to the serial buffer.
       } else { // Write character to buffer
         next_head = serial_rx_buffer_head + 1;
-        if (next_head == RX_RING_BUFFER) { next_head = 0; }
+        #if RX_RING_BUFFER < 256
+          if (next_head == RX_RING_BUFFER) { next_head = 0; }
+        #endif
 
         // Write data to buffer unless it is full.
         if (next_head != serial_rx_buffer_tail) {

@@ -1,6 +1,6 @@
 # Prüfbericht
 
-Stand: 18.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
+Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
 ausgeführt. Es wurde keine Platine programmiert und kein Motor bewegt.
 
 ## Build und Wiederholbarkeit
@@ -47,6 +47,7 @@ Ergebnis: **bestanden**, Exitstatus 0. Vollständige Ausgabe:
 | Tatsächlicher Limit-Code mit GPIO-Modell | Alle 16 Kombinationen der vier Eingänge; feste Polarität; aktiver Eingang beim Init; sofortige Stopentscheidung; fünf freie Samples; Prellen; Z-Min/Z-Max; Fehlersperre; spätere Homing-Schalterauswahl |
 | Tatsächliche DRV8711-Zustandsmaschine | Alle fünf Registerprofile; ENBL0 vor Wake; wirksamer Awake-Reset; UVLO-Löschung; Readbackfehler in allen drei Phasen; XYZ-Maske; Reserve ENBL0; 25-ms-Wake; persistenter Fault; Fehler während Wake; INT6-Flankenkonfiguration |
 | Tatsächliche EEPROM-Funktionen mit ASAN/UBSAN | Getrennte Datensätze; Längen-/Indexgrenzen; NUL-Behandlung; Wiederherstellen; SREG-Erhaltung |
+| Tatsächlicher serieller Treiber mit Host-UART-Modell | Fünf RX/TX-Konfigurationen, alle Startpositionen, FIFO/Umlauf, Voll/Leer, counts/available, Reset, Echtzeitbefehle, Jog-Abbruch und Überlaufalarm; sechs ungültige Kapazitäten abgewiesen |
 | Echter AVR-ELF in simavr | Fünf DRV8711-SPI-Modelle; fabrikleeres EEPROM; Bootalarm; Befehls-/Einstellungsgrenzen; EEPROM über UART; STEP-/DIR-GPIO; bewegter Z-Max-Test; Fault-/Readback-Fehler; zwei gezielte ISR-Fehlerzeitpunkte; kurzer INT6-Puls |
 
 Der ELF-Simulator prüfte genau 32/32/16 XYZ-Schritte vorwärts und dieselbe
@@ -77,7 +78,10 @@ Nachlauf stehen in `artifacts/validation.log`.
 
 ## Separates Y-Testprofil
 
-Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem finalen Y-ELF.
+Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem am 18.10.2026
+geprüften Y-ELF. Das nach der Warnungsbereinigung am 19.10.2026 neu erzeugte
+Y-HEX ist bytegleich zu diesem geprüften Programm; Debugdaten im ELF können
+sich durch neue Quellzeilen ändern.
 
 `make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
 Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
@@ -117,15 +121,33 @@ DRV4-Pinabweichung, RESET/UVLO im Sleep, A/B-ENBL, das Überschreiben geteilter
 STEP-Portbits, einen undefinierten Timerstart, die Alarmreihenfolge nach
 `mc_reset`, EEPROM-Überlappung und den unbedingten Interrupt-Reenable im
 EEPROM-Treiber. Serieller RX-Überlauf erzwingt nun einen Bewegungsreset und
-die Quittierung eines kritischen Alarms. Dieser Überlaufpfad wurde gelesen
-und kompiliert; eine gezielte Überlaufinjektion war nicht Teil des
-beschriebenen Simulatorlaufs.
+die Quittierung eines kritischen Alarms. Der neue serielle Hosttest injiziert
+gezielt RX-Überläufe und prüft Resetaufruf, Alarm und unveränderte FIFO-Daten.
+Eine gezielte RX-Überlaufinjektion am tatsächlichen AVR-ELF war nicht Teil
+des beschriebenen Simulatorlaufs.
 
-Im vollständigen GRBL-Build verbleiben Upstream-Warnungen zu absichtlichem
-Switch-Fallthrough und den 256-Byte-Ringpuffern mit uint8-Überlauf. Die
-separaten RF2000-Board-/Treiber-/Steppermodule wurden ohne Warnungen
-kompiliert. Repetier enthält die dokumentierten ursprünglichen fehlenden
-Return-Pfade in `Printer.h`. Warnungen wurden nicht global abgeschaltet.
+Die gemeldeten GRBL-Warnungen wurden am 19.10.2026 behoben. Sechs
+beabsichtigte Switch-Übergänge sind mit `__attribute__((fallthrough))`
+ausdrücklich markiert; diese Schreibweise unterstützt auch das festgelegte
+PlatformIO-AVR-GCC 7.3.0. Die vier Ringindexvergleiche werden nur bei
+Ringen kleiner als 256 Byte übersetzt. Bei 256 Byte erfolgt der definierte
+uint8-Umlauf automatisch. Eine fehlerhafte RX-Belegungszählung im Wrap-Fall
+verwendet nun die Ringgröße statt der nutzbaren Kapazität. Die normale
+Statusmeldung verwendet bereits die davon unabhängige verfügbare Kapazität.
+
+`tools/test_serial_ring.py` kompiliert den tatsächlichen `serial.c` mit
+`-Wall -Wextra -Werror` für RX/TX-Kapazitäten 255/255, 128/64, 1/1, 254/255
+und 255/2. Alle Ringstartpositionen, Umlauf und FIFO-Reihenfolge, Voll/Leer,
+Belegung/Freiplatz, Echtzeitkommandos am vollen RX, Resetabbruch am vollen TX,
+Jog-Abbruch und RX-Überlaufalarm werden geprüft. Kapazitäten außerhalb 1–255
+werden beim Kompilieren zurückgewiesen. Der Test ist Bestandteil von `make check`.
+
+Beide GRBL-Profile wurden vollständig mit AVR-GCC 14.2.0 neu übersetzt:
+keine Compilerwarnungen oder Fehler, unveränderte Flash-/SRAM-Werte und
+bytegleiche HEX-Dateien gegenüber den zuvor simulierten Profilen. Damit sind
+Motor-, Limit- und Homingprogramm unverändert. Warnungen wurden nicht global
+abgeschaltet. Die unveränderte Repetier-Referenz enthält weiterhin die
+ursprünglichen fehlenden Return-Pfade in `Printer.h`.
 
 Die bisherige Repetier-Konfiguration wird nach Nutzervorgabe als
 funktionierend zugrunde gelegt; abweichende Hardwarezuordnungen im Plan

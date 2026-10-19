@@ -182,7 +182,7 @@ uint8_t gc_execute_line(char *line)
               if (axis_command) { FAIL(STATUS_GCODE_AXIS_COMMAND_CONFLICT); } // [Axis word/command conflict]
               axis_command = AXIS_COMMAND_NON_MODAL;
             }
-            // No break. Continues to next line.
+            __attribute__((fallthrough)); // Continue with non-modal group parsing.
           case 4: case 53:
             dword_bit = MODAL_GROUP_G0;
             gc_block.non_modal_command = int_value;
@@ -197,7 +197,7 @@ uint8_t gc_execute_line(char *line)
             // * G43.1 is also an axis command but is not explicitly defined this way.
             if (axis_command) { FAIL(STATUS_GCODE_AXIS_COMMAND_CONFLICT); } // [Axis word/command conflict]
             axis_command = AXIS_COMMAND_MOTION_MODE;
-            // No break. Continues to next line.
+            __attribute__((fallthrough)); // Continue with motion group parsing.
           case 80:
             dword_bit = MODAL_GROUP_G1;
             gc_block.modal.motion = int_value;
@@ -1003,7 +1003,8 @@ uint8_t gc_execute_line(char *line)
           if (!axis_dwords) { axis_command = AXIS_COMMAND_NONE; }
           break;
         case MOTION_MODE_CW_ARC:
-          gc_parser_flags |= GC_PARSER_ARC_IS_CLOCKWISE; // No break intentional.
+          gc_parser_flags |= GC_PARSER_ARC_IS_CLOCKWISE;
+          __attribute__((fallthrough));
         case MOTION_MODE_CCW_ARC:
           // [G2/3 Errors All-Modes]: Feed rate undefined.
           // [G2/3 Radius-Mode Errors]: No axis words in selected plane. Target point is same as current.
@@ -1226,7 +1227,8 @@ uint8_t gc_execute_line(char *line)
           }
           break;
         case MOTION_MODE_PROBE_TOWARD_NO_ERROR: case MOTION_MODE_PROBE_AWAY_NO_ERROR:
-          gc_parser_flags |= GC_PARSER_PROBE_IS_NO_ERROR; // No break intentional.
+          gc_parser_flags |= GC_PARSER_PROBE_IS_NO_ERROR;
+          __attribute__((fallthrough));
         case MOTION_MODE_PROBE_TOWARD: case MOTION_MODE_PROBE_AWAY:
           if ((gc_block.modal.motion == MOTION_MODE_PROBE_AWAY) ||
               (gc_block.modal.motion == MOTION_MODE_PROBE_AWAY_NO_ERROR)) { gc_parser_flags |= GC_PARSER_PROBE_IS_AWAY; }
