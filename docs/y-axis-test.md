@@ -21,7 +21,7 @@ abschließend freifahren; Geschwindigkeit und Rückzug sind bewusste Testwerte.
 | Normale G-Code-Bewegungen | XYZ-Testbetrieb | gesperrt; auch `$H`, `$HX` und `$HZ` sind gesperrt |
 | Einstellungen | GRBL-Einstellungen mit Board-Grenzen | feste Testwerte; nur `$22=0` oder `$22=1` veränderbar |
 | EEPROM | normale GRBL-Verwaltung | keine Übernahme gespeicherter Einstellungen oder Startprogramme, keine EEPROM-Schreibzugriffe |
-| Originaldisplay / Tastenfeld | nicht aktiv | lokales Menü für Diagnose, Entriegeln, 0,1-mm-Jogs und bestätigten Y-Referenzstart |
+| Originaldisplay / Tastenfeld | nicht aktiv | Menü für Freigabe, Diagnose, Y-Jogs mit 0,01 / 0,10 / 0,50 mm und 10 / 20 / 30 mm/min sowie bestätigten Y-Referenzstart |
 
 Alle fünf DRV8711 werden auch im Y-Profil initialisiert und zurückgelesen.
 Eine kurze gemeinsame Wake-Phase erfolgt dabei ausdrücklich mit gesperrten
@@ -36,6 +36,12 @@ Der Test kann nach dem Programmieren auch direkt mit dem originalen Display
 und Tastenfeld bedient werden. Die [Bedienfeld-Anleitung](local-panel.md)
 beschreibt Menü und Tasten. Links, Pause und Continue brechen als Software-
 Reset ab; Richtung und Schalter sind vor dem Referenzstart zu prüfen.
+Im Hauptmenü wählen Hoch/Runter den Punkt und OK öffnet ihn. Unter
+**Y verfahren** bewegt Hoch Y+, Runter Y−; OK ändert die Schrittweite.
+Die bisherigen Z-Tasten stellen dort die Schrittweite ein, die bisherigen
+Extrudertasten den Vorschub. Rechts führt zurück zum Hauptmenü. Das Öffnen
+der Verfahrseite und das Einstellen der Werte lösen keine Bewegung aus.
+Nach Reset gelten 0,10 mm und 20 mm/min; gehaltene Tasten wiederholen nichts.
 
 Im Repository-Hauptverzeichnis mit vorhandenem PlatformIO:
 
@@ -194,11 +200,18 @@ ersten Kontakt ausbleibendes Schaltsignal erzeugt keinen automatischen
 Suchweg-Alarm. Ein anderer Endschalter oder Treiberfehler
 beendet den Test. Ursache klären und Position erneut beurteilen.
 
+Das lokale Display zeigt nach Erfolg **R:JA**, nach Reset oder Alarm wieder
+**R:?**. Die angezeigte Y-Maschinenposition liegt nach Min-Homing bei
+ungefähr −289 mm (−290 mm Verfahrbereich plus 1 mm Rückzug), nicht bei null.
+Ein Arbeitsnullpunkt wird dadurch nicht eingerichtet.
+
 **Abbruch:** Während Homing wirkt `!` nicht als Stopp. **Ctrl-X** sendet
 den Software-Abbruch. **Ctrl-C schließt im PlatformIO-Monitor nur das
 Terminal und stoppt keine Bewegung.** Bei Gefahr die unabhängige
 Hardware-Abschaltung verwenden; eine serielle Verbindung ersetzt sie nicht.
 
 Dieses Profil ist ein gesonderter Y-Inbetriebnahmetest. Es gibt weder X/Z-
-Homing noch Fräsbetrieb frei. Es wurden in der Cloud keine reale Platine
-programmiert, kein Motor bewegt und keine physische Referenzfahrt bestätigt.
+Homing noch Fräsbetrieb frei. Am 19.10.2026 hat der Nutzer mit dem bisherigen
+Testmenü Display, alle Tasten, Y-Referenzfahrt und Referenzschalter als
+funktionierend bestätigt. Das ist ein Anwenderbericht, keine Messung durch
+die Cloud. Die neue Menüführung ist an der realen Platine noch zu prüfen.

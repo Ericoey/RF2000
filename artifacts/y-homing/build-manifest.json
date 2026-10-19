@@ -30,8 +30,8 @@
   "jog_max_mm_per_command": 0.5,
   "jog_max_mm_min": 30.0,
   "eeprom_writes": false,
-  "flash_bytes": 37080,
-  "static_sram_bytes": 3702,
+  "flash_bytes": 38442,
+  "static_sram_bytes": 3697,
   "compiler": "avr-gcc (GCC) 14.2.0",
   "source_sha256": {
     "grbl/analog_control.c": "c587acc887ea9d8e5fb3b152299120567ad523374a58541b1c29b5c185710aa2",
@@ -55,7 +55,7 @@
     "grbl/limits.c": "ab090613310550a1bf9bc459655dbb86036fbe119a4ab5a4127dfcbc8ac92b72",
     "grbl/limits.h": "8d34528451e0ffb4cfaacbb6018b36e4a4df79c3054dfd3b4e0a625ac9332512",
     "grbl/main.c": "c59ce7da83da24f520166f6d6d3d41d679306ffded68b8cfec6d218f9a8cca09",
-    "grbl/motion_control.c": "7ab4419f068639f32196dfbc0ade159c8e432c0bf360f01ee568ee1bfbaaad93",
+    "grbl/motion_control.c": "734c85fb69fb34fb0560f502a11f7ae2d251787ae1443c19bd2458ebc2507355",
     "grbl/motion_control.h": "25445b9ac9e46a31d57ae56afa4f1c25f7beb4bb0977b3e6f8629207ff67793e",
     "grbl/nuts_bolts.c": "77aec3827f651f9958709d77d920aaed6f817b975d2989b655e66a37fcad7985",
     "grbl/nuts_bolts.h": "3442a59d27d65da876319a41522a7e39cb9be7c627b44d86daa10d81d828dfad",
@@ -75,8 +75,8 @@
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
-    "grbl/rf2000_panel.c": "9d83d9243cc9182f21101273a8d2e9dfeb180a77cfa112957a129e7aaaf819c2",
-    "grbl/rf2000_panel.h": "22f43dd70af32bb7a1e087eb79ef1fb0c391f8a9780c05a2eba6461d251db545",
+    "grbl/rf2000_panel.c": "ebc46772e58defdf3ad5253d1ca7b9c06514ddb8dbf933c55309ce9359fed7b9",
+    "grbl/rf2000_panel.h": "30eceef9b31947b6e12da38f7a0ff21e6ec72e534f1ace7902e35adf13f85a51",
     "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
     "grbl/settings.c": "6b775ac6881018fa67b9ba547582a6bfd0ad1d86d11f25beb7634c02fdb6ca53",
@@ -91,9 +91,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d",
-    "rf2000-grbl.hex": "b362bc6997204063a9d3751f904fcfa8a8ffac31dae3b8aab5d587cd65a2d81d",
-    "rf2000-grbl.map": "d346d38845cbfa648acedfb6950abdf8cb3336eeeb00908682f63c4e130b8ef3"
+    "rf2000-grbl.elf": "93a7e697f53ad70bc12ce72a2ac8b0acf024469179db4d5991b470446b116cd6",
+    "rf2000-grbl.hex": "770f79c59bc8b56a6f5686df3fdfe82c59d8f17ddce8aea90fbd806ab96e02db",
+    "rf2000-grbl.map": "275c014dd7910e2f26fc6a0daca0c94c6e870be81913bbfea5752a7249aee4b0"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -135,14 +135,36 @@
     "lcd_tick_spacing": 2,
     "lcd_minimum_byte_interval_us": 1000,
     "extra_libraries": [],
-    "physical_test_performed": false
+    "physical_test_performed": false,
+    "menu": [
+      "Freigeben",
+      "Y verfahren",
+      "Y referenzieren",
+      "Diagnose",
+      "Abbruch / Reset"
+    ],
+    "jog_steps_mm": [
+      0.01,
+      0.1,
+      0.5
+    ],
+    "jog_feeds_mm_min": [
+      10,
+      20,
+      30
+    ],
+    "default_step_mm": 0.1,
+    "default_feed_mm_min": 20,
+    "jog_keys": "UP Y+, DOWN Y-, OK cycles step; PJ2/PJ4 step up/down; PJ5/PJ6 feed up/down; settings keys only on jog page",
+    "position_display": "Machine Y mm; foreground 200ms snapshots; R:? / R:JA; homing shows phase instead of rebased counter",
+    "settings_persisted": false
   },
   "validation": {
     "standard_make_check": "passed; artifacts/validation.log",
     "date": "2026-10-19",
-    "local_panel_real_avr_cases": 11,
+    "local_panel_real_avr_cases": 14,
     "panel_log": "artifacts/panel-validation.log",
-    "tested_elf_sha256": "2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d",
+    "tested_elf_sha256": "93a7e697f53ad70bc12ce72a2ac8b0acf024469179db4d5991b470446b116cd6",
     "serial_y_homing_real_avr_cases": 13,
     "y_homing_log": "artifacts/y-homing-simulation.log"
   },
@@ -152,5 +174,17 @@
     "local_panel_enabled": true,
     "firmware_program_unchanged": true,
     "configuration_verified": "PlatformIO project config --json-output; inherited Y build flags and default target checked"
+  },
+  "user_reported_hardware_validation": {
+    "date": "2026-10-19",
+    "scope": [
+      "original display",
+      "all keypad inputs",
+      "Y reference cycle",
+      "Y reference switch"
+    ],
+    "firmware": "previous UI; exact flashed hash not supplied",
+    "verified_by_cloud": false,
+    "new_ui_hardware_tested": false
   }
 }

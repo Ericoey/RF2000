@@ -12,6 +12,7 @@ void rf2000_panel_service(void);
 void rf2000_panel_dispatch(uint8_t command_boundary);
 void rf2000_panel_note_alarm(uint8_t alarm);
 void rf2000_panel_homing_phase(uint8_t phase);
+void rf2000_panel_homing_complete(void);
 #else
 #define rf2000_panel_init() ((void)0)
 #define rf2000_panel_reset() ((void)0)
@@ -20,5 +21,6 @@ void rf2000_panel_homing_phase(uint8_t phase);
 #define rf2000_panel_dispatch(boundary) ((void)0)
 #define rf2000_panel_note_alarm(alarm) ((void)0)
 #define rf2000_panel_homing_phase(phase) ((void)0)
+#define rf2000_panel_homing_complete() ((void)0)
 #endif
 #endif

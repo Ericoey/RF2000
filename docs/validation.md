@@ -1,18 +1,21 @@
 # Prüfbericht
 
 Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
-ausgeführt. Es wurde keine Platine programmiert und kein Motor bewegt.
+ausgeführt. Die Cloudwerkzeuge haben keine Platine programmiert und keinen
+Motor bewegt. Der Nutzer hat Display, Tasten, Y-Referenzfahrt und
+Referenzschalter mit dem bisherigen Menü als funktionierend bestätigt;
+das ist ein Anwenderbericht vom 19.10.2026, kein Messprotokoll der Cloud.
 
 ## Build und Wiederholbarkeit
 
 | Variante | Flash | Statisches SRAM | Ergebnis |
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
-| GRBL separater Y-Test mit Bedienfeld | 37.080 / 253.952 Byte | 3.702 / 8.192 Byte | gebaut |
+| GRBL separater Y-Test mit Bedienfeld | 38.442 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
-das Y-Profil mit Bedienfeld `.text=36952`, `.data=128`, `.bss=3574`. Für SRAM werden
+das Y-Profil mit Bedienfeld `.text=38328`, `.data=114`, `.bss=3583`. Für SRAM werden
 `.data` und `.bss` addiert. Die neue Binutils-Kurzausgabe zählt initialisierte
 Daten bei dieser Zielplattform anders; die Kapazitätsprüfung verwendet
 deshalb die einzelnen ELF-Sektionen. Statische SRAM-Reserve belegt keine
@@ -34,7 +37,7 @@ Firmware-SHA256:
 ```text
 GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
-Y-Test   b362bc6997204063a9d3751f904fcfa8a8ffac31dae3b8aab5d587cd65a2d81d
+Y-Test   770f79c59bc8b56a6f5686df3fdfe82c59d8f17ddce8aea90fbd806ab96e02db
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -84,14 +87,14 @@ Test nach der Bedienfelderweiterung steht in `artifacts/validation.log`.
 PlatformIO wählt für den aktuellen Hardwaretest jetzt standardmäßig
 `rf2000_y_homing_test` mit LCD und Tasten. Die aufgelöste Konfiguration wurde
 mit `pio project config --json-output` geprüft: Default, geerbte Buildflags,
-`RF2000_Y_HOMING_TEST=1`, C-Quellen und Monitorparameter stimmen. Es wurden
-keine Firmware-C-Dateien oder getesteten ELF-/HEX-Programme verändert;
-die folgenden Simulationsergebnisse gelten für dieselben Programme.
+`RF2000_Y_HOMING_TEST=1`, C-Quellen und Monitorparameter stimmen. Bei dieser
+früheren Umstellung wurde nur die Auswahl geändert. Die neue Menüführung
+wurde anschließend separat gebaut und mit dem aktuellen ELF geprüft.
 
 Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem aktuellen
 Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
 `artifacts/y-homing-simulation.log`; dieses ELF wurde auch für die unten
-beschriebenen elf Panel-Fälle verwendet.
+beschriebenen 14 Panel-Fälle verwendet.
 
 `make check-y-homing` baut `RF2000_Y_HOMING_TEST=1` in einem getrennten
 Verzeichnis und führt `tests/run-y-homing-sim.sh` mit diesem tatsächlichen
@@ -128,8 +131,8 @@ lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 
 ### Originaldisplay und lokales Tastenfeld
 
-Ergebnis: **11 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
-Y-ELF `2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d`.
+Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
+Y-ELF `93a7e697f53ad70bc12ce72a2ac8b0acf024469179db4d5991b470446b116cd6`.
 Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.
 
@@ -140,12 +143,22 @@ Die Firmware lässt bei Laufzeitübertragungen mindestens 1 ms Abstand durch
 zwei Tickdifferenzen des 1-kHz-Timers. Sie wartet nicht im Schrittinterrupt.
 
 Weitere Fälle prüfen Start mit gehaltenem OK, Prellen, Mehrfachtasten,
-ignorierte Z-/Extrudertasten, Diagnose, Entriegeln, Y-Jogs mit genau 15+15
+außerhalb der Verfahrseite ignorierte Z-/Extrudertasten, Diagnose, Freigeben,
+Y-Jogs mit genau 15+15
 Schritten, keine Wiederholung und keine während einer Bewegung gespeicherten
 Tastenaktionen. Zwei getrennte OK-Betätigungen führen den vollständigen
 Referenzablauf mit zwei Kontakten und zwei Freigaben aus. Ein serieller Jog
 verwirft einen geöffneten Bestätigungsdialog; OK öffnet anschließend nur
 einen neuen Dialog.
+
+Die neue Fahrseite wird ohne Bewegung geöffnet. Alle Schrittweiten
+0,01/0,10/0,50 mm, Vorschübe 10/20/30 mm/min, begrenzte Zusatztasten und
+Rücksetzen auf 0,10/F20 werden geprüft. Wirkliche Schrittzahlen, Zeitverhältnis
+der Vorschübe und die Position gegenüber dem UART-MPos-Bericht stimmen.
+Erfolgreiches Homing zeigt R:JA und die negative Maschinenposition; ein Alarm
+löscht den Referenzstatus. Fehlerquittierung mit OK/Rechts löst keine Aktion aus.
+Ein kurz vor Jog-Ende begonnener Tastendruck bleibt auch nach fertiger
+Entprellung im Leerlauf verworfen; erst Loslassen und erneutes Drücken fährt.
 
 Links, PH7 und PH2 wurden als Abbruch während aller vier Homingphasen und
 während Jogging geprüft: Abschaltung innerhalb eines Timer2-Abfrageintervalls

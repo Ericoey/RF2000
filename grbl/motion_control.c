@@ -449,6 +449,7 @@ void mc_homing_cycle(uint8_t cycle_mask)
 
   // If hard limits feature enabled, re-enable hard limits pin change register after homing cycle.
   limits_init();
+  rf2000_panel_homing_complete(); // Mark the local Y display only after success.
 }
 
 

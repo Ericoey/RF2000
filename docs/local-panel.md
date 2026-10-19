@@ -33,20 +33,42 @@ aufgespielt; `-e rf2000_y_homing_test` wählt es ausdrücklich. Nach dem Neustar
 muss die serielle Startmeldung **`RF2000 Y-only test`** enthalten.
 **`RF2000 XYZ test profile`** zeigt das Profil ohne Display an. Die Auswahl
 im Monitor allein ändert keine aufgespielte Firmware. Nach dem Programmieren
-kann der Y-Test ohne seriellen Sender bedient werden. Bleiben trotz bestätigtem
-Y-Profil schwarze Kästchen sichtbar, ist die LCD-Funktion am Gerät noch zu
-prüfen; sie wurde bisher ausschließlich simuliert.
+kann der Y-Test ohne seriellen Sender bedient werden. Am 19.10.2026 hat der
+Nutzer bestätigt, dass Display, alle Tasten, Y-Referenzfahrt und Referenzschalter
+mit dem bisherigen Testmenü am Gerät funktionieren. Die hier beschriebene
+neue Menüführung baut auf dieser Ansteuerung auf; die Cloud-Prüfungen ersetzen
+keinen Test ihrer Bedienung an der realen Platine.
 
 ## Tasten und Anzeigen
 
 | Taste | Funktion |
 | --- | --- |
-| Hoch / Runter | Menüpunkt auswählen; eine Betätigung pro vollständigem Drücken und Loslassen |
-| OK | Ausgewählten Punkt ausführen oder Referenzstart bestätigen |
-| Rechts | Diagnose anzeigen / zurück zum Menü |
+| Hoch / Runter | Im Hauptmenü einen Punkt wählen; unter **Y verfahren** Y+ / Y− bewegen |
+| OK | Im Hauptmenü auswählen; unter **Y verfahren** Schrittweite wechseln; Referenzstart bestätigen |
+| Rechts | Im Hauptmenü Diagnose öffnen; aus Unterseiten zurück zum Hauptmenü |
 | Links | Sofortiger Software-Abbruch und GRBL-Reset |
 | Pause und Continue | Beide sofortiger Software-Abbruch und GRBL-Reset; keine Wiederaufnahme |
-| Vier bisherige Z-/Extrudertasten | Ohne Bewegungsfunktion |
+| Bisherige Z+ / Z− (PJ2 / PJ4) | Nur unter **Y verfahren** Schrittweite größer / kleiner einstellen |
+| Bisherige Extrudertasten (PJ5 / PJ6) | Nur unter **Y verfahren** Vorschub größer / kleiner einstellen |
+
+Das Hauptmenü enthält **Freigeben**, **Y verfahren**, **Y referenzieren**,
+**Diagnose** und **Abbruch / Reset**. Hoch/Runter wählt den Punkt; OK öffnet
+ihn oder führt ihn aus. Der Einstieg in **Y verfahren** und Änderungen von
+Schrittweite oder Vorschub bewegen den Motor nicht. Rechts kehrt aus
+Verfahren oder Diagnose zum Hauptmenü zurück. In der Diagnose geht auch OK
+zurück. Links bleibt auf jeder Seite eine Abbruchtaste.
+
+Unter **Y verfahren** startet jeder Druck auf Hoch genau einen positiven
+Y-Jog, jeder Druck auf Runter einen negativen. OK wechselt zyklisch zwischen
+**0,01 / 0,10 / 0,50 mm**; die bisherigen Z-Tasten stellen diese Stufen
+ohne Umlauf größer oder kleiner. Die bisherigen Extrudertasten wählen
+**10 / 20 / 30 mm/min**, ebenfalls mit festen Grenzen. Nach jedem Reset
+gelten wieder **0,10 mm und 20 mm/min**. Diese Auswahl liegt nur im RAM;
+sie verändert weder EEPROM noch die Referenzgeschwindigkeiten. Die vier
+Zusatzknöpfe haben außerhalb dieser Seite keine Aktion und bewegen keine
+Z- oder Extruderachse.
+Bei 152,38 Schritten/mm sind 0,01 mm nur etwa ein bis zwei Mikroschritte;
+die tatsächliche Strecke wird auf ganze Schritte gerundet.
 
 Beim Einschalten alle Tasten loslassen. Die Eingaben werden mit 20 ms
 entprellt; gehaltene Tasten wiederholen keine Aktion. Bewegungsbefehle
@@ -55,13 +77,27 @@ ersten LOW-Sample der 1-kHz-Abfrage, ohne die Entprellzeit abzuwarten.
 Eine gehaltene STOP-Taste sperrt auch neue Bewegungen über die serielle
 Schnittstelle. Nach Abbruch ist erneut zu entriegeln; nichts fährt selbst an.
 
-Das Display zeigt ALARM, BEREIT, JOG oder die aktuelle Referenzphase sowie
-`DRV:OK` / `DRV:FEHL` und `YMIN:frei` / `YMIN:aktiv`. Der Startalarm ist
-beabsichtigt. In der Diagnose bedeuten X/Y/Z-/Z+ jeweils `1` für betätigt
+Das Display zeigt ALARM, BEREIT, JOG oder die aktuelle Referenzphase. Die
+Y-Zeile enthält die Maschinenposition in mm und den Referenzstatus:
+`R:?` bedeutet nicht referenziert, `R:JA` eine in dieser Sitzung erfolgreich
+abgeschlossene Referenzfahrt. Ein Reset oder Alarm löscht diesen Status.
+Während der Referenzfahrt stehen die Phase und `Y wird referenziert` im
+Display; der interne, abschnittsweise zurückgesetzte Zähler wird dort nicht
+als laufende Maschinenposition ausgegeben.
+Vor einer Referenzfahrt ist die angezeigte Position nur ein Schrittzähler
+ohne gesicherten mechanischen Bezug. Nach Y-Min-Homing liegt sie entsprechend
+der GRBL-Maschinenkoordinaten bei ungefähr **−289 mm**, nicht bei null:
+290 mm konfigurierter Verfahrweg mit 1 mm abschließendem Rückzug.
+
+Im Hauptmenü und während Homing erscheinen außerdem `DRV:OK` / `DRV:FEHL`
+und `YMIN:frei` / `YMIN:aktiv`. Auf der Verfahrseite stehen stattdessen
+Schrittweite und Vorschub. Der Startalarm ist beabsichtigt. In der Diagnose
+bedeuten X/Y/Z-/Z+ jeweils `1` für betätigt
 und `0` für frei. `F` ist die DRV-Fehlerursache, `R` die Readbackfehler-Maske
 und `A` die letzte Alarmnummer; diese Zahlen erscheinen dezimal.
-`Befehl gesperrt E…` zeigt einen GRBL-Statusfehler, keine ausgeführte Bewegung.
-Hoch/Runter wählt anschließend wieder einen Menüpunkt.
+`AKTION GESPERRT E…` zeigt einen GRBL-Statusfehler und einen Hinweis wie
+`Erst freigeben` oder `Endschalter aktiv`. **OK oder Rechts quittiert nur
+die Meldung**; erst ein weiterer Tastendruck kann eine Aktion auslösen.
 
 ## Erster Y-Test am Bedienfeld
 
@@ -74,20 +110,23 @@ Schalterfunktion müssen vor der Referenzfahrt geprüft sein.
    `YMIN:frei` prüfen. Den Y-Schalter von Hand betätigen: Die Anzeige muss
    auf `aktiv` wechseln und nach Loslassen wieder `frei` werden. Mit Rechts
    lassen sich die anderen Eingänge ebenfalls ohne Bewegung prüfen.
-2. **Entriegeln → OK**. Aktive Schalter oder Treiberfehler verhindern die
+2. **Freigeben → OK**. Aktive Schalter oder Treiberfehler verhindern die
    Freigabe. Bei einem kritischen Alarm zuerst mit Links zurücksetzen;
    ein verriegelter Treiberfehler erfordert nach Ursachenbehebung einen
    echten MCU-Neustart.
-3. **Y -0.1 mm → OK**: genau ein kurzer Jog mit 20 mm/min. Y- muss zum
-   Min-Schalter zeigen. **Y +0.1 mm → OK** prüft die Gegenrichtung.
-   Vor jeder weiteren Aktion auf das Ende der Bewegung warten.
+3. **Y verfahren → OK**. Die Vorgabe ist 0,10 mm bei 20 mm/min.
+   **Runter** startet genau einen Y−-Jog zum Min-Schalter; **Hoch** prüft
+   die Gegenrichtung Y+. Vor jeder weiteren Bewegung auf deren Ende warten.
+   Mit **Rechts** zurück zum Hauptmenü. Falls nötig, Schrittweite und
+   Vorschub vor dem nächsten Jog über OK oder die Zusatzknöpfe ändern.
 4. Bei bestätigter Richtung und Schalterfunktion sowie freien Eingängen
    **Y referenzieren → OK** wählen. Das Display fragt nach Richtung und
    Schalterprüfung. **OK vollständig loslassen und erneut drücken** startet
    die Fahrt. Hoch/Runter/Rechts verwirft diese Bestätigung. Eine zwischenzeitlich
    über USB gestartete Bewegung verwirft sie ebenfalls.
 5. Die Anzeige wechselt durch **REF-SUCHE → RUECKZUG → FEINANFAHRT →
-   FREIFAHREN → BEREIT**. Der Ablauf entspricht den seriellen Befehlen
+   FREIFAHREN → BEREIT**; anschließend steht neben der Y-Position **R:JA**.
+   Der Ablauf entspricht den seriellen Befehlen
    `$22=1` und `$HY`: 60 mm/min erste Suche, 1 mm Rückzug, 20 mm/min
    zweite Annäherung, 1 mm abschließender Rückzug.
 

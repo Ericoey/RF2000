@@ -140,8 +140,9 @@ static void no_other_steps(void)
 static struct {
   int position;
   uint8_t enabled, level, previous_step;
-  unsigned contacts, releases, phases, phase_steps[8], wakes;
-  int phase_direction[8];
+  unsigned contacts, releases, phases, phase_steps[32], wakes;
+  int phase_direction[32];
+  uint64_t first_step_cycle, last_step_cycle;
 } switch_model;
 
 static void panel_y_sleep(struct avr_irq_t *irq, uint32_t value, void *opaque)
@@ -159,10 +160,12 @@ static void panel_y_step(struct avr_irq_t *irq, uint32_t value, void *opaque)
   if (!level || previous==level || !is_output('F',6)) return;
   const int direction=gpio_level('F',7) ? 1 : -1;
   if (!switch_model.phases || switch_model.phase_direction[switch_model.phases-1]!=direction) {
-    CHECK(switch_model.phases<8,"unexpected extra Y direction reversals");
+    CHECK(switch_model.phases<32,"unexpected extra Y direction reversals");
     switch_model.phase_direction[switch_model.phases++]=direction;
   }
   ++switch_model.phase_steps[switch_model.phases-1];
+  if (!switch_model.first_step_cycle) switch_model.first_step_cycle=sim.avr->cycle;
+  switch_model.last_step_cycle=sim.avr->cycle;
   switch_model.position+=direction;
   if (!switch_model.enabled) return;
   const uint8_t active=switch_model.position<=0;
@@ -202,6 +205,7 @@ static void boot_panel(const char *elf, int held)
     CHECK(gpio_level(key_port[key],key_bit[key]),"key%u missing internal pullup",key);
   }
   CHECK(display_has("Y") && display_has("Alarm"),"startup display lacks Y/alarm state:\n%s",display_text());
+  CHECK(display_has("R:?"),"startup incorrectly claims a known reference:\n%s",display_text());
 }
 
 static void press(enum panel_key key)
@@ -221,9 +225,68 @@ static void unlock_panel(void)
 
 static void select_homing(void)
 {
-  for (unsigned i=0;i<3;++i) press(KEY_DOWN);
+  for (unsigned i=0;i<2;++i) press(KEY_DOWN);
   run_us(100000);
   CHECK(display_has("Y") && display_has("Refer"),"Y homing menu missing:\n%s",display_text());
+}
+
+static void enter_jog_page(void)
+{
+  const unsigned steps=sim.step_count[1], wakes=switch_model.wakes;
+  press(KEY_DOWN); press(KEY_OK); run_us(250000);
+  CHECK(display_has("VERFAHREN") && display_has("Weg:0.10") && display_has("F:20"),
+    "default jog page missing0.10mm/F20:\n%s",display_text());
+  CHECK(sim.step_count[1]==steps && switch_model.wakes==wakes,
+    "opening jog page emitted STEP or woke Y");
+}
+
+static double displayed_y(void)
+{
+  char row[21];
+  memcpy(row,display_text()+21,20); row[20]=0;
+  const char *label=strstr(row,"Y:");
+  CHECK(label,"LCD lacks live Y position:\n%s",display_text());
+  char *end;
+  const double value=strtod(label+2,&end);
+  CHECK(end!=label+2,"LCD Y position is not numeric:\n%s",display_text());
+  return value;
+}
+
+static double reported_y(void)
+{
+  const char *reply=command("?",30);
+  const char *label=strstr(reply,"MPos:");
+  double x,y,z;
+  CHECK(label && sscanf(label+5,"%lf,%lf,%lf",&x,&y,&z)==3,
+    "UART status lacks machine position: %s",reply);
+  return y;
+}
+
+static void check_displayed_position(void)
+{
+  run_us(450000);
+  const double lcd_y=displayed_y(), actual_y=reported_y();
+  double difference=lcd_y-actual_y;
+  if (difference<0) difference=-difference;
+  CHECK(difference<=0.011,"LCD Y%.3f differs from actual machine position%.3f:\n%s",
+    lcd_y,actual_y,display_text());
+}
+
+static void check_options(const char *step, const char *feed)
+{
+  run_us(250000);
+  CHECK(display_has(step) && display_has(feed),"unexpected jog settings%s/%s:\n%s",
+    step,feed,display_text());
+}
+
+static uint64_t finish_jog(unsigned previous_steps)
+{
+  const uint64_t deadline=sim.avr->cycle+5*CPU_HZ;
+  while ((sim.step_count[1]==previous_steps || awake(1)) && sim.avr->cycle<deadline) run_us(1000);
+  CHECK(sim.avr->cycle<deadline,"bounded jog did not finish:\n%s",display_text());
+  CHECK(switch_model.last_step_cycle>=switch_model.first_step_cycle,"jog timing backwards");
+  all_asleep(); no_other_steps();
+  return switch_model.last_step_cycle-switch_model.first_step_cycle;
 }
 
 static void confirm_homing(void)
@@ -261,11 +324,11 @@ static void test_startup_and_keys(const char *elf)
   run_us(70000);
   CHECK(strstr(command("?",30),"<Alarm"),"bouncing OK unlocked the machine");
   unlock_panel();
-  press(KEY_DOWN); press(KEY_DOWN);
-  key_level(KEY_OK,0); key_level(KEY_DOWN,0); run_us(60000);
+  press(KEY_DOWN); press(KEY_OK);
+  key_level(KEY_UP,0); key_level(KEY_DOWN,0); run_us(60000);
   key_level(KEY_DOWN,1); run_us(60000);
   CHECK(!sim.step_count[1],"multi-key press or partial release caused motion");
-  key_level(KEY_OK,1); run_us(60000);
+  key_level(KEY_UP,1); run_us(60000);
   all_asleep(); no_other_steps();
   printf("PASS: HD44780 init/20x4 bus/backlight/pullups; held startup OK, bounce and multiple keys cannot move/unlock\n");
   panel_terminate();
@@ -274,22 +337,22 @@ static void test_startup_and_keys(const char *elf)
 static void test_jogs(const char *elf)
 {
   boot_panel(elf,-1); unlock_panel();
-  press(KEY_DOWN);
-  key_level(KEY_OK,0); run_us(1200000);
-  CHECK(sim.step_count[1]==15,"held negative-jog OK emitted%u steps instead of15",sim.step_count[1]);
+  enter_jog_page();
+  key_level(KEY_DOWN,0); run_us(1200000);
+  CHECK(sim.step_count[1]==15,"held negative-jog DOWN emitted%u steps instead of15",sim.step_count[1]);
   CHECK(switch_model.position==135,"negative-jog direction is wrong");
-  key_level(KEY_OK,1); run_us(60000);
-  press(KEY_DOWN); press(KEY_OK); run_us(700000);
+  key_level(KEY_DOWN,1); run_us(60000);
+  press(KEY_UP); run_us(700000);
   CHECK(sim.step_count[1]==30 && switch_model.position==150,"positive-jog did not return15 steps");
   // The same physical key pressed during an existing jog is not a queued jog.
   // Driver wake intentionally takes25ms before the serial command returns.
   assert_ok("$J=G91G21Y0.5F20\n",50);
-  press(KEY_OK); run_us(1800000);
+  press(KEY_UP); run_us(1800000);
   CHECK(sim.step_count[1]==106,"busy panel key queued a second jog, total%u",sim.step_count[1]);
   all_asleep(); no_other_steps();
   run_us(150000);
   CHECK(display_has("Bereit"),"jog did not restore BEREIT on display:\n%s",display_text());
-  printf("PASS: menu -0.1/+0.1mm produces15+15 Y-only steps; held OK never repeats; busy key never queues\n");
+  printf("PASS: direct DOWN-/UP+ jog produces15+15 Y-only steps; held key never repeats; busy key never queues\n");
   panel_terminate();
 }
 
@@ -308,7 +371,7 @@ static void test_home(const char *elf)
   const uint64_t deadline=sim.avr->cycle+12*CPU_HZ;
   while ((switch_model.phases<4 || awake(1)) && sim.avr->cycle<deadline) run_us(10000);
   CHECK(sim.avr->cycle<deadline,"panel homing did not finish:\n%s",display_text());
-  run_us(250000);
+  run_us(450000);
   CHECK(switch_model.phases==4 && switch_model.contacts==2 && switch_model.releases==2,
     "panel homing missed standard search/pull-off/locate/pull-off cycle: phases%u contacts%u releases%u",
     switch_model.phases,switch_model.contacts,switch_model.releases);
@@ -319,7 +382,139 @@ static void test_home(const char *elf)
   }
   CHECK(strstr(command("?",30),"<Idle") && display_has("Bereit"),"panel homing did not return Idle/BEREIT:\n%s",display_text());
   all_asleep(); no_other_steps();
-  printf("PASS: two separate OK edges run complete Y-only standard homing,2 contacts/2 releases and LCD REF-SUCHE/BEREIT updates\n");
+  CHECK(display_has("R:JA"),"successful homing did not mark reference known:\n%s",display_text());
+  check_displayed_position();
+  CHECK(displayed_y()<-280 && displayed_y()>-295,
+    "LCD homing position incorrectly shown aszero: %.3f",displayed_y());
+  input_pin('C',2,0); run_us(800000);
+  CHECK(display_has("R:?") && display_has("Alarm"),
+    "hard limit did not clear known-reference marker:\n%s",display_text());
+  all_asleep(); no_other_steps();
+  printf("PASS: two separate OK edges run full Y homing; actual negative machine coordinate and R:JA shown; limit clears reference\n");
+  panel_terminate();
+}
+
+static void test_jog_settings_and_position(const char *elf)
+{
+  boot_panel(elf,-1); unlock_panel(); enter_jog_page();
+  check_displayed_position();
+  CHECK(displayed_y()==0,"fresh unreferenced coordinate is notzero");
+  const unsigned initial_wakes=switch_model.wakes;
+  for (unsigned i=0;i<3;++i) press(KEY_E1);
+  check_options("Weg:0.50","F:20");
+  for (unsigned i=0;i<4;++i) press(KEY_E2);
+  check_options("Weg:0.01","F:20");
+  for (unsigned i=0;i<3;++i) press(KEY_E3);
+  check_options("Weg:0.01","F:30");
+  for (unsigned i=0;i<4;++i) press(KEY_E4);
+  check_options("Weg:0.01","F:10");
+  CHECK(!sim.step_count[1] && switch_model.wakes==initial_wakes,
+    "step/feed selectors emitted motion or woke driver");
+  press(KEY_UP); finish_jog(0);
+  CHECK(sim.step_count[1]>=1 && sim.step_count[1]<=2,
+    "0.01mm jog quantized to%u steps instead of1..2",sim.step_count[1]);
+  check_displayed_position();
+  CHECK(display_has("R:?"),"unreferenced jog incorrectly marked referenced");
+
+  press(KEY_E1); press(KEY_E1); check_options("Weg:0.50","F:10");
+  const unsigned before_slow=sim.step_count[1];
+  switch_model.first_step_cycle=0;
+  press(KEY_UP); run_us(550000);
+  const double moving_y=displayed_y();
+  CHECK(moving_y>0.005 && moving_y<0.35,
+    "live LCD shows queued target instead of intermediate actual position%.3f:\n%s",moving_y,display_text());
+  const uint64_t slow=finish_jog(before_slow);
+  CHECK(sim.step_count[1]-before_slow>=75 && sim.step_count[1]-before_slow<=77,
+    "0.50mm F10 jog emitted%u steps",sim.step_count[1]-before_slow);
+  check_displayed_position();
+  CHECK(displayed_y()>0.49 && displayed_y()<0.53,"positive0.50mm coordinate wrong:%.3f",displayed_y());
+
+  press(KEY_E3); press(KEY_E3); check_options("Weg:0.50","F:30");
+  const unsigned before_fast=sim.step_count[1];
+  switch_model.first_step_cycle=0;
+  press(KEY_DOWN);
+  const uint64_t fast=finish_jog(before_fast);
+  CHECK(sim.step_count[1]-before_fast>=75 && sim.step_count[1]-before_fast<=77,
+    "0.50mm F30 jog emitted%u steps",sim.step_count[1]-before_fast);
+  CHECK(slow>fast*22/10 && slow<fast*35/10,
+    "F10/F30 selectors did not change actual step timing: slow%.3fs fast%.3fs",
+    slow/(double)CPU_HZ,fast/(double)CPU_HZ);
+  check_displayed_position();
+  CHECK(displayed_y()>=0 && displayed_y()<0.03,"reverse0.50mm failed to return:%.3f",displayed_y());
+  const unsigned after_motion=sim.step_count[1], after_wakes=switch_model.wakes;
+
+  key_level(KEY_OK,0); run_us(800000);
+  key_level(KEY_OK,1); run_us(250000);
+  check_options("Weg:0.01","F:30");
+  press(KEY_OK); check_options("Weg:0.10","F:30");
+  press(KEY_OK); check_options("Weg:0.50","F:30");
+  CHECK(sim.step_count[1]==after_motion && switch_model.wakes==after_wakes,
+    "OK step selector emitted motion, woke driver or held key repeated");
+  press(KEY_RIGHT); run_us(250000);
+  CHECK(display_has("Y verfahren"),"RIGHT did not return to main menu:\n%s",display_text());
+  for (enum panel_key key=KEY_E1;key<=KEY_E4;++key) press(key);
+  press(KEY_RIGHT); run_us(250000);
+  for (enum panel_key key=KEY_E1;key<=KEY_E4;++key) press(key);
+  press(KEY_RIGHT); run_us(250000);
+  CHECK(sim.step_count[1]==after_motion && switch_model.wakes==after_wakes,
+    "step/feed keys outside jog page caused motion or motor wake");
+  command("\030",500);
+  CHECK(display_has("R:?") && display_has("Alarm"),
+    "software reset did not restore unreferenced Alarm:\n%s",display_text());
+  all_asleep(); no_other_steps();
+  assert_ok("$X\n",50);
+  enter_jog_page();
+  CHECK(sim.step_count[1]==after_motion && switch_model.wakes==after_wakes,
+    "resetting jog settings caused motion or driver wake");
+  printf("PASS: jog settings0.01/0.10/0.50mm and F10/20/30 bounded; real F10/F30 timing, actual LCD position, no selector motion/EEPROM\n");
+  panel_terminate();
+}
+
+static void test_busy_edge_release_required(const char *elf)
+{
+  boot_panel(elf,-1); unlock_panel(); enter_jog_page();
+  assert_ok("$J=G91G21Y0.01F20\n",30);
+  wait_steps(1); run_us(8000);
+  CHECK(sim.step_count[1]==1 && awake(1),
+    "late-press setup missed the first of two small-jog steps");
+  // Begin the press during the final partial step interval. Its20ms key
+  // debounce finishes after the short serial jog; it must still be dropped.
+  key_level(KEY_UP,0); run_us(1000000);
+  CHECK(sim.step_count[1]==2,
+    "key begun during jog became a delayed move after returning Idle: %u steps",
+    sim.step_count[1]);
+  all_asleep();
+  key_level(KEY_UP,1); run_us(60000);
+  press(KEY_UP); run_us(800000);
+  CHECK(sim.step_count[1]==17,
+    "full release and fresh press did not permit one subsequent0.1mm jog: %u steps",
+    sim.step_count[1]);
+  all_asleep(); no_other_steps();
+  printf("PASS: key begun near end of tiny jog never queues after Idle; full release then fresh press permits one jog\n");
+  panel_terminate();
+}
+
+static void test_error_acknowledgement(const char *elf)
+{
+  boot_panel(elf,-1);
+  enter_jog_page(); // Opening an unarmed page is allowed; motion is not.
+  const unsigned wakes=switch_model.wakes;
+  press(KEY_UP); run_us(300000);
+  CHECK(display_has("AKTION GESPERRT") && display_has("Keine Bewegung"),
+    "jog from startup Alarm lacked action-error explanation:\n%s",display_text());
+  for (enum panel_key key=KEY_E1;key<=KEY_E4;++key) press(key);
+  press(KEY_UP); press(KEY_DOWN); run_us(250000);
+  CHECK(display_has("AKTION GESPERRT"),"non-ack key dismissed blocking error:\n%s",display_text());
+  press(KEY_OK); check_options("Weg:0.10","F:20");
+  CHECK(!sim.step_count[1] && switch_model.wakes==wakes,
+    "error acknowledgement emitted STEP or woke driver");
+  press(KEY_DOWN); run_us(300000);
+  CHECK(display_has("AKTION GESPERRT"),"second locked jog lacked error screen");
+  press(KEY_RIGHT); check_options("Weg:0.10","F:20");
+  CHECK(!sim.step_count[1] && switch_model.wakes==wakes,
+    "RIGHT error acknowledgement started queued jog");
+  all_asleep(); no_other_steps();
+  printf("PASS: locked jog displays action error; only OK/RIGHT acknowledge without changing settings or starting motion\n");
   panel_terminate();
 }
 
@@ -351,7 +546,7 @@ static void test_stop(const char *elf, enum panel_key key, unsigned phase)
 static void test_stop_jog(const char *elf)
 {
   boot_panel(elf,-1); unlock_panel();
-  press(KEY_DOWN); press(KEY_DOWN); press(KEY_OK);
+  press(KEY_DOWN); press(KEY_OK); press(KEY_UP);
   wait_steps(3);
   check_stopped(KEY_LEFT);
   CHECK(sim.step_count[1]<15,"jog stop failed to interrupt bounded movement");
@@ -453,6 +648,9 @@ int main(int argc, char **argv)
   RUN_CASE("keys",test_startup_and_keys(argv[1]));
   RUN_CASE("jog",test_jogs(argv[1]));
   RUN_CASE("home",test_home(argv[1]));
+  RUN_CASE("settings-position",test_jog_settings_and_position(argv[1]));
+  RUN_CASE("error-screen",test_error_acknowledgement(argv[1]));
+  RUN_CASE("busy-edge",test_busy_edge_release_required(argv[1]));
   RUN_CASE("stop-search",test_stop(argv[1],KEY_LEFT,0));
   RUN_CASE("stop-pulloff",test_stop(argv[1],KEY_STOP1,1));
   RUN_CASE("stop-locate",test_stop(argv[1],KEY_STOP2,2));

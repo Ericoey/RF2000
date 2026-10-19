@@ -15,23 +15,34 @@
 #define KEY_RIGHT    (1u << 2)
 #define KEY_LEFT     (1u << 3)
 #define KEY_UP       (1u << 4)
+#define KEY_STEP_UP  (1u << 5)
+#define KEY_STEP_DOWN (1u << 6)
+#define KEY_FEED_UP  (1u << 7)
+#define KEY_FEED_DOWN (1u << 8)
 #define KEY_CONTINUE (1u << 9)
 #define KEY_PAUSE    (1u << 10)
 #define STOP_KEYS (KEY_LEFT | KEY_CONTINUE | KEY_PAUSE)
 #define KEY_DEBOUNCE_MS 20
 #define MENU_ITEMS 5
+#define PAGE_MAIN 0
+#define PAGE_JOG 1
+#define PAGE_DIAGNOSTICS 2
 
 static volatile uint16_t panel_ms;
 static volatile uint8_t key_event, keys_ready, dispatch_busy;
 static volatile uint16_t candidate_keys;
 static volatile uint8_t candidate_ms, stop_was_down, initialized;
-static uint8_t selection, confirm_home, diagnostics;
+static uint8_t selection, confirm_home, page, step_index, feed_index, referenced;
 static uint8_t last_alarm, homing_phase, command_error;
 static uint8_t dirty, frame_slot;
 static uint16_t last_service_ms;
+static uint16_t last_position_ms;
+static int32_t displayed_steps;
 static uint8_t previous_state, previous_limits, previous_fault, previous_ready;
 static uint8_t previous_keys_ready;
 static char frame[80];
+static const char step_labels[3][5] PROGMEM = {"0.01", "0.10", "0.50"};
+static const uint8_t jog_feeds[3] = {10, 20, 30};
 
 static uint16_t read_keys(void)
 {
@@ -80,7 +91,9 @@ void rf2000_panel_reset(void)
     // Preserve stop_was_down across soft reset: holding STOP is not a loop.
   }
   selection = 0;
-  confirm_home = diagnostics = command_error = homing_phase = 0;
+  confirm_home = page = command_error = homing_phase = referenced = 0;
+  step_index = feed_index = 1;
+  last_position_ms = 0;
   previous_state = previous_limits = previous_fault = previous_ready = 0xff;
   previous_keys_ready = 0xff;
   dirty = true;
@@ -116,12 +129,19 @@ void rf2000_panel_tick_isr(void)
           else if (keys == KEY_DOWN) key_event = 2;
           else if (keys == KEY_RIGHT) key_event = 3;
           else if (keys == KEY_UP) key_event = 4;
+          else if (keys == KEY_STEP_UP) key_event = 5;
+          else if (keys == KEY_STEP_DOWN) key_event = 6;
+          else if (keys == KEY_FEED_UP) key_event = 7;
+          else if (keys == KEY_FEED_DOWN) key_event = 8;
         }
       }
     }
   }
   if (dispatch_busy || (sys.state != STATE_IDLE && sys.state != STATE_ALARM)) {
     key_event = 0; // Never queue a movement while another action is running.
+    // Reject at the first busy sample, even if a very short jog ends before
+    // this new key has completed its 20-ms debounce interval.
+    if (keys) keys_ready = false;
   }
 }
 
@@ -134,16 +154,26 @@ uint8_t rf2000_panel_stop_active(void)
 void rf2000_panel_note_alarm(uint8_t alarm)
 {
   if (alarm) {
-    if (last_alarm != alarm || confirm_home) dirty = true;
+    if (last_alarm != alarm || confirm_home || referenced) dirty = true;
     last_alarm = alarm;
     confirm_home = false;
+    referenced = false;
   }
 }
 
 void rf2000_panel_homing_phase(uint8_t phase)
 {
   homing_phase = phase;
+  if (phase == 1) referenced = false;
   dirty = true;
+}
+
+void rf2000_panel_homing_complete(void)
+{
+  if (!sys.abort && !sys_rt_exec_alarm && !(sys_rt_exec_state & EXEC_RESET)) {
+    referenced = true;
+    dirty = true;
+  }
 }
 
 static void row_P(uint8_t row, PGM_P text)
@@ -159,9 +189,58 @@ static void two_digits(uint8_t position, uint8_t value)
   frame[position + 1] = '0' + value % 10;
 }
 
+static void position_row(void)
+{
+  int32_t steps;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { steps = sys_position[AXIS_2]; }
+  // Y-test settings are fixed at 152.38 steps/mm. Limit the display field
+  // before formatting; never negate INT32_MIN or overrun a 20-column row.
+  float centi_mm = (float)steps * (100.0f / settings.steps_per_mm[AXIS_2]);
+  if (centi_mm > 99999900.0f || centi_mm < -99999900.0f) {
+    row_P(1, PSTR("Y: ausser Bereich"));
+    return;
+  }
+  int32_t centi = lroundf(centi_mm);
+  uint32_t magnitude = centi < 0 ? (uint32_t)-centi : (uint32_t)centi;
+  char number[12], *out = number;
+  if (centi < 0) *out++ = '-';
+  ultoa(magnitude / 100, out, 10);
+  out += strlen(out);
+  *out++ = '.';
+  *out++ = '0' + (magnitude / 10) % 10;
+  *out++ = '0' + magnitude % 10;
+  uint8_t length = out - number;
+  frame[20] = 'Y'; frame[21] = ':';
+  memcpy(frame + 32 - length, number, length);
+  frame[32] = 'm'; frame[33] = 'm';
+  frame[35] = 'R'; frame[36] = ':';
+  frame[37] = referenced ? 'J' : '?';
+  if (referenced) frame[38] = 'A';
+}
+
+static void driver_row(uint8_t row, uint8_t limits, uint8_t ready)
+{
+  row_P(row, ready ? PSTR("DRV:OK YMIN:") : PSTR("DRV:FEHL YMIN:"));
+  uint8_t col = ready ? 12 : 14;
+  PGM_P state = (limits & 2) ? PSTR("aktiv") : PSTR("frei");
+  char c;
+  while ((c = pgm_read_byte(state++)) && col < 20) frame[row * 20 + col++] = c;
+}
+
 static void compose_frame(uint8_t limits, uint8_t ready)
 {
   memset(frame, ' ', sizeof(frame));
+  if (command_error) {
+    row_P(0, PSTR("AKTION GESPERRT E00"));
+    two_digits(17, command_error);
+    if (!ready) row_P(1, PSTR("Treiber pruefen"));
+    else if (limits) row_P(1, PSTR("Endschalter aktiv"));
+    else if (sys.state == STATE_ALARM) row_P(1, PSTR("Erst freigeben"));
+    else row_P(1, PSTR("Befehl abgewiesen"));
+    row_P(2, PSTR("Keine Bewegung"));
+    row_P(3, PSTR("OK/>:Zurueck <-STOP"));
+    return;
+  }
   if (confirm_home) {
     row_P(0, PSTR("Y-Referenz starten?"));
     row_P(1, PSTR("Richtung geprueft?"));
@@ -179,7 +258,7 @@ static void compose_frame(uint8_t limits, uint8_t ready)
     row_P(0, PSTR("RF2000 Y: ALARM 00"));
     two_digits(16, last_alarm);
   } else row_P(0, PSTR("RF2000 Y: BEREIT"));
-  if (diagnostics) {
+  if (page == PAGE_DIAGNOSTICS && sys.state != STATE_HOMING) {
     row_P(1, PSTR("L X0 Y0 Z-0 Z+0"));
     frame[23] = '0' + !!(limits & 1);
     frame[26] = '0' + !!(limits & 2);
@@ -192,22 +271,27 @@ static void compose_frame(uint8_t limits, uint8_t ready)
     row_P(3, PSTR("RECHTS:Menue <-STOP"));
     return;
   }
-  row_P(1, ready ? PSTR("DRV:OK YMIN:") : PSTR("DRV:FEHL YMIN:"));
-  uint8_t col = ready ? 12 : 14;
-  PGM_P state = (limits & 2) ? PSTR("aktiv") : PSTR("frei");
-  char c;
-  while ((c = pgm_read_byte(state++)) && col < 20) frame[20 + col++] = c;
-  if (!keys_ready) row_P(2, PSTR("Tasten loslassen"));
-  else if (command_error) {
-    row_P(2, PSTR("Befehl gesperrt E00"));
-    two_digits(57, command_error);
+  // Homing rebases its internal step counter at each search block. It is
+  // not a continuous machine coordinate until the reference cycle succeeds.
+  if (sys.state == STATE_HOMING) row_P(1, PSTR("Y wird referenziert"));
+  else position_row();
+  if (sys.state == STATE_HOMING) {
+    driver_row(2, limits, ready);
+    row_P(3, PSTR("LINKS:STOP"));
+  } else if (page == PAGE_JOG) {
+    if (sys.state != STATE_JOG) row_P(0, sys.state == STATE_ALARM ?
+      PSTR("Y VERFAHREN GESPERRT") : PSTR("Y VERFAHREN BEREIT"));
+    row_P(2, PSTR("Weg:0.10mm F:20"));
+    memcpy_P(frame + 44, step_labels[step_index], 4);
+    two_digits(53, jog_feeds[feed_index]);
+    row_P(3, PSTR("HO:Y+ RU:Y- OK:Weg"));
   } else {
     static const char labels[MENU_ITEMS][20] PROGMEM = {
-      ">Entriegeln", ">Y -0.1 mm", ">Y +0.1 mm", ">Y referenzieren", ">Abbruch / Reset"
+      ">Freigeben", ">Y verfahren", ">Y referenzieren", ">Diagnose", ">Abbruch / Reset"
     };
     row_P(2, labels[selection]);
+    driver_row(3, limits, ready);
   }
-  row_P(3, PSTR("OK:Wahl LINKS:STOP"));
 }
 
 void rf2000_panel_service(void)
@@ -222,12 +306,19 @@ void rf2000_panel_service(void)
   const uint8_t limits = rf2000_limits_raw_state();
   const uint8_t fault = rf2000_drivers_fault_reason();
   const uint8_t ready = rf2000_drivers_ready() && !fault;
+  if ((uint16_t)(now - last_position_ms) >= 200) {
+    int32_t steps;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { steps = sys_position[AXIS_2]; }
+    last_position_ms = now;
+    if (steps != displayed_steps) { displayed_steps = steps; dirty = true; }
+  }
   if (confirm_home && sys.state != STATE_IDLE && sys.state != STATE_ALARM) {
     confirm_home = false; // A UART-originated move invalidates local consent.
     dirty = true;
   }
   if (sys_rt_exec_alarm) rf2000_panel_note_alarm(sys_rt_exec_alarm);
   if (sys.state == STATE_ALARM) {
+    if (referenced) { referenced = false; dirty = true; }
     if (!ready) last_alarm = EXEC_ALARM_DRIVER_FAULT;
     else if (limits && !last_alarm) last_alarm = EXEC_ALARM_HARD_LIMIT;
   }
@@ -254,6 +345,16 @@ static uint8_t execute(const char *text)
   return system_execute_line(command);
 }
 
+static uint8_t jog(uint8_t positive)
+{
+  char command[] = "$J=G91G21Y+0.10F20";
+  command[10] = positive ? '+' : '-';
+  memcpy_P(command + 11, step_labels[step_index], 4);
+  command[16] = '0' + jog_feeds[feed_index] / 10;
+  command[17] = '0' + jog_feeds[feed_index] % 10;
+  return system_execute_line(command);
+}
+
 void rf2000_panel_dispatch(uint8_t command_boundary)
 {
   uint8_t event;
@@ -262,15 +363,35 @@ void rf2000_panel_dispatch(uint8_t command_boundary)
       sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET) ||
       (sys.state != STATE_IDLE && sys.state != STATE_ALARM)) return;
   dirty = true;
-  command_error = 0;
+  if (command_error) {
+    if (event == 1 || event == 3) command_error = 0;
+    return; // Acknowledging an error never executes the selected action.
+  }
+  if (page == PAGE_DIAGNOSTICS) {
+    if (event == 1 || event == 3) page = PAGE_MAIN;
+    return;
+  }
+  if (page == PAGE_JOG) {
+    if (event == 3) page = PAGE_MAIN;
+    else if (event == 1) step_index = (step_index + 1) % 3;
+    else if (event == 5 && step_index < 2) ++step_index;
+    else if (event == 6 && step_index) --step_index;
+    else if (event == 7 && feed_index < 2) ++feed_index;
+    else if (event == 8 && feed_index) --feed_index;
+    else if (event == 2 || event == 4) {
+      dispatch_busy = true;
+      command_error = jog(event == 4);
+      dispatch_busy = false;
+    }
+    return;
+  }
   if (event == 2 || event == 4) {
-    confirm_home = diagnostics = 0;
+    confirm_home = 0;
     selection = (selection + (event == 2 ? 1 : MENU_ITEMS - 1)) % MENU_ITEMS;
   } else if (event == 3) {
     confirm_home = 0;
-    diagnostics = !diagnostics;
+    page = PAGE_DIAGNOSTICS;
   } else if (event == 1) {
-    if (diagnostics) { diagnostics = false; return; }
     dispatch_busy = true;
     if (confirm_home) {
       confirm_home = false;
@@ -279,12 +400,12 @@ void rf2000_panel_dispatch(uint8_t command_boundary)
     } else if (selection == 0) {
       command_error = execute("$X");
       if (!command_error) last_alarm = 0;
-    } else if (selection == 1) command_error = execute("$J=G91G21Y-0.1F20");
-    else if (selection == 2) command_error = execute("$J=G91G21Y0.1F20");
-    else if (selection == 3) {
+    } else if (selection == 1) page = PAGE_JOG;
+    else if (selection == 2) {
       if (limits_motion_allowed()) confirm_home = true;
       else command_error = STATUS_SYSTEM_GC_LOCK;
-    } else mc_reset();
+    } else if (selection == 3) page = PAGE_DIAGNOSTICS;
+    else mc_reset();
     dispatch_busy = false;
     dirty = true;
   }

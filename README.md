@@ -5,8 +5,11 @@ X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. PlatformIO
 baut standardmäßig das Y-Testprofil mit Display und Tasten. Dieses erlaubt
 nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
 Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
-Das Y-Profil bietet dafür ein lokales Testmenü auf dem originalen 20×4-LCD
-und dem vorhandenen Tastenfeld: [Bedienung am Gerät](docs/local-panel.md).
+Das Y-Profil bietet dafür ein einfaches Menü auf dem originalen 20×4-LCD
+und dem vorhandenen Tastenfeld: Freigeben, Y verfahren, Y referenzieren und
+Diagnose. Die Verfahrseite nutzt Hoch/Runter für Y+/Y−; OK und die bisherigen
+Z-/Extrudertasten stellen Schrittweite und Vorschub ein.
+[Bedienung am Gerät](docs/local-panel.md).
 
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
@@ -122,9 +125,11 @@ Z muss gegen Absinken gesichert werden.
 ## Nachweise und Hardwaretest
 
 Die Softwareprüfungen und Buildnachweise stehen in
-[docs/validation.md](docs/validation.md). Kein physischer Hardwaretest wurde
-durchgeführt. Elektrisches Verhalten, reale Motorströme, Bewegungsrichtungen,
-Schalterverkabelung und Stopplatenz bleiben am Gerät zu messen.
+[docs/validation.md](docs/validation.md). Am 19.10.2026 hat der Nutzer das
+funktionierende Display, alle Tasten, Y-Referenzfahrt und Referenzschalter
+mit dem bisherigen Testmenü am Gerät bestätigt. Die Cloud hat diese
+Hardwareprüfungen nicht selbst durchgeführt. Die neue Menüführung ist
+separat am Gerät zu prüfen; reale Motorströme und Stopplatenz bleiben zu messen.
 
 - [Verifizierte Hardwarebelegung und Quellenkonflikte](docs/hardware-verification.md)
 - [DRV8711-Protokoll, Register, Stromberechnung](docs/drv8711.md)

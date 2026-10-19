@@ -35,7 +35,7 @@
     "grbl/limits.c": "ab090613310550a1bf9bc459655dbb86036fbe119a4ab5a4127dfcbc8ac92b72",
     "grbl/limits.h": "8d34528451e0ffb4cfaacbb6018b36e4a4df79c3054dfd3b4e0a625ac9332512",
     "grbl/main.c": "c59ce7da83da24f520166f6d6d3d41d679306ffded68b8cfec6d218f9a8cca09",
-    "grbl/motion_control.c": "7ab4419f068639f32196dfbc0ade159c8e432c0bf360f01ee568ee1bfbaaad93",
+    "grbl/motion_control.c": "734c85fb69fb34fb0560f502a11f7ae2d251787ae1443c19bd2458ebc2507355",
     "grbl/motion_control.h": "25445b9ac9e46a31d57ae56afa4f1c25f7beb4bb0977b3e6f8629207ff67793e",
     "grbl/nuts_bolts.c": "77aec3827f651f9958709d77d920aaed6f817b975d2989b655e66a37fcad7985",
     "grbl/nuts_bolts.h": "3442a59d27d65da876319a41522a7e39cb9be7c627b44d86daa10d81d828dfad",
@@ -55,8 +55,8 @@
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
-    "grbl/rf2000_panel.c": "9d83d9243cc9182f21101273a8d2e9dfeb180a77cfa112957a129e7aaaf819c2",
-    "grbl/rf2000_panel.h": "22f43dd70af32bb7a1e087eb79ef1fb0c391f8a9780c05a2eba6461d251db545",
+    "grbl/rf2000_panel.c": "ebc46772e58defdf3ad5253d1ca7b9c06514ddb8dbf933c55309ce9359fed7b9",
+    "grbl/rf2000_panel.h": "30eceef9b31947b6e12da38f7a0ff21e6ec72e534f1ace7902e35adf13f85a51",
     "grbl/serial.c": "0953fb2053a65ef7e5722f62c4a6cfaa75834d6c50015663a625b7cb1a09719a",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
     "grbl/settings.c": "6b775ac6881018fa67b9ba547582a6bfd0ad1d86d11f25beb7634c02fdb6ca53",
@@ -71,9 +71,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "fe5dbaacec1f0bc6e2ce27671bc4060fbac978af3417a2b4a670c7201fec880c",
+    "rf2000-grbl.elf": "7357c77cda463890b98e6e262f8a48a21aaebaa2ef942dae4b0abab3b7bbb019",
     "rf2000-grbl.hex": "fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f",
-    "rf2000-grbl.map": "2b26fcf48a19d7c7ea823bda7a4646dbbe7582517d24f6c75f3abfe1108972c4"
+    "rf2000-grbl.map": "ddc3601a11ce6a4e0fd791fc533d9c23e496683c1e16933bd828e060caafed91"
   },
   "reproducibility": "Current HEX is byte-identical after rebuilding all objects in a second clean directory with installed AVR-GCC 14.2.0; dependency installation into a second prefix was verified earlier.",
   "hardware_test_performed": false,
