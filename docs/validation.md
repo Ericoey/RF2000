@@ -12,7 +12,7 @@ das ist ein Anwenderbericht vom 19.10.2026, kein Messprotokoll der Cloud.
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
 | GRBL separater Y-Test mit Bedienfeld | 38.426 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-| XYZ-CNC mit Display und manueller Spindel | 42.096 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
+| XYZ-CNC mit Display und manueller Spindel | 42.140 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
@@ -33,13 +33,19 @@ Binäranordnung trotz deaktiviertem Bedienfeld; der neue Hauptbuild wurde
 mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 
+Nach der CNC-Erkennungskorrektur wurden auch XYZ-Test und Y-Test neu gebaut:
+beide HEX-Dateien sind bytegleich zum zuvor vollständig getesteten Stand.
+Die neu erzeugten ELF-/MAP-Dateien enthalten geänderte Debug-/Linkmetadaten.
+Die früheren Testprotokolle beziehen sich weiterhin auf ihre dort genannten
+ELF-Hashes; die Manifestfelder `rebuilt_elf_sha256` kennzeichnen den Neubuild.
+
 Firmware-SHA256:
 
 ```text
 GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
 Y-Test   028937c1619c42ff30d4bd1c86c94dee52e0bda657ec77469268d91bb6b8c36e
-CNC      ee60c2adb46c84c8561893e17947db1d88ee69753bdb05038a9a65645c266b14
+CNC      6ae232d9164f2a217dd43c4982ac7c85d86b1b9b8c922ee528b8081f93eaa752
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -131,12 +137,26 @@ lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 
 ## XYZ-CNC und gSender-Protokoll
 
-Ergebnis: **acht CNC-Funktionsfälle und ein zusätzlicher Timingfall bestanden**,
-alle mit ELF `f41ded3c575a98330ed6ca63bd5f40439e5d7f86c45051be3f19024d4e0f3ef6`.
-Protokoll: `artifacts/cnc-simulation.log`. Der zusätzliche Timingfall wurde
-nach den acht Funktionsfällen separat ausgeführt. `make check-cnc` fasst alle
-neun Fälle zusammen. Der CNC-Build verwendet `.text=41992`, `.data=104`,
+Ergebnis: **neun CNC-Fälle bestanden**,
+alle mit ELF `269f46de74b61c25e86d2e6541e1cf89580404569cf736e0b6bf2ba9aee32d45`.
+Protokoll: `artifacts/cnc-simulation.log`. Nach der Korrektur der gSender-
+Erkennung wurden alle acht Funktionsfälle und der Timingfall zusammen erneut
+ausgeführt. Der CNC-Build verwendet `.text=42036`, `.data=104`,
 `.bss=3586`; Buildprotokoll: `artifacts/cnc-build.log`.
+
+Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
+`Connection`-Klasse von [gSender v1.6.4](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/server/lib/Connection.js)
+geleitet. Ohne Startbanner und trotz Standardtyp grblHAL erkennt sie jetzt
+**Grbl**. Die Gegenprobe ohne die neue Namenszeile reproduziert den früheren
+Rückfall auf grblHAL. Externe Abhängigkeiten/serieller Port sind dabei
+ersetzt; die Erkennungslogik selbst bleibt unverändert. Ergebnis und
+Quellhash: `artifacts/gsender-detection.log`. Reproduktion mit dem genannten
+gSender-Checkout und Node.js:
+
+```bash
+RF2000_HANDSHAKE_LOG="$PWD/build/tests/cnc-handshake.txt" tests/run-cnc-sim.sh build/cnc/main.elf connect
+node tools/test_gsender_detection.cjs /tmp/rf2000-gsender-1.6.4 build/tests/cnc-handshake.txt
+```
 
 Geprüft wurden GRBL-Handshake und Status für gSender (`$I`, `$$`, `$G`, `$#`,
 `?`), XYZ-Jogging am Tastenfeld, Arbeitskoordinaten auf dem tatsächlich
@@ -174,7 +194,7 @@ vollständig gemessene Hardwarefreigabe behauptet. Bedienung und Grenzen:
 
 ### Originaldisplay und lokales Tastenfeld
 
-Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
+Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem zuvor geprüften
 Y-ELF `b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3`.
 Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.

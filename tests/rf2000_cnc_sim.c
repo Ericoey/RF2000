@@ -107,7 +107,18 @@ static void cnc_unlock(void)
 static void test_cnc_connect(const char *elf)
 {
   cnc_boot(elf);
-  CHECK(strstr(command("$I\n",80),"20261019-rf2000-cnc"),"CNC build identity missing");
+  // $I alone must identify Grbl on reconnect, without a reset/banner.
+  const char *identity=command("$I\n",80);
+  CHECK(strstr(identity,"[MSG:Grbl-Mega-5X RF2000]\r\n"),"reconnect firmware name missing: %s",identity);
+  CHECK(strstr(identity,"20261019-rf2000-cnc-gsender"),"CNC build identity missing");
+  CHECK(strstr(identity,"[VER:1.2i.") && strstr(identity,"ok\r\n"),"GRBL version or acknowledgement missing: %s",identity);
+  // Optional transcript for running a sender's actual detection code.
+  const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
+  if (identity_path) {
+    FILE *identity_log=fopen(identity_path,"w");
+    CHECK(identity_log,"cannot open handshake transcript");
+    CHECK(fputs(identity,identity_log)>=0 && !fclose(identity_log),"cannot write handshake transcript");
+  }
   const char *settings_reply=command("$$\n",350);
   CHECK(strstr(settings_reply,"$1=255") && strstr(settings_reply,"$22=1") &&
     strstr(settings_reply,"$23=3"),"CNC hold/homing defaults wrong: %s",settings_reply);

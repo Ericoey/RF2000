@@ -451,6 +451,12 @@ void report_build_info(char *line)
     char axis_name_order[] = AXIS_NAME_SORT_ORDER;
   #endif
 
+  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
+    // gSender 1.6.4 identifies controllers from $I by the firmware name.
+    // A reconnect may miss the startup banner, so identify even then using
+    // a standard feedback line. Keep the actual upstream version in VER.
+    printPgmString(PSTR("[MSG:Grbl-Mega-5X RF2000]\r\n"));
+  #endif
   printPgmString(PSTR("[VER:" GRBL_VERSION "." GRBL_VERSION_BUILD ":"));
   printString(line);
   report_util_feedback_line_feed();

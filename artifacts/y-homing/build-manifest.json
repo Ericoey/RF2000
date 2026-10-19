@@ -49,7 +49,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "668d990980c59f801c7ed5619f6d6308345b45c3b9a53890437e9619d1752cfb",
+    "grbl/grbl.h": "688af3aae77d447237a6e8ec6705e122b2dd1e2e84cbdebb969c8575b631eb26",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "875f8d4ba715c3b7e966984f3414d8a01052a9ca0ebb7b17bf4455736748e410",
@@ -67,7 +67,7 @@
     "grbl/probe.h": "fb309aed7a9e4af6ac832d679cf14d553cc1a40bc6f6a2a08621b51a24ad000d",
     "grbl/protocol.c": "48451a926b894cc3a40535280ff1c6a62f0dfaf1f536d4e66b7940a4f32e549c",
     "grbl/protocol.h": "b111623681391b927ccb4868fc92709a5ce1aaea5ddb22fc51acf9ff6a26fba2",
-    "grbl/report.c": "c9cfed46b53a133de1a96ed6e21be8e47ad174449ba26383370df26a0b343a8a",
+    "grbl/report.c": "95d9fec5ceae1bcee3206b698d628e522133be4eac27a26490bd11c42d921023",
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
@@ -91,9 +91,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3",
+    "rf2000-grbl.elf": "a5b0bfaf3457d82f829553e33c7a95c5eae475c7e942fd45fbdff87495fc16f0",
     "rf2000-grbl.hex": "028937c1619c42ff30d4bd1c86c94dee52e0bda657ec77469268d91bb6b8c36e",
-    "rf2000-grbl.map": "06f87d9f244758fa446d7e9d0ebe958409e659b0d35090e47e2e74e1a6bd7357"
+    "rf2000-grbl.map": "2a744a4cd646e883d1542edc7e2b67b87d07a587144f56920b44ceb48160c2a5"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -166,7 +166,10 @@
     "local_panel_real_avr_cases": 14,
     "serial_y_homing_real_avr_cases": 13,
     "panel_log": "artifacts/panel-validation.log",
-    "y_homing_log": "artifacts/y-homing-simulation.log"
+    "y_homing_log": "artifacts/y-homing-simulation.log",
+    "hex_unchanged_after_identification_fix": true,
+    "rebuilt_elf_sha256": "a5b0bfaf3457d82f829553e33c7a95c5eae475c7e942fd45fbdff87495fc16f0",
+    "rebuild_evidence": "HEX byte-identical to previous fully simulated program; new ELF debug/link metadata. Previous test logs retain their actual tested ELF hash."
   },
   "platformio_selection": {
     "default_environment": "rf2000_cnc",

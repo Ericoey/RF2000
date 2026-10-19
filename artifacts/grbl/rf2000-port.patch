@@ -939,7 +939,7 @@
  #define GRBL_VERSION "1.2i"
 -#define GRBL_VERSION_BUILD "20260521"
 +#if defined(RF2000_CNC) && RF2000_CNC
-+  #define GRBL_VERSION_BUILD "20261019-rf2000-cnc"
++  #define GRBL_VERSION_BUILD "20261019-rf2000-cnc-gsender"
 +#else
 +  #define GRBL_VERSION_BUILD "20261018-rf2000"
 +#endif
@@ -1488,7 +1488,20 @@
                st_prep_buffer(); // Initialize step segment buffer before beginning cycle.
 --- a/grbl/report.c
 +++ b/grbl/report.c
-@@ -632,6 +632,7 @@
+@@ -451,6 +451,12 @@
+     char axis_name_order[] = AXIS_NAME_SORT_ORDER;
+   #endif
+ 
++  #if defined(CPU_MAP_2560_RENKFORCE_CTC_V3) && RF2000_CNC
++    // gSender 1.6.4 identifies controllers from $I by the firmware name.
++    // A reconnect may miss the startup banner, so identify even then using
++    // a standard feedback line. Keep the actual upstream version in VER.
++    printPgmString(PSTR("[MSG:Grbl-Mega-5X RF2000]\r\n"));
++  #endif
+   printPgmString(PSTR("[VER:" GRBL_VERSION "." GRBL_VERSION_BUILD ":"));
+   printString(line);
+   report_util_feedback_line_feed();
+@@ -632,6 +638,7 @@
          else { serial_write('1'); } // Actively holding
          break;
        } // Continues to print jog state during jog cancel.
@@ -3918,7 +3931,7 @@
 +echo 'AVR tools and pinned Arduino AVR core available. No device was flashed.'
 --- /dev/null
 +++ b/tools/package-release.py
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,66 @@
 +#!/usr/bin/env python3
 +"""Package reviewed sources, reference documents, and current build artifacts."""
 +from pathlib import Path
@@ -3968,7 +3981,8 @@
 +    files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
 +for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
 +             'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
-+             'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log'):
++             'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log',
++             'gsender-detection.log'):
 +    p = artifacts / name
 +    if p.is_file():
 +        files.append(p)
@@ -4259,6 +4273,60 @@
 +    subprocess.run([os.environ.get("CC", "cc"), "-std=c11", "-Wall", "-Wextra", "-Werror",
 +                    "-fsanitize=address,undefined", "-g", str(cfile), "-o", str(binary)], check=True)
 +    subprocess.run([str(binary)], check=True)
+--- /dev/null
++++ b/tools/test_gsender_detection.cjs
+@@ -0,0 +1,51 @@
++#!/usr/bin/env node
++// Run gSender's real detector against an actual-AVR $I transcript. No npm install.
++// Usage: node tools/test_gsender_detection.cjs <gsender-checkout> <transcript>
++const assert = require('node:assert/strict');
++const { EventEmitter } = require('node:events');
++const fs = require('node:fs');
++const path = require('node:path');
++const vm = require('node:vm');
++const crypto = require('node:crypto');
++
++assert.equal(process.argv.length, 4, 'provide gSender checkout and AVR transcript');
++const sourcePath = path.join(process.argv[2], 'src/server/lib/Connection.js');
++const original = fs.readFileSync(sourcePath, 'utf8');
++const transcript = fs.readFileSync(process.argv[3], 'utf8');
++assert(!transcript.includes("['$' for help]"), 'test must not rely on startup banner');
++assert(transcript.includes('[VER:1.2i.'), 'test must retain actual upstream version');
++assert(transcript.endsWith('ok\r\n'), 'incomplete AVR transcript');
++
++// Stub external dependencies, retaining the complete Connection class unchanged.
++const context = vm.createContext({
++  EventEmitter, SerialConnection: class {}, GRBL: 'Grbl', GRBLHAL: 'grblHAL',
++  GRBL_REALTIME_COMMANDS: {}, GRBLHAL_REALTIME_COMMANDS: {},
++  WRITE_SOURCE_CLIENT: 'client', noop() {}, includes: (array, value) => array.includes(value),
++  logger: () => new Proxy({}, { get: () => () => {} }),
++  setInterval, clearInterval, setTimeout, clearTimeout,
++});
++const source = original.replace(/^import[\s\S]*?;\n/gm, '')
++  .replace('export default Connection;', 'globalThis.Connection = Connection;');
++vm.runInContext(source, context, { filename: sourcePath });
++
++function detect(reply, fallback = false) {
++  const connection = new context.Connection({}, '/dev/fake', {
++    baudrate: 115200, defaultFirmware: 'grblHAL',
++  }, () => {});
++  const found = [];
++  connection.on('firmwareFound', type => found.push(type));
++  for (const line of reply.split('\r\n').filter(Boolean)) {
++    connection.connectionEventListener.data(line);
++  }
++  if (fallback && !found.length) connection.useDefaultFirmware();
++  return found;
++}
++
++assert.deepEqual(detect(transcript), ['Grbl']);
++console.log('PASS: real gSender Connection identifies AVR $I as Grbl, despite grblHAL default and no startup banner');
++const oldReply = transcript.replace('[MSG:Grbl-Mega-5X RF2000]\r\n', '');
++assert.deepEqual(detect(oldReply), []);
++assert.deepEqual(detect(oldReply, true), ['grblHAL']);
++console.log('PASS: negative control reproduces old reply falling back to grblHAL');
++console.log(`gSender Connection.js SHA256 ${crypto.createHash('sha256').update(original).digest('hex')}`);
++console.log(`AVR transcript SHA256 ${crypto.createHash('sha256').update(transcript).digest('hex')}`);
 --- /dev/null
 +++ b/tools/test_rf2000_drv8711.py
 @@ -0,0 +1,220 @@
@@ -4831,7 +4899,7 @@
 +    print("Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS")
 --- /dev/null
 +++ b/tests/rf2000_cnc_sim.c
-@@ -0,0 +1,326 @@
+@@ -0,0 +1,337 @@
 +/* Actual AVR CNC profile: gSender commands, XYZ hardware, LCD, jobs and faults.
 + * Reuse the real LCD decoder and five-DRV8711 peripheral model. GPL-3.0+. */
 +#define RF2000_PANEL_TEST_MAIN unused_y_panel_suite
@@ -4941,7 +5009,18 @@
 +static void test_cnc_connect(const char *elf)
 +{
 +  cnc_boot(elf);
-+  CHECK(strstr(command("$I\n",80),"20261019-rf2000-cnc"),"CNC build identity missing");
++  // $I alone must identify Grbl on reconnect, without a reset/banner.
++  const char *identity=command("$I\n",80);
++  CHECK(strstr(identity,"[MSG:Grbl-Mega-5X RF2000]\r\n"),"reconnect firmware name missing: %s",identity);
++  CHECK(strstr(identity,"20261019-rf2000-cnc-gsender"),"CNC build identity missing");
++  CHECK(strstr(identity,"[VER:1.2i.") && strstr(identity,"ok\r\n"),"GRBL version or acknowledgement missing: %s",identity);
++  // Optional transcript for running a sender's actual detection code.
++  const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
++  if (identity_path) {
++    FILE *identity_log=fopen(identity_path,"w");
++    CHECK(identity_log,"cannot open handshake transcript");
++    CHECK(fputs(identity,identity_log)>=0 && !fclose(identity_log),"cannot write handshake transcript");
++  }
 +  const char *settings_reply=command("$$\n",350);
 +  CHECK(strstr(settings_reply,"$1=255") && strstr(settings_reply,"$22=1") &&
 +    strstr(settings_reply,"$23=3"),"CNC hold/homing defaults wrong: %s",settings_reply);
@@ -6679,7 +6758,7 @@
 +"$repo_root/build/tests/rf2000_y_homing_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
 --- /dev/null
 +++ b/docs/cnc-gsender.md
-@@ -0,0 +1,129 @@
+@@ -0,0 +1,150 @@
 +# XYZ fräsen mit gSender und Originaldisplay
 +
 +**`rf2000_cnc` ist das Standardprofil in PlatformIO.** Es unterstützt XYZ-
@@ -6720,13 +6799,14 @@
 +Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 +
 +Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-+`$I` enthält `20261019-rf2000-cnc`. Das Y-Testprofil bleibt mit
++`$I` enthält `20261019-rf2000-cnc-gsender`. Das Y-Testprofil bleibt mit
 +`-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 +
 +## gSender verwenden
 +
 +1. Serielle USB-Verbindung mit **GRBL und 115200 Baud** öffnen. Nur ein
-+   Programm darf den Port gleichzeitig verwenden. Der Startalarm ist
++   Programm darf den Port gleichzeitig verwenden. gSender 1.6.4 erkennt den
++   Typ automatisch; oben links soll **Grbl** erscheinen. Der Startalarm ist
 +   beabsichtigt.
 +2. Die Eingänge über `$DRV` oder die Displaydiagnose kontrollieren. Betätigte
 +   Schalter oder ein Treiberfehler verhindern die Freigabe. Ein anfangs
@@ -6754,6 +6834,25 @@
 +dafür Reset/Ctrl-X oder eine der lokalen Abbruchtasten verwenden. Die
 +manuelle Spindel bleibt auch während Pause und Abbruch separat zu bedienen.
 +
++### gSender zeigt automatisch grblHAL oder „Alarm()“
++
++gSender 1.6.4 fragt beim Verbinden `$I` ab und sucht in den Antworten nach
++dem Firmwarenamen. Ohne passende Kennung verwendet es den gespeicherten
++Standardtyp. Wurde die einmalige Startmeldung verpasst, konnte unsere alte
++Antwort so als grblHAL eingeordnet werden. Die CNC-Version
++`20261019-rf2000-cnc-gsender` antwortet zusätzlich mit
++**`[MSG:Grbl-Mega-5X RF2000]`**. Die echte Versionsnummer 1.2i bleibt erhalten.
++Nach dem Aufspielen gSender trennen und neu verbinden; oben links muss
++**Grbl** stehen. Eine manuelle Typauswahl ist dafür nicht erforderlich.
++
++Die Startsperre nach Einschalten/Reset ist beabsichtigt. Eine leere
++Alarmnummer allein unterscheidet sie nicht von einem Hardwarefehler.
++In der gSender-Konsole nacheinander `$I`, `$DRV` und `?` senden. Bei freien
++Eingängen und funktionsfähigen Treibern zeigt `$DRV`
++`READY=1|FAULT=0|READBACK=0|LIMITS=0`. Danach mit `$H` referenzieren oder mit
++`$X` für die manuelle Einrichtung entriegeln. Ein echter `ALARM:n` bzw.
++abweichende Diagnosewerte müssen anhand der Konsolenausgabe geklärt werden.
++
 +## Display und Tasten
 +
 +Die Hauptanzeige enthält Zustand, aktives Arbeitskoordinatensystem,
@@ -6777,7 +6876,8 @@
 +Die beiden bisherigen Sondertasten bleiben bewusst Abbruch; zum pausierten
 +Fortsetzen eines Fräsprogramms die entsprechenden gSender-Schaltflächen
 +verwenden. Links ist auf jeder Seite Abbruch. Die alte PAUSE/CONTINUE-
-+Beschriftungsabweichung ist in [hardware-verification.md](hardware-verification.md)+dokumentiert. Gehaltene STOP-Tasten sperren auch neue serielle Bewegungen.
++Beschriftungsabweichung ist in [hardware-verification.md](hardware-verification.md)
++dokumentiert. Gehaltene STOP-Tasten sperren auch neue serielle Bewegungen.
 +Andere gehaltene Tasten wiederholen keine Aktion und werden während einer
 +Bewegung nicht als spätere Bewegung gespeichert. Parameteränderung und
 +Seitenwechsel verursachen keine Bewegung.
@@ -8115,7 +8215,7 @@
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,262 @@
+@@ -0,0 +1,282 @@
 +# Prüfbericht
 +
 +Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
@@ -8130,7 +8230,7 @@
 +| --- | ---: | ---: | --- |
 +| GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
 +| GRBL separater Y-Test mit Bedienfeld | 38.426 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-+| XYZ-CNC mit Display und manueller Spindel | 42.096 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
++| XYZ-CNC mit Display und manueller Spindel | 42.140 / 253.952 Byte | 3.690 / 8.192 Byte | gebaut |
 +| Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 +
 +Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
@@ -8151,13 +8251,19 @@
 +mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 +bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 +
++Nach der CNC-Erkennungskorrektur wurden auch XYZ-Test und Y-Test neu gebaut:
++beide HEX-Dateien sind bytegleich zum zuvor vollständig getesteten Stand.
++Die neu erzeugten ELF-/MAP-Dateien enthalten geänderte Debug-/Linkmetadaten.
++Die früheren Testprotokolle beziehen sich weiterhin auf ihre dort genannten
++ELF-Hashes; die Manifestfelder `rebuilt_elf_sha256` kennzeichnen den Neubuild.
++
 +Firmware-SHA256:
 +
 +```text
 +GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 +Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
 +Y-Test   028937c1619c42ff30d4bd1c86c94dee52e0bda657ec77469268d91bb6b8c36e
-+CNC      ee60c2adb46c84c8561893e17947db1d88ee69753bdb05038a9a65645c266b14
++CNC      6ae232d9164f2a217dd43c4982ac7c85d86b1b9b8c922ee528b8081f93eaa752
 +```
 +
 +Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -8249,12 +8355,26 @@
 +
 +## XYZ-CNC und gSender-Protokoll
 +
-+Ergebnis: **acht CNC-Funktionsfälle und ein zusätzlicher Timingfall bestanden**,
-+alle mit ELF `f41ded3c575a98330ed6ca63bd5f40439e5d7f86c45051be3f19024d4e0f3ef6`.
-+Protokoll: `artifacts/cnc-simulation.log`. Der zusätzliche Timingfall wurde
-+nach den acht Funktionsfällen separat ausgeführt. `make check-cnc` fasst alle
-+neun Fälle zusammen. Der CNC-Build verwendet `.text=41992`, `.data=104`,
++Ergebnis: **neun CNC-Fälle bestanden**,
++alle mit ELF `269f46de74b61c25e86d2e6541e1cf89580404569cf736e0b6bf2ba9aee32d45`.
++Protokoll: `artifacts/cnc-simulation.log`. Nach der Korrektur der gSender-
++Erkennung wurden alle acht Funktionsfälle und der Timingfall zusammen erneut
++ausgeführt. Der CNC-Build verwendet `.text=42036`, `.data=104`,
 +`.bss=3586`; Buildprotokoll: `artifacts/cnc-build.log`.
++
++Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
++`Connection`-Klasse von [gSender v1.6.4](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/server/lib/Connection.js)
++geleitet. Ohne Startbanner und trotz Standardtyp grblHAL erkennt sie jetzt
++**Grbl**. Die Gegenprobe ohne die neue Namenszeile reproduziert den früheren
++Rückfall auf grblHAL. Externe Abhängigkeiten/serieller Port sind dabei
++ersetzt; die Erkennungslogik selbst bleibt unverändert. Ergebnis und
++Quellhash: `artifacts/gsender-detection.log`. Reproduktion mit dem genannten
++gSender-Checkout und Node.js:
++
++```bash
++RF2000_HANDSHAKE_LOG="$PWD/build/tests/cnc-handshake.txt" tests/run-cnc-sim.sh build/cnc/main.elf connect
++node tools/test_gsender_detection.cjs /tmp/rf2000-gsender-1.6.4 build/tests/cnc-handshake.txt
++```
 +
 +Geprüft wurden GRBL-Handshake und Status für gSender (`$I`, `$$`, `$G`, `$#`,
 +`?`), XYZ-Jogging am Tastenfeld, Arbeitskoordinaten auf dem tatsächlich
@@ -8292,7 +8412,7 @@
 +
 +### Originaldisplay und lokales Tastenfeld
 +
-+Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem aktuellen
++Ergebnis: **14 Panel-Fälle bestanden**, Exitstatus 0 auf dem zuvor geprüften
 +Y-ELF `b4b798f446255c636a37036e4df6e6382d29bedeb264e180cdbb8e2b14d908f3`.
 +Protokoll: `artifacts/panel-validation.log`. `make check-panel` kompiliert
 +den Test mit `-Wall -Wextra -Werror` und simuliert das tatsächliche AVR-ELF.

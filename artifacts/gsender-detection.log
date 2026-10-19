@@ -1,0 +1,6 @@
+Firmware ELF SHA256 269f46de74b61c25e86d2e6541e1cf89580404569cf736e0b6bf2ba9aee32d45
+gSender v1.6.4 commit eb2df2d2073d9dd1a762c0ed150d9be19360cf49
+PASS: real gSender Connection identifies AVR $I as Grbl, despite grblHAL default and no startup banner
+PASS: negative control reproduces old reply falling back to grblHAL
+gSender Connection.js SHA256 980f267213d6051d0df34e560e5dd07ab740a601cd0748f0317737e18bc0d1a8
+AVR transcript SHA256 d8e920ed30ac8a8dcdb16a7ce59e55461e201542534cc9e5217138caf2250ace

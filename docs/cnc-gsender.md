@@ -38,13 +38,14 @@ HEX/ELF/MAP liegen unter `.pio/build/rf2000_cnc/`.
 Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 
 Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-`$I` enthält `20261019-rf2000-cnc`. Das Y-Testprofil bleibt mit
+`$I` enthält `20261019-rf2000-cnc-gsender`. Das Y-Testprofil bleibt mit
 `-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 
 ## gSender verwenden
 
 1. Serielle USB-Verbindung mit **GRBL und 115200 Baud** öffnen. Nur ein
-   Programm darf den Port gleichzeitig verwenden. Der Startalarm ist
+   Programm darf den Port gleichzeitig verwenden. gSender 1.6.4 erkennt den
+   Typ automatisch; oben links soll **Grbl** erscheinen. Der Startalarm ist
    beabsichtigt.
 2. Die Eingänge über `$DRV` oder die Displaydiagnose kontrollieren. Betätigte
    Schalter oder ein Treiberfehler verhindern die Freigabe. Ein anfangs
@@ -72,6 +73,25 @@ Fortsetzen sendet `~`. Während einer Referenzfahrt wirkt `!` nicht als Stopp:
 dafür Reset/Ctrl-X oder eine der lokalen Abbruchtasten verwenden. Die
 manuelle Spindel bleibt auch während Pause und Abbruch separat zu bedienen.
 
+### gSender zeigt automatisch grblHAL oder „Alarm()“
+
+gSender 1.6.4 fragt beim Verbinden `$I` ab und sucht in den Antworten nach
+dem Firmwarenamen. Ohne passende Kennung verwendet es den gespeicherten
+Standardtyp. Wurde die einmalige Startmeldung verpasst, konnte unsere alte
+Antwort so als grblHAL eingeordnet werden. Die CNC-Version
+`20261019-rf2000-cnc-gsender` antwortet zusätzlich mit
+**`[MSG:Grbl-Mega-5X RF2000]`**. Die echte Versionsnummer 1.2i bleibt erhalten.
+Nach dem Aufspielen gSender trennen und neu verbinden; oben links muss
+**Grbl** stehen. Eine manuelle Typauswahl ist dafür nicht erforderlich.
+
+Die Startsperre nach Einschalten/Reset ist beabsichtigt. Eine leere
+Alarmnummer allein unterscheidet sie nicht von einem Hardwarefehler.
+In der gSender-Konsole nacheinander `$I`, `$DRV` und `?` senden. Bei freien
+Eingängen und funktionsfähigen Treibern zeigt `$DRV`
+`READY=1|FAULT=0|READBACK=0|LIMITS=0`. Danach mit `$H` referenzieren oder mit
+`$X` für die manuelle Einrichtung entriegeln. Ein echter `ALARM:n` bzw.
+abweichende Diagnosewerte müssen anhand der Konsolenausgabe geklärt werden.
+
 ## Display und Tasten
 
 Die Hauptanzeige enthält Zustand, aktives Arbeitskoordinatensystem,
@@ -95,7 +115,8 @@ betroffene Achsen; während eines Jobs steht unten `SPINDEL: MANUELL`.
 Die beiden bisherigen Sondertasten bleiben bewusst Abbruch; zum pausierten
 Fortsetzen eines Fräsprogramms die entsprechenden gSender-Schaltflächen
 verwenden. Links ist auf jeder Seite Abbruch. Die alte PAUSE/CONTINUE-
-Beschriftungsabweichung ist in [hardware-verification.md](hardware-verification.md)+dokumentiert. Gehaltene STOP-Tasten sperren auch neue serielle Bewegungen.
+Beschriftungsabweichung ist in [hardware-verification.md](hardware-verification.md)
+dokumentiert. Gehaltene STOP-Tasten sperren auch neue serielle Bewegungen.
 Andere gehaltene Tasten wiederholen keine Aktion und werden während einer
 Bewegung nicht als spätere Bewegung gespeichert. Parameteränderung und
 Seitenwechsel verursachen keine Bewegung.

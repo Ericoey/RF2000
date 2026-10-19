@@ -47,7 +47,8 @@ for directory in ('grbl', 'repetier', 'y-homing', 'cnc'):
     files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
 for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
              'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
-             'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log'):
+             'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log',
+             'gsender-detection.log'):
     p = artifacts / name
     if p.is_file():
         files.append(p)

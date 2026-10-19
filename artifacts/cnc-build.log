@@ -1,3 +1,4 @@
+Firmware ELF SHA256 269f46de74b61c25e86d2e6541e1cf89580404569cf736e0b6bf2ba9aee32d45
 make BUILD=build/cnc ARTIFACTS=artifacts/cnc CPPFLAGS='-DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1' all
 make[1]: Entering directory '/workspace/RF2000'
 /workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/cnc/analog_control.o
@@ -27,9 +28,9 @@ make[1]: Entering directory '/workspace/RF2000'
 /workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/cnc/main.map build/cnc/analog_control.o build/cnc/coolant_control.o build/cnc/digital_control.o build/cnc/eeprom.o build/cnc/gcode.o build/cnc/jog.o build/cnc/limits.o build/cnc/main.o build/cnc/motion_control.o build/cnc/nuts_bolts.o build/cnc/planner.o build/cnc/print.o build/cnc/probe.o build/cnc/protocol.o build/cnc/report.o build/cnc/rf2000_board.o build/cnc/rf2000_drv8711.o build/cnc/rf2000_lcd.o build/cnc/rf2000_panel.o build/cnc/serial.o build/cnc/settings.o build/cnc/sleep.o build/cnc/spindle_control.o build/cnc/stepper.o build/cnc/system.o -lm -o build/cnc/main.elf
 /workspace/.tools/avr/usr/bin/avr-size build/cnc/main.elf
    text	   data	    bss	    dec	    hex	filename
-  42096	      0	   3586	  45682	   b272	build/cnc/main.elf
+  42140	      0	   3586	  45726	   b29e	build/cnc/main.elf
 python3 tools/check-avr-size.py build/cnc/main.elf /workspace/.tools/avr/usr/bin/avr-size
-Flash 42096/253952 bytes; static SRAM 3690/8192 bytes
+Flash 42140/253952 bytes; static SRAM 3690/8192 bytes
 /workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/cnc/main.elf artifacts/cnc/rf2000-grbl.hex
 cp build/cnc/main.elf artifacts/cnc/rf2000-grbl.elf
 cp build/cnc/main.map artifacts/cnc/rf2000-grbl.map
