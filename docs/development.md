@@ -36,10 +36,11 @@ Datenblattabruf `www.ti.com`. Die Referenz-PDFs liegen bereits unter
 
 ## Ergebnisse
 
-Der GRBL-Port kann außerdem mit PlatformIO gebaut werden:
-`pio run -e rf2000_grbl`. In der Cloud zuerst
+PlatformIO baut mit `pio run` standardmäßig das Y-Testprofil einschließlich
+Originaldisplay und Tastenfeld. Das XYZ-Profil ohne LCD wird ausdrücklich
+mit `pio run -e rf2000_grbl` gewählt. In der Cloud zuerst
 `tools/install-platformio.sh` und anschließend
-`tools/platformio.sh run -e rf2000_grbl` verwenden. Anleitung und
+`tools/platformio.sh run` verwenden. Anleitung und
 Ausgabepfade stehen in [platformio.md](platformio.md).
 
 `make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.

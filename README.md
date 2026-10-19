@@ -1,8 +1,8 @@
 # RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
 
 Kompilierbarer CNC-Teststand für ATmega2560/16 MHz mit drei logischen Achsen
-X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. Homing
-bleibt im Standardprofil gesperrt. Ein separat wählbares Y-Testprofil erlaubt
+X/Y/Z und fünf konfigurierten DRV8711. A/B bleiben doppelt gesperrt. PlatformIO
+baut standardmäßig das Y-Testprofil mit Display und Tasten. Dieses erlaubt
 nach Prüfung von Schalterpolarität und Bewegungsrichtung ausschließlich
 Y-Jogging mit Weglimit sowie Y-Homing mit fortlaufender erster Referenzsuche.
 Das Y-Profil bietet dafür ein lokales Testmenü auf dem originalen 20×4-LCD
@@ -28,24 +28,25 @@ die Festlegung ersetzt keinen Funktionstest des GRBL-Ports.
 ## Bauen und prüfen
 
 Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
-öffnen und die Umgebung **`rf2000_grbl` → Build** auswählen. Per CLI:
+öffnen und die Umgebung **`rf2000_y_homing_test` → Build** auswählen. Per CLI:
 
 ```bash
-pio run -e rf2000_grbl
+git pull
+pio run
 ```
 
-Das HEX liegt anschließend unter `.pio/build/rf2000_grbl/firmware.hex`.
+Das HEX liegt anschließend unter `.pio/build/rf2000_y_homing_test/firmware.hex`.
 Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 
-Für den ersten Y-Test gibt es zusätzlich die Umgebung
-**`rf2000_y_homing_test`**:
+Zum Aufspielen des Y-Testprofils den seriellen Monitor vorher schließen und
+den tatsächlichen USB-Port angeben, beispielsweise auf dem Mac:
 
 ```bash
-pio run -e rf2000_y_homing_test
-pio device monitor -e rf2000_y_homing_test
+pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
+pio device monitor --port /dev/cu.usbserial-AL03P2K9
 ```
 
-HEX: `.pio/build/rf2000_y_homing_test/firmware.hex`. Der Monitor verwendet
+Die Startmeldung muss **`RF2000 Y-only test`** enthalten. Der Monitor verwendet
 115200 Baud und LF; Befehle jeweils mit Enter senden. Dieses Profil hält
 X/Z/A/B abgeschaltet, begrenzt Y-Jogs auf 0,5 mm bei höchstens 30 mm/min und
 erlaubt nur `$HY` nach `$22=1` in derselben Sitzung. Die erste Y-Referenzsuche
@@ -54,7 +55,9 @@ Kontakt, stoppt sie nicht automatisch. Ctrl-X sendet den Software-Abbruch.
 Normale G-Code-Bewegungen
 und andere Homing-Kommandos bleiben gesperrt. Richtung und Schalter zuerst
 mit dem [Y-Testablauf](docs/y-axis-test.md) prüfen, bevor `$HY` gesendet wird.
-Das Standardprofil und die Repetier-Referenz bleiben unverändert.
+Das XYZ-Profil `rf2000_grbl` bleibt mit `pio run -e rf2000_grbl` ausdrücklich
+wählbar; darin sind Display und Homing deaktiviert. Die Profilwahl im Monitor
+ändert keine aufgespielte Firmware. Die Repetier-Referenz bleibt unverändert.
 
 Bestehender Make-Build einschließlich Repetier-Referenz:
 
@@ -68,10 +71,10 @@ make repetier
 
 HEX/ELF/MAP: `artifacts/grbl/rf2000-grbl.*`.
 Repetier-Referenz: `artifacts/repetier/`.
-Für das separate Y-Profil: `make y-homing-test`, anschließend optional
+Für das Y-Profil im Make-Build: `make y-homing-test`, anschließend optional
 `make check-y-homing`; Dateien unter `artifacts/y-homing/rf2000-grbl.*`.
 `make check-panel` prüft zusätzlich Display, Tasten und lokale Y-Bedienung.
-Die Buildwerkzeuge führen keine Programmierung und keine Fuse-Änderung aus.
+Die Make-Buildziele führen keine Programmierung und keine Fuse-Änderung aus.
 Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunktionen.
 
 ## Implementierter Teststand
@@ -91,7 +94,7 @@ PA7/D29 der Watchdog-Pin, PC0/D37 der Y-Min-Eingang und PC4 der OUT3-Ausgang.
 PA7 bleibt Eingang ohne Pullup, entsprechend Repetiers `HAL::stopWatchdog()`;
 PC4 bleibt LOW. Der Testbuild erzeugt keine Watchdog-Lebenszeichen.
 
-## Bedienung des Standardprofils
+## Bedienung des XYZ-Profils `rf2000_grbl`
 
 UART0: 115200 Baud, 8N1. `$DRV` liest nur den zwischengespeicherten
 Initialisierungszustand und die vier Limitpegel, ohne SPI oder Motorfreigabe.

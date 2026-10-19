@@ -1,14 +1,16 @@
 # Separater Y-Achs- und Homingtest
 
-Für den ersten Y-Test gibt es das zusätzliche Profil **`rf2000_y_homing_test`**.
-Die Standardfirmware `rf2000_grbl` behält ihre Homing-Sperre. Die
+Für den ersten Y-Test ist **`rf2000_y_homing_test`** die PlatformIO-
+Standardumgebung; sie aktiviert auch das originale Display und Tastenfeld.
+Das ausdrücklich wählbare XYZ-Profil `rf2000_grbl` behält seine Homing-Sperre
+und deaktiviert das Display. Die
 Hardwarezuordnung folgt bei Quellenabweichungen der als funktionierend
 angenommenen RF2000v2-Repetier-Konfiguration. Y verwendet STEP PF6, DIR PF7,
 SLEEPn PF2 und Y-Min/ES2 PC0/D37 am Anschluss X14. Der Ablauf folgt dem
 Referenzprinzip Anfahren → Rückzug → langsameres erneutes Anfahren →
 abschließend freifahren; Geschwindigkeit und Rückzug sind bewusste Testwerte.
 
-## Unterschiede zur Standardfirmware
+## Unterschiede zwischen den Profilen
 
 | Eigenschaft | `rf2000_grbl` | `rf2000_y_homing_test` |
 |---|---|---|
@@ -38,12 +40,14 @@ Reset ab; Richtung und Schalter sind vor dem Referenzstart zu prüfen.
 Im Repository-Hauptverzeichnis mit vorhandenem PlatformIO:
 
 ```bash
-pio run -e rf2000_y_homing_test
+git pull
+pio run
 ```
 
 In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
 Das Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`; ELF und
-MAP liegen daneben. `pio run` ohne `-e` baut weiterhin das Standardprofil.
+MAP liegen daneben. `pio run` ohne `-e` baut dieses Y-Testprofil.
+Eine explizite Auswahl mit `-e rf2000_y_homing_test` ist ebenfalls möglich.
 Es sind keine zusätzlichen Bibliotheken oder Terminalpakete erforderlich.
 
 Alternativ erzeugt `make y-homing-test` die Dateien
@@ -53,8 +57,14 @@ Ein Build überträgt keine Firmware. Das passende Programmierverfahren und
 der Rückweg zur vorhandenen Firmware gehören zum
 [Hardwaretestplan](hardware-test.md).
 
-Nach dem bewusst ausgeführten Programmieren des Y-Images den seriellen
-Monitor öffnen:
+Zum Aufspielen den Monitor schließen und den tatsächlichen Port angeben,
+beispielsweise auf dem Mac:
+
+```bash
+pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
+```
+
+Nach dem Programmieren des Y-Images den seriellen Monitor öffnen:
 
 ```bash
 pio device monitor -e rf2000_y_homing_test
@@ -72,6 +82,9 @@ stellt **115200 Baud, LF-Zeilenende und lokale Eingabeanzeige** ein. Ein anderer
 Sender muss 115200 Baud und 8N1 verwenden. Andere Programme dürfen denselben
 Port nicht gleichzeitig geöffnet haben. Das Öffnen kann die Platine über
 DTR zurücksetzen; danach beginnt eine neue Sitzung mit `$22=0`.
+Die Startmeldung muss **`RF2000 Y-only test`** enthalten. Erscheint stattdessen
+**`RF2000 XYZ test profile`**, ist noch das Profil ohne Display aufgespielt.
+Die Profilwahl beim Monitorstart ändert die Firmware auf der Platine nicht.
 
 ## 1. Endschalter und Treiber ohne Motor prüfen
 

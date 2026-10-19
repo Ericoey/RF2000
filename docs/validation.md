@@ -81,6 +81,13 @@ Test nach der Bedienfelderweiterung steht in `artifacts/validation.log`.
 
 ## Separates Y-Testprofil
 
+PlatformIO wählt für den aktuellen Hardwaretest jetzt standardmäßig
+`rf2000_y_homing_test` mit LCD und Tasten. Die aufgelöste Konfiguration wurde
+mit `pio project config --json-output` geprüft: Default, geerbte Buildflags,
+`RF2000_Y_HOMING_TEST=1`, C-Quellen und Monitorparameter stimmen. Es wurden
+keine Firmware-C-Dateien oder getesteten ELF-/HEX-Programme verändert;
+die folgenden Simulationsergebnisse gelten für dieselben Programme.
+
 Ergebnis: **13 Fälle bestanden**, Exitstatus 0 auf dem aktuellen
 Bedienfeld-ELF am 19.10.2026. Das vollständige Protokoll steht in
 `artifacts/y-homing-simulation.log`; dieses ELF wurde auch für die unten

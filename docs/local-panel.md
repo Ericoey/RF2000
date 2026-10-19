@@ -5,7 +5,9 @@ HD44780-Display mit 20×4 Zeichen und das vorhandene Tastenfeld. Pinbelegung,
 4-Bit-Ansteuerung und Initialisierungsfolge stammen aus der bereitgestellten
 Repetier-Referenz. Die Bedienoberfläche ist ein eigenes kleines GRBL-Testmenü.
 Es werden keine Drucker-, Heizungs- oder Extrudermenüs übernommen.
-Das Standardprofil `rf2000_grbl` aktiviert dieses Bedienfeld nicht.
+Dieses Y-Profil ist die Standardauswahl für PlatformIO-Build und -Upload.
+Das ausdrücklich auswählbare XYZ-Profil `rf2000_grbl` aktiviert dieses
+Bedienfeld nicht.
 
 ## Bauen
 
@@ -13,13 +15,27 @@ Repository aktualisieren und im Hauptordner kompilieren:
 
 ```bash
 git pull
-pio run -e rf2000_y_homing_test
+pio run
 ```
 
 In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
 Ergebnis: `.pio/build/rf2000_y_homing_test/firmware.hex`.
-Nach dem gesonderten Programmieren dieser Firmware kann der Y-Test ohne
-seriellen Sender bedient werden. Ein Build überträgt keine Firmware.
+Ein Build überträgt keine Firmware. Zum Aufspielen den seriellen Monitor
+schließen und beispielsweise mit dem bekannten Mac-Port ausführen:
+
+```bash
+pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
+pio device monitor --port /dev/cu.usbserial-AL03P2K9
+```
+
+Den Port gegebenenfalls ersetzen. Ohne `-e` wird das Y-Testprofil gebaut und
+aufgespielt; `-e rf2000_y_homing_test` wählt es ausdrücklich. Nach dem Neustart
+muss die serielle Startmeldung **`RF2000 Y-only test`** enthalten.
+**`RF2000 XYZ test profile`** zeigt das Profil ohne Display an. Die Auswahl
+im Monitor allein ändert keine aufgespielte Firmware. Nach dem Programmieren
+kann der Y-Test ohne seriellen Sender bedient werden. Bleiben trotz bestätigtem
+Y-Profil schwarze Kästchen sichtbar, ist die LCD-Funktion am Gerät noch zu
+prüfen; sie wurde bisher ausschließlich simuliert.
 
 ## Tasten und Anzeigen
 

@@ -145,5 +145,12 @@
     "tested_elf_sha256": "2b385eaf98943fb25c0cce049f2ad7af2d51f3b05c57b4eb8d82dc9f50a8d49d",
     "serial_y_homing_real_avr_cases": 13,
     "y_homing_log": "artifacts/y-homing-simulation.log"
+  },
+  "platformio_selection": {
+    "default_environment": "rf2000_y_homing_test",
+    "platformio_ini_sha256": "22c58852fd5d8fee145978d7a7b1a3a6e4c53b5292073e6abb4441f5b9e5259e",
+    "local_panel_enabled": true,
+    "firmware_program_unchanged": true,
+    "configuration_verified": "PlatformIO project config --json-output; inherited Y build flags and default target checked"
   }
 }

@@ -1,8 +1,9 @@
 # GRBL mit PlatformIO kompilieren
 
 Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
-Standardumgebung **`rf2000_grbl`** und die separat wählbare Umgebung
-**`rf2000_y_homing_test`** für ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
+Standardumgebung **`rf2000_y_homing_test`** mit originalem Display und Tastenfeld
+und die ausdrücklich wählbare XYZ-Umgebung **`rf2000_grbl`** für ATmega2560
+bei 16 MHz. Im XYZ-Profil sind Display und Homing deaktiviert. Die RF2000-Pinbelegung
 und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
 
 ## VS Code
@@ -12,8 +13,10 @@ und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
    `https://github.com/Ericoey/RF2000` klonen.
 3. In PlatformIO **Open Project** wählen und den Ordner `RF2000` öffnen,
    in dem `platformio.ini` liegt.
-4. Unter **Project Tasks → rf2000_grbl → General → Build** kompilieren.
-   Alternativ das Häkchen **Build** in der unteren Statusleiste verwenden.
+4. Unter **Project Tasks → rf2000_y_homing_test → General → Build** kompilieren.
+   Alternativ das Häkchen **Build** in der unteren Statusleiste verwenden;
+   bei einer zuvor ausdrücklich gewählten Umgebung dort ebenfalls
+   `rf2000_y_homing_test` auswählen.
 
 Beim ersten Build lädt PlatformIO die festgelegte AVR-Plattform und
 Werkzeugkette herunter. Für das Kompilieren ist keine angeschlossene Platine
@@ -24,17 +27,18 @@ erforderlich. Die normale Build-Aktion überträgt keine Firmware.
 Mit einer vorhandenen PlatformIO-Installation im Projektordner:
 
 ```bash
-pio run -e rf2000_grbl
+git pull
+pio run
 ```
 
-`pio run` verwendet dieselbe Standardumgebung. Ein sauberer Neubuild:
+`pio run` ohne `-e` baut das Y-Testprofil mit LCD. Ein sauberer Neubuild:
 
 ```bash
-pio run -e rf2000_grbl -t clean
-pio run -e rf2000_grbl
+pio run -t clean
+pio run
 ```
 
-Für den separaten Y-Achstest das zusätzliche Profil bewusst auswählen:
+Die explizite Auswahl desselben Y-Profils ist weiterhin möglich:
 
 ```bash
 pio run -e rf2000_y_homing_test
@@ -42,8 +46,8 @@ pio run -e rf2000_y_homing_test
 
 In VS Code: **Project Tasks → rf2000_y_homing_test → General → Build**.
 Dieses Image liegt unter `.pio/build/rf2000_y_homing_test/firmware.hex`;
-ELF und MAP liegen daneben. Das Standardprofil bleibt unverändert ausgewählt,
-wenn `-e` fehlt. Unterschiede und Prüfablauf stehen in
+ELF und MAP liegen daneben. Für das XYZ-Profil ohne LCD ausdrücklich
+`pio run -e rf2000_grbl` verwenden. Unterschiede und Prüfablauf stehen in
 [y-axis-test.md](y-axis-test.md).
 Das Y-Profil aktiviert auch das originale LCD und Tastenfeld für den
 lokalen Test: [Bedienungsanleitung](local-panel.md). Weitere Bibliotheken
@@ -55,7 +59,7 @@ Python-Virtualenv. Dafür stehen folgende Befehle bereit:
 ```bash
 cd /workspace/RF2000
 tools/install-platformio.sh
-tools/platformio.sh run -e rf2000_grbl
+tools/platformio.sh run
 ```
 
 `tools/platformio.sh` setzt das Cloud-Paketverzeichnis auf
@@ -67,9 +71,9 @@ seine übliche PlatformIO-Installation; der Cloud-Wrapper ist dafür nicht nöti
 Die Dateien liegen nach einem erfolgreichen Build unter:
 
 ```text
-.pio/build/rf2000_grbl/firmware.hex
-.pio/build/rf2000_grbl/firmware.elf
-.pio/build/rf2000_grbl/firmware.map
+.pio/build/rf2000_y_homing_test/firmware.hex
+.pio/build/rf2000_y_homing_test/firmware.elf
+.pio/build/rf2000_y_homing_test/firmware.map
 ```
 
 Die Konfiguration verwendet Atmel AVR 5.1.0 und die festgelegte
@@ -102,14 +106,30 @@ Nach dem Aktualisieren des Repositorys einen sauberen Build ausführen:
 
 ```bash
 git pull
-pio run -e rf2000_grbl -t clean
-pio run -e rf2000_grbl
+pio run -t clean
+pio run
 ```
 
 Die Korrektur wurde zusätzlich mit dem echten `avr-size` und einem relativen
 `.pio/…/firmware.elf` durch den vollständigen Python-Post-Build-Hook geprüft.
 
-## Seriellen Monitor öffnen
+## Aufspielen und seriellen Monitor öffnen
+
+Den Monitor vor dem Upload schließen. Für den bekannten Mac-Port lauten die
+Befehle nach `git pull`:
+
+```bash
+pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
+pio device monitor --port /dev/cu.usbserial-AL03P2K9
+```
+
+Den Port bei Bedarf durch den tatsächlich angezeigten Gerätenamen ersetzen.
+Der Upload verwendet ohne `-e` das Y-Testprofil. Nach einem Neustart muss die
+Startmeldung **`RF2000 Y-only test`** enthalten. **`RF2000 XYZ test profile`**
+bedeutet, dass noch das Profil ohne LCD aufgespielt ist. Die Auswahl einer
+Umgebung beim Monitorstart programmiert keine andere Firmware. Bei weiterhin
+schwarzen Kästchen trotz bestätigtem Y-Profil muss die LCD-Ansteuerung am
+Gerät weiter geprüft werden; die Profilwahl allein belegt keine Funktion.
 
 PlatformIO bringt den benötigten Monitor mit. Für das Y-Testprofil:
 
@@ -131,8 +151,8 @@ Software-Abbruch mit Ctrl-X und unabhängige Hardware-Abschaltung bereithalten.
 
 ## Hardwaretest
 
-A/B bleiben deaktiviert und Homing bleibt im **Standardprofil** gesperrt.
-Das zusätzliche Y-Profil hält X/Z/A/B abgeschaltet und erlaubt ausschließlich
+A/B bleiben deaktiviert und Homing bleibt im **XYZ-Profil `rf2000_grbl`** gesperrt.
+Das standardmäßig ausgewählte Y-Profil hält X/Z/A/B abgeschaltet und erlaubt ausschließlich
 begrenztes Y-Jogging sowie `$HY` nach bewusstem `$22=1` und bestandener
 Richtungs-/Endschalterprüfung. Die erste Referenzsuche läuft ohne Gesamtweg-
 oder Zeitbegrenzung bis zum Y-Min-Kontakt. Ein fehlender Kontakt führt dabei
@@ -162,7 +182,7 @@ der erneute Abruf für das Y-Profil scheitert weiterhin an diesem Proxy.
 Die Konfiguration beider Umgebungen einschließlich geerbter Buildflags wurde
 erfolgreich eingelesen. Der Make-Build mit AVR-GCC 14.2.0 ist davon getrennt.
 Wenn der Registry-Zugriff verfügbar ist, die gewünschte PlatformIO-Umgebung
-bauen und deren tatsächliches ELF prüfen: für das Standardprofil mit
+bauen und deren tatsächliches ELF prüfen: für das XYZ-Profil mit
 `tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf`, für das Y-Profil mit
 `tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf`.
 Die lokale Bedienung wird zusätzlich mit

@@ -75,3 +75,7 @@ PASS: INT6 latches a completed 1us FAULTn pulse and blocks unlock
 
 Final standard rebuild after inactive panel guard edits: HEX unchanged from the fully tested make check program.
 Standard HEX SHA256: fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
+
+PlatformIO default selection, 2026-10-19: project config --json-output passed.
+default_envs=rf2000_y_homing_test; effective -DRF2000_Y_HOMING_TEST=1, original LCD/keypad enabled; inherited flags, all grbl/*.c sources and 115200/LF monitor verified.
+Firmware C sources and tested ELF/HEX unchanged; build selection/documentation updated only. No physical upload or display test performed.
