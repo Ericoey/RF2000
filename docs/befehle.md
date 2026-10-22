@@ -1,7 +1,7 @@
 # RF2000-CNC: Befehlsübersicht für gSender
 
 Diese Übersicht gilt für das Projektprofil **`rf2000_cnc`**, Stand
-19.10.2026, ab Version `20261019-rf2000-cnc-panel`. Sie beschreibt die
+22.10.2026, ab Version `20261022-rf2000-cnc-speed`. Sie beschreibt die
 im RF2000-Code vorhandenen Befehle. Das separate Y-Testprofil hat andere
 Beschränkungen. [Bedienfeld und Menü](bedienfeld-menue.md) ·
 [Einrichten und Fräsen mit gSender](cnc-gsender.md)
@@ -15,7 +15,9 @@ Zeile einzeln senden. Bewegungsbeispiele setzen freie Fahrwege voraus.
 
 **`$$` sind zwei Dollarzeichen, keine Paragraphenzeichen `§§`.** Zum Lesen
 der Einstellungen `$$` senden. `$101` allein ist kein gültiger Lesebefehl;
-`$101=2560` schreibt einen neuen Wert.
+`$101=320` schreibt einen neuen Wert. Im neuen festen 1/4-CNC-Profil
+niemals die alten X/Y-Werte 2560 zurückschreiben: Damit würden achtfach
+zu große reale Fahrwege entstehen.
 
 `ok` bedeutet angenommen bzw. gepuffert, nicht zwingend fertig gefahren.
 Der Echtzeitstatus `?` zeigt den Zustand; nach normalen Fahrten steht dort
@@ -168,8 +170,9 @@ befehle aus Repetier/Marlin sind keine Befehle dieser CNC-Firmware.
 ## Einstellungen lesen und ändern
 
 **`$$` zeigt die tatsächlich gespeicherten Werte.** Die folgenden Werte
-sind die CNC-Projektvorgaben; ein Update überschreibt vorhandene Einstellungen
-nicht. Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
+sind die CNC-Factory-Vorgaben. Die Migration von Version 74 rechnet X/Y auf
+1/4 um und erhält vorhandene niedrigere Tempi; sie erhöht sie nicht automatisch.
+Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
 ändern; diese Befehle schreiben ins EEPROM.
 
 | Einstellung | Vorgabe | Bedeutung / Einschränkung |
@@ -196,8 +199,8 @@ nicht. Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
 | `$30` | 1000 | Logischer maximaler Spindel-Sollwert; keine physische Drehzahlsteuerung |
 | `$31` | 0 | Logischer minimaler Spindel-Sollwert |
 | `$32` | 0 | Lasermodus, fest ausgeschaltet |
-| `$100` / `$101` / `$102` | 2560 / 2560 / 1280 | Schritte pro mm für X / Y / Z |
-| `$110` / `$111` / `$112` | 100 / 100 / 150 | Maximaltempo X / Y / Z in mm/min |
+| `$100` / `$101` / `$102` | 320 / 320 / 1280 | Schritte pro mm bei festem X/Y 1/4 und Z 1/16 |
+| `$110` / `$111` / `$112` | 600 / 600 / 300 | Factory-Maximaltempo X / Y / Z in mm/min; migrierte 100/100/150 bleiben zunächst erhalten |
 | `$120` / `$121` / `$122` | 10 / 10 / 10 | Beschleunigung X / Y / Z in mm/s² |
 | `$130` / `$131` / `$132` | 200 / 290 / 185 | Verfahrweg X / Y / Z in mm; keine automatische Vermessung |
 
@@ -205,26 +208,44 @@ Für Achseinstellungen sind positive Werte erforderlich. Es gibt keine
 Achseinstellungen für A/B. Hardwarefeste Werte mit anderen Werten werden
 abgewiesen. Die Richtungswerte `$3`/`$23` nur nach Prüfung am Gerät ändern.
 
-Die Firmware begrenzt auf **5000 Schritte/s**:
+Das CNC-Profil begrenzt auf **18.000 Schritte/s**; die getrennten
+Standard-/Y-Testprofile bleiben bei 5000 Schritte/s:
 
 ```text
-Schritte/mm × Maximaltempo / 60 <= 5000
+Schritte/mm × Maximaltempo / 60 <= 18000
 ```
 
-Damit liegt die rechnerische Grenze mit aktueller Kalibrierung bei etwa
-117,18 mm/min für X/Y und 234,37 mm/min für Z. Das ist keine gemessene
-mechanische Freigabe. Für die korrekte Umstellung einer älteren CNC-Version
-zuerst das Tempo senken und dann die Schrittzahl setzen:
+Damit liegt die rechnerische CNC-Grenze bei **3375 mm/min für X/Y** und
+**843,75 mm/min für Z**. Das ist keine gemessene mechanische Freigabe.
+
+Nach der neuen Firmware zuerst `$I` und `$$` lesen. Version 74 wird auf 75
+migriert: X/Y werden durch acht geteilt, Z bleibt unverändert. Der vom Nutzer
+bestätigte alte Satz 2560/2560/1280 wird zu 320/320/1280. Feinabgleiche werden
+proportional erhalten; erkannte veraltete 152,380-Werte werden mit Meldung
+auf 320 korrigiert. Ein beim Schreiben gesetzter Marker `0xA5` verhindert
+nach einer Unterbrechung eine doppelte Umrechnung. Koordinaten, Startzeilen
+und Buildtext bleiben bei erkannter CNC-Migration erhalten.
+
+**Nicht die alten `$100=2560` / `$101=2560` aus früheren Anleitungen senden.**
+Vollständiger Ablauf und Wiederherstellung:
+[EEPROM-Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
+Die bestätigten alten 100/100/150-Tempi bleiben beim gültigen Update erhalten.
+Nach langsamer Wegprüfung können diese neuen Startvorgaben gewählt werden:
 
 ```text
-$110=100
-$111=100
-$112=150
-$100=2560
-$101=2560
-$102=1280
+$110=600
+$111=600
+$112=300
+$120=10
+$121=10
+$122=10
 $$
 ```
+
+Für die allerersten Messungen 100/100/150 und kleine F20-Jogs verwenden;
+höhere Werte nur nach dem [Hardwaretestplan](geschwindigkeit-optimieren.md).
+Die feste Mikroauflösung wird von der Firmware programmiert, nicht von
+einem dieser GRBL-Parameter umgeschaltet.
 
 ## Weitere Systembefehle
 
@@ -281,7 +302,7 @@ bei dieser Hardwarekonfiguration keine Geräte.
 | `error:5` | Funktion/Einstellung in diesem Profil deaktiviert |
 | `error:8` | Befehl passt nicht zum aktuellen Betriebszustand; Stillstand abwarten |
 | `error:9` | Alarm/Hardware sperrt die Aktion; `?` und `$DRV` prüfen |
-| `error:12` | Einstellung würde die **5-kHz-Schrittgrenze** überschreiten; ältere Sendertexte nennen dafür noch 30 kHz |
+| `error:12` | Einstellung würde die **18-kHz-CNC-Schrittgrenze** überschreiten; getrennte Testprofile: 5 kHz; allgemeine Sendertexte nennen noch 30 kHz |
 | `error:20` | G-/M-Befehl nicht unterstützt |
 | `ALARM:1` | Endschalter im normalen Betrieb ausgelöst |
 | `ALARM:3` | Bewegung durch Reset abgebrochen; Positionsbezug ungesichert |

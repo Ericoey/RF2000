@@ -81,9 +81,9 @@ static void test_menu_jogs(const char *elf)
   for (unsigned i=0;i<6;++i) {
     const unsigned axis=i/2, before=sim.step_count[axis];
     press(keys[i]); menu_wait_idle(1500);
-    CHECK(sim.step_count[axis]-before==(axis==2 ? 128 : 256),"physical key%u wrong0.1mm pulse count",keys[i]);
+    CHECK(sim.step_count[axis]-before==(axis==2 ? 128 : 32),"physical key%u wrong0.1mm pulse count",keys[i]);
     CHECK(machine.position[axis]==(i%2 ? (axis==0 ? 64 : axis==1 ? 80 : -100) :
-      (axis==0 ? 320 : axis==1 ? 336 : 28)),"physical direction of key%u incorrect",keys[i]);
+      (axis==0 ? 96 : axis==1 ? 112 : 28)),"physical direction of key%u incorrect",keys[i]);
   }
   const unsigned count=menu_steps();
   for (unsigned i=0;i<4;++i) press(KEY_E4);
@@ -92,7 +92,7 @@ static void test_menu_jogs(const char *elf)
   run_us(220000); CHECK(display_has("S0.01"),"minus did not clamp jog distance at0.01mm");
   press(KEY_OK); run_us(220000); CHECK(display_has("CNC MENUE"),"jog OK did not return to menu");
   menu_no_motion(count); reserves_off();
-  printf("PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit256/256/128 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move\n");
+  printf("PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit32/32/128 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move\n");
   avr_terminate(sim.avr);
 }
 
@@ -184,9 +184,9 @@ static void test_menu_pause_resume(const char *elf)
   CHECK(strstr(command("?",30),"Ov:100,100,100"),"physical plus did not clamp real feed override to100%%");
   CHECK(sim.step_count[0]==held,"feed override keys moved a held job");
   press(KEY_STOP1); menu_wait_idle(4000);
-  CHECK(sim.step_count[0]==5120 && !sim.step_count[1] && !sim.step_count[2],"Play did not finish exactly the same2mm job");
+  CHECK(sim.step_count[0]==640 && !sim.step_count[1] && !sim.step_count[2],"Play did not finish exactly the same2mm job");
   reserves_off();
-  printf("PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100%% while stopped; Play resumes same5120-pulse job\n");
+  printf("PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100%% while stopped; Play resumes same640-pulse job\n");
   avr_terminate(sim.avr);
 }
 
@@ -196,7 +196,7 @@ static void test_menu_jog_cancel(const char *elf)
   assert_ok("$J=G91G21Y5F60\n",60); run_us(250000);
   press(KEY_STOP2); menu_wait_idle(1500);
   const unsigned stopped=sim.step_count[1];
-  CHECK(stopped>0 && stopped<12800,"physical Pause did not cancel partial jog");
+  CHECK(stopped>0 && stopped<1600,"physical Pause did not cancel partial jog");
   press(KEY_STOP1); run_us(500000);
   CHECK(strstr(command("?",30),"<Idle") && sim.step_count[1]==stopped,"Play restarted a cancelled jog");
   CHECK(!strstr(sim.log,"ALARM:"),"short jog Pause unnecessarily reset/alarmed machine");
@@ -231,7 +231,7 @@ static void test_menu_resets(const char *elf)
   menu_no_motion(0); all_asleep();
   key_level(KEY_STOP2,1); run_us(60000); cnc_unlock();
   assert_ok("$J=G91G21X0.1F20\n",40); menu_wait_idle(1500);
-  CHECK(sim.step_count[0]==256,"machine not reusable after a wake-up Pause/reset");
+  CHECK(sim.step_count[0]==32,"machine not reusable after a wake-up Pause/reset");
   reserves_off(); avr_terminate(sim.avr);
   menu_boot(elf); cnc_unlock();
   assert_ok("G91G1X2F60\n",60); run_us(100000);
@@ -268,10 +268,10 @@ static void test_menu_busy_alarm(const char *elf)
   menu_boot(elf); cnc_unlock(); menu_enter(1);
   press(KEY_RIGHT);
   const uint64_t deadline=sim.avr->cycle+CPU_HZ;
-  while (sim.step_count[0]<240 && sim.avr->cycle<deadline) run_us(1000);
-  CHECK(sim.step_count[0]>=240,"short X jog did not progress");
+  while (sim.step_count[0]<30 && sim.avr->cycle<deadline) run_us(1000);
+  CHECK(sim.step_count[0]>=30,"short X jog did not progress");
   key_level(KEY_UP,0); run_us(250000);
-  CHECK(sim.step_count[0]==256 && !sim.step_count[1],"busy-edge key queued Y after X ended");
+  CHECK(sim.step_count[0]==32 && !sim.step_count[1],"busy-edge key queued Y after X ended");
   key_level(KEY_UP,1); run_us(60000); press(KEY_OK); press(KEY_LEFT);
   menu_enter(2); press(KEY_OK); run_us(220000);
   CHECK(display_has("XYZ referenzieren?"),"reference consent screen not present");

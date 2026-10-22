@@ -33,7 +33,9 @@
 // when firmware is upgraded. Always stored in byte 0 of eeprom
 #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
   #if RF2000_CNC
-    #define SETTINGS_VERSION 74 // CNC defaults and settings are separate from the XYZ test.
+    #define SETTINGS_VERSION 75 // CNC X/Y 1/4 profile; migrate the former 1/32 record.
+    #define RF2000_SETTINGS_PREVIOUS_VERSION 74
+    #define RF2000_SETTINGS_MIGRATING_VERSION 0xa5u
   #else
     #define SETTINGS_VERSION 73 // Separate XYZ RF2000 profile; never reuse RAMPS/5-axis EEPROM.
   #endif

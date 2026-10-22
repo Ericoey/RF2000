@@ -1,5 +1,8 @@
 /* Actual AVR CNC profile: gSender commands, XYZ hardware, LCD, jobs and faults.
  * Reuse the real LCD decoder and five-DRV8711 peripheral model. GPL-3.0+. */
+#ifndef RF2000_TEST_XY_CTRL
+#define RF2000_TEST_XY_CTRL 0xe11
+#endif
 #define RF2000_PANEL_TEST_MAIN unused_y_panel_suite
 #include "rf2000_panel_sim.c"
 #include <math.h>
@@ -110,7 +113,7 @@ static void test_cnc_connect(const char *elf)
   // $I alone must identify Grbl on reconnect, without a reset/banner.
   const char *identity=command("$I\n",80);
   CHECK(strstr(identity,"[MSG:Grbl-Mega-5X RF2000]\r\n"),"reconnect firmware name missing: %s",identity);
-  CHECK(strstr(identity,"20261019-rf2000-cnc-panel"),"CNC build identity missing");
+  CHECK(strstr(identity,"20261022-rf2000-cnc-speed"),"CNC build identity missing");
   CHECK(strstr(identity,"[VER:1.2i.") && strstr(identity,"ok\r\n"),"GRBL version or acknowledgement missing: %s",identity);
   // Optional transcript for running a sender's actual detection code.
   const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
@@ -122,9 +125,9 @@ static void test_cnc_connect(const char *elf)
   const char *settings_reply=command("$$\n",350);
   CHECK(strstr(settings_reply,"$1=255") && strstr(settings_reply,"$22=1") &&
     strstr(settings_reply,"$23=3"),"CNC hold/homing defaults wrong: %s",settings_reply);
-  CHECK(strstr(settings_reply,"$100=2560.000") && strstr(settings_reply,"$101=2560.000") &&
-    strstr(settings_reply,"$102=1280.000") && strstr(settings_reply,"$110=100.000") &&
-    strstr(settings_reply,"$111=100.000") && strstr(settings_reply,"$112=150.000"),
+  CHECK(strstr(settings_reply,"$100=320.000") && strstr(settings_reply,"$101=320.000") &&
+    strstr(settings_reply,"$102=1280.000") && strstr(settings_reply,"$110=600.000") &&
+    strstr(settings_reply,"$111=600.000") && strstr(settings_reply,"$112=300.000"),
     "SFU1605 2:1 calibration/rates wrong: %s",settings_reply);
   assert_ok("$G\n",60); assert_ok("$#\n",100);
   CHECK(strstr(command("?",30),"MPos:") && strstr(sim.log,"WCO:"),"gSender position/WCO fields missing");
@@ -134,6 +137,7 @@ static void test_cnc_connect(const char *elf)
   assert_error("M8\n"); assert_error("G38.2Z-1F10\n");
   assert_error("G0A1\n"); assert_error("G0B1\n");
   assert_error("$5=1\n"); assert_error("$21=0\n");
+  assert_error("$110=4000\n"); assert_error("$112=900\n"); //18-kHz public setting guards.
   reserves_off(); all_asleep();
   printf("PASS: gSender handshake/settings/G54/status; XYZ homing default; manual spindle M3/M4/S accepted without outputs; unwired commands blocked\n");
   avr_terminate(sim.avr);
@@ -147,9 +151,9 @@ static void test_cnc_panel(const char *elf)
   press(KEY_OK); press(KEY_DOWN); press(KEY_OK); run_us(200000);
   CHECK(display_has("JOG BEREIT") && !sim.step_count[0],"CNC jog page entry moved an axis");
   press(KEY_RIGHT); run_us(600000);
-  CHECK(sim.step_count[0]==256 && !sim.step_count[1] && !sim.step_count[2],"local X 0.1mm jog not256 X-only steps");
+  CHECK(sim.step_count[0]==32 && !sim.step_count[1] && !sim.step_count[2],"local X 0.1mm jog not32 X-only steps");
   press(KEY_UP); run_us(600000);
-  CHECK(sim.step_count[1]==256 && sim.step_count[0]==256,"local Y 0.1mm jog not256 Y-only steps");
+  CHECK(sim.step_count[1]==32 && sim.step_count[0]==32,"local Y 0.1mm jog not32 Y-only steps");
   press(KEY_E2); run_us(600000);
   CHECK(sim.step_count[2]==128,"local Z jog not128 steps");
   run_us(250000);
@@ -213,11 +217,11 @@ static void test_cnc_job(const char *elf)
   assert_ok("M3S12000\n",60);
   assert_ok("G1X0.21F60\n",40);
   run_us(190000);
-  CHECK(display_has("FAHRT") || sim.step_count[0]==538,"running job state not visible");
+  CHECK(display_has("FAHRT") || sim.step_count[0]==67,"running job state not visible");
   assert_ok("G1Y0.21\n",40); assert_ok("G1X0\n",40); assert_ok("G1Y0\n",40);
   assert_ok("G1Z-0.025F30\n",40); assert_ok("G1Z0\n",40);
   assert_ok("M5\n",1500); assert_ok("M30\n",100);
-  CHECK(sim.step_count[0]==1076 && sim.step_count[1]==1076 && sim.step_count[2]==64,
+  CHECK(sim.step_count[0]==134 && sim.step_count[1]==134 && sim.step_count[2]==64,
     "rectangle/depth job pulse counts wrong %u/%u/%u",sim.step_count[0],sim.step_count[1],sim.step_count[2]);
   const unsigned before=sim.step_count[0];
   assert_ok("G91G1X1F60\n",60); run_us(180000);
@@ -226,7 +230,7 @@ static void test_cnc_job(const char *elf)
   unsigned held=sim.step_count[0]; run_us(200000);
   CHECK(sim.step_count[0]==held,"feed hold did not stop steps");
   command("~",1300);
-  CHECK(strstr(command("?",30),"<Idle") && sim.step_count[0]-before==2560,
+  CHECK(strstr(command("?",30),"<Idle") && sim.step_count[0]-before==320,
     "gSender cycle resume failed after hold");
   reserves_off();
   printf("PASS: streamed metric G54 rectangle with Z depth and manual spindle words; exact XYZ pulses; gSender ! hold and ~ resume complete same move\n");
@@ -241,7 +245,7 @@ static void test_cnc_arcs(const char *elf)
   assert_ok("G3X0Y0I-0.105J0\n",40);
   run_us(1200000);
   CHECK(strstr(command("?",30),"<Idle"),"arc pair did not finish");
-  CHECK(sim.step_count[0]==1076 && sim.step_count[1]>=944 && sim.step_count[1]<=1076 && !sim.step_count[2],
+  CHECK(sim.step_count[0]==134 && sim.step_count[1]>=118 && sim.step_count[1]<=134 && !sim.step_count[2],
     "semicircle endpoint/travel pulses wrong %u/%u/%u",sim.step_count[0],sim.step_count[1],sim.step_count[2]);
   CHECK(machine.position[0]==64 && machine.position[1]==80,"arc pair failed to return to its start");
   reserves_off();
@@ -276,7 +280,7 @@ static void test_cnc_persistence(const char *elf)
   avr_eeprom_desc_t eeprom={.ee=NULL,.offset=0,.size=sizeof(image)};
   avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
   CHECK(eeprom.ee,"CNC EEPROM snapshot unavailable"); memcpy(image,eeprom.ee,sizeof(image));
-  CHECK(image[0]==74 && eeprom_mode_writes[1]>0,"CNC profile/erase-only EEPROM path was not exercised");
+  CHECK(image[0]==75 && eeprom_mode_writes[1]>0,"CNC profile/erase-only EEPROM path was not exercised");
   avr_terminate(sim.avr);
   eeprom_boot_image=image;
   cnc_boot(elf);
@@ -291,46 +295,62 @@ static void test_cnc_persistence(const char *elf)
   avr_terminate(sim.avr);
 }
 
+/* Historical AVR EEPROM74 layout:85 data bytes at1, checksum at86.
+ * Confirmed with avr-nm sizeof(settings)==0x55; this fixture preserves the
+ * real firmware-written remainder, work coordinates and startup records. */
+static void cnc_v74_float(uint8_t *image,unsigned offset,float value)
+{
+  CHECK(sizeof(float)==4,"host float must encode historical AVR binary32");
+  uint32_t bits; memcpy(&bits,&value,4);
+  for (unsigned i=0;i<4;++i) image[1+offset+i]=(uint8_t)(bits>>(8*i));
+}
+static void cnc_v74_checksum(uint8_t *image)
+{
+  uint8_t sum=0;
+  for (unsigned i=1;i<=85;++i) { sum=(uint8_t)((sum<<1)|(sum>>7)); sum+=image[i]; }
+  image[0]=74; image[86]=sum;
+}
 static void test_cnc_calibration_update(const char *elf)
 {
   cnc_boot(elf); cnc_unlock();
-  // Recreate a valid version74 record from the previous stock RF2000 defaults.
-  assert_ok("$100=152.38\n",350); assert_ok("$101=152.38\n",350);
-  assert_ok("$110=500\n",350); assert_ok("$111=500\n",350);
   assert_ok("G10L2P1X-1.25Y2.5Z-3\n",150);
-  uint8_t image[4096];
+  assert_ok("$N0=G21G90G54\n",350);
+  assert_ok("$I=KEEP_ME\n",350);
+  uint8_t image[4096],tail[4096-512];
   avr_eeprom_desc_t eeprom={.ee=NULL,.offset=0,.size=sizeof(image)};
   avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
-  CHECK(eeprom.ee && eeprom.ee[0]==74,"legacy CNC record missing");
-  memcpy(image,eeprom.ee,sizeof(image)); avr_terminate(sim.avr);
+  CHECK(eeprom.ee && eeprom.ee[0]==75,"current CNC record missing");
+  memcpy(image,eeprom.ee,sizeof(image));
+  memcpy(tail,image+512,sizeof(tail));
+  cnc_v74_float(image,0,2560.0f);  // Correct previous1/32 SFU1605 calibration.
+  cnc_v74_float(image,4,152.38f); // Known obsolete stock RF2000 calibration.
+  cnc_v74_float(image,12,100.0f); cnc_v74_float(image,16,500.0f);
+  cnc_v74_checksum(image);
+  avr_terminate(sim.avr);
   eeprom_boot_image=image; cnc_boot(elf); eeprom_boot_image=NULL;
   const char *reply=command("$$\n",350);
-  CHECK(strstr(reply,"$100=152.380") && strstr(reply,"$101=152.380") &&
-    strstr(reply,"$110=500.000") && strstr(reply,"$111=500.000"),
-    "existing calibration was silently overwritten on firmware upgrade: %s",reply);
-  CHECK(strstr(command("$100=2560\n",60),"error:12"),"unsafe update order did not hit step-rate guard");
-  assert_ok("$110=100\n",350); assert_ok("$111=100\n",350); assert_ok("$112=150\n",350);
-  assert_ok("$100=2560\n",350); assert_ok("$101=2560\n",350); assert_ok("$102=1280\n",350);
-  eeprom.ee=NULL; // The previous MCU and its EEPROM allocation were destroyed.
-  avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
-  CHECK(eeprom.ee,"updated CNC record missing");
+  CHECK(strstr(reply,"$100=320.000") && strstr(reply,"$101=320.000") &&
+    strstr(reply,"$102=1280.000"),"EEPROM74 microstep migration wrong: %s",reply);
+  CHECK(strstr(command("$#\n",100),"[G54:-1.250,2.500,-3.000]"),"migration erased work coordinates");
+  CHECK(strstr(command("$N\n",100),"$N0=G21G90G54"),"migration erased startup modes");
+  CHECK(strstr(command("$I\n",100),"KEEP_ME"),"migration erased custom build info");
+  eeprom.ee=NULL; avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
+  CHECK(eeprom.ee && eeprom.ee[0]==75 && !memcmp(eeprom.ee+512,tail,sizeof(tail)),
+    "migration changed unrelated EEPROM records or did not commit75");
   memcpy(image,eeprom.ee,sizeof(image)); avr_terminate(sim.avr);
   eeprom_boot_image=image; cnc_boot(elf); eeprom_boot_image=NULL;
   reply=command("$$\n",350);
-  CHECK(strstr(reply,"$100=2560.000") && strstr(reply,"$101=2560.000") &&
-    strstr(reply,"$102=1280.000") && strstr(reply,"$110=100.000") &&
-    strstr(reply,"$111=100.000") && strstr(reply,"$112=150.000"),
-    "updated calibration was not retained after reboot: %s",reply);
-  CHECK(strstr(command("$#\n",100),"[G54:-1.250,2.500,-3.000]"),"calibration update erased work coordinates");
+  CHECK(strstr(reply,"$100=320.000") && strstr(reply,"$101=320.000"),
+    "new MCU migrated an already75 record twice: %s",reply);
   cnc_unlock();
   assert_ok("$J=G91G21X1F60\n",1300);
-  CHECK(sim.step_count[0]==2560 && !sim.step_count[1] && !sim.step_count[2],"1mm X jog did not emit exactly2560 pulses");
+  CHECK(sim.step_count[0]==320 && !sim.step_count[1] && !sim.step_count[2],"1mm X jog did not emit exactly320 pulses");
   assert_ok("$J=G91G21Y1F60\n",1300);
-  CHECK(sim.step_count[1]==2560 && sim.step_count[0]==2560 && !sim.step_count[2],"1mm Y jog did not emit exactly2560 pulses");
+  CHECK(sim.step_count[1]==320 && sim.step_count[0]==320 && !sim.step_count[2],"1mm Y jog did not emit exactly320 pulses");
   assert_ok("$J=G91G21Z1F60\n",1300);
-  CHECK(sim.step_count[2]==1280 && sim.step_count[0]==2560 && sim.step_count[1]==2560,"1mm Z jog did not emit exactly1280 pulses");
+  CHECK(sim.step_count[2]==1280 && sim.step_count[0]==320 && sim.step_count[1]==320,"1mm Z jog did not emit exactly1280 pulses");
   reserves_off();
-  printf("PASS: retained legacy EEPROM; rate-first calibration update survives reboot without coordinate erase; 1mm XYZ jogs emit2560/2560/1280 pulses\n");
+  printf("PASS: EEPROM74 SFU1605 and obsolete152.38 migrate to75 exactly once; G54/startup/build info retained;1mmXYZ emit320/320/1280 pulses\n");
   avr_terminate(sim.avr);
 }
 

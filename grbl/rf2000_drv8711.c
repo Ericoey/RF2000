@@ -19,14 +19,15 @@
 
 /* All five physical channels exist independently of the Grbl axis count.
  * CTRL: DTIME=3 (850 ns), ISGAIN=2 (20), EXSTALL=0, RDIR=0,
- * RSTEP=0. MODE=5 means 1/32, MODE=4 means 1/16. ENBL is set only for
- * deliberately configured active channels, and only after safe awake reset. */
+ * RSTEP=0. MODE comes from the same microstep profile as steps/mm: CNC X/Y
+ * use 1/4; separate test profiles use 1/32. Z stays 1/16 and A/B stay 1/32.
+ * ENBL is set only for configured active channels after safe awake reset. */
 static const uint16_t control[RF2000_DRIVER_COUNT] = {
-  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 0) & 1),
-  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 1) & 1),
-  0x0e20 | ((RF2000_DRIVER_ACTIVE_MASK >> 2) & 1),
-  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 3) & 1),
-  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 4) & 1)
+  0x0e00 | (RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 0) & 1),
+  0x0e00 | (RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 1) & 1),
+  0x0e00 | (RF2000_DRV8711_MODE(RF2000_Z_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 2) & 1),
+  0x0e00 | (RF2000_DRV8711_MODE(32u) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 3) & 1),
+  0x0e00 | (RF2000_DRV8711_MODE(32u) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 4) & 1)
 };
 static const uint8_t torque[RF2000_DRIVER_COUNT] = {110, 110, 105, 90, 90};
 static const uint16_t register_data[8] = {

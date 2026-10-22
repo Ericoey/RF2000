@@ -23,6 +23,11 @@
 #include "grbl.h"
 
 settings_t settings;
+#if RF2000_CNC
+// Only known CNC layouts may preserve independently checksummed coordinates,
+// startup lines and build information when their global record is recovered.
+static uint8_t rf2000_preserve_eeprom_records;
+#endif
 
 const __flash settings_t defaults = {
     .pulse_microseconds = DEFAULT_STEP_PULSE_MICROSECONDS,
@@ -142,8 +147,17 @@ void write_global_settings()
   #if RF2000_Y_HOMING_TEST
     return;
   #endif
-  eeprom_put_char(0, SETTINGS_VERSION);
-  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
+  #if RF2000_CNC
+    // Mark the record before modifying its units or contents. If power fails,
+    // a later boot must neither accept old 1/32 values as the coarser profile
+    // nor scale an already converted record a second time.
+    eeprom_put_char(0, RF2000_SETTINGS_MIGRATING_VERSION);
+    memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
+    eeprom_put_char(0, SETTINGS_VERSION);
+  #else
+    eeprom_put_char(0, SETTINGS_VERSION);
+    memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
+  #endif
 }
 
 
@@ -239,7 +253,17 @@ uint8_t read_global_settings() {
   #endif
   // Check version-byte of eeprom
   uint8_t version = eeprom_get_char(0);
-  if (version == SETTINGS_VERSION) {
+  #if RF2000_CNC
+    rf2000_preserve_eeprom_records = version == SETTINGS_VERSION ||
+      version == RF2000_SETTINGS_PREVIOUS_VERSION ||
+      version == RF2000_SETTINGS_MIGRATING_VERSION;
+    if (version == RF2000_SETTINGS_MIGRATING_VERSION) { return(false); }
+  #endif
+  if (version == SETTINGS_VERSION
+      #if RF2000_CNC
+        || version == RF2000_SETTINGS_PREVIOUS_VERSION
+      #endif
+      ) {
     // Read settings-record and check checksum
     if (!(memcpy_from_eeprom_with_checksum((char*)&settings, EEPROM_ADDR_GLOBAL, sizeof(settings_t)))) {
       return(false);
@@ -259,9 +283,55 @@ uint8_t read_global_settings() {
     for (uint8_t axis=0; axis<N_AXIS; axis++) {
       if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0 ||
           !isfinite(settings.max_rate[axis]) || settings.max_rate[axis] <= 0 ||
-          settings.steps_per_mm[axis]*settings.max_rate[axis] > MAX_STEP_RATE_HZ*60.0f ||
+          settings.steps_per_mm[axis]*settings.max_rate[axis] >
+            #if RF2000_CNC
+              (version == RF2000_SETTINGS_PREVIOUS_VERSION ? 5000.0f : MAX_STEP_RATE_HZ)*60.0f ||
+            #else
+              MAX_STEP_RATE_HZ*60.0f ||
+            #endif
           !isfinite(settings.acceleration[axis]) || settings.acceleration[axis] <= 0 ||
           !isfinite(settings.max_travel[axis]) || settings.max_travel[axis] >= 0) { return(false); }
+    }
+  #endif
+  #if RF2000_CNC
+    if (version == RF2000_SETTINGS_PREVIOUS_VERSION) {
+      uint8_t obsolete_axes = 0;
+      for (uint8_t axis=0; axis<N_AXIS; ++axis) {
+        if (axis == AXIS_1 || axis == AXIS_2) {
+          // These exact former RF2000 defaults describe its original belt
+          // mechanics, not the user's SFU1605/2:1 CNC mechanics. They were
+          // already observed in the user's old CNC EEPROM. Do not turn them
+          // into another wrong value by blindly scaling obsolete mechanics.
+          if (fabsf(settings.steps_per_mm[axis] - 152.38f) <= 0.001f) {
+            settings.steps_per_mm[axis] = defaults.steps_per_mm[axis];
+            obsolete_axes |= bit(axis);
+          } else {
+            settings.steps_per_mm[axis] *= RF2000_XY_MICROSTEPS / 32.0f;
+          }
+          if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0)
+            return(false);
+        }
+        // An update must not unexpectedly accelerate an untested machine.
+        if (settings.max_rate[axis] > defaults.max_rate[axis])
+          settings.max_rate[axis] = defaults.max_rate[axis];
+        if (settings.acceleration[axis] > defaults.acceleration[axis])
+          settings.acceleration[axis] = defaults.acceleration[axis];
+      }
+      write_global_settings();
+      printPgmString(PSTR("[MSG:RF2000 EEPROM 74->75; X/Y microsteps 32->"));
+      print_uint8_base10(RF2000_XY_MICROSTEPS);
+      printPgmString(PSTR("]\r\n"));
+      if (obsolete_axes & bit(AXIS_1)) {
+        printPgmString(PSTR("[MSG:RF2000 X: obsolete 152.380 corrected to "));
+        printFloat(defaults.steps_per_mm[AXIS_1], 3);
+        printPgmString(PSTR(" steps/mm]\r\n"));
+      }
+      if (obsolete_axes & bit(AXIS_2)) {
+        printPgmString(PSTR("[MSG:RF2000 Y: obsolete 152.380 corrected to "));
+        printFloat(defaults.steps_per_mm[AXIS_2], 3);
+        printPgmString(PSTR(" steps/mm]\r\n"));
+      }
+      printPgmString(PSTR("[MSG:RF2000 offsets/startup retained; rehome and verify travel]\r\n"));
     }
   #endif
   return(true);
@@ -413,7 +483,14 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
 void settings_init() {
   if(!read_global_settings()) {
     report_status_message(STATUS_SETTING_READ_FAIL);
-    settings_restore(SETTINGS_RESTORE_ALL); // Force restore all EEPROM data.
+    #if RF2000_CNC
+      if (rf2000_preserve_eeprom_records) {
+        settings_restore(SETTINGS_RESTORE_DEFAULTS);
+        printPgmString(PSTR("[MSG:RF2000 settings recovered; offsets/startup retained]\r\n"));
+      } else settings_restore(SETTINGS_RESTORE_ALL);
+    #else
+      settings_restore(SETTINGS_RESTORE_ALL); // Force restore all EEPROM data.
+    #endif
     report_grbl_settings();
     do {} while (is_report_grbl_settings_running()); // Wait for report settings complete
   }

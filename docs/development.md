@@ -46,6 +46,13 @@ Ausgabepfade stehen in [platformio.md](platformio.md).
 `make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.
 `make cnc` baut `build/cnc/main.elf` und `artifacts/cnc/rf2000-grbl.*`.
 `make check-cnc` prüft gSender-Protokoll, XYZ-Homing, G-Code, LCD und Fehler.
+`make check-menu`, `make check-recovery` und `make check-homing-wait` prüfen
+Bedienfeld, begrenztes Freifahren und gemeinsam referenzierende X/Y-Achsen.
+`make check-speed` prüft den CNC-Pfad mit 18 kHz unter UART-/LCD-Last;
+`RF2000_TEST_PULSE_US=20 make check-speed` wählt die längste erlaubte
+Pulsbreite. Alle diese Ziele simulieren das gebaute AVR-Programm und
+bewegen keine reale Maschine. Messwerte und Grenzen stehen in
+[validation.md](validation.md) und [geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 `make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
 Die Speicherprüfung reserviert 8 KiB für einen möglichen Mega-Bootloader;
 das tatsächliche Programmierverfahren ist separat am Gerät festzulegen.

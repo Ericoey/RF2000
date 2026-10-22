@@ -9,18 +9,18 @@
   "physical_driver_count": 5,
   "reserve_enabled": false,
   "homing_verified": false,
-  "flash_bytes": 45258,
-  "static_sram_bytes": 3710,
+  "flash_bytes": 46076,
+  "static_sram_bytes": 3836,
   "compiler": "avr-gcc (GCC) 14.2.0",
   "upstream_commit": "baaa1be3fe6c33a287695bbd57121da0b2979d9c",
   "source_sha256": {
     "grbl/analog_control.c": "c587acc887ea9d8e5fb3b152299120567ad523374a58541b1c29b5c185710aa2",
     "grbl/analog_control.h": "4f566ec634d19144ed0f1d5bfec2399d7a43384952a993fea15d5c3be5519ecc",
-    "grbl/config.h": "7501aeb9bdd23b19a2ae750b0e65c22a1f09e4123a943b1b5822c36933aac35d",
+    "grbl/config.h": "79da364016b1a8f45f74e28656e8af483d1dbbffb37c7f4399e06e2e93348f19",
     "grbl/coolant_control.c": "bb0d14639388a171a5ead35c444ba2d146bdb2c0631972dea8d5c955260143e3",
     "grbl/coolant_control.h": "be1151afe71b4867b968e9a6b5f963f952ff59dd653230d5f11d2c843297915b",
     "grbl/cpu_map.h": "302886ddfe639b3da19908934d7ea02c3250dfed94a833bca33bd48da776d54f",
-    "grbl/defaults.h": "49d6ae36c037c1c6f209bec77226d485c89047491f5111a236871223674d794d",
+    "grbl/defaults.h": "f0f8dab04d1582bac8448962615b4889dd12ca98a487d31b6c978a249743b543",
     "grbl/digital_control.c": "f0cc7511eac1856bb89f75d429c26a2df4a7374165fab59e9110dffb7853ce53",
     "grbl/digital_control.h": "3ccd959f226af539f1715cf602fcb54db670c9f6da2a921115a275716da7f098",
     "grbl/eeprom.c": "e71bdf008f45b5b7b1147ae23bcc1c5a074a9e1d9876c140d416ef34430e1873",
@@ -29,7 +29,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "af2eb0e14dcdb93291c68947ed9cba898ea1626071a831669565cb2c7305b737",
+    "grbl/grbl.h": "3a769b030de83e5f5da456bed386d8891e06ddc58f63991b6838dec65c73d51c",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "644591245f11e0934610fcffce578ae74ece7df9ce98ffacd9d1dcb1c56bb7e1",
@@ -51,7 +51,7 @@
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
-    "grbl/rf2000_drv8711.c": "0b36c59e9a2961ab241a4cef5e968fafea70fc91841daed992111e9506bcaa9d",
+    "grbl/rf2000_drv8711.c": "99a9fd1df252a8f5d9ce1e60570948b0f3112989d349c934e3eca5f11ec12ad3",
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
@@ -59,21 +59,21 @@
     "grbl/rf2000_panel.h": "94891eb3869841bfe46db005ada0d55ee9b4b8dc952a3a67e8d64548863a05e6",
     "grbl/serial.c": "58af1b5c941678f3f32d3cdbc463706a082d157d22df1163f33557fd879d4e70",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
-    "grbl/settings.c": "59ebd0602f9929c2a1a75e63e0ad68c5ed73a073ac663ad612a50e264b718457",
-    "grbl/settings.h": "b794195201b518d390b9bf76fe57d501b45384cd8c74d3602f1e2cca5709e98e",
+    "grbl/settings.c": "ca9e9e157853878d9f77f61a9c7e8293e928dcb7ed69c7a9c6f917cd5f7b1238",
+    "grbl/settings.h": "03805db15e82d67cc4c6b199cfa66246da7f16c4974bca40456ef0d432a58581",
     "grbl/sleep.c": "ed0d1e8a455c548e51a2da9c3b87c064dd588285430206373ed6bda2fb718c59",
     "grbl/sleep.h": "045ca702271be6e45bb7963157e45cbe4374f6ace3c239eee22847efe2679d2f",
     "grbl/spindle_control.c": "6fed236c47a04c559bc7c8f7dfd3b59987b263e2677cd00dd8c2831b325e81dc",
     "grbl/spindle_control.h": "b8fa30fb2ba7c1ad0100afae98c95c53f193da5c11e134a66eaec8fef9207e93",
-    "grbl/stepper.c": "2beb45d0e311d0468beb423fd01ad97abe708373b9f9711546322f2a063bd6ac",
+    "grbl/stepper.c": "363b945b7d4cfbed6b1fc480cb1d857666a13d8d4fb1f2901b8f94c8cca666d5",
     "grbl/stepper.h": "b0a56e8cbfa6bbec1cbdecaaac68606891d15232fad12d189d78149e3279b1cc",
     "grbl/system.c": "1c35909af384a6868331f69df96a6af07f7348a8bb2201228a824916b42b991f",
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446",
-    "rf2000-grbl.hex": "d869cd2ba480c6df88d53bca8ad426610f245b44c6aa2454e1e73e871834859a",
-    "rf2000-grbl.map": "e1937ce66476c2c946017167936c53ae8b7e10dfd4bccb77334f1e62cc7aed4e"
+    "rf2000-grbl.elf": "0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3",
+    "rf2000-grbl.hex": "727b8c5dcbab9189245f3ee4cb91f3218e9a3907aa77385032599faed1b8be8e",
+    "rf2000-grbl.map": "fb0e0be0619f937c628848766fee5e8e6f3c0dc85559145bba4e0d5e22f133e0"
   },
   "hardware_test_performed": false,
   "hardware_authority": {
@@ -137,24 +137,80 @@
     "documentation": "docs/bedienfeld-menue.md"
   },
   "validation": {
-    "date": "2026-10-19",
-    "standard_make_check": "passed; artifacts/validation.log",
-    "tested_elf_sha256": "449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446",
+    "date": "2026-10-22",
+    "standard_make_check": "passed on current standard-profile ELF; artifacts/validation.log",
+    "tested_elf_sha256": "0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3",
     "cnc_real_avr_function_cases": 9,
     "additional_real_avr_timing_cases": 1,
     "cnc_log": "artifacts/cnc-simulation.log",
-    "max_rate_test_steps": 6400,
-    "measured_fastest_64_edge_rate_hz": 4994.59,
-    "measured_minimum_pulse_us": 14.312,
+    "max_rate_test_steps": 7200,
+    "measured_fastest_64_edge_rate_hz": 18070.16,
+    "measured_minimum_pulse_us": 10.625,
     "simavr_eeprom_model": "Fixture adds datasheet EEPM erase-only/write-only semantics missing from stock simavr1.6; production EEPROM code unchanged.",
-    "gsender_detection": "passed against gSender v1.6.4 Connection.js from eb2df2d2073d9dd1a762c0ed150d9be19360cf49; artifacts/gsender-detection.log",
+    "gsender_detection": "passed against gSender v1.6.4 Connection.js from eb2df2d2073d9dd1a762c0ed150d9be19360cf49; final AVR handshake, positive detector and negative fallback control; artifacts/gsender-detection.log",
     "all_ten_cases_rerun_together": true,
-    "calibration_update": "Actual version74 EEPROM record retained until ordered commands; updated values and G54 survive new MCU; 1mm XYZ jogs emit2560/2560/1280 pulses",
+    "calibration_update": "Version74 records migrate once to75;2560/2560/1280 becomes320/320/1280; obsolete152.380 is corrected; conservative existing rates and G54/startup/build info survive a fresh MCU;1mm XYZ jogs emit320/320/1280 physical pulses.",
     "cnc_menu_real_avr_groups": 8,
     "menu_log": "artifacts/menu-simulation.log",
     "limit_release_real_avr_cases": 20,
     "limit_release_log": "artifacts/recovery-simulation.log",
-    "all_38_cnc_menu_recovery_cases_same_elf": true
+    "staggered_homing_real_avr_cases": 2,
+    "homing_wait_log": "artifacts/homing-wait-simulation.log",
+    "speed_real_avr_cases_10us": 15,
+    "speed_real_avr_cases_20us": 1,
+    "speed_log": "artifacts/speed-simulation.log",
+    "total_real_avr_cnc_cases": 56,
+    "all_56_cases_same_elf": true,
+    "legacy_5khz_regression": {
+      "z_pulses": 6400,
+      "fastest_64_edge_rate_hz": 4994.61,
+      "minimum_high_us": 10.625
+    },
+    "speed_validation": {
+      "public_uart_settings_used": true,
+      "sram_rate_bypass_used_in_release_validation": false,
+      "requested_step_rate_hz": 18000,
+      "test_acceleration_mm_s2": 2000,
+      "test_acceleration_is_machine_recommendation": false,
+      "loads": [
+        "live20x4LCD",
+        "100Hz UART status",
+        "single XYZ axes",
+        "equal and unequal XYZ paths",
+        "direction reversals"
+      ],
+      "assertions": [
+        "exact physical pulse totals and signed position",
+        "STEP HIGH>=configured10/20us",
+        "STEP LOW>=2us",
+        "DIR setup>=5us",
+        "DIR never changes during active STEP",
+        "A/B and unused loads remain inactive",
+        "bounded plateau average and64-edge windows",
+        "deterministic ISR fault guards",
+        "completed1usFAULT under full load",
+        "four hard limits",
+        "reset and physical Pause",
+        "homing and soft limits"
+      ],
+      "equal_xyz_10us": {
+        "pulses_per_axis": 7200,
+        "mean_rate_hz": 17977.53,
+        "fastest_64_edge_rate_hz": 18068.89,
+        "slowest_64_edge_rate_hz": 17886.15,
+        "minimum_high_us": 10.625,
+        "minimum_low_us": 24.25
+      },
+      "equal_xyz_20us": {
+        "pulses_per_axis": 7200,
+        "mean_rate_hz": 17977.51,
+        "fastest_64_edge_rate_hz": 18070.16,
+        "slowest_64_edge_rate_hz": 17885.53,
+        "minimum_high_us": 20.688,
+        "minimum_low_us": 16.625
+      },
+      "physical_motor_or_machining_test_performed": false
+    }
   },
   "platformio_default_environment": "rf2000_cnc",
   "profile": "rf2000_cnc",
@@ -187,29 +243,45 @@
     "M5_or_reset_stops_external_spindle": false
   },
   "eeprom": {
-    "settings_version": 74,
-    "persistent_settings_and_work_coordinates": true,
+    "settings_version": 75,
+    "previous_cnc_settings_version": 74,
     "separate_from_test_profile_version": 73,
-    "existing_values_overwritten_on_update": false,
-    "calibration_update_commands": [
-      "$110=100",
-      "$111=100",
-      "$112=150",
-      "$100=2560",
-      "$101=2560",
+    "persistent_settings_and_work_coordinates": true,
+    "migration": "On valid version74 records, X/Y steps/mm are divided by8 exactly once for1/32->1/4; Z calibration is retained.",
+    "obsolete_152_380_handling": "Former RF2000 belt-mechanics X/Y values152.380 (+/-0.001) become320 rather than being divided by8; each corrected axis is reported over UART.",
+    "migration_rate_policy": "Retain slower existing max rates and accelerations; values above the new600/600/300 mm/min and10 mm/s^2 factory defaults are clamped down during74->75 migration.",
+    "previous_user_max_rates_mm_min_retained": [
+      100,
+      100,
+      150
+    ],
+    "coordinate_startup_and_build_records_preserved": true,
+    "version75_values_retained_without_repeat_scaling": true,
+    "transaction_marker": 165,
+    "interrupted_or_invalid_known_record": "Recover global defaults without erasing coordinate/startup/build records; boot remains alarm locked and requires rehoming/travel verification.",
+    "existing_valid_settings_reset_to_faster_factory_rates": false,
+    "migration_requires_rehome_and_travel_measurement": true,
+    "optional_verified_version75_factory_calibration_commands": [
+      "$100=320",
+      "$101=320",
       "$102=1280"
+    ],
+    "factory_max_rate_commands": [
+      "$110=600",
+      "$111=600",
+      "$112=300"
     ]
   },
   "defaults": {
     "steps_per_mm": [
-      2560,
-      2560,
+      320,
+      320,
       1280
     ],
     "max_rates_mm_min": [
-      100,
-      100,
-      150
+      600,
+      600,
+      300
     ],
     "motor_idle_lock_ms": 255,
     "homing_enabled": true,
@@ -222,18 +294,28 @@
       290,
       185
     ],
-    "soft_limits": false
+    "soft_limits": false,
+    "acceleration_mm_s2": [
+      10,
+      10,
+      10
+    ]
   },
-  "firmware_identification": "20261019-rf2000-cnc-panel; $I starts with standard [MSG:Grbl-Mega-5X RF2000] feedback even on reconnect without startup banner",
+  "firmware_identification": "20261022-rf2000-cnc-speed; $I starts with standard [MSG:Grbl-Mega-5X RF2000] feedback even on reconnect without startup banner",
   "mechanics": {
-    "basis": "User-specified mechanics on all three axes; Y travel at2560 steps/mm confirmed by user; X/Z not physically measured",
+    "basis": "User-specified SFU1605/2:1 mechanics on all three axes; prior Y travel at1/32 and2560 steps/mm confirmed by user. New1/4 profile is calculated and digitally tested, not physically measured; X/Z travel not measured.",
     "motor_full_steps_per_revolution": 200,
     "screw_lead_mm": 5,
     "motor_revolutions_per_screw_revolution": 2,
     "microsteps": [
-      32,
-      32,
+      4,
+      4,
       16
+    ],
+    "commanded_linear_increment_mm": [
+      0.003125,
+      0.003125,
+      0.00078125
     ]
   },
   "limit_recovery": {
@@ -256,5 +338,32 @@
     "job_automatically_resumed": false,
     "temporary_status_positions": "Rebased during protected system move; not a valid new machine reference",
     "physical_test_performed": false
+  },
+  "step_generation": {
+    "qualified_nominal_step_rate_hz": 18000,
+    "legacy_profile_ceiling_hz": 5000,
+    "cpu_clock_hz": 16000000,
+    "timer_prescalers_changed": false,
+    "hard_limit_poll_hz": 1000,
+    "pulse_high_us_range": [
+      10,
+      20
+    ],
+    "direction_setup_us": 5,
+    "optimizations": [
+      "cached DIR update on segment/wake/reset",
+      "direct STEP rise for unchanged DIR",
+      "delayed rise retained after every DIR change including AMASS zero-step ticks",
+      "prescaled AMASS block steps prepared outside Timer1",
+      "CNC3-axis homing mask specialization",
+      "fixed noninverted STEP path and inlined GPIO",
+      "CNC Timer0 falling-edge ISR with narrow register save"
+    ],
+    "theoretical_axis_max_rates_mm_min": [
+      3375,
+      3375,
+      843.75
+    ],
+    "theoretical_rates_are_physical_qualification": false
   }
 }

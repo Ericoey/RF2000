@@ -1,0 +1,140 @@
+Firmware ELF SHA256: 0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3
+No physical machine attached. Release validation uses real public UART settings; no SRAM rate bypass.
+The 2000mm/s^2 acceleration is a digital timing stress fixture, not a machine recommendation.
+
+Command: RF2000_SPEED_PUBLIC_SETTINGS=1 RF2000_TEST_PULSE_US=10 build/tests/rf2000_speed_sim build/tests/speed-release-final.elf 18000
+Exit status: 0
+MODE: public UART rate/acceleration settings; pulse10us; acceleration2000mm/s^2 is a digital stress fixture, not a machine recommendation
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+MEASURE: forward axisX rate requested18000.00 mean17977.51 fastest6418070.16 slowest6417886.15 maxinterval73.875us minLOW25.188us minHIGH10.625us DIRsetup1634559.062us pulses7200
+PASS: X at18000 requestedsteps/s with live LCD and100Hz status; exact physical pulses and position
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+MEASURE: forward axisY rate requested18000.00 mean17977.52 fastest6418070.16 slowest6417885.21 maxinterval74.000us minLOW24.312us minHIGH10.625us DIRsetup1059623.188us pulses7200
+PASS: Y at18000 requestedsteps/s with live LCD and100Hz status; exact physical pulses and position
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+MEASURE: forward axisZ rate requested18000.00 mean17977.52 fastest6418070.48 slowest6417885.84 maxinterval73.875us minLOW23.812us minHIGH10.688us DIRsetup1059475.375us pulses7200
+PASS: Z at18000 requestedsteps/s with live LCD and100Hz status; exact physical pulses and position
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+MEASURE: forward axisX rate requested18000.00 mean17977.53 fastest6418068.89 slowest6417886.15 maxinterval73.688us minLOW24.250us minHIGH10.625us DIRsetup1059622.750us pulses7200
+MEASURE: forward axisY rate requested18000.00 mean17977.53 fastest6418068.89 slowest6417886.15 maxinterval73.688us minLOW24.250us minHIGH10.625us DIRsetup1059622.750us pulses7200
+MEASURE: forward axisZ rate requested18000.00 mean17977.53 fastest6418068.89 slowest6417886.15 maxinterval73.688us minLOW24.250us minHIGH10.625us DIRsetup1059622.750us pulses7200
+PASS: reverse XYZ exact pulses and physical position returns to zero; DIR setup maintained
+PASS: XYZ at18000 requestedsteps/s with live LCD and100Hz status; exact physical pulses and position
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+MEASURE: forward axisX rate requested18000.00 mean17977.47 fastest6418069.53 slowest6417888.96 maxinterval73.688us minLOW26.688us minHIGH10.625us DIRsetup1059767.812us pulses7200
+MEASURE: forward axisY rate requested9000.00 mean8988.74 fastest649010.99 slowest648966.65 maxinterval128.812us minLOW82.812us minHIGH10.625us DIRsetup1059767.812us pulses3600
+MEASURE: forward axisZ rate requested4500.00 mean4494.39 fastest644499.73 slowest644489.04 maxinterval239.438us minLOW193.500us minHIGH10.625us DIRsetup1059767.812us pulses1800
+PASS: reverse XYZ exact pulses and physical position returns to zero; DIR setup maintained
+PASS: XYZ at18000 requestedsteps/s with live LCD and100Hz status; exact physical pulses and position
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: FAULT at Timer1 entry cancels pending STEP, alarm12, all five drivers asleep
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: FAULT at Timer0 entry cancels pending STEP, alarm12, all five drivers asleep
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: completed1usFAULTpulse interrupts full-rateXYZ, all five asleep within1.2ms and no laterSTEP; alarm12
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: stopcase0 interrupts requested18000Hz XYZ load; no later pulses, all drivers asleep (triggercycle28518308)
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: stopcase1 interrupts requested18000Hz XYZ load; no later pulses, all drivers asleep (triggercycle28518308)
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: stopcase2 interrupts requested18000Hz XYZ load; no later pulses, all drivers asleep (triggercycle28518308)
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: stopcase3 interrupts requested18000Hz XYZ load; no later pulses, all drivers asleep (triggercycle28518308)
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: stopcase4 interrupts requested18000Hz XYZ load; no later pulses, all drivers asleep (triggercycle28518308)
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: stopcase5 interrupts requested18000Hz XYZ load; no later pulses, all drivers asleep (triggercycle28518308)
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+PASS: full homing/ZMAX preserved; enabled soft limits reject out-of-envelope jog without motion and alarm2 normal move
+PASS: 15 real-AVR speed cases; requested18000Hz; public UART settings; pulse10us
+
+Command: RF2000_SPEED_PUBLIC_SETTINGS=1 RF2000_TEST_PULSE_US=20 tests/run-speed-sim.sh build/tests/speed-release-final.elf 18000 xyz
+Exit status: 0
+MODE: public UART rate/acceleration settings; pulse20us; acceleration2000mm/s^2 is a digital stress fixture, not a machine recommendation
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+Loaded 45958 .text at address 0x0
+Loaded 118 .data
+MEASURE: forward axisX rate requested18000.00 mean17977.51 fastest6418070.16 slowest6417885.53 maxinterval73.938us minLOW16.625us minHIGH20.688us DIRsetup1059622.688us pulses7200
+MEASURE: forward axisY rate requested18000.00 mean17977.51 fastest6418070.16 slowest6417885.53 maxinterval73.938us minLOW16.625us minHIGH20.688us DIRsetup1059622.688us pulses7200
+MEASURE: forward axisZ rate requested18000.00 mean17977.51 fastest6418070.16 slowest6417885.53 maxinterval73.938us minLOW16.625us minHIGH20.688us DIRsetup1059622.688us pulses7200
+PASS: reverse XYZ exact pulses and physical position returns to zero; minHIGH20.688us DIRsetup168.250us
+PASS: XYZ at18000 requestedsteps/s with live LCD and100Hz status; exact physical pulses and position
+PASS: 1 real-AVR speed cases; requested18000Hz; public UART settings; pulse20us

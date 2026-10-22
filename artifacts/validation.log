@@ -1,49 +1,30 @@
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/analog_control.c -o build/analog_control.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/coolant_control.c -o build/coolant_control.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/digital_control.c -o build/digital_control.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/gcode.c -o build/gcode.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/jog.c -o build/jog.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/limits.c -o build/limits.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/main.c -o build/main.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/motion_control.c -o build/motion_control.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/nuts_bolts.c -o build/nuts_bolts.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/planner.c -o build/planner.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/print.c -o build/print.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/probe.c -o build/probe.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/protocol.c -o build/protocol.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/report.c -o build/report.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_board.c -o build/rf2000_board.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_drv8711.c -o build/rf2000_drv8711.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_lcd.c -o build/rf2000_lcd.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_panel.c -o build/rf2000_panel.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/serial.c -o build/serial.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/settings.c -o build/settings.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/sleep.c -o build/sleep.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/spindle_control.c -o build/spindle_control.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/stepper.o
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/system.c -o build/system.o
-/workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/main.map build/analog_control.o build/coolant_control.o build/digital_control.o build/eeprom.o build/gcode.o build/jog.o build/limits.o build/main.o build/motion_control.o build/nuts_bolts.o build/planner.o build/print.o build/probe.o build/protocol.o build/report.o build/rf2000_board.o build/rf2000_drv8711.o build/rf2000_lcd.o build/rf2000_panel.o build/serial.o build/settings.o build/sleep.o build/spindle_control.o build/stepper.o build/system.o -lm -o build/main.elf
-/workspace/.tools/avr/usr/bin/avr-size build/main.elf
-   text	   data	    bss	    dec	    hex	filename
-  35226	      0	   3470	  38696	   9728	build/main.elf
-python3 tools/check-avr-size.py build/main.elf /workspace/.tools/avr/usr/bin/avr-size
-Flash 35226/253952 bytes; static SRAM 3520/8192 bytes
-/workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/main.elf artifacts/grbl/rf2000-grbl.hex
-cp build/main.elf artifacts/grbl/rf2000-grbl.elf
-cp build/main.map artifacts/grbl/rf2000-grbl.map
+Standard ELF SHA256: ddd7b2b7f172a502758a77f3ec014e00c00d543ba2ae23b4cb20c3ea8bd07ec1
+Command: make check
+Exit status: 0
+
 python3 tools/test_check_avr_size.py
 ........
 ----------------------------------------------------------------------
-Ran 8 tests in 0.012s
+Ran 8 tests in 0.008s
 
 OK
 python3 tools/test_rf2000_limits.py
 RF2000 limits: 16 input combinations, fixed polarity, init, debounce, hard stop, fault and homing selection PASS
 python3 tools/test_rf2000_drv8711.py
+DRV8711 legacy/test 1/32 profile
 PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
 XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
 persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
 INT6 falling-edge configuration and short recovered FAULT pulse latch.
+DRV8711 CNC 1/4 profile
+PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
+XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
+persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
+INT6 falling-edge configuration and short recovered FAULT pulse latch.
+python3 tools/test_rf2000_settings_migration.py
+PASS: actual CNC settings74->75 migration; fine calibration/legacy152.380 correction, Z unchanged, conservative rates and records retained
+PASS: power cut before each of88 migration writes and each of88 current-profile update writes; no double conversion; known corrupt records recover settings only
+PASS: AVR85-byte packed layout/checksum, repeated boots, foreign-profile isolation; ASAN/UBSAN enabled
 python3 tools/test_eeprom_records.py
 EEPROM record separation, length/index guards, NUL handling, restore and SREG: PASS
 python3 tools/test_serial_ring.py

@@ -53,6 +53,24 @@
 #ifndef RF2000_CNC
   #define RF2000_CNC 0
 #endif
+/* RF2000_MICROSTEP_PROFILE_BEGIN: shared by registers and travel calibration. */
+#if RF2000_CNC
+  #define RF2000_XY_MICROSTEPS 4u
+#else
+  #define RF2000_XY_MICROSTEPS 32u
+#endif
+#define RF2000_Z_MICROSTEPS 16u
+#define RF2000_DRV8711_MODE(microsteps) \
+  ((microsteps) == 1u ? 0u : (microsteps) == 2u ? 1u : \
+   (microsteps) == 4u ? 2u : (microsteps) == 8u ? 3u : \
+   (microsteps) == 16u ? 4u : (microsteps) == 32u ? 5u : \
+   (microsteps) == 64u ? 6u : (microsteps) == 128u ? 7u : \
+   (microsteps) == 256u ? 8u : 0xffu)
+#if RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) == 0xffu || \
+    RF2000_DRV8711_MODE(RF2000_Z_MICROSTEPS) == 0xffu
+  #error "Unsupported RF2000 DRV8711 microstep resolution"
+#endif
+/* RF2000_MICROSTEP_PROFILE_END */
 #if RF2000_CNC && RF2000_Y_HOMING_TEST
   #error "Select either the XYZ CNC or the isolated Y commissioning profile."
 #endif
@@ -519,7 +537,13 @@
 // step rate is strictly limited by the CPU speed and will change if something other than an AVR running
 // at 16MHz is used.
 // NOTE: For now disabled, will enable if flash space permits.
-#define MAX_STEP_RATE_HZ 5000 // Controlled hardware tests; settings.c enforces this ceiling.
+#if RF2000_CNC
+  // Validated under simultaneous XYZ/LCD/UART load, with margin below
+  // the separately probed 20-kHz CNC candidate.
+  #define MAX_STEP_RATE_HZ 18000
+#else
+  #define MAX_STEP_RATE_HZ 5000 // Preserve the commissioning profiles.
+#endif
 
 // By default, Grbl sets all input pins to normal-high operation with their internal pull-up resistors
 // enabled. This simplifies the wiring for users by requiring only a switch connected to ground,

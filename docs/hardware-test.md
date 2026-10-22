@@ -4,13 +4,27 @@ Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandene
 
 Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
 
-Die nachstehenden XYZ-Schritte beschreiben das bisherige Testprofil `rf2000_grbl`. Das neue [CNC-Profil](cnc-gsender.md) erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auf Basis angenommener X/Z-Richtungen; die physischen Prüfpunkte bleiben als Nachweis offen.
+Die elektrischen Vorprüfungen gelten für alle RF2000-Profile. Die
+ursprünglichen XYZ-Inbetriebnahmeschritte unten beschreiben
+`rf2000_grbl`; Unterschiede des aktuellen CNC-Profils sind ausdrücklich
+genannt. Das [CNC-Profil](cnc-gsender.md)
+`20261022-rf2000-cnc-speed` verwendet fest **X/Y 1/4, Z 1/16**,
+320/320/1280 Schritte/mm und eine **18-kHz-Grenze**. Seine Factory-Tempi
+sind 600/600/300 mm/min bei 10 mm/s². Ein gültiger alter CNC-Datensatz
+wird migriert; die bisherigen 100/100/150-Tempi werden nicht automatisch
+erhöht. Vor jeder ersten Bewegung nach Update `$I`/`$$` und die
+[EEPROM-Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
+prüfen. **Alte X/Y-Werte 2560 nicht zurückschreiben.**
+
+Das CNC-Profil erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auf Basis angenommener X/Z-Richtungen; die physischen Prüfpunkte bleiben als Nachweis offen.
 Für den ersten Test ausschließlich der Y-Achse gibt es zusätzlich
 `rf2000_y_homing_test`: Nur Y kann bestromt werden, X/Z/A/B bleiben gesperrt.
 Seine konkreten Build-, Monitor-, Jog- und `$HY`-Kommandos stehen in
 [y-axis-test.md](y-axis-test.md). Die elektrischen Vorprüfungen dieses Plans
 gelten auch dafür; die Y-Richtung und Schalterpolarität müssen vor dessen
-Homing geprüft sein. Es gibt keine allgemeine XYZ-Homing-Freigabe.
+Homing geprüft sein. Das Standard-/Y-Testprofil behält seine alte
+Mikroauflösung und 5-kHz-Grenze. Für den höheren CNC-Vorschub gilt zusätzlich
+der [stufenweise Geschwindigkeits- und Wegtest](geschwindigkeit-optimieren.md).
 
 ## 1. Dokumentation, Rückweg und stromloser Aufbau
 
@@ -41,7 +55,18 @@ Oszilloskop/Logikanalysator gemeinsam an Masse, SCLK/PD5, SDATI/PD6, SDATO/PD4, 
 
 1. HIGH-aktive SCS-Phase, LOW-Ruhetakt und genau 16 MSB-first Takte pro Schreibwort bestätigen. Es darf beim Lesen immer nur ein SCS HIGH sein; SDATO muss echte wechselnde Daten liefern und darf nicht lediglich den Pullupwert abbilden.
 2. RESET_DRV/PE7: HIGH-Puls und anschließende Wartezeit entsprechend Implementierung prüfen. **Reset muss bei wachen Treibern erfolgen**, da TI §7.4.1 Reset im Sleep ausschließt. Vor dieser Wake-Phase muss CTRL.ENBL=0 für alle fünf Kanäle geschrieben und verifiziert worden sein; es darf keine STEP-Flanke geben. UVLO erst im wachen Zustand löschen, Ursache einer tatsächlichen Unterspannung nicht übergehen. Wake-up-Zeit ab SLEEPn-HIGH messen (Datenblatt maximal 1 ms; Port verwendet längere Wartezeit).
-3. Jeden der fünf Treiber einzeln auslesen. CTRL.MODE: X/Y/A/B 1/32, Z 1/16; CTRL.ISGAIN=20; TORQUE X=110, Y=110, Z=105, A/B=90. OFF/BLANK/DECAY/STALL/DRIVE gegen die Quellwerte vergleichen. Reserve-ENBL soll nach Konfiguration gesperrt sein. Der read-only Befehl **`$DRV`** meldet den gespeicherten Starttest: `[DRV:READY=1|FAULT=0|READBACK=0|LIMITS=0|STATUS=0,0,0,0,0]` ist der normale fehlerfreie Ausgangspunkt. Werte sind dezimal; FAULT ist eine Bitmaske (1=FAULTn, 2=Readback, 4=STATUS-Leistungsfehler), READBACK Bits 0–4 entsprechen DRV1–5. STATUS sind gespeicherte Startwerte, keine neue SPI-Messung während der Bewegung. Der Befehl ersetzt den Logikanalysator nicht.
+3. Jeden der fünf Treiber einzeln auslesen. Im Standard-/Y-Testprofil gilt
+   CTRL.MODE X/Y/A/B 1/32, Z 1/16. Im aktuellen CNC-Profil gilt dagegen
+   **X/Y 1/4 (`CTRL=0xE11`), Z 1/16 (`0xE21`)**, Reserve A/B weiterhin
+   1/32 bei ENBL=0 (`0xE28`). ISGAIN ist als 2 codiert und bedeutet
+   Verstärkung 20; TORQUE bleibt X=110, Y=110, Z=105, A/B=90.
+   OFF/BLANK/DECAY/STALL/DRIVE gegen die Quellwerte vergleichen. Der
+   read-only Befehl **`$DRV`** meldet den gespeicherten Starttest:
+   `[DRV:READY=1|FAULT=0|READBACK=0|LIMITS=0|STATUS=0,0,0,0,0]` ist der
+   normale fehlerfreie Ausgangspunkt. Werte sind dezimal; FAULT ist eine
+   Bitmaske (1=FAULTn, 2=Readback, 4=STATUS-Leistungsfehler), READBACK Bits
+   0–4 entsprechen DRV1–5. STATUS sind gespeicherte Startwerte, keine neue
+   SPI-Messung während der Bewegung. Der Befehl ersetzt den Logikanalysator nicht.
 4. STATUS und gemeinsames FAULTn prüfen. Ein angeblich erfolgreicher Read mit `0x000` oder `0xFFF` allein genügt nicht: auch bekannte, unterschiedliche Konfigurationsregister müssen stimmen. Keine nachträgliche Freigabe nach fehlgeschlagenem Readback.
 5. Fehlerpfad zuerst ohne Motoren und nur mit elektrisch verträglicher, kontrollierter Signalinjektion prüfen. FAULTn ist Open-Drain: niemals aktiv gegen einen Treiberausgang HIGH treiben. Kein absichtlicher Kurzschluss an einer Motorbrücke. LOW muss Alarm/Abschaltung auslösen und darf keine automatische Wiederaufnahme bewirken.
 
@@ -71,11 +96,33 @@ Nach positiven Stufen 1–4 und ausschließlich mit lastlosen Ausgängen die XYZ
 - Ruhestand und aktive STEP-Polarität; Puls-HIGH und -LOW jeweils mindestens **1,9 µs** nach TI §6.7. Die konfigurierte GRBL-Pulsbreite darf diese Grenze nicht unterschreiten.
 - DIR vor dem ersten STEP stabil; Richtungsvorlauf und Nachlauf jeweils mindestens **200 ns** nach TI §6.7 auch beim schnellen Richtungswechsel messen.
 - X/Y/Z einzeln und synchron; korrektes Setzen/Löschen auf PORTF/PORTL ohne Änderung von SLEEPn/PF2 oder sonstigen Fremdbits.
-- Timer-Overflow/Pulsendende, Reset während eines Pulses, Alarm während einer Bewegung und UART-Last untersuchen. Keine verkürzten oder zusätzlichen Pulse, kein ständig HIGH bleibender STEP.
-- Maximale im Prüfbuild eingestellte Schrittfrequenz anhand Feedrate und steps/mm bestimmen und messen. Der Port begrenzt die Parametrierung auf **5 kHz je Achse**, Standardpulsbreite 10 µs und DIR-Vorlauf 5 µs. Die ersten Default-Raten ergeben X/Y ca. 1270 Schritte/s und Z 3200 Schritte/s. Eine Messung bei kleiner Frequenz qualifiziert nicht automatisch den upstream-Maximalwert.
+- Timer-Overflow/Pulsendende, Reset während eines Pulses, Alarm während einer Bewegung und UART-Last untersuchen. Im normalen Betrieb keine verkürzten oder zusätzlichen Pulse und kein ständig HIGH bleibender STEP. Eine Fehler-/Resetabschaltung darf einen laufenden Puls bewusst verkürzen; sie darf keine spätere STEP-Flanke zulassen.
+- Maximale im gewählten Build eingestellte Schrittfrequenz anhand Feedrate
+  und steps/mm bestimmen und messen. Standard-/Y-Testprofile bleiben bei
+  **5 kHz**; deren Standard-X/Y-Raten ergeben ca. 1270 Schritte/s, Z 3200.
+  Das aktuelle CNC-Profil begrenzt dagegen auf **18 kHz**. Seine neuen
+  Factory-Raten 600/600/300 bei 320/320/1280 Schritte/mm ergeben
+  3200/3200/6400 Schritte/s; gültige migrierte 100/100/150 bleiben zunächst
+  langsamer. Die Standardpulsbreite bleibt 10 µs (10–20 µs einstellbar).
+  Der erste tatsächliche STEP nach einem Richtungswechsel verwendet
+  mindestens 5 µs Timer0-Vorlauf. Bei stabiler DIR beginnt der CNC-STEP
+  direkt in Timer1; Timer0 beendet den Puls. Dieser optimierte Pfad und die
+  vorgezogenen AMASS-Berechnungen ändern weder Pins noch Mikroauflösung
+  während der Fahrt. Alle gewünschten Raten unter UART-/Displaylast und
+  bei Richtungswechsel prüfen; eine Messung bei kleiner Frequenz
+  qualifiziert nicht automatisch die höhere Grenze.
 - Während sämtlicher Tests PA4/PC1 (Reserve-STEP), PA2/PC7 (Reserve-SLEEPn) und Heiz-/P230-Ausgänge mitbeobachten: A/B niemals schalten/freigeben, Lasten inaktiv.
 
 **Abbruch:** Zeitverletzung, Fremdbitänderung, verlorene Pulse, ISR-Überlastung oder irgendeine Reservebewegung.
+
+Als Softwarevergleich bestand das finale CNC-ELF
+`0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`
+15 AVR-Fälle bei 10 µs Pulsbreiteneinstellung und einen zusätzlichen
+XYZ-Rücklauf bei 20 µs. Bei 18-kHz-Anforderung betrug das gemessene
+XYZ-Plateau im Simulator 17.977,53 bzw. 17.977,51 Schritte/s. Minimale
+HIGH/LOW-Zeiten waren 10,625/24,250 µs bzw. 20,688/16,625 µs.
+Das ist **kein elektrischer Hardwaremesswert**. Vollständige Zeitmessungen:
+[STEP-/DIR-Timing](step-timing.md) und [Prüfbericht](validation.md).
 
 ## 6. Erster einzelner Motor, dann XYZ
 
@@ -86,13 +133,34 @@ Diese Stufe ist erst nach erfolgreicher elektrischer Prüfung vertretbar. Die te
 3. Eine einzelne sehr kurze, langsam begrenzte XYZ-Jogbewegung unter Totmannaufsicht ausführen, etwa **0,1 mm** in der jeweils zuvor als kollisionsfrei bewerteten Richtung. Die konkrete Richtung erst am Gerät festlegen; hier stehen bewusst keine blind ausführbaren G-Code-Fahrbefehle. Nur eine Bewegung im Puffer, sofortige Abschaltung erreichbar.
 4. Bewegungsrichtung, tatsächlichen Weg und Stillstand nach Ende prüfen; Gegenrichtung erst nach positivem Ergebnis. Limits bei minimaler Geschwindigkeit und ausreichendem Abstand kontrolliert nachweisen. Hard-Limits stoppen abrupt und sichern die Z-Last nicht gegen Absinken.
 5. Spannung aus; X trennen, Y anschließen und entsprechend prüfen. Danach Z mit besonderer Sicherung gegen Absinken und Kollision testen. Erst danach die drei Motoren gemeinsam anschließen.
-6. Schritte/mm mit Messuhr bestätigen: Quellenwerte X/Y 152,38, Z 1280 sind Startwerte für unveränderte Mechanik. Strom und Temperatur anschließend stufenweise unter einer kleinen realen Last beobachten. Geschwindigkeiten und Beschleunigungen nur nach Messergebnissen erhöhen.
+6. Schritte/mm mit Messuhr bestätigen. Für unveränderte Originalmechanik
+   gelten die Testprofil-Startwerte X/Y 152,38 und Z 1280. Für die
+   vorgegebene CNC-Mechanik mit SFU1605/2:1 und festen 1/4-X/Y-Registern
+   gelten dagegen nominal **320/320/1280**. Nicht zwischen diesen Profilen
+   mischen. Zuerst langsame kleine Wege, dann 10/50-mm-Messung und
+   wiederholte Rückkehr zum Messbezug prüfen. Strom und Temperatur
+   anschließend stufenweise unter einer kleinen realen Last beobachten.
+   Geschwindigkeit und Beschleunigung getrennt nach dem
+   [Geschwindigkeits-Testplan](geschwindigkeit-optimieren.md) erhöhen.
 
-Bei betätigtem Endschalter wird nicht per Software zwangsfrei gefahren. Zunächst spannungsfrei und mechanisch sicher entlasten. Wiederanlauf nach Fault/Reset nur nach Ursachenklärung und erneuter Positionsprüfung.
+Das Standard-Testprofil hat keinen softwareseitigen Freifahrablauf. Im
+CNC-Profil ist nach Hard Limit hingegen der ausdrücklich angeforderte
+Ablauf **Reset → `$LR` → neu referenzieren** möglich, wenn genau ein
+physischer Schalter aktiv ist, die Treiber bereit sind und der Rückzugsweg
+frei ist. Er fährt höchstens 2 mm mit bis zu 20 mm/min und bleibt danach
+im Alarm; es gibt keine automatische Rückfahrt oder Jobfortsetzung.
+[Einzelheiten und Abbruchbedingungen](cnc-gsender.md#nach-einem-hard-limit-freifahren).
+Wiederanlauf nach Fault/Reset nur nach Ursachenklärung und erneuter Positionsprüfung.
 
 ## 7. Homing bleibt ein eigener Freigabeschritt
 
-Das bisherige XYZ-Testprofil hält `RF2000_HOMING_VERIFIED=0`. Das neue CNC-Profil ist nach ausdrücklicher Nutzeranweisung mit angenommenen X/Z-Richtungen freigegeben; siehe [cnc-gsender.md](cnc-gsender.md). `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine messtechnisch bestätigte XYZ-Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
+Das bisherige XYZ-Testprofil hält `RF2000_HOMING_VERIFIED=0`; `$22` oder
+EEPROM-Werte umgehen dessen Sperre nicht. Das aktuelle CNC-Profil ist nach
+ausdrücklicher Nutzeranweisung mit angenommenen X/Z-Richtungen freigegeben;
+siehe [cnc-gsender.md](cnc-gsender.md). Es erlaubt `$H` sowie `$HX`/`$HY`/`$HZ`
+bei `$22=1` und freien Eingängen. Die Mikroauflösungs-/Timingänderung liefert
+keinen neuen physischen Richtungs- oder Schalternachweis. Ein ausgefülltes
+Prüfprotokoll dokumentiert die Prüfung aller Richtungen und Kontakte.
 
 Das zusätzliche Y-Testprofil ist eine getrennte Ausnahme nur für Y: nach
 realer Prüfung von Y-Richtung und Y-Min-Polarität kann ausschließlich `$HY`
@@ -110,6 +178,12 @@ PlatformIO-Monitor lediglich das Terminal. Die unabhängige Abschaltung
 bleibt erforderlich.
 
 Für die CNC-Anwendung ist **Z-Max mit positiver Z-Referenzrichtung** aus dem Repetier-Fräsmodus der Quellenkandidat. Das bedeutet erst nach realer Richtungsprüfung „vom Werkstück weg“. X/Y sind Quellkandidaten Richtung Min. Nach erfolgreicher Prüfung Homing zuerst ohne Motoren am Logikanalysator, danach einzeln langsam mit Totmannaufsicht testen: freier Start, bereits aktiver Schalter, dauerhaft aktiver Schalter, nicht erreichter/abgetrennter Schalter, Pull-off, zweite langsame Annäherung, erneutes Auslösen und Alarm. Keine automatische Freigabe aus diesem Dokument ableiten.
+
+Beim vollständigen CNC-`$H` fährt zuerst Z vollständig, danach X/Y parallel.
+Die zuerst angekommene X/Y-Achse wartet ohne weitere STEP-Pulse am Kontakt,
+bis auch die zweite Achse ihren Schalter erreicht hat. Erst dann folgt der
+gemeinsame Rückzug. Die langsamen Referenztempi bleiben 100/20 mm/min;
+der höhere mögliche Fräsvorschub erhöht sie nicht automatisch.
 
 ## Protokollvorlage
 
@@ -129,4 +203,4 @@ Für die CNC-Anwendung ist **Z-Max mit positiver Z-Referenzrichtung** aus dem Re
 | HZ/P230/OUT inaktiv über alle Zustände | offen |
 | Not-Aus / Totmann / Z-Sicherung geprüft | offen |
 | XYZ-Richtung, Wegmessung, Strom und Temperatur | offen |
-| Homing-Freigabe, verantwortliche Person, Datum | **nicht erteilt** |
+| Physischer Homing-Nachweis, verantwortliche Person, Datum | offen; CNC-Ausführung nach Nutzeranweisung freigegeben |

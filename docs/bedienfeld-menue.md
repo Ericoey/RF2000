@@ -164,12 +164,18 @@ referenzieren bzw. für die manuelle Einrichtung freigeben.
 Schrittweite und lokales Jogtempo gelten für die aktuelle Sitzung. Nach
 Reset sind wieder **0,10 mm** und **20 mm/min** eingestellt.
 
-Die CNC-Grundeinstellungen sind **2560 Schritte/mm für X/Y**, **1280 für Z**
-und maximale Vorschübe **100 / 100 / 150 mm/min**. Das passt zu 2:1-Übersetzung,
-5-mm-Spindelsteigung und 1/32-Mikroschritten für X/Y bzw. 1/16 für Z.
-Gespeicherte GRBL-Einstellungen bleiben beim Firmwareupdate erhalten;
-gegebenenfalls zuerst die [Kalibrierung in gSender umstellen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
-Y ist am Gerät bestätigt; X/Z-Fahrweg und Schalter sind noch am Gerät zu prüfen.
+Die CNC-Grundeinstellungen sind **320 Schritte/mm für X/Y**, **1280 für Z**
+und Factory-Maximalvorschübe **600 / 600 / 300 mm/min** bei 10 mm/s².
+Das passt zu 2:1-Übersetzung, 5-mm-Spindelsteigung und festen
+1/4-Mikroschritten für X/Y bzw. 1/16 für Z. Der lokale Jog bleibt bei
+seinen langsameren 10/20/30 mm/min.
+Alte CNC-EEPROM-Werte werden von Version 74 auf 75 umgerechnet; vorhandene
+100/100/150-Tempi bleiben erhalten. Vor der ersten Bewegung die
+[Migration in gSender prüfen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
+**Alte X/Y-Werte 2560 nicht zurückschreiben.** Nach dem Mikroprofilwechsel
+alle Achsen zunächst langsam vermessen. Der bisherige Y-Nachweis war noch
+bei 1/32; die neue reale Positioniergenauigkeit ist nicht gemessen.
+Der [Geschwindigkeits-Testplan](geschwindigkeit-optimieren.md) beschreibt die Schritte.
 
 ## Referenzieren am Display oder über gSender
 

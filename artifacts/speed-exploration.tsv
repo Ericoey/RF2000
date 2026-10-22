@@ -1,0 +1,23 @@
+# Exploratory intermediate builds, not release firmware. Requested rates bypassed EEPROM limits in simulator SRAM.
+# No physical hardware tested. Pass/fail uses mean +/-3%, 64-edge windows +/-8%, exact step counts and pulse guards.
+# speed-baseline-5khz.elf SHA256 449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446
+# speed-optimized-5khz.elf SHA256 0049afe61dba6daa159d8739cac24c3d98aea9b6a51d0140e032861ab3c6c761
+# speed-optimized-v2.elf SHA256 9db6a255035ef5f9042d9b5b89677adaf93bc5c79c2e6f7e8210569f3a2a8b6a
+# speed-optimized-v3.elf SHA256 f25f4535c9321cff7fb020860b737fc4620e966f0bf76a45eafe196e50ceddaa
+log	requested_Hz	mean_Hz	fastest64_Hz	slowest64_Hz	minHIGH_us	minLOW_us	result
+speed-baseline-10k-z.log	10000.00	9993.75	10022.61	9965.06	14.312	66.188	PASS
+speed-baseline-15k-xyz.log	15000.00	14726.02	15041.79	13889.64	14.312	34.438	PASS
+speed-baseline-20k-z.log	20000.00	18871.08	19103.41	18253.77	14.312	29.250	FAIL
+speed-baseline-30k-xyz.log	30000.00	14514.22	14843.16	14373.34	14.312	37.438	FAIL
+speed-optimized-15k-xyz.log	15000.00	14981.29	15046.43	14916.68	14.312	33.938	PASS
+speed-optimized-16k-xyz.log	16000.00	15978.21	16004.00	15659.65	14.312	29.750	PASS
+speed-optimized-18k-xyz.log	18000.00	17171.40	18052.96	16890.72	14.312	26.312	FAIL
+speed-optimized-20k-xyz.log	20000.00	18993.22	19669.23	18519.86	14.312	26.062	FAIL
+speed-optimized-30k-z.log	30000.00	14952.02	15023.03	14785.08	14.312	27.312	FAIL
+speed-v2-18k-unequal.log	18000.00	17977.53	18071.76	17884.28	10.625	24.438	PASS
+speed-v2-18k-xyz.log	18000.00	17972.54	18068.57	17686.28	10.625	26.500	PASS
+speed-v2-19k-xyz.log	19000.00	18863.04	19059.67	18089.32	10.625	23.625	PASS
+speed-v2-20k-xyz.log	20000.00	19290.09	20077.25	18782.10	10.625	22.500	FAIL
+speed-v2-20k-z.log	20000.00	19975.03	20093.01	19858.05	10.625	19.562	PASS
+speed-v3-20k-xyz.log	20000.00	19975.87	20089.07	19862.67	10.625	18.938	PASS
+speed-v3-22k-xyz.log	22000.00	21280.45	22077.05	20633.93	10.625	17.938	FAIL

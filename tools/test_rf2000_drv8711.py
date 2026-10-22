@@ -134,7 +134,10 @@ int main(void)
   assert(reset_count==1 && waited_ms==35);
   assert((EICRB & (_BV(ISC61)|_BV(ISC60))) == _BV(ISC61));
   assert(EIMSK & _BV(INT6));
-  assert(mock_registers[0][0]==0xe29 && mock_registers[1][0]==0xe29);
+  const uint16_t xy_control = RF2000_CNC ? 0xe11 : 0xe29;
+  assert(RF2000_XY_MICROSTEPS == (RF2000_CNC ? 4 : 32));
+  assert(RF2000_Z_MICROSTEPS == 16);
+  assert(mock_registers[0][0]==xy_control && mock_registers[1][0]==xy_control);
   assert(mock_registers[2][0]==0xe21 && mock_registers[3][0]==0xe28 && mock_registers[4][0]==0xe28);
   assert(mock_registers[0][1]==0x16e && mock_registers[1][1]==0x16e);
   assert(mock_registers[2][1]==0x169 && mock_registers[3][1]==0x15a && mock_registers[4][1]==0x15a);
@@ -197,6 +200,10 @@ int main(void)
 
 
 def main():
+    config = (ROOT / "grbl/config.h").read_text()
+    profile = config.split("/* RF2000_MICROSTEP_PROFILE_BEGIN:", 1)[1]
+    profile = profile[profile.index("*/") + 2:]
+    profile = profile.split("/* RF2000_MICROSTEP_PROFILE_END */", 1)[0]
     source = (ROOT / "grbl/rf2000_drv8711.c").read_text()
     source = source.replace('#include "grbl.h"', '#include "mock_avr.h"')
     source = source.replace('#include <util/atomic.h>', "")
@@ -205,15 +212,18 @@ def main():
     source = source[:start] + MOCK_TRANSFER + source[end:]
     with tempfile.TemporaryDirectory(prefix="rf2000-driver-test-") as temporary:
         directory = Path(temporary)
-        (directory / "mock_avr.h").write_text(MOCK_HEADER)
+        (directory / "mock_avr.h").write_text(MOCK_HEADER + profile)
         harness = directory / "driver_test.c"
         harness.write_text(source + TEST_BODY)
         binary = directory / "driver_test"
-        subprocess.run([
-            os.environ.get("HOST_CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror",
-            "-Wno-unused-function", f"-I{ROOT / 'grbl'}", str(harness), "-o", str(binary)
-        ], check=True)
-        subprocess.run([str(binary)], check=True)
+        for cnc in (0, 1):
+            print(f"DRV8711 {'CNC 1/4' if cnc else 'legacy/test 1/32'} profile", flush=True)
+            subprocess.run([
+                os.environ.get("HOST_CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror",
+                f"-DRF2000_CNC={cnc}", "-Wno-unused-function", f"-I{ROOT / 'grbl'}",
+                str(harness), "-o", str(binary)
+            ], check=True)
+            subprocess.run([str(binary)], check=True)
 
 
 if __name__ == "__main__":

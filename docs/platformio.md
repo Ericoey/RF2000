@@ -7,6 +7,12 @@ isolierten Y-Test und `rf2000_grbl` als XYZ-Test ohne LCD und Homing.
 Alle Profile verwenden ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
 und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
 Die CNC-Bedienung einschließlich gSender steht in [cnc-gsender.md](cnc-gsender.md).
+Das aktuelle CNC-Profil verwendet fest X/Y 1/4 und Z 1/16. Beim Update von
+CNC-Version 74 auf 75 werden alte X/Y-Schrittwerte passend umgerechnet;
+die nominalen Werte sind danach **320/320/1280 Schritte/mm**. Alte X/Y-Werte
+2560 anschließend nicht aus einer Sicherung zurückspielen. Vor Bewegungen
+`$I` und `$$` prüfen; Ablauf und Geschwindigkeitsstufen stehen in
+[geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 
 ## VS Code
 

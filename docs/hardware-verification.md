@@ -64,6 +64,9 @@ Für den Soll-Spitzenstrom bei voller Sinusaussteuerung gilt laut DRV8711 §7.3.
 
 `I_FS = (2,75 V × TORQUE / 256) / (ISGAIN × R_SENSE)`
 
+Die folgende Tabelle dokumentiert das ursprüngliche Repetier-Mikroprofil,
+das die getrennten Standard-/Y-Testprofile weiterhin verwenden:
+
 | Kanal | TORQUE | ISGAIN | Shunt | Rechnerischer I_FS | Mikroschritte | CTRL bei ENBL=1 |
 |---|---|---|---|---|---|---|
 | X | 110 | 20 | 0,033 Ω | ca. 1,790 A | 1/32 | 0x0E29 |
@@ -75,6 +78,12 @@ Für den Soll-Spitzenstrom bei voller Sinusaussteuerung gilt laut DRV8711 §7.3.
 Diese Zahlen sind nominale Wicklungs-Spitzenstrom-Sollwerte, keine gemessenen Ströme und keine Netzteil-Gesamtströme. Motor- und Platinenstromgrenzen, Widerstandstoleranz, Verstärkerfehler, Decay, Mikroschrittposition und Temperatur bleiben zu prüfen. Die in Repetier vorhandene grobe Bemerkung „126 ≈ 2 A“ ist keine genauere Berechnungsgrundlage. Für schlafende beziehungsweise über ENBL gesperrte A/B wird kein Motorstrom freigegeben.
 
 Die Tabelle zeigt den Referenz-CTRL mit ENBL=1; Reserve A/B muss im Port mit gelöschtem ENBL, also CTRL `0x0E28`, abgelegt werden. Die kurze Wake-Phase während des Starts ist damit keine Freigabe der Motorbrücke. Weitere aus der Referenz übernommene SPI-Wörter: OFF `0x2097`, BLANK `0x31D7`, DECAY `0x4430`, STALL `0x583C`, DRIVE `0x60F0`, STATUS-Schreibwert `0x7000`. Das oberste Adressnibble ist nicht Teil des jeweiligen 12-Bit-Registerinhalts. TORQUE.SMPLTH Bit 10 ist laut TI §7.6.3 nur schreibbar und muss vom Readback-Vergleich ausgenommen werden. Diese Werte sind keine beliebig sicheren Defaults für andere MOSFETs, Motoren oder Shunts.
+
+Das aktuelle CNC-Profil verwendet ab `20261022-rf2000-cnc-speed` für X/Y
+fest **1/4 und CTRL `0x0E11` bei ENBL=1**. Z bleibt bei 1/16, A/B bleiben
+gesperrt. Stromwerte und Hardwarepins ändern sich nicht. Mit der vom Nutzer
+vorgegebenen SFU1605-/2:1-Mechanik ergibt dies **320/320/1280 Schritte/mm**.
+Migration und Prüfablauf: [geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 
 Die nominelle Mechanik aus `RF2000v2.h` und `Configuration.h` ergibt X/Y `4,761875 × 32 = 152,38 steps/mm`, Z `80 × 16 = 1280 steps/mm`. Das gilt nur bei unveränderter Mechanik. Eine kurze Messfahrt muss den realen Weg bestätigen, bevor größere Wege erlaubt werden.
 

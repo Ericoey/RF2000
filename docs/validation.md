@@ -1,6 +1,6 @@
 # Prüfbericht
 
-Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
+Stand: 22.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
 ausgeführt. Die Cloudwerkzeuge haben keine Platine programmiert und keinen
 Motor bewegt. Der Nutzer hat Display, Tasten, Y-Referenzfahrt und
 Referenzschalter mit dem bisherigen Menü als funktionierend bestätigt;
@@ -12,7 +12,7 @@ das ist ein Anwenderbericht vom 19.10.2026, kein Messprotokoll der Cloud.
 | --- | ---: | ---: | --- |
 | GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
 | GRBL separater Y-Test mit Bedienfeld | 38.448 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-| XYZ-CNC mit Display und manueller Spindel | 45.258 / 253.952 Byte | 3.710 / 8.192 Byte | gebaut |
+| XYZ-CNC mit Display und manueller Spindel | 46.076 / 253.952 Byte | 3.836 / 8.192 Byte | gebaut |
 | Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 
 Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
@@ -33,16 +33,15 @@ Binäranordnung trotz deaktiviertem Bedienfeld; der neue Hauptbuild wurde
 mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 
-Nach der SFU1605-Anpassung bleibt das XYZ-Test-HEX bytegleich zum zuvor
-vollständig getesteten Stand. Dessen früheres Testprotokoll bezieht sich
-weiterhin auf den dort genannten ELF-Hash; `rebuilt_elf_sha256` kennzeichnet
-den Neubuild. Das separate Y-Profil erhält ebenfalls den unten beschriebenen
-LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert. Nach der
-aktuellen CNC-Menü-/Freifahrerweiterung wurden Standard und Y erneut gebaut:
-Beide HEX-Dateien bleiben bytegleich zu ihren vollständig geprüften Vorgängern.
-Ihre ELF-Dateien enthalten neue Debug-/Link-Metadaten. Die alten Prüfprotokolle
-behalten ihren tatsächlich simulierten ELF-Hash; die Buildmanifeste nennen
-zusätzlich den Hash des jeweiligen Neubuilds.
+Am 22.10.2026 wurden CNC, Standard und Y neu gebaut. Standard- und Y-HEX
+bleiben bytegleich zu ihren zuvor geprüften Vorgängern. `make check` lief
+zusätzlich auf dem aktuellen Standard-ELF vollständig durch. Die Y-Protokolle
+behalten ihren tatsächlich simulierten historischen ELF-Hash; das
+Y-Buildmanifest nennt zusätzlich den Hash des Neubuilds. Der neue CNC-Pfad
+wurde mit allen unten genannten 56 Fällen auf demselben finalen ELF geprüft.
+Ein zusätzlicher CNC-Build ohne Bedienfeld bestand ebenfalls (38.472 Byte
+Flash, 3.651 Byte statisches SRAM); dieses Profil ist kein ausgeliefertes
+Standardartefakt.
 
 Firmware-SHA256:
 
@@ -50,7 +49,7 @@ Firmware-SHA256:
 GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
 Y-Test   3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa
-CNC      d869cd2ba480c6df88d53bca8ad426610f245b44c6aa2454e1e73e871834859a
+CNC      727b8c5dcbab9189245f3ee4cb91f3218e9a3907aa77385032599faed1b8be8e
 ```
 
 Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -67,11 +66,12 @@ Ergebnis: **bestanden**, Exitstatus 0. Vollständige Ausgabe:
 | --- | --- |
 | Tatsächlicher Limit-Code mit GPIO-Modell | Alle 16 Kombinationen der vier Eingänge; feste Polarität; aktiver Eingang beim Init; sofortige Stopentscheidung; fünf freie Samples; Prellen; Z-Min/Z-Max; Fehlersperre; spätere Homing-Schalterauswahl |
 | Tatsächliche DRV8711-Zustandsmaschine | Alle fünf Registerprofile; ENBL0 vor Wake; wirksamer Awake-Reset; UVLO-Löschung; Readbackfehler in allen drei Phasen; XYZ-Maske; Reserve ENBL0; 25-ms-Wake; persistenter Fault; Fehler während Wake; INT6-Flankenkonfiguration |
+| CNC-Migration mit ASAN/UBSAN | AVR-Layout mit 85 Byte; 74→75 und Feinabgleich; 88 Unterbrechungspunkte bei Migration sowie 88 bei späterem Schreiben; kein doppeltes Teilen; bekannte beschädigte Datensätze setzen nur globale Einstellungen zurück |
 | Tatsächliche EEPROM-Funktionen mit ASAN/UBSAN | Getrennte Datensätze; Längen-/Indexgrenzen; NUL-Behandlung; Wiederherstellen; SREG-Erhaltung |
 | Tatsächlicher serieller Treiber mit Host-UART-Modell | Fünf RX/TX-Konfigurationen, alle Startpositionen, FIFO/Umlauf, Voll/Leer, counts/available, Reset, Echtzeitbefehle, Jog-Abbruch und Überlaufalarm; sechs ungültige Kapazitäten abgewiesen |
 | Echter AVR-ELF in simavr | Fünf DRV8711-SPI-Modelle; fabrikleeres EEPROM; Bootalarm; Befehls-/Einstellungsgrenzen; EEPROM über UART; STEP-/DIR-GPIO; bewegter Z-Max-Test; Fault-/Readback-Fehler; zwei gezielte ISR-Fehlerzeitpunkte; kurzer INT6-Puls |
 
-Der ELF-Simulator prüfte genau 32/32/16 XYZ-Schritte vorwärts und dieselbe
+Der ELF-Simulator prüfte genau 32/32/16 XYZ-Schritte je Einzeljog, insgesamt 64/64/32 vorwärts und dieselbe
 Anzahl zurück. Die minimale normale Pulsbreite dieses Laufs betrug
 **14,312 µs** bei eingestellten 10 µs. Ein weiterer Z-Lauf erzeugte genau
 **6.400 Pulse**, mit **4992,81 Schritten/s** im schnellsten Fenster über
@@ -143,11 +143,11 @@ lokal erzeugte Y-ELF ist mit demselben Y-Simulator separat zu prüfen.
 ## XYZ-CNC und gSender-Protokoll
 
 Ergebnis: **zehn CNC-Fälle bestanden**,
-alle mit ELF `449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446`.
-Protokoll: `artifacts/cnc-simulation.log`. Nach der neuen Menüführung und
-dem begrenzten Endschalter-Freifahren wurden alle neun Funktionsfälle und
-der Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet
-`.text=45140`, `.data=118`, `.bss=3592`; Buildprotokoll: `artifacts/cnc-build.log`.
+alle mit ELF `0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`.
+Protokoll: `artifacts/cnc-simulation.log`. Nach der Geschwindigkeitsoptimierung
+wurden alle neun Funktionsfälle und der Timingfall zusammen erneut
+ausgeführt. Der CNC-Build verwendet `.text=45958`, `.data=118`, `.bss=3718`;
+Buildprotokoll: `artifacts/cnc-build.log`.
 
 Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
 `Connection`-Klasse von [gSender v1.6.4](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/server/lib/Connection.js)
@@ -175,14 +175,19 @@ A/B bleiben ohne STEP und Freigabe. Z-Min, lokale Pause/Reset-Taste und ein 1-µ
 schalten ab; Alarm 12 bleibt auf dem Display sichtbar.
 
 Ein zusätzlicher Kalibrierungsfall startet mit einem gültigen alten
-EEPROM-74-Datensatz: X/Y 152,38 Schritte/mm bei 500 mm/min. Das neue Programm
-behält ihn beim Update. Eine verfrühte Umstellung auf 2560 Schritte/mm wird
-wegen der 5-kHz-Grenze abgewiesen. Die dokumentierte Reihenfolge mit zuerst
-100 mm/min funktioniert; die neuen Werte bleiben nach einem weiteren
-MCU-Neustart erhalten, ebenso G54. Anschließende einzelne 1-mm-Jogs erzeugen
-genau **2560 / 2560 / 1280 reale GPIO-Schrittimpulse** im Simulator.
+EEPROM-74-Datensatz: X mit 2560, Y mit dem überholten Wert 152,38 und Z
+mit 1280 Schritten/mm. Das tatsächliche AVR-Programm migriert automatisch
+auf Version 75 und **320 / 320 / 1280 Schritte/mm**. X wird durch acht
+geteilt, der bekannte falsche Y-Mechanikwert gesondert korrigiert und Z
+beibehalten. G54, Startzeile und eigener Buildtext bleiben erhalten.
+Beim erneuten MCU-Neustart findet keine zweite Umrechnung statt.
+Anschließende einzelne 1-mm-Jogs erzeugen genau **320 / 320 / 1280 reale
+GPIO-Schrittimpulse**. Der ergänzende Hosttest prüft den tatsächlichen
+Produktionscode mit Feinabgleichen und vor jedem der 88 Byte-Schreibaufrufe
+unterbrochenen Aktualisierungen; dies simuliert keine analogen
+Brownout-/Teilbytefehler. Protokoll: `artifacts/speed-host-validation.log`.
 
-Mit der höheren X/Y-Schrittzahl fand der Homing-/Alarmfall einen zu kurzen
+Bei der früheren Umstellung auf 2560 Schritte/mm fand der Homing-/Alarmfall einen zu kurzen
 LCD-Byteabstand von 206,938 µs. Der Service hatte seinen Zeitstempel vor
 der Formatierung gesetzt; unter Schrittinterruptlast konnte diese bereits
 mehrere Timer-Ticks dauern. Der Zeitstempel wird nun zusätzlich unmittelbar
@@ -200,9 +205,10 @@ EEMPE-Fenster, Read-Pfad und vorhandene Simulator-Timer werden weiter benutzt.
 Der Firmware-EEPROM-Treiber wurde dafür nicht verändert.
 
 Mit aktivem CNC-LCD und 100-Hz-UART-Status entstehen genau **6400 Z-Pulse**,
-bei **4994,59 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
-**14,312 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
-die Firmwarevorgabe für Z bleibt 150 mm/min.
+bei **4994,61 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
+**10,625 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
+die neue Fabrikvorgabe für Z beträgt 300 mm/min. Dieser beibehaltene
+5-kHz-Vergleichsfall ist vom zusätzlichen 18-kHz-Nachweis unten zu unterscheiden.
 
 Dies ist ein Test der gSender-relevanten seriellen Befehle und des tatsächlichen
 AVR-Programms, kein Lauf der gSender-Desktopanwendung an realer Hardware. Der
@@ -221,7 +227,7 @@ Menüvariablen der Firmware.
 
 Geprüft sind Navigation und Zurück ohne Bewegung, Start-/Freigabesperre für
 Play, Jogschritt- und Tempogrenzen, alle sechs Achsrichtungstasten mit
-256/256/128 Pulsen für 0,1 mm, Einzelnull nur für Y mit getrenntem
+32/32/128 Pulsen für 0,1 mm, Einzelnull nur für Y mit getrenntem
 Bestätigungsdruck und die vier Homingphasen mit Z vor X+Y. Normale Fräsfahrt
 zeigt ihren tatsächlich ausgeführten Achsblock; II bremst ab, ein zu früher
 Play-Druck wird verworfen, Play setzt erst nach Stillstand fort. Vorschub-
@@ -260,6 +266,58 @@ Aktion und verändern den begrenzten Rückzug nicht. Die Displayfunktion
 verlangt einen getrennten Bestätigungsdruck und zeigt den laufenden Rückzug.
 Die elektrische Polarität und mechanische Freifahrrichtung an realer
 Hardware werden damit nicht gemessen.
+
+## Gemeinsames XY-Referenzieren
+
+Ergebnis: **zwei Fälle bestanden**, Exitstatus 0 auf dem finalen CNC-ELF.
+Protokoll: `artifacts/homing-wait-simulation.log`; Reproduktion:
+`make check-homing-wait`. Einmal erreicht Y zuerst den Schalter, einmal X.
+Die erste Achse bleibt 500 ms ohne weitere STEP-Flanke am Schalter stehen,
+während die andere weitersucht. Anschließend durchlaufen beide Rückzug,
+Feinannäherung und letzten Rückzug; `$H` endet nach vorherigem Z-Zyklus mit
+freien Schaltern und Referenzanzeige XYZ im Leerlauf. Das gemeinsame Warten
+ist Teil des unveränderten GRBL-Ablaufs.
+
+## Höhere CNC-Schrittfrequenz
+
+Ergebnis: **15 Geschwindigkeits-/Fehlerfälle bei 10 µs und ein zusätzlicher
+XYZ-Vor-/Rücklauf bei 20 µs bestanden**, jeweils Exitstatus 0 auf dem finalen
+CNC-ELF. Damit wurden insgesamt **56 reale AVR-Simulatorfälle** aus CNC,
+Menü, Freifahren, gemeinsamem Homing und Geschwindigkeit geprüft.
+Protokoll mit ELF-Hash und Aufrufen: `artifacts/speed-simulation.log`.
+Reproduktion: `make check-speed`; für die zusätzliche Pulsbreite
+`RF2000_TEST_PULSE_US=20 make check-speed` (führt alle Fälle mit 20 µs aus).
+
+Der Freigabenachweis verwendet echte UART-Einstellbefehle und die
+18-kHz-Firmwaregrenze, keinen SRAM-Patch. Die Testbeschleunigung von
+2000 mm/s² dient ausschließlich der digitalen Belastung; die Fabrikvorgabe
+bleibt 10 mm/s². Display und UART-Status mit 100 Hz bleiben aktiv.
+
+| XYZ bei nominal 18 kHz | Mittelwert | 64-Flanken-Fenster | Min. HIGH | Min. LOW |
+| --- | ---: | ---: | ---: | ---: |
+| `$0=10` | 17.977,53 Hz | 17.886,15–18.068,89 Hz | 10,625 µs | 24,250 µs |
+| `$0=20` | 17.977,51 Hz | 17.885,53–18.070,16 Hz | 20,688 µs | 16,625 µs |
+
+Gleichzeitige XYZ-Fahrt erzeugt genau 7200 Schritte je Achse und kehrt mit
+korrekter Richtung zur Ausgangs-Schrittposition zurück. Weitere Fälle
+prüfen Einzelachsen, unterschiedliche Achsanteile, Richtungsvorlauf,
+Pulsüberlappung, Stop-/Reset-Eingänge, vier Hard Limits, Homing und Soft
+Limits. FAULT wird gezielt beim Timer1-/Timer0-Eintritt und als abgeschlossener
+1-µs-Puls unter Last eingespeist. Ein bereits am ISR-Eintritt aktiver Fehler
+verhindert den STEP; das ist keine Behauptung einer verzögerungsfreien
+Abschaltung an jedem beliebigen Zeitpunkt innerhalb eines ISR.
+A/B und die stillgelegten Lastenausgänge bleiben inaktiv.
+
+Vorversuche mit übergangenen Einstellgrenzen dokumentieren die Begründung
+für 18 kHz in `artifacts/speed-exploration.tsv`. Diese Zwischenstände sind
+keine ausgelieferten Firmwareprofile. 20 kHz gelangen im optimierten
+Vorversuch, 22 kHz bestanden nicht. Eine bloß angehobene 30-kHz-Grenze des
+alten Pfads lieferte nur etwa 14,5 kHz und bestand nicht.
+
+Die Messungen belegen digitale Zeitabläufe im Simulator. Mechanische
+Schrittverluste, Motordrehmoment, elektrische Signalqualität und Fräslast
+bleiben am Gerät zu prüfen. Vorgehen und Grenzen stehen in
+[geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 
 ## Codeprüfung und Grenzen
 

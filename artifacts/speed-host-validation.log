@@ -1,0 +1,21 @@
+Host checks of production settings, DRV8711, limits and serial code; exit status: 0
+PASS: actual CNC settings74->75 migration; fine calibration/legacy152.380 correction, Z unchanged, conservative rates and records retained
+PASS: power cut before each of88 migration writes and each of88 current-profile update writes; no double conversion; known corrupt records recover settings only
+PASS: AVR85-byte packed layout/checksum, repeated boots, foreign-profile isolation; ASAN/UBSAN enabled
+DRV8711 legacy/test 1/32 profile
+PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
+XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
+persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
+INT6 falling-edge configuration and short recovered FAULT pulse latch.
+DRV8711 CNC 1/4 profile
+PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
+XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
+persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
+INT6 falling-edge configuration and short recovered FAULT pulse latch.
+RF2000 limits: 16 input combinations, fixed polarity, init, debounce, hard stop, fault and homing selection PASS
+Serial RX=255 TX=255: all ring positions, FIFO, counts, overflow/reset and realtime bypass PASS
+Serial RX=128 TX=64: all ring positions, FIFO, counts, overflow/reset and realtime bypass PASS
+Serial RX=1 TX=1: all ring positions, FIFO, counts, overflow/reset and realtime bypass PASS
+Serial RX=254 TX=255: all ring positions, FIFO, counts, overflow/reset and realtime bypass PASS
+Serial RX=255 TX=2: all ring positions, FIFO, counts, overflow/reset and realtime bypass PASS
+Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS

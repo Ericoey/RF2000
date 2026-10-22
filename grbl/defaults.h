@@ -33,12 +33,12 @@
     #if RF2000_CNC
       // User-specified SFU1605 mechanics on XYZ: 200 full steps/rev,
       // 5 mm/rev screw, motor turns twice per screw revolution.
-      // DRV8711 microsteps stay X/Y=32 and Z=16.
-      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*32.0*2.0/5.0) // 2560 steps/mm
-      #define DEFAULT_AXIS2_STEPS_PER_UNIT (200.0*32.0*2.0/5.0)
-      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*16.0*2.0/5.0) // 1280 steps/mm
-      #define DEFAULT_AXIS1_MAX_RATE 100.0 // mm/min; 4266.67 steps/s, below 5 kHz
-      #define DEFAULT_AXIS2_MAX_RATE 100.0
+      // Use exactly the same microstep profile as the DRV8711 CTRL registers.
+      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0) // 320 steps/mm
+      #define DEFAULT_AXIS2_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0)
+      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*RF2000_Z_MICROSTEPS*2.0/5.0) // 1280 steps/mm
+      #define DEFAULT_AXIS1_MAX_RATE 600.0 // Conservative start; tune on hardware.
+      #define DEFAULT_AXIS2_MAX_RATE 600.0
     #else
       // Original RF2000v2 Repetier mechanics for the separate test profiles.
       #define DEFAULT_AXIS1_STEPS_PER_UNIT (4.761875*32.0) // 152.38 steps/mm
@@ -47,7 +47,11 @@
       #define DEFAULT_AXIS1_MAX_RATE 500.0 // mm/min; 1270 steps/s
       #define DEFAULT_AXIS2_MAX_RATE 500.0
     #endif
-    #define DEFAULT_AXIS3_MAX_RATE 150.0 // mm/min; 3200 steps/s
+    #if RF2000_CNC
+      #define DEFAULT_AXIS3_MAX_RATE 300.0 // Z retains 1/16; tune its load separately.
+    #else
+      #define DEFAULT_AXIS3_MAX_RATE 150.0 // Preserve commissioning rate.
+    #endif
     #define DEFAULT_AXIS1_ACCELERATION (10.0*60.0*60.0) // mm/min^2
     #define DEFAULT_AXIS2_ACCELERATION (10.0*60.0*60.0)
     #define DEFAULT_AXIS3_ACCELERATION (10.0*60.0*60.0)

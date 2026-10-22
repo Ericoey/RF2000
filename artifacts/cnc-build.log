@@ -1,12 +1,12 @@
 make BUILD=build/cnc ARTIFACTS=artifacts/cnc CPPFLAGS='-DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1' all
 make[1]: Entering directory '/workspace/RF2000'
-/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/rf2000_panel.c -o build/cnc/rf2000_panel.o
+/workspace/.tools/avr/usr/bin/avr-gcc -DF_CPU=16000000UL -Igrbl -DRF2000_CNC=1 -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -MMD -MP -c grbl/stepper.c -o build/cnc/stepper.o
 /workspace/.tools/avr/usr/bin/avr-gcc -std=gnu99 -Os -g -Wall -Wextra -mmcu=atmega2560 -ffunction-sections -fdata-sections -flto -mmcu=atmega2560 -flto -Wl,--gc-sections,-Map,build/cnc/main.map build/cnc/analog_control.o build/cnc/coolant_control.o build/cnc/digital_control.o build/cnc/eeprom.o build/cnc/gcode.o build/cnc/jog.o build/cnc/limits.o build/cnc/main.o build/cnc/motion_control.o build/cnc/nuts_bolts.o build/cnc/planner.o build/cnc/print.o build/cnc/probe.o build/cnc/protocol.o build/cnc/report.o build/cnc/rf2000_board.o build/cnc/rf2000_drv8711.o build/cnc/rf2000_lcd.o build/cnc/rf2000_panel.o build/cnc/serial.o build/cnc/settings.o build/cnc/sleep.o build/cnc/spindle_control.o build/cnc/stepper.o build/cnc/system.o -lm -o build/cnc/main.elf
 /workspace/.tools/avr/usr/bin/avr-size build/cnc/main.elf
    text	   data	    bss	    dec	    hex	filename
-  45258	      0	   3592	  48850	   bed2	build/cnc/main.elf
+  46076	      0	   3718	  49794	   c282	build/cnc/main.elf
 python3 tools/check-avr-size.py build/cnc/main.elf /workspace/.tools/avr/usr/bin/avr-size
-Flash 45258/253952 bytes; static SRAM 3710/8192 bytes
+Flash 46076/253952 bytes; static SRAM 3836/8192 bytes
 /workspace/.tools/avr/usr/bin/avr-objcopy -O ihex -R .eeprom build/cnc/main.elf artifacts/cnc/rf2000-grbl.hex
 cp build/cnc/main.elf artifacts/cnc/rf2000-grbl.elf
 cp build/cnc/main.map artifacts/cnc/rf2000-grbl.map

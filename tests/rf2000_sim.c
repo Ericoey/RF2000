@@ -318,7 +318,10 @@ static void assert_error(const char *text)
 
 static void verify_registers(void)
 {
-  const uint16_t ctrl[5] = {0xe29,0xe29,0xe21,0xe28,0xe28};
+  #ifndef RF2000_TEST_XY_CTRL
+    #define RF2000_TEST_XY_CTRL 0xe29
+  #endif
+  const uint16_t ctrl[5] = {RF2000_TEST_XY_CTRL,RF2000_TEST_XY_CTRL,0xe21,0xe28,0xe28};
   const uint16_t torque[5] = {0x16e,0x16e,0x169,0x15a,0x15a};
   const uint16_t common[8] = {0,0,0x97,0x1d7,0x430,0x83c,0xf0,0};
   for (int d=0;d<5;++d) for (int r=0;r<8;++r) {

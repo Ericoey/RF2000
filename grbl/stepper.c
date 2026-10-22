@@ -37,11 +37,22 @@
   #endif
   #define RF2000_DIRECTION_F_MASK (_BV(PF1) | _BV(PF7))
   #define RF2000_TIMER0_FLAGS (_BV(OCF0A) | _BV(OCF0B) | _BV(TOV0))
+  #if RF2000_CNC
+    #define RF2000_STEP_INLINE __attribute__((always_inline))
+  #else
+    #define RF2000_STEP_INLINE
+  #endif
   static uint8_t rf2000_pulse_ticks;
+  #if RF2000_CNC
+    static uint8_t rf2000_direction_f, rf2000_direction_l;
+    static volatile uint8_t rf2000_direction_valid;
+    static volatile uint8_t rf2000_direction_update;
+    static volatile uint8_t rf2000_direction_pending;
+  #endif
 
   // All callers hold interrupts off. A single masked write creates simultaneous
   // XYZ edges and preserves PORTF's direction, SLEEP and unused pins.
-  static inline void rf2000_write_steps(uint8_t step_bits)
+  static inline RF2000_STEP_INLINE void rf2000_write_steps(uint8_t step_bits)
   {
     #if RF2000_Y_HOMING_TEST
       step_bits &= _BV(PF6); // Independent GPIO backstop: only Y may step.
@@ -49,7 +60,7 @@
     PORTF = (PORTF & ~RF2000_STEP_MASK) | (step_bits & RF2000_STEP_MASK);
   }
 
-  static inline void rf2000_write_directions(uint8_t x, uint8_t y, uint8_t z)
+  static inline RF2000_STEP_INLINE void rf2000_write_directions(uint8_t x, uint8_t y, uint8_t z)
   {
     PORTF = (PORTF & ~RF2000_DIRECTION_F_MASK) |
       ((x | y) & RF2000_DIRECTION_F_MASK);
@@ -112,6 +123,11 @@ typedef struct {
   uint8_t  st_block_index;   // Stepper block data index. Uses this information to execute this segment.
   #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
     uint8_t amass_level;    // Indicates AMASS level for the ISR to execute this segment
+    #if RF2000_CNC
+      // Compute variable-width shifts in the foreground. Segment loading in
+      // Timer1 then has fixed-size copies, including at AMASS transitions.
+      uint32_t steps[N_AXIS];
+    #endif
   #else
     uint8_t prescaler;      // Without AMASS, a prescaler is required to adjust for slow timing.
   #endif
@@ -183,10 +199,16 @@ static uint8_t step_port_invert_mask[N_AXIS];
 static uint8_t dir_port_invert_mask[N_AXIS];
 
 #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-  static inline uint8_t rf2000_step_idle_bits(void)
+  static inline RF2000_STEP_INLINE uint8_t rf2000_step_idle_bits(void)
   {
-    return step_port_invert_mask[0] | step_port_invert_mask[1] |
-      step_port_invert_mask[2];
+    #if RF2000_CNC
+      // The RF2000 settings backend enforces $2=0 at load and write time.
+      // Keeping this constant also avoids a call/register spill in Timer0.
+      return 0;
+    #else
+      return step_port_invert_mask[0] | step_port_invert_mask[1] |
+        step_port_invert_mask[2];
+    #endif
   }
 
   // Also safe from Timer0/Timer2 or realtime serial reset. No SPI, delays or
@@ -377,6 +399,13 @@ void st_wake_up()
     if (pulse_us > 20) { pulse_us = 20; }
     rf2000_pulse_ticks = pulse_us * 2;
     OCR0A = STEP_PULSE_DELAY * 2;
+    #if RF2000_CNC
+      // A newly woken driver must get the full setup interval before its
+      // first physical STEP, even if its remembered direction is unchanged.
+      rf2000_direction_valid = false;
+      rf2000_direction_update = true;
+      rf2000_direction_pending = true;
+    #endif
   #elif defined(STEP_PULSE_DELAY)
     // Set total step pulse time after direction pin set. Ad hoc computation from oscilloscope.
     st.step_pulse_time = -(((settings.pulse_microseconds+STEP_PULSE_DELAY-2)*TICKS_PER_MICROSECOND) >> 3);
@@ -560,7 +589,27 @@ ISR(TIMER1_COMPA_vect)
 
   // Set the direction pins a couple of nanoseconds before we step the steppers
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-    rf2000_write_directions(st.dir_outbits[0], st.dir_outbits[1], st.dir_outbits[2]);
+    #if RF2000_CNC
+      // Only segment loading changes dir_outbits. The intervening high-rate
+      // STEP ticks need one flag check rather than three DIR/cache reads.
+      if (rf2000_direction_update) {
+        rf2000_direction_update = false;
+        const uint8_t direction_f = (st.dir_outbits[0] | st.dir_outbits[1]) & RF2000_DIRECTION_F_MASK;
+        const uint8_t direction_l = st.dir_outbits[2] & _BV(PL1);
+        if (!rf2000_direction_valid || direction_f != rf2000_direction_f ||
+            direction_l != rf2000_direction_l) {
+          rf2000_write_directions(direction_f, 0, direction_l);
+          rf2000_direction_f = direction_f;
+          rf2000_direction_l = direction_l;
+          rf2000_direction_valid = true;
+          // AMASS ticks may contain no physical STEP. Keep this pending until
+          // the first actual edge has completed the Timer0 direction delay.
+          rf2000_direction_pending = true;
+        }
+      }
+    #else
+      rf2000_write_directions(st.dir_outbits[0], st.dir_outbits[1], st.dir_outbits[2]);
+    #endif
   #else
   DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | st.dir_outbits[0];
   DIRECTION_PORT(1) = (DIRECTION_PORT(1) & ~(1 << DIRECTION_BIT(1))) | st.dir_outbits[1];
@@ -613,10 +662,25 @@ ISR(TIMER1_COMPA_vect)
     // AMASS inserts ticks with no physical step. Those ticks need no pulse
     // timer and must not create spurious edges or extra Timer0 interrupts.
     if (st.step_bits[0] != rf2000_step_idle_bits()) {
-      TCNT0 = 0;
-      TIFR0 = RF2000_TIMER0_FLAGS;
-      TIMSK0 = _BV(OCIE0A); // First phase: guaranteed direction setup interval.
-      TCCR0B = _BV(CS01); // Timer0 at 16 MHz / 8 = 2 ticks per us.
+      #if RF2000_CNC
+        if (!rf2000_direction_pending) {
+          // DIR has already met its setup time. Begin this STEP directly;
+          // only its falling edge needs another interrupt. Start the timer
+          // before reloading so simavr and hardware use the same sequence.
+          TCNT0 = 0;
+          TCCR0B = _BV(CS01);
+          rf2000_write_steps(st.step_bits[0]);
+          TCNT0 = (uint8_t)(-rf2000_pulse_ticks);
+          TIFR0 = RF2000_TIMER0_FLAGS;
+          TIMSK0 = _BV(TOIE0);
+        } else
+      #endif
+      {
+        TCNT0 = 0;
+        TIFR0 = RF2000_TIMER0_FLAGS;
+        TIMSK0 = _BV(OCIE0A); // First physical edge after a direction change.
+        TCCR0B = _BV(CS01); // Timer0 at 16 MHz / 8 = 2 ticks per us.
+      }
     }
   #else
     TCNT0 = st.step_pulse_time; // Reload Timer0 counter
@@ -661,12 +725,21 @@ ISR(TIMER1_COMPA_vect)
       }
       for (i = 0; i < N_AXIS; i++)
         st.dir_outbits[i] = st.exec_block->direction_bits[i] ^ dir_port_invert_mask[i];
+      #if RF2000_CNC
+        rf2000_direction_update = true;
+      #endif
 
       #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
         // With AMASS enabled, adjust Bresenham axis increment counters according to AMASS level.
-        st.steps[AXIS_1] = st.exec_block->steps[AXIS_1] >> st.exec_segment->amass_level;
-        st.steps[AXIS_2] = st.exec_block->steps[AXIS_2] >> st.exec_segment->amass_level;
-        st.steps[AXIS_3] = st.exec_block->steps[AXIS_3] >> st.exec_segment->amass_level;
+        #if RF2000_CNC
+          st.steps[AXIS_1] = st.exec_segment->steps[AXIS_1];
+          st.steps[AXIS_2] = st.exec_segment->steps[AXIS_2];
+          st.steps[AXIS_3] = st.exec_segment->steps[AXIS_3];
+        #else
+          st.steps[AXIS_1] = st.exec_block->steps[AXIS_1] >> st.exec_segment->amass_level;
+          st.steps[AXIS_2] = st.exec_block->steps[AXIS_2] >> st.exec_segment->amass_level;
+          st.steps[AXIS_3] = st.exec_block->steps[AXIS_3] >> st.exec_segment->amass_level;
+        #endif
         #if N_AXIS > 3
           st.steps[AXIS_4] = st.exec_block->steps[AXIS_4] >> st.exec_segment->amass_level;
         #endif
@@ -775,16 +848,26 @@ ISR(TIMER1_COMPA_vect)
   #endif // N_AXIS > 5
 
   // During a homing cycle, lock out and prevent desired axes from moving.
-  for (i = 0; i < N_AXIS; i++)
-    if (sys.state == STATE_HOMING) { st.step_outbits[i] &= sys.homing_axis_lock[i]; }
+  #if RF2000_CNC
+    if (sys.state == STATE_HOMING) {
+      st.step_outbits[0] &= sys.homing_axis_lock[0];
+      st.step_outbits[1] &= sys.homing_axis_lock[1];
+      st.step_outbits[2] &= sys.homing_axis_lock[2];
+    }
+  #else
+    for (i = 0; i < N_AXIS; i++)
+      if (sys.state == STATE_HOMING) { st.step_outbits[i] &= sys.homing_axis_lock[i]; }
+  #endif
   st.step_count--; // Decrement step events count
   if (st.step_count == 0) {
     // Segment is complete. Discard current segment and advance segment indexing.
     st.exec_segment = NULL;
     if ( ++segment_buffer_tail == SEGMENT_BUFFER_SIZE) { segment_buffer_tail = 0; }
   }
-  for (i = 0; i < N_AXIS; i++)
-    st.step_outbits[i] ^= step_port_invert_mask[i];  // Apply step port invert mask
+  #if !RF2000_CNC
+    for (i = 0; i < N_AXIS; i++)
+      st.step_outbits[i] ^= step_port_invert_mask[i];  // Apply step port invert mask
+  #endif
   busy = false;
 }
 
@@ -851,6 +934,9 @@ ISR(TIMER0_OVF_vect)
       TCNT0 = (uint8_t)(-rf2000_pulse_ticks);
       TIFR0 = RF2000_TIMER0_FLAGS;
       TIMSK0 = _BV(TOIE0); // Second phase begins at the actual STEP edge.
+      #if RF2000_CNC
+        rf2000_direction_pending = false;
+      #endif
     #else
     STEP_PORT(0) = st.step_bits[0]; // Begin step pulse.
     STEP_PORT(1) = st.step_bits[1]; // Begin step pulse.
@@ -918,6 +1004,11 @@ void st_reset()
   #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
     rf2000_write_steps(rf2000_step_idle_bits());
     rf2000_write_directions(dir_port_invert_mask[0], dir_port_invert_mask[1], dir_port_invert_mask[2]);
+    #if RF2000_CNC
+      rf2000_direction_valid = false;
+      rf2000_direction_update = true;
+      rf2000_direction_pending = true;
+    #endif
     SREG = interrupt_state;
   #else
   STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
@@ -1432,6 +1523,11 @@ void st_prep_buffer()
         cycles >>= prep_segment->amass_level;
         prep_segment->n_step <<= prep_segment->amass_level;
       }
+      #if RF2000_CNC
+        for (uint8_t axis = 0; axis < N_AXIS; ++axis) {
+          prep_segment->steps[axis] = st_prep_block->steps[axis] >> prep_segment->amass_level;
+        }
+      #endif
       if (cycles < (1UL << 16)) { prep_segment->cycles_per_tick = cycles; } // < 65536 (4.1ms @ 16MHz)
       else { prep_segment->cycles_per_tick = 0xffff; } // Just set the slowest speed possible.
     #else

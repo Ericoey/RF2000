@@ -6,19 +6,24 @@ Arbeitsnullpunkte und das originale 20×4-Display mit Tastenfeld. A/B bleiben
 gesperrt. **Die Spindel wird manuell bedient**; M3/M4/M5 und S-Werte schalten
 keinen Ausgang. Anleitung: [CNC und gSender](docs/cnc-gsender.md).
 
-Y einschließlich der Kalibrierung mit 2560 Schritten/mm wurde vom Nutzer
-am Gerät bestätigt. XYZ-Homing ist nach dessen neuer
+Y einschließlich der bisherigen Kalibrierung mit 2560 Schritten/mm bei
+1/32 wurde vom Nutzer am Gerät bestätigt. XYZ-Homing ist nach dessen
 ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
 freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
 und das bisherige XYZ-Testprofil bleiben verfügbar.
 
 Das CNC-Profil verwendet die vom Nutzer vorgegebene Fräsmechanik auf allen
 drei Achsen: 200 Vollschritte/Umdrehung, SFU1605 mit 5 mm Steigung und
-2:1 Motor-zu-Spindel-Übersetzung. Mit X/Y 1/32 und Z 1/16 ergeben sich
-**2560 / 2560 / 1280 Schritte/mm**. Die CNC-Maximalgeschwindigkeiten sind
-**100 / 100 / 150 mm/min**. Die getrennten Testprofile behalten ihre
+2:1 Motor-zu-Spindel-Übersetzung. Mit festem **X/Y 1/4 und Z 1/16** ergeben
+sich **320 / 320 / 1280 Schritte/mm**. Die Factory-Vorgaben sind
+**600 / 600 / 300 mm/min** bei 10 mm/s². Gültige alte CNC-Einstellungen
+werden migriert; ihre bisherigen 100 / 100 / 150 mm/min werden dabei nicht
+automatisch angehoben. Die CNC-Schrittfrequenzgrenze beträgt **18 kHz**.
+Die getrennten Testprofile behalten ihre
 bisherige Repetier-Kalibrierung. X und Z übernehmen dieselbe Übersetzung;
 deren tatsächlichen Fahrweg hat der Nutzer noch nicht durch Messung bestätigt.
+Analyse, Grenzen und stufenweiser Hardwaretest:
+[Geschwindigkeit optimieren](docs/geschwindigkeit-optimieren.md).
 
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
@@ -59,12 +64,14 @@ pio device monitor --port /dev/cu.usbserial-AL03P2K9
 ```
 
 Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-115200 Baud** verbinden. `$I` enthält `20261019-rf2000-cnc-panel`.
-**Bei bestehender CNC-Firmware bleiben die bisherigen EEPROM-Werte erhalten.**
-Vor der ersten Bewegung die [geordneten Einstellbefehle](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
-anwenden: zuerst X/Y-Maximaltempo senken, dann Schritte/mm ändern. Dafür
-ist kein EEPROM-Reset nötig; Arbeitskoordinaten bleiben gespeichert.
-Anschließend Referenz und Werkstücknull neu prüfen.
+115200 Baud** verbinden. `$I` enthält `20261022-rf2000-cnc-speed`.
+**Vor der ersten Bewegung die [EEPROM-Migration prüfen](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).**
+Version 74 wird auf 75 umgestellt: X/Y-Schritte/mm werden durch acht geteilt,
+Z bleibt unverändert. G54–G59, Startzeilen und eigener Buildtext bleiben bei
+dieser Migration gespeichert. **Nach dem Update niemals die alten X/Y-Werte
+2560 zurückschreiben:** Bei 1/4 würden damit achtfach zu große Wege entstehen.
+Mit `$$` die neue Kalibrierung prüfen, dann langsam neu referenzieren und
+Fahrweg sowie Werkstücknull kontrollieren.
 
 Home / `$H` referenziert Z-Max, danach X/Y-Min;
 `$HX`, `$HY`, `$HZ` funktionieren einzeln. XYZ-Jogs und normale GRBL-Dateien
@@ -126,7 +133,8 @@ Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunkt
 - Eigene Plattform `CPU_MAP_2560_RENKFORCE_CTC_V3`, ohne RAMPS-Ausgänge.
 - Portmaskierte gemeinsame STEP-Ausgabe auf PF0/PF6/PF3; DIR auf PF1/PF7/PL1.
 - Fünfkanaliges HIGH-aktives Software-SPI mit kontrollierter ENBL0-Wake-/Resetsequenz und verpflichtendem Registerreadback.
-- Mikroschritte X/Y 1/32, Z 1/16, Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN 20.
+- CNC: feste Mikroschritte X/Y 1/4, Z 1/16; Testprofile X/Y 1/32. Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN-Verstärkung 20.
+- CNC: 18-kHz-Grenze, unveränderte Richtung wird zwischengespeichert; erster STEP nach Richtungswechsel behält mindestens 5 µs Vorlauf, Pulsende bleibt timergeführt.
 - LOW-aktive X-/Y-/Z-Min und Z-Max auf Port C/H, Timer2-Abfrage mit 1 kHz, sofortige Stopentscheidung und fünf freie Samples vor Wiederfreigabe.
 - CNC: ausdrücklich angefordertes `$LR` zum begrenzten Freifahren eines einzelnen aktiven Endschalters; danach erneutes Referenzieren erforderlich.
 - Treiberfehler über INT6 auch bei kurzen FAULTn-Pulsen verriegelt bis zum echten MCU-Neustart; Boot und Softreset starten verriegelt, Freigabe über Homing oder `$X` bei freien Eingängen.
@@ -177,6 +185,7 @@ separat am Gerät zu prüfen; reale Motorströme und Stopplatenz bleiben zu mess
 - [XYZ-CNC mit gSender und Display](docs/cnc-gsender.md)
 - [CNC-Bedienfeld und Menü](docs/bedienfeld-menue.md)
 - [Befehlsübersicht für gSender: Referenzieren, Joggen, Nullpunkte und Einstellungen](docs/befehle.md)
+- [Geschwindigkeitsanalyse, EEPROM-Umstellung und Hardwaretestplan](docs/geschwindigkeit-optimieren.md)
 - [DRV8711-Protokoll, Register, Stromberechnung](docs/drv8711.md)
 - [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 - [Endschalter und Diagnose](docs/limits.md)

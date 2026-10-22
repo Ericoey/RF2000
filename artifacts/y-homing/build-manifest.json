@@ -36,11 +36,11 @@
   "source_sha256": {
     "grbl/analog_control.c": "c587acc887ea9d8e5fb3b152299120567ad523374a58541b1c29b5c185710aa2",
     "grbl/analog_control.h": "4f566ec634d19144ed0f1d5bfec2399d7a43384952a993fea15d5c3be5519ecc",
-    "grbl/config.h": "7501aeb9bdd23b19a2ae750b0e65c22a1f09e4123a943b1b5822c36933aac35d",
+    "grbl/config.h": "79da364016b1a8f45f74e28656e8af483d1dbbffb37c7f4399e06e2e93348f19",
     "grbl/coolant_control.c": "bb0d14639388a171a5ead35c444ba2d146bdb2c0631972dea8d5c955260143e3",
     "grbl/coolant_control.h": "be1151afe71b4867b968e9a6b5f963f952ff59dd653230d5f11d2c843297915b",
     "grbl/cpu_map.h": "302886ddfe639b3da19908934d7ea02c3250dfed94a833bca33bd48da776d54f",
-    "grbl/defaults.h": "49d6ae36c037c1c6f209bec77226d485c89047491f5111a236871223674d794d",
+    "grbl/defaults.h": "f0f8dab04d1582bac8448962615b4889dd12ca98a487d31b6c978a249743b543",
     "grbl/digital_control.c": "f0cc7511eac1856bb89f75d429c26a2df4a7374165fab59e9110dffb7853ce53",
     "grbl/digital_control.h": "3ccd959f226af539f1715cf602fcb54db670c9f6da2a921115a275716da7f098",
     "grbl/eeprom.c": "e71bdf008f45b5b7b1147ae23bcc1c5a074a9e1d9876c140d416ef34430e1873",
@@ -49,7 +49,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "af2eb0e14dcdb93291c68947ed9cba898ea1626071a831669565cb2c7305b737",
+    "grbl/grbl.h": "3a769b030de83e5f5da456bed386d8891e06ddc58f63991b6838dec65c73d51c",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "644591245f11e0934610fcffce578ae74ece7df9ce98ffacd9d1dcb1c56bb7e1",
@@ -71,7 +71,7 @@
     "grbl/report.h": "40cd6ab2c8c827e4bc48d299b69120cb800c6c08c836a44a6fd94bf3ed55e3c8",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
-    "grbl/rf2000_drv8711.c": "0b36c59e9a2961ab241a4cef5e968fafea70fc91841daed992111e9506bcaa9d",
+    "grbl/rf2000_drv8711.c": "99a9fd1df252a8f5d9ce1e60570948b0f3112989d349c934e3eca5f11ec12ad3",
     "grbl/rf2000_drv8711.h": "f7d94394d8e06c46177d73b29481545c6219e993c368242f5514ce5be370afbe",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
@@ -79,21 +79,21 @@
     "grbl/rf2000_panel.h": "94891eb3869841bfe46db005ada0d55ee9b4b8dc952a3a67e8d64548863a05e6",
     "grbl/serial.c": "58af1b5c941678f3f32d3cdbc463706a082d157d22df1163f33557fd879d4e70",
     "grbl/serial.h": "ff323612a6a76114b5ba8be991a29b6d1aec2e2cb92be3a2941002177608cce5",
-    "grbl/settings.c": "59ebd0602f9929c2a1a75e63e0ad68c5ed73a073ac663ad612a50e264b718457",
-    "grbl/settings.h": "b794195201b518d390b9bf76fe57d501b45384cd8c74d3602f1e2cca5709e98e",
+    "grbl/settings.c": "ca9e9e157853878d9f77f61a9c7e8293e928dcb7ed69c7a9c6f917cd5f7b1238",
+    "grbl/settings.h": "03805db15e82d67cc4c6b199cfa66246da7f16c4974bca40456ef0d432a58581",
     "grbl/sleep.c": "ed0d1e8a455c548e51a2da9c3b87c064dd588285430206373ed6bda2fb718c59",
     "grbl/sleep.h": "045ca702271be6e45bb7963157e45cbe4374f6ace3c239eee22847efe2679d2f",
     "grbl/spindle_control.c": "6fed236c47a04c559bc7c8f7dfd3b59987b263e2677cd00dd8c2831b325e81dc",
     "grbl/spindle_control.h": "b8fa30fb2ba7c1ad0100afae98c95c53f193da5c11e134a66eaec8fef9207e93",
-    "grbl/stepper.c": "2beb45d0e311d0468beb423fd01ad97abe708373b9f9711546322f2a063bd6ac",
+    "grbl/stepper.c": "363b945b7d4cfbed6b1fc480cb1d857666a13d8d4fb1f2901b8f94c8cca666d5",
     "grbl/stepper.h": "b0a56e8cbfa6bbec1cbdecaaac68606891d15232fad12d189d78149e3279b1cc",
     "grbl/system.c": "1c35909af384a6868331f69df96a6af07f7348a8bb2201228a824916b42b991f",
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "ebaf3a8668c6a78c709f1fc36e5fa38f6fb608d02f6c2cb260a6d6332d2ede03",
+    "rf2000-grbl.elf": "d59f303a18be0f2dedbd379edd5301a2646fad87bdc3f84b84219719fe1a8b64",
     "rf2000-grbl.hex": "3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa",
-    "rf2000-grbl.map": "6b119e4773ff0e0715e69ab67b09e79e73b417273dd6e839e5a7da596362fce9"
+    "rf2000-grbl.map": "46d3ce96919916ed3c771cd6cf31179c1a419808a5d1dd6e391cd4968b5f6c71"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -168,16 +168,20 @@
     "serial_y_homing_real_avr_cases": 13,
     "panel_log": "artifacts/panel-validation.log",
     "y_homing_log": "artifacts/y-homing-simulation.log",
-    "rebuilt_elf_sha256": "ebaf3a8668c6a78c709f1fc36e5fa38f6fb608d02f6c2cb260a6d6332d2ede03",
+    "rebuilt_elf_sha256": "d59f303a18be0f2dedbd379edd5301a2646fad87bdc3f84b84219719fe1a8b64",
     "hex_unchanged_after_cnc_menu_and_recovery": true,
-    "rebuild_evidence": "HEX byte-identical to previous fully simulated program; new ELF debug/link metadata. Previous test logs retain their actual tested ELF hash."
+    "rebuild_evidence": "Current Y HEX is byte-identical to the historically fully simulated program. The13 homing and14 panel test logs retain their actual2026-10-19 ELF hash; only debug/link metadata changed in this rebuild.",
+    "rebuild_date": "2026-10-22",
+    "hex_unchanged_after_cnc_speed_optimization": true,
+    "y_suites_rerun_for_this_rebuild": false
   },
   "platformio_selection": {
     "default_environment": "rf2000_cnc",
     "platformio_ini_sha256": "0fa7a9c0429cb3e532d1a0b907341e34a1abed270c8f5538ce8690d25cabae77",
     "local_panel_enabled": true,
-    "firmware_program_unchanged": false,
-    "configuration_verified": "PlatformIO project config --json-output; inherited Y build flags and default target checked"
+    "firmware_program_unchanged": true,
+    "configuration_verified": "PlatformIO project config --json-output; inherited Y build flags and default target checked",
+    "firmware_program_unchanged_scope": "2026-10-22 CNC speed update; separate Y profile HEX unchanged"
   },
   "user_reported_hardware_validation": {
     "date": "2026-10-19",

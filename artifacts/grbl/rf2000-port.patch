@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,112 +1,83 @@
+@@ -1,112 +1,90 @@
 -#  Part of Grbl
 -#
 -#  Copyright (c) 2017-2022 Gauthier Briere
@@ -35,7 +35,7 @@
 +CFLAGS += -std=gnu99 -Os -g -Wall -Wextra -mmcu=$(MCU) -ffunction-sections -fdata-sections -flto
 +LDFLAGS += -mmcu=$(MCU) -flto -Wl,--gc-sections,-Map,$(BUILD)/main.map
  
-+.PHONY: all clean check check-y-homing check-panel y-homing-test cnc check-cnc check-recovery check-menu disasm repetier flash fuse install load
++.PHONY: all clean check check-y-homing check-panel y-homing-test cnc check-cnc check-recovery check-menu check-speed check-homing-wait disasm repetier flash fuse install load
 +all: $(ARTIFACTS)/rf2000-grbl.hex $(ARTIFACTS)/rf2000-grbl.elf $(ARTIFACTS)/rf2000-grbl.map
  
 -# This is a prototype Makefile. Modify it according to your needs.
@@ -88,6 +88,7 @@
 +	python3 tools/test_check_avr_size.py
 +	python3 tools/test_rf2000_limits.py
 +	python3 tools/test_rf2000_drv8711.py
++	python3 tools/test_rf2000_settings_migration.py
 +	python3 tools/test_eeprom_records.py
 +	python3 tools/test_serial_ring.py
 +	tests/run-sim.sh
@@ -135,10 +136,14 @@
  
 -flash:	all
 -	$(AVRDUDE) -U flash:w:grbl.hex:i
--
++check-speed: cnc
++	RF2000_SPEED_PUBLIC_SETTINGS=1 tests/run-speed-sim.sh build/cnc/main.elf 18000
+ 
 -fuse:
 -	$(AVRDUDE) $(FUSES)
--
++check-homing-wait: cnc
++	tests/run-homing-wait-sim.sh build/cnc/main.elf
+ 
 -# Xcode uses the Makefile targets "", "clean" and "install"
 -install: flash fuse
 -
@@ -190,59 +195,23 @@
 +*.log
 --- a/README.md
 +++ b/README.md
-@@ -1,74 +1,191 @@
+@@ -1,74 +1,200 @@
 -![GitHub Logo](https://github.com/fra589/grbl-Mega-5X/blob/edge/doc/images/Mega-5X-logo.svg)
-+# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
- 
+-
 -***
-+XYZ-CNC-Firmware für ATmega2560/16 MHz und fünf DRV8711. PlatformIO wählt
-+standardmäßig **`rf2000_cnc`**: gSender-Jogging, XYZ-Homing, G-Code-Fräsen,
-+Arbeitsnullpunkte und das originale 20×4-Display mit Tastenfeld. A/B bleiben
-+gesperrt. **Die Spindel wird manuell bedient**; M3/M4/M5 und S-Werte schalten
-+keinen Ausgang. Anleitung: [CNC und gSender](docs/cnc-gsender.md).
- 
+-
 -Grbl is a no-compromise, high performance, low cost alternative to parallel-port-based motion control for CNC milling. This version of Grbl runs on an Arduino Mega2560 only.
-+Y einschließlich der Kalibrierung mit 2560 Schritten/mm wurde vom Nutzer
-+am Gerät bestätigt. XYZ-Homing ist nach dessen neuer
-+ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
-+freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
-+und das bisherige XYZ-Testprofil bleiben verfügbar.
- 
+-
 -The controller is written in highly optimized C utilizing every clever feature of the AVR-chips to achieve precise timing and asynchronous operation. It is able to maintain up to 30kHz of stable, jitter free control pulses.
-+Das CNC-Profil verwendet die vom Nutzer vorgegebene Fräsmechanik auf allen
-+drei Achsen: 200 Vollschritte/Umdrehung, SFU1605 mit 5 mm Steigung und
-+2:1 Motor-zu-Spindel-Übersetzung. Mit X/Y 1/32 und Z 1/16 ergeben sich
-+**2560 / 2560 / 1280 Schritte/mm**. Die CNC-Maximalgeschwindigkeiten sind
-+**100 / 100 / 150 mm/min**. Die getrennten Testprofile behalten ihre
-+bisherige Repetier-Kalibrierung. X und Z übernehmen dieselbe Übersetzung;
-+deren tatsächlichen Fahrweg hat der Nutzer noch nicht durch Messung bestätigt.
- 
+-
 -It accepts standards-compliant g-code and has been tested with the output of several CAM tools with no problems. Arcs, circles and helical motion are fully supported, as well as, all other primary g-code commands. Macro functions, variables, and most canned cycles are not supported, but we think GUIs can do a much better job at translating them into straight g-code anyhow.
-+Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
-+entsprechen dem offiziellen `edge`-Commit
-+`baaa1be3fe6c33a287695bbd57121da0b2979d9c` von
-+[fra589/grbl-Mega-5X](https://github.com/fra589/grbl-Mega-5X).
-+Die hochgeladene Repetier-Referenz ist **Community Mod 1.45.01** und keine
-+nachgewiesene Hersteller-Stockfirmware. Sie liegt unverändert unter
-+`references/repetier/` und wird als zweite Firmwarevariante separat gebaut.
-+Quellen und Prüfsummen stehen in `references/provenance.json`.
- 
+-
 -Grbl includes full acceleration management with look ahead. That means the controller will look up to 24 motions into the future and plan its velocities ahead to deliver smooth acceleration and jerk-free cornering.
-+**Quellenpriorität bei Abweichungen:** Nach aktueller Nutzervorgabe gilt die
-+bisherige RF2000-Repetier-Konfiguration als funktionierend. Widerspricht eine
-+Hardwarezuordnung im Schaltplan der bereitgestellten Repetier-Referenz, hat
-+deren RF2000v2-Konfigurationsblock Vorrang. Jede übernommene Abweichung wird
-+dem Nutzer genannt und in [docs/hardware-verification.md](docs/hardware-verification.md)
-+dokumentiert. DRV8711-Protokoll und Registersemantik folgen dem TI-Datenblatt;
-+die Festlegung ersetzt keinen Funktionstest des GRBL-Ports.
- 
+-
 -* [Licensing](https://github.com/fra589/grbl-Mega-5X/blob/edge/COPYING): Grbl is free software, released under the GPLv3 license.
-+## Bauen und prüfen
- 
+-
 -* For more information and help, check out our **[Wiki pages!](https://github.com/fra589/grbl-Mega-5X/wiki)** If you find that the information is out-dated, please to help us keep it updated by editing it or notifying our community! Thanks!
-+Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
-+öffnen und die Umgebung **`rf2000_cnc` → Build** auswählen. Per CLI:
- 
+-
 -* Lead Developer: Gauthier Brière (France) aka @fra589
 -
 -* Built on the wonderful Grbl v1.1f (2017) firmware originally written by Simen Svale Skogsrud (Norway) and maintained by Sungeun "Sonny" Jeon, Ph.D. (USA) aka @chamnit
@@ -280,7 +249,59 @@
 -- Lots of minor bug fixes and refactoring to make the code more efficient and flexible.
 -
 -
--```
++# RF2000v2: GRBL-Mega-5X für I851 CTC V3.0
++
++XYZ-CNC-Firmware für ATmega2560/16 MHz und fünf DRV8711. PlatformIO wählt
++standardmäßig **`rf2000_cnc`**: gSender-Jogging, XYZ-Homing, G-Code-Fräsen,
++Arbeitsnullpunkte und das originale 20×4-Display mit Tastenfeld. A/B bleiben
++gesperrt. **Die Spindel wird manuell bedient**; M3/M4/M5 und S-Werte schalten
++keinen Ausgang. Anleitung: [CNC und gSender](docs/cnc-gsender.md).
++
++Y einschließlich der bisherigen Kalibrierung mit 2560 Schritten/mm bei
++1/32 wurde vom Nutzer am Gerät bestätigt. XYZ-Homing ist nach dessen
++ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
++freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
++und das bisherige XYZ-Testprofil bleiben verfügbar.
++
++Das CNC-Profil verwendet die vom Nutzer vorgegebene Fräsmechanik auf allen
++drei Achsen: 200 Vollschritte/Umdrehung, SFU1605 mit 5 mm Steigung und
++2:1 Motor-zu-Spindel-Übersetzung. Mit festem **X/Y 1/4 und Z 1/16** ergeben
++sich **320 / 320 / 1280 Schritte/mm**. Die Factory-Vorgaben sind
++**600 / 600 / 300 mm/min** bei 10 mm/s². Gültige alte CNC-Einstellungen
++werden migriert; ihre bisherigen 100 / 100 / 150 mm/min werden dabei nicht
++automatisch angehoben. Die CNC-Schrittfrequenzgrenze beträgt **18 kHz**.
++Die getrennten Testprofile behalten ihre
++bisherige Repetier-Kalibrierung. X und Z übernehmen dieselbe Übersetzung;
++deren tatsächlichen Fahrweg hat der Nutzer noch nicht durch Messung bestätigt.
++Analyse, Grenzen und stufenweiser Hardwaretest:
++[Geschwindigkeit optimieren](docs/geschwindigkeit-optimieren.md).
++
++Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
++entsprechen dem offiziellen `edge`-Commit
++`baaa1be3fe6c33a287695bbd57121da0b2979d9c` von
++[fra589/grbl-Mega-5X](https://github.com/fra589/grbl-Mega-5X).
++Die hochgeladene Repetier-Referenz ist **Community Mod 1.45.01** und keine
++nachgewiesene Hersteller-Stockfirmware. Sie liegt unverändert unter
++`references/repetier/` und wird als zweite Firmwarevariante separat gebaut.
++Quellen und Prüfsummen stehen in `references/provenance.json`.
++
++**Quellenpriorität bei Abweichungen:** Nach aktueller Nutzervorgabe gilt die
++bisherige RF2000-Repetier-Konfiguration als funktionierend. Widerspricht eine
++Hardwarezuordnung im Schaltplan der bereitgestellten Repetier-Referenz, hat
++deren RF2000v2-Konfigurationsblock Vorrang. Jede übernommene Abweichung wird
++dem Nutzer genannt und in [docs/hardware-verification.md](docs/hardware-verification.md)
++dokumentiert. DRV8711-Protokoll und Registersemantik folgen dem TI-Datenblatt;
++die Festlegung ersetzt keinen Funktionstest des GRBL-Ports.
++
++## Bauen und prüfen
++
++Für **PlatformIO / VS Code** den Repository-Hauptordner mit `platformio.ini`
++öffnen und die Umgebung **`rf2000_cnc` → Build** auswählen. Per CLI:
++
++```bash
++git pull
++pio run
+ ```
 -List of Supported G-Codes in Grbl v1.1:
 -  - Non-Modal Commands: G4, G10L2, G10L20, G28, G30, G28.1, G30.1, G53, G92, G92.1
 -  - Motion Modes: G0, G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
@@ -297,13 +318,7 @@
 -  - Coolant Control: M7*, M8, M9
 -  - Spindle Control: M3, M4, M5
 -  - Valid Non-Command Words: F, I, J, K, L, N, P, R, S, T, X, Y, Z, A, B, C
-+```bash
-+git pull
-+pio run
- ```
- 
---------------
--Grbl-Mega-5X is an open-source project and fueled by the free-time of our intrepid administrators and altruistic users. If you'd like to donate, all proceeds will be used to help fund supporting hardware and testing equipment. Thank you! [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?business=CZZN52UPPVHCW&no_recurring=0&item_name=Grbl-Mega-5X+%26+cn5X%2B%2B+donations&currency_code=EUR)
++
 +Das HEX liegt anschließend unter `.pio/build/rf2000_cnc/firmware.hex`.
 +Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 +
@@ -313,15 +328,19 @@
 +```bash
 +pio run -t upload --upload-port /dev/cu.usbserial-AL03P2K9
 +pio device monitor --port /dev/cu.usbserial-AL03P2K9
-+```
-+
+ ```
+ 
+--------------
+-Grbl-Mega-5X is an open-source project and fueled by the free-time of our intrepid administrators and altruistic users. If you'd like to donate, all proceeds will be used to help fund supporting hardware and testing equipment. Thank you! [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?business=CZZN52UPPVHCW&no_recurring=0&item_name=Grbl-Mega-5X+%26+cn5X%2B%2B+donations&currency_code=EUR)
 +Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-+115200 Baud** verbinden. `$I` enthält `20261019-rf2000-cnc-panel`.
-+**Bei bestehender CNC-Firmware bleiben die bisherigen EEPROM-Werte erhalten.**
-+Vor der ersten Bewegung die [geordneten Einstellbefehle](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
-+anwenden: zuerst X/Y-Maximaltempo senken, dann Schritte/mm ändern. Dafür
-+ist kein EEPROM-Reset nötig; Arbeitskoordinaten bleiben gespeichert.
-+Anschließend Referenz und Werkstücknull neu prüfen.
++115200 Baud** verbinden. `$I` enthält `20261022-rf2000-cnc-speed`.
++**Vor der ersten Bewegung die [EEPROM-Migration prüfen](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).**
++Version 74 wird auf 75 umgestellt: X/Y-Schritte/mm werden durch acht geteilt,
++Z bleibt unverändert. G54–G59, Startzeilen und eigener Buildtext bleiben bei
++dieser Migration gespeichert. **Nach dem Update niemals die alten X/Y-Werte
++2560 zurückschreiben:** Bei 1/4 würden damit achtfach zu große Wege entstehen.
++Mit `$$` die neue Kalibrierung prüfen, dann langsam neu referenzieren und
++Fahrweg sowie Werkstücknull kontrollieren.
 +
 +Home / `$H` referenziert Z-Max, danach X/Y-Min;
 +`$HX`, `$HY`, `$HZ` funktionieren einzeln. XYZ-Jogs und normale GRBL-Dateien
@@ -383,7 +402,8 @@
 +- Eigene Plattform `CPU_MAP_2560_RENKFORCE_CTC_V3`, ohne RAMPS-Ausgänge.
 +- Portmaskierte gemeinsame STEP-Ausgabe auf PF0/PF6/PF3; DIR auf PF1/PF7/PL1.
 +- Fünfkanaliges HIGH-aktives Software-SPI mit kontrollierter ENBL0-Wake-/Resetsequenz und verpflichtendem Registerreadback.
-+- Mikroschritte X/Y 1/32, Z 1/16, Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN 20.
++- CNC: feste Mikroschritte X/Y 1/4, Z 1/16; Testprofile X/Y 1/32. Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN-Verstärkung 20.
++- CNC: 18-kHz-Grenze, unveränderte Richtung wird zwischengespeichert; erster STEP nach Richtungswechsel behält mindestens 5 µs Vorlauf, Pulsende bleibt timergeführt.
 +- LOW-aktive X-/Y-/Z-Min und Z-Max auf Port C/H, Timer2-Abfrage mit 1 kHz, sofortige Stopentscheidung und fünf freie Samples vor Wiederfreigabe.
 +- CNC: ausdrücklich angefordertes `$LR` zum begrenzten Freifahren eines einzelnen aktiven Endschalters; danach erneutes Referenzieren erforderlich.
 +- Treiberfehler über INT6 auch bei kurzen FAULTn-Pulsen verriegelt bis zum echten MCU-Neustart; Boot und Softreset starten verriegelt, Freigabe über Homing oder `$X` bei freien Eingängen.
@@ -434,6 +454,7 @@
 +- [XYZ-CNC mit gSender und Display](docs/cnc-gsender.md)
 +- [CNC-Bedienfeld und Menü](docs/bedienfeld-menue.md)
 +- [Befehlsübersicht für gSender: Referenzieren, Joggen, Nullpunkte und Einstellungen](docs/befehle.md)
++- [Geschwindigkeitsanalyse, EEPROM-Umstellung und Hardwaretestplan](docs/geschwindigkeit-optimieren.md)
 +- [DRV8711-Protokoll, Register, Stromberechnung](docs/drv8711.md)
 +- [STEP-/DIR-Timer und Grenzen](docs/step-timing.md)
 +- [Endschalter und Diagnose](docs/limits.md)
@@ -507,7 +528,7 @@
  
 --- a/grbl/config.h
 +++ b/grbl/config.h
-@@ -39,8 +39,51 @@
+@@ -39,8 +39,69 @@
  // NOTE: OEMs can avoid the need to maintain/update the defaults.h and cpu_map.h files and use only
  // one configuration file by placing their specific defaults and pin map at the bottom of this file.
  // If doing so, simply comment out these two defines and see instructions below.
@@ -527,6 +548,24 @@
 +#ifndef RF2000_CNC
 +  #define RF2000_CNC 0
 +#endif
++/* RF2000_MICROSTEP_PROFILE_BEGIN: shared by registers and travel calibration. */
++#if RF2000_CNC
++  #define RF2000_XY_MICROSTEPS 4u
++#else
++  #define RF2000_XY_MICROSTEPS 32u
++#endif
++#define RF2000_Z_MICROSTEPS 16u
++#define RF2000_DRV8711_MODE(microsteps) \
++  ((microsteps) == 1u ? 0u : (microsteps) == 2u ? 1u : \
++   (microsteps) == 4u ? 2u : (microsteps) == 8u ? 3u : \
++   (microsteps) == 16u ? 4u : (microsteps) == 32u ? 5u : \
++   (microsteps) == 64u ? 6u : (microsteps) == 128u ? 7u : \
++   (microsteps) == 256u ? 8u : 0xffu)
++#if RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) == 0xffu || \
++    RF2000_DRV8711_MODE(RF2000_Z_MICROSTEPS) == 0xffu
++  #error "Unsupported RF2000 DRV8711 microstep resolution"
++#endif
++/* RF2000_MICROSTEP_PROFILE_END */
 +#if RF2000_CNC && RF2000_Y_HOMING_TEST
 +  #error "Select either the XYZ CNC or the isolated Y commissioning profile."
 +#endif
@@ -561,7 +600,7 @@
  
  //----------------------------------------------------------------------
  // Axis definitions :
-@@ -52,7 +95,7 @@
+@@ -52,7 +113,7 @@
  // unpredictable behavior!
  //----------------------------------------------------------------------
  
@@ -570,7 +609,7 @@
  #define N_AXIS_LINEAR 3 // Number of linears axis, must be <= N_AXIS
  
  // Axis indexing and names
-@@ -120,7 +163,8 @@
+@@ -120,7 +181,8 @@
  // SPINDLE_PWM_ON_D9  => 0-12v 8 bits PWM on RAMPS D9
  // SPINDLE_PWM_ON_D6  => 0-5v 8bits PWM on RAMPS Servo 2 signal (Mega 2560 D6)
  // Uncomment the line which correspond to your hardware
@@ -580,7 +619,7 @@
  //#define SPINDLE_PWM_ON_D6
  //#define SPINDLE_PWM_ON_D9
  
-@@ -407,7 +451,7 @@
+@@ -407,7 +469,7 @@
  // allowable override values and the coarse and fine increments per command received. Please
  // note the allowable values in the descriptions following each define.
  #define DEFAULT_FEED_OVERRIDE           100 // 100%. Don't change this value.
@@ -589,16 +628,22 @@
  #define MIN_FEED_RATE_OVERRIDE           10 // Percent of programmed feed rate (1-100). Usually 50% or 1%
  #define FEED_OVERRIDE_COARSE_INCREMENT   10 // (1-99). Usually 10%.
  #define FEED_OVERRIDE_FINE_INCREMENT      1 // (1-99). Usually 1%.
-@@ -475,7 +519,7 @@
+@@ -475,7 +537,13 @@
  // step rate is strictly limited by the CPU speed and will change if something other than an AVR running
  // at 16MHz is used.
  // NOTE: For now disabled, will enable if flash space permits.
 -// #define MAX_STEP_RATE_HZ 30000 // Hz
-+#define MAX_STEP_RATE_HZ 5000 // Controlled hardware tests; settings.c enforces this ceiling.
++#if RF2000_CNC
++  // Validated under simultaneous XYZ/LCD/UART load, with margin below
++  // the separately probed 20-kHz CNC candidate.
++  #define MAX_STEP_RATE_HZ 18000
++#else
++  #define MAX_STEP_RATE_HZ 5000 // Preserve the commissioning profiles.
++#endif
  
  // By default, Grbl sets all input pins to normal-high operation with their internal pull-up resistors
  // enabled. This simplifies the wiring for users by requiring only a switch connected to ground,
-@@ -573,7 +617,7 @@
+@@ -573,7 +641,7 @@
  // NOTE: Uncomment to enable. The recommended delay must be > 3us, and, when added with the
  // user-supplied step pulse time, the total time must not exceed 127us. Reported successful
  // values for certain setups have ranged from 5 to 20us.
@@ -772,7 +817,7 @@
    #include "nuts_bolts.h"
 --- a/grbl/defaults.h
 +++ b/grbl/defaults.h
-@@ -27,6 +27,75 @@
+@@ -27,6 +27,79 @@
     NOTE: Ensure one and only one of these DEFAULTS_XXX values is defined in config.h */
  
  #ifndef defaults_h
@@ -782,12 +827,12 @@
 +    #if RF2000_CNC
 +      // User-specified SFU1605 mechanics on XYZ: 200 full steps/rev,
 +      // 5 mm/rev screw, motor turns twice per screw revolution.
-+      // DRV8711 microsteps stay X/Y=32 and Z=16.
-+      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*32.0*2.0/5.0) // 2560 steps/mm
-+      #define DEFAULT_AXIS2_STEPS_PER_UNIT (200.0*32.0*2.0/5.0)
-+      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*16.0*2.0/5.0) // 1280 steps/mm
-+      #define DEFAULT_AXIS1_MAX_RATE 100.0 // mm/min; 4266.67 steps/s, below 5 kHz
-+      #define DEFAULT_AXIS2_MAX_RATE 100.0
++      // Use exactly the same microstep profile as the DRV8711 CTRL registers.
++      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0) // 320 steps/mm
++      #define DEFAULT_AXIS2_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0)
++      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*RF2000_Z_MICROSTEPS*2.0/5.0) // 1280 steps/mm
++      #define DEFAULT_AXIS1_MAX_RATE 600.0 // Conservative start; tune on hardware.
++      #define DEFAULT_AXIS2_MAX_RATE 600.0
 +    #else
 +      // Original RF2000v2 Repetier mechanics for the separate test profiles.
 +      #define DEFAULT_AXIS1_STEPS_PER_UNIT (4.761875*32.0) // 152.38 steps/mm
@@ -796,7 +841,11 @@
 +      #define DEFAULT_AXIS1_MAX_RATE 500.0 // mm/min; 1270 steps/s
 +      #define DEFAULT_AXIS2_MAX_RATE 500.0
 +    #endif
-+    #define DEFAULT_AXIS3_MAX_RATE 150.0 // mm/min; 3200 steps/s
++    #if RF2000_CNC
++      #define DEFAULT_AXIS3_MAX_RATE 300.0 // Z retains 1/16; tune its load separately.
++    #else
++      #define DEFAULT_AXIS3_MAX_RATE 150.0 // Preserve commissioning rate.
++    #endif
 +    #define DEFAULT_AXIS1_ACCELERATION (10.0*60.0*60.0) // mm/min^2
 +    #define DEFAULT_AXIS2_ACCELERATION (10.0*60.0*60.0)
 +    #define DEFAULT_AXIS3_ACCELERATION (10.0*60.0*60.0)
@@ -995,7 +1044,7 @@
  #define GRBL_VERSION "1.2i"
 -#define GRBL_VERSION_BUILD "20260521"
 +#if defined(RF2000_CNC) && RF2000_CNC
-+  #define GRBL_VERSION_BUILD "20261019-rf2000-cnc-panel"
++  #define GRBL_VERSION_BUILD "20261022-rf2000-cnc-speed"
 +#else
 +  #define GRBL_VERSION_BUILD "20261018-rf2000"
 +#endif
@@ -1829,7 +1878,7 @@
 +#endif
 --- /dev/null
 +++ b/grbl/rf2000_drv8711.c
-@@ -0,0 +1,317 @@
+@@ -0,0 +1,318 @@
 +/*
 + * RF2000 I851 CTC V3.0 five-channel DRV8711 hardware support.
 + * Derived from drv8711Init()/drv8711Transmit()/setMotorCurrent() in the
@@ -1851,14 +1900,15 @@
 +
 +/* All five physical channels exist independently of the Grbl axis count.
 + * CTRL: DTIME=3 (850 ns), ISGAIN=2 (20), EXSTALL=0, RDIR=0,
-+ * RSTEP=0. MODE=5 means 1/32, MODE=4 means 1/16. ENBL is set only for
-+ * deliberately configured active channels, and only after safe awake reset. */
++ * RSTEP=0. MODE comes from the same microstep profile as steps/mm: CNC X/Y
++ * use 1/4; separate test profiles use 1/32. Z stays 1/16 and A/B stay 1/32.
++ * ENBL is set only for configured active channels after safe awake reset. */
 +static const uint16_t control[RF2000_DRIVER_COUNT] = {
-+  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 0) & 1),
-+  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 1) & 1),
-+  0x0e20 | ((RF2000_DRIVER_ACTIVE_MASK >> 2) & 1),
-+  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 3) & 1),
-+  0x0e28 | ((RF2000_DRIVER_ACTIVE_MASK >> 4) & 1)
++  0x0e00 | (RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 0) & 1),
++  0x0e00 | (RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 1) & 1),
++  0x0e00 | (RF2000_DRV8711_MODE(RF2000_Z_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 2) & 1),
++  0x0e00 | (RF2000_DRV8711_MODE(32u) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 3) & 1),
++  0x0e00 | (RF2000_DRV8711_MODE(32u) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 4) & 1)
 +};
 +static const uint8_t torque[RF2000_DRIVER_COUNT] = {110, 110, 105, 90, 90};
 +static const uint16_t register_data[8] = {
@@ -3331,7 +3381,19 @@
        }
 --- a/grbl/settings.c
 +++ b/grbl/settings.c
-@@ -90,11 +90,19 @@
+@@ -23,6 +23,11 @@
+ #include "grbl.h"
+ 
+ settings_t settings;
++#if RF2000_CNC
++// Only known CNC layouts may preserve independently checksummed coordinates,
++// startup lines and build information when their global record is recovered.
++static uint8_t rf2000_preserve_eeprom_records;
++#endif
+ 
+ const __flash settings_t defaults = {
+     .pulse_microseconds = DEFAULT_STEP_PULSE_MICROSECONDS,
+@@ -90,11 +95,19 @@
  // Method to store startup lines into EEPROM
  void settings_store_startup_line(uint8_t n, char *line)
  {
@@ -3353,7 +3415,7 @@
  }
  
  
-@@ -102,14 +110,23 @@
+@@ -102,14 +115,23 @@
  // NOTE: This function can only be called in IDLE state.
  void settings_store_build_info(char *line)
  {
@@ -3378,17 +3440,28 @@
    #ifdef FORCE_BUFFER_SYNC_DURING_EEPROM_WRITE
      protocol_buffer_synchronize();
    #endif
-@@ -122,6 +139,9 @@
+@@ -122,13 +144,28 @@
  // NOTE: This function can only be called in IDLE state.
  void write_global_settings()
  {
+-  eeprom_put_char(0, SETTINGS_VERSION);
+-  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
 +  #if RF2000_Y_HOMING_TEST
 +    return;
 +  #endif
-   eeprom_put_char(0, SETTINGS_VERSION);
-   memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
++  #if RF2000_CNC
++    // Mark the record before modifying its units or contents. If power fails,
++    // a later boot must neither accept old 1/32 values as the coarser profile
++    // nor scale an already converted record a second time.
++    eeprom_put_char(0, RF2000_SETTINGS_MIGRATING_VERSION);
++    memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
++    eeprom_put_char(0, SETTINGS_VERSION);
++  #else
++    eeprom_put_char(0, SETTINGS_VERSION);
++    memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
++  #endif
  }
-@@ -129,6 +149,9 @@
+ 
  
  // Method to restore EEPROM-saved Grbl global settings back to defaults.
  void settings_restore(uint8_t restore_flag) {
@@ -3398,7 +3471,7 @@
    if (restore_flag & SETTINGS_RESTORE_DEFAULTS) {
      settings = defaults;
      write_global_settings();
-@@ -142,19 +165,13 @@
+@@ -142,19 +179,13 @@
    }
  
    if (restore_flag & SETTINGS_RESTORE_STARTUP_LINES) {
@@ -3422,7 +3495,7 @@
    }
  }
  
-@@ -162,8 +179,13 @@
+@@ -162,8 +193,13 @@
  // Reads startup line from EEPROM. Updated pointed line string data.
  uint8_t settings_read_startup_line(uint8_t n, char *line)
  {
@@ -3438,7 +3511,7 @@
      // Reset line with default value
      line[0] = 0; // Empty line
      settings_store_startup_line(n, line);
-@@ -176,7 +198,11 @@
+@@ -176,7 +212,11 @@
  // Reads startup line from EEPROM. Updated pointed line string data.
  uint8_t settings_read_build_info(char *line)
  {
@@ -3451,7 +3524,7 @@
      // Reset line with default value
      line[0] = 0; // Empty line
      settings_store_build_info(line);
-@@ -189,6 +215,9 @@
+@@ -189,6 +229,9 @@
  // Read selected coordinate data from EEPROM. Updates pointed coord_data value.
  uint8_t settings_read_coord_data(uint8_t coord_select, float *coord_data)
  {
@@ -3461,7 +3534,7 @@
    uint32_t addr = coord_select*(sizeof(float)*N_AXIS+1) + EEPROM_ADDR_PARAMETERS;
    if (!(memcpy_from_eeprom_with_checksum((char*)coord_data, addr, sizeof(float)*N_AXIS))) {
      // Reset with default zero vector
-@@ -202,6 +231,12 @@
+@@ -202,9 +245,25 @@
  
  // Reads Grbl global settings struct from EEPROM.
  uint8_t read_global_settings() {
@@ -3473,8 +3546,22 @@
 +  #endif
    // Check version-byte of eeprom
    uint8_t version = eeprom_get_char(0);
-   if (version == SETTINGS_VERSION) {
-@@ -212,12 +247,49 @@
+-  if (version == SETTINGS_VERSION) {
++  #if RF2000_CNC
++    rf2000_preserve_eeprom_records = version == SETTINGS_VERSION ||
++      version == RF2000_SETTINGS_PREVIOUS_VERSION ||
++      version == RF2000_SETTINGS_MIGRATING_VERSION;
++    if (version == RF2000_SETTINGS_MIGRATING_VERSION) { return(false); }
++  #endif
++  if (version == SETTINGS_VERSION
++      #if RF2000_CNC
++        || version == RF2000_SETTINGS_PREVIOUS_VERSION
++      #endif
++      ) {
+     // Read settings-record and check checksum
+     if (!(memcpy_from_eeprom_with_checksum((char*)&settings, EEPROM_ADDR_GLOBAL, sizeof(settings_t)))) {
+       return(false);
+@@ -212,12 +271,95 @@
    } else {
      return(false);
    }
@@ -3490,9 +3577,55 @@
 +    for (uint8_t axis=0; axis<N_AXIS; axis++) {
 +      if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0 ||
 +          !isfinite(settings.max_rate[axis]) || settings.max_rate[axis] <= 0 ||
-+          settings.steps_per_mm[axis]*settings.max_rate[axis] > MAX_STEP_RATE_HZ*60.0f ||
++          settings.steps_per_mm[axis]*settings.max_rate[axis] >
++            #if RF2000_CNC
++              (version == RF2000_SETTINGS_PREVIOUS_VERSION ? 5000.0f : MAX_STEP_RATE_HZ)*60.0f ||
++            #else
++              MAX_STEP_RATE_HZ*60.0f ||
++            #endif
 +          !isfinite(settings.acceleration[axis]) || settings.acceleration[axis] <= 0 ||
 +          !isfinite(settings.max_travel[axis]) || settings.max_travel[axis] >= 0) { return(false); }
++    }
++  #endif
++  #if RF2000_CNC
++    if (version == RF2000_SETTINGS_PREVIOUS_VERSION) {
++      uint8_t obsolete_axes = 0;
++      for (uint8_t axis=0; axis<N_AXIS; ++axis) {
++        if (axis == AXIS_1 || axis == AXIS_2) {
++          // These exact former RF2000 defaults describe its original belt
++          // mechanics, not the user's SFU1605/2:1 CNC mechanics. They were
++          // already observed in the user's old CNC EEPROM. Do not turn them
++          // into another wrong value by blindly scaling obsolete mechanics.
++          if (fabsf(settings.steps_per_mm[axis] - 152.38f) <= 0.001f) {
++            settings.steps_per_mm[axis] = defaults.steps_per_mm[axis];
++            obsolete_axes |= bit(axis);
++          } else {
++            settings.steps_per_mm[axis] *= RF2000_XY_MICROSTEPS / 32.0f;
++          }
++          if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0)
++            return(false);
++        }
++        // An update must not unexpectedly accelerate an untested machine.
++        if (settings.max_rate[axis] > defaults.max_rate[axis])
++          settings.max_rate[axis] = defaults.max_rate[axis];
++        if (settings.acceleration[axis] > defaults.acceleration[axis])
++          settings.acceleration[axis] = defaults.acceleration[axis];
++      }
++      write_global_settings();
++      printPgmString(PSTR("[MSG:RF2000 EEPROM 74->75; X/Y microsteps 32->"));
++      print_uint8_base10(RF2000_XY_MICROSTEPS);
++      printPgmString(PSTR("]\r\n"));
++      if (obsolete_axes & bit(AXIS_1)) {
++        printPgmString(PSTR("[MSG:RF2000 X: obsolete 152.380 corrected to "));
++        printFloat(defaults.steps_per_mm[AXIS_1], 3);
++        printPgmString(PSTR(" steps/mm]\r\n"));
++      }
++      if (obsolete_axes & bit(AXIS_2)) {
++        printPgmString(PSTR("[MSG:RF2000 Y: obsolete 152.380 corrected to "));
++        printFloat(defaults.steps_per_mm[AXIS_2], 3);
++        printPgmString(PSTR(" steps/mm]\r\n"));
++      }
++      printPgmString(PSTR("[MSG:RF2000 offsets/startup retained; rehome and verify travel]\r\n"));
 +    }
 +  #endif
    return(true);
@@ -3524,16 +3657,34 @@
    if (value < 0.0) { return(STATUS_NEGATIVE_VALUE); }
    if (parameter >= AXIS_SETTINGS_START_VAL) {
      // Store axis configuration. Axis numbering sequence set by AXIS_SETTING defines.
+@@ -341,7 +483,14 @@
+ void settings_init() {
+   if(!read_global_settings()) {
+     report_status_message(STATUS_SETTING_READ_FAIL);
+-    settings_restore(SETTINGS_RESTORE_ALL); // Force restore all EEPROM data.
++    #if RF2000_CNC
++      if (rf2000_preserve_eeprom_records) {
++        settings_restore(SETTINGS_RESTORE_DEFAULTS);
++        printPgmString(PSTR("[MSG:RF2000 settings recovered; offsets/startup retained]\r\n"));
++      } else settings_restore(SETTINGS_RESTORE_ALL);
++    #else
++      settings_restore(SETTINGS_RESTORE_ALL); // Force restore all EEPROM data.
++    #endif
+     report_grbl_settings();
+     do {} while (is_report_grbl_settings_running()); // Wait for report settings complete
+   }
 --- a/grbl/settings.h
 +++ b/grbl/settings.h
-@@ -31,7 +31,15 @@
+@@ -31,7 +31,17 @@
  
  // Version of the EEPROM data. Will be used to migrate existing data from older versions of Grbl
  // when firmware is upgraded. Always stored in byte 0 of eeprom
 -#define SETTINGS_VERSION 10  // NOTE: Check settings_reset() when moving to next version.
 +#ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
 +  #if RF2000_CNC
-+    #define SETTINGS_VERSION 74 // CNC defaults and settings are separate from the XYZ test.
++    #define SETTINGS_VERSION 75 // CNC X/Y 1/4 profile; migrate the former 1/32 record.
++    #define RF2000_SETTINGS_PREVIOUS_VERSION 74
++    #define RF2000_SETTINGS_MIGRATING_VERSION 0xa5u
 +  #else
 +    #define SETTINGS_VERSION 73 // Separate XYZ RF2000 profile; never reuse RAMPS/5-axis EEPROM.
 +  #endif
@@ -3591,7 +3742,7 @@
 +#endif // CPU_MAP_2560_RENKFORCE_CTC_V3
 --- a/grbl/stepper.c
 +++ b/grbl/stepper.c
-@@ -21,6 +21,41 @@
+@@ -21,6 +21,52 @@
  */
  
  #include "grbl.h"
@@ -3611,11 +3762,22 @@
 +  #endif
 +  #define RF2000_DIRECTION_F_MASK (_BV(PF1) | _BV(PF7))
 +  #define RF2000_TIMER0_FLAGS (_BV(OCF0A) | _BV(OCF0B) | _BV(TOV0))
++  #if RF2000_CNC
++    #define RF2000_STEP_INLINE __attribute__((always_inline))
++  #else
++    #define RF2000_STEP_INLINE
++  #endif
 +  static uint8_t rf2000_pulse_ticks;
++  #if RF2000_CNC
++    static uint8_t rf2000_direction_f, rf2000_direction_l;
++    static volatile uint8_t rf2000_direction_valid;
++    static volatile uint8_t rf2000_direction_update;
++    static volatile uint8_t rf2000_direction_pending;
++  #endif
 +
 +  // All callers hold interrupts off. A single masked write creates simultaneous
 +  // XYZ edges and preserves PORTF's direction, SLEEP and unused pins.
-+  static inline void rf2000_write_steps(uint8_t step_bits)
++  static inline RF2000_STEP_INLINE void rf2000_write_steps(uint8_t step_bits)
 +  {
 +    #if RF2000_Y_HOMING_TEST
 +      step_bits &= _BV(PF6); // Independent GPIO backstop: only Y may step.
@@ -3623,7 +3785,7 @@
 +    PORTF = (PORTF & ~RF2000_STEP_MASK) | (step_bits & RF2000_STEP_MASK);
 +  }
 +
-+  static inline void rf2000_write_directions(uint8_t x, uint8_t y, uint8_t z)
++  static inline RF2000_STEP_INLINE void rf2000_write_directions(uint8_t x, uint8_t y, uint8_t z)
 +  {
 +    PORTF = (PORTF & ~RF2000_DIRECTION_F_MASK) |
 +      ((x | y) & RF2000_DIRECTION_F_MASK);
@@ -3633,7 +3795,19 @@
  
  
  // Some useful constants.
-@@ -105,7 +140,7 @@
+@@ -77,6 +123,11 @@
+   uint8_t  st_block_index;   // Stepper block data index. Uses this information to execute this segment.
+   #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
+     uint8_t amass_level;    // Indicates AMASS level for the ISR to execute this segment
++    #if RF2000_CNC
++      // Compute variable-width shifts in the foreground. Segment loading in
++      // Timer1 then has fixed-size copies, including at AMASS transitions.
++      uint32_t steps[N_AXIS];
++    #endif
+   #else
+     uint8_t prescaler;      // Without AMASS, a prescaler is required to adjust for slow timing.
+   #endif
+@@ -105,7 +156,7 @@
             counter_z;
    #endif
    #ifdef STEP_PULSE_DELAY
@@ -3642,7 +3816,7 @@
    #endif
  
    uint8_t execute_step;         // Flags step execution for each interrupt.
-@@ -123,6 +158,21 @@
+@@ -123,6 +174,21 @@
  } stepper_t;
  static stepper_t st;
  
@@ -3664,16 +3838,22 @@
  // Step segment ring buffer indices
  static volatile uint8_t segment_buffer_tail;
  static uint8_t segment_buffer_head;
-@@ -131,6 +181,38 @@
+@@ -131,6 +197,44 @@
  // Step and direction port invert masks.
  static uint8_t step_port_invert_mask[N_AXIS];
  static uint8_t dir_port_invert_mask[N_AXIS];
 +
 +#ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-+  static inline uint8_t rf2000_step_idle_bits(void)
++  static inline RF2000_STEP_INLINE uint8_t rf2000_step_idle_bits(void)
 +  {
-+    return step_port_invert_mask[0] | step_port_invert_mask[1] |
-+      step_port_invert_mask[2];
++    #if RF2000_CNC
++      // The RF2000 settings backend enforces $2=0 at load and write time.
++      // Keeping this constant also avoids a call/register spill in Timer0.
++      return 0;
++    #else
++      return step_port_invert_mask[0] | step_port_invert_mask[1] |
++        step_port_invert_mask[2];
++    #endif
 +  }
 +
 +  // Also safe from Timer0/Timer2 or realtime serial reset. No SPI, delays or
@@ -3703,7 +3883,7 @@
  
  // Used to avoid ISR nesting of the "Stepper Driver Interrupt". Should never occur though.
  static volatile uint8_t busy;
-@@ -222,6 +304,36 @@
+@@ -222,6 +326,36 @@
    int idx;
  
    // Enable stepper drivers.
@@ -3740,7 +3920,7 @@
    if (bit_istrue(settings.flags,BITFLAG_INVERT_ST_ENABLE)) {
      STEPPER_DISABLE_PORT(0) |= (1 << STEPPER_DISABLE_BIT(0));
      STEPPER_DISABLE_PORT(1) |= (1 << STEPPER_DISABLE_BIT(1));
-@@ -249,13 +361,23 @@
+@@ -249,13 +383,30 @@
        STEPPER_DISABLE_PORT(5) &= ~(1 << STEPPER_DISABLE_BIT(5));
      #endif
    }
@@ -3761,11 +3941,18 @@
 +    if (pulse_us > 20) { pulse_us = 20; }
 +    rf2000_pulse_ticks = pulse_us * 2;
 +    OCR0A = STEP_PULSE_DELAY * 2;
++    #if RF2000_CNC
++      // A newly woken driver must get the full setup interval before its
++      // first physical STEP, even if its remembered direction is unchanged.
++      rf2000_direction_valid = false;
++      rf2000_direction_update = true;
++      rf2000_direction_pending = true;
++    #endif
 +  #elif defined(STEP_PULSE_DELAY)
      // Set total step pulse time after direction pin set. Ad hoc computation from oscilloscope.
      st.step_pulse_time = -(((settings.pulse_microseconds+STEP_PULSE_DELAY-2)*TICKS_PER_MICROSECOND) >> 3);
      // Set delay between direction pin write and step command.
-@@ -266,7 +388,30 @@
+@@ -266,7 +417,30 @@
    #endif
  
    // Enable Stepper Driver Interrupt
@@ -3797,7 +3984,7 @@
  }
  
  
-@@ -280,12 +425,25 @@
+@@ -280,12 +454,25 @@
  
    // Set stepper driver idle state, disabled or enabled, depending on settings and circumstances.
    bool pin_state = false; // Keep enabled.
@@ -3823,7 +4010,7 @@
    if (bit_istrue(settings.flags,BITFLAG_INVERT_ST_ENABLE)) { pin_state = !pin_state; } // Apply pin invert.
    if (pin_state) {
      STEPPER_DISABLE_PORT(0) |= (1 << STEPPER_DISABLE_BIT(0));
-@@ -314,6 +472,7 @@
+@@ -314,6 +501,7 @@
        STEPPER_DISABLE_PORT(5) &= ~(1 << STEPPER_DISABLE_BIT(5));
      #endif
    }
@@ -3831,7 +4018,7 @@
  }
  
  
-@@ -371,6 +530,26 @@
+@@ -371,6 +559,26 @@
  
    if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
  
@@ -3858,17 +4045,37 @@
    // Adding limit check status to implement hardware limits for RAMPS
    // outside the changepin interrupt wich cannot be used
    #ifdef ENABLE_RAMPS_HW_LIMITS
-@@ -380,6 +559,9 @@
+@@ -380,6 +588,29 @@
    #endif
  
    // Set the direction pins a couple of nanoseconds before we step the steppers
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
-+    rf2000_write_directions(st.dir_outbits[0], st.dir_outbits[1], st.dir_outbits[2]);
++    #if RF2000_CNC
++      // Only segment loading changes dir_outbits. The intervening high-rate
++      // STEP ticks need one flag check rather than three DIR/cache reads.
++      if (rf2000_direction_update) {
++        rf2000_direction_update = false;
++        const uint8_t direction_f = (st.dir_outbits[0] | st.dir_outbits[1]) & RF2000_DIRECTION_F_MASK;
++        const uint8_t direction_l = st.dir_outbits[2] & _BV(PL1);
++        if (!rf2000_direction_valid || direction_f != rf2000_direction_f ||
++            direction_l != rf2000_direction_l) {
++          rf2000_write_directions(direction_f, 0, direction_l);
++          rf2000_direction_f = direction_f;
++          rf2000_direction_l = direction_l;
++          rf2000_direction_valid = true;
++          // AMASS ticks may contain no physical STEP. Keep this pending until
++          // the first actual edge has completed the Timer0 direction delay.
++          rf2000_direction_pending = true;
++        }
++      }
++    #else
++      rf2000_write_directions(st.dir_outbits[0], st.dir_outbits[1], st.dir_outbits[2]);
++    #endif
 +  #else
    DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | st.dir_outbits[0];
    DIRECTION_PORT(1) = (DIRECTION_PORT(1) & ~(1 << DIRECTION_BIT(1))) | st.dir_outbits[1];
    DIRECTION_PORT(2) = (DIRECTION_PORT(2) & ~(1 << DIRECTION_BIT(2))) | st.dir_outbits[2];
-@@ -392,9 +574,12 @@
+@@ -392,9 +623,12 @@
    #if N_AXIS > 5
    DIRECTION_PORT(5) = (DIRECTION_PORT(5) & ~(1 << DIRECTION_BIT(5))) | st.dir_outbits[5];
    #endif
@@ -3882,7 +4089,7 @@
      st.step_bits[0] = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | st.step_outbits[0]; // Store out_bits to prevent overwriting.
      st.step_bits[1] = (STEP_PORT(1) & ~(1 << STEP_BIT(1))) | st.step_outbits[1]; // Store out_bits to prevent overwriting.
      st.step_bits[2] = (STEP_PORT(2) & ~(1 << STEP_BIT(2))) | st.step_outbits[2]; // Store out_bits to prevent overwriting.
-@@ -424,8 +609,19 @@
+@@ -424,8 +658,34 @@
  
    // Enable step pulse reset timer so that The Stepper Port Reset Interrupt can reset the signal after
    // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
@@ -3892,10 +4099,25 @@
 +    // AMASS inserts ticks with no physical step. Those ticks need no pulse
 +    // timer and must not create spurious edges or extra Timer0 interrupts.
 +    if (st.step_bits[0] != rf2000_step_idle_bits()) {
-+      TCNT0 = 0;
-+      TIFR0 = RF2000_TIMER0_FLAGS;
-+      TIMSK0 = _BV(OCIE0A); // First phase: guaranteed direction setup interval.
-+      TCCR0B = _BV(CS01); // Timer0 at 16 MHz / 8 = 2 ticks per us.
++      #if RF2000_CNC
++        if (!rf2000_direction_pending) {
++          // DIR has already met its setup time. Begin this STEP directly;
++          // only its falling edge needs another interrupt. Start the timer
++          // before reloading so simavr and hardware use the same sequence.
++          TCNT0 = 0;
++          TCCR0B = _BV(CS01);
++          rf2000_write_steps(st.step_bits[0]);
++          TCNT0 = (uint8_t)(-rf2000_pulse_ticks);
++          TIFR0 = RF2000_TIMER0_FLAGS;
++          TIMSK0 = _BV(TOIE0);
++        } else
++      #endif
++      {
++        TCNT0 = 0;
++        TIFR0 = RF2000_TIMER0_FLAGS;
++        TIMSK0 = _BV(OCIE0A); // First physical edge after a direction change.
++        TCCR0B = _BV(CS01); // Timer0 at 16 MHz / 8 = 2 ticks per us.
++      }
 +    }
 +  #else
 +    TCNT0 = st.step_pulse_time; // Reload Timer0 counter
@@ -3904,7 +4126,63 @@
  
    busy = true;
    sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
-@@ -607,6 +803,12 @@
+@@ -465,12 +725,21 @@
+       }
+       for (i = 0; i < N_AXIS; i++)
+         st.dir_outbits[i] = st.exec_block->direction_bits[i] ^ dir_port_invert_mask[i];
++      #if RF2000_CNC
++        rf2000_direction_update = true;
++      #endif
+ 
+       #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
+         // With AMASS enabled, adjust Bresenham axis increment counters according to AMASS level.
+-        st.steps[AXIS_1] = st.exec_block->steps[AXIS_1] >> st.exec_segment->amass_level;
+-        st.steps[AXIS_2] = st.exec_block->steps[AXIS_2] >> st.exec_segment->amass_level;
+-        st.steps[AXIS_3] = st.exec_block->steps[AXIS_3] >> st.exec_segment->amass_level;
++        #if RF2000_CNC
++          st.steps[AXIS_1] = st.exec_segment->steps[AXIS_1];
++          st.steps[AXIS_2] = st.exec_segment->steps[AXIS_2];
++          st.steps[AXIS_3] = st.exec_segment->steps[AXIS_3];
++        #else
++          st.steps[AXIS_1] = st.exec_block->steps[AXIS_1] >> st.exec_segment->amass_level;
++          st.steps[AXIS_2] = st.exec_block->steps[AXIS_2] >> st.exec_segment->amass_level;
++          st.steps[AXIS_3] = st.exec_block->steps[AXIS_3] >> st.exec_segment->amass_level;
++        #endif
+         #if N_AXIS > 3
+           st.steps[AXIS_4] = st.exec_block->steps[AXIS_4] >> st.exec_segment->amass_level;
+         #endif
+@@ -579,16 +848,26 @@
+   #endif // N_AXIS > 5
+ 
+   // During a homing cycle, lock out and prevent desired axes from moving.
+-  for (i = 0; i < N_AXIS; i++)
+-    if (sys.state == STATE_HOMING) { st.step_outbits[i] &= sys.homing_axis_lock[i]; }
++  #if RF2000_CNC
++    if (sys.state == STATE_HOMING) {
++      st.step_outbits[0] &= sys.homing_axis_lock[0];
++      st.step_outbits[1] &= sys.homing_axis_lock[1];
++      st.step_outbits[2] &= sys.homing_axis_lock[2];
++    }
++  #else
++    for (i = 0; i < N_AXIS; i++)
++      if (sys.state == STATE_HOMING) { st.step_outbits[i] &= sys.homing_axis_lock[i]; }
++  #endif
+   st.step_count--; // Decrement step events count
+   if (st.step_count == 0) {
+     // Segment is complete. Discard current segment and advance segment indexing.
+     st.exec_segment = NULL;
+     if ( ++segment_buffer_tail == SEGMENT_BUFFER_SIZE) { segment_buffer_tail = 0; }
+   }
+-  for (i = 0; i < N_AXIS; i++)
+-    st.step_outbits[i] ^= step_port_invert_mask[i];  // Apply step port invert mask
++  #if !RF2000_CNC
++    for (i = 0; i < N_AXIS; i++)
++      st.step_outbits[i] ^= step_port_invert_mask[i];  // Apply step port invert mask
++  #endif
+   busy = false;
+ }
+ 
+@@ -607,6 +886,12 @@
  ISR(TIMER0_OVF_vect)
  {
    // Reset stepping pins (leave the direction pins)
@@ -3917,7 +4195,7 @@
    STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
    STEP_PORT(1) = (STEP_PORT(1) & ~(1 << STEP_BIT(1))) | step_port_invert_mask[1];
    STEP_PORT(2) = (STEP_PORT(2) & ~(1 << STEP_BIT(2))) | step_port_invert_mask[2];
-@@ -620,6 +822,7 @@
+@@ -620,6 +905,7 @@
      STEP_PORT(5) = (STEP_PORT(5) & ~(1 << STEP_BIT(5))) | step_port_invert_mask[5];
    #endif
    TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
@@ -3925,7 +4203,7 @@
  }
  #ifdef STEP_PULSE_DELAY
    // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
-@@ -629,6 +832,26 @@
+@@ -629,6 +915,29 @@
    // st_wake_up() routine.
    ISR(TIMER0_COMPA_vect)
    {
@@ -3948,11 +4226,14 @@
 +      TCNT0 = (uint8_t)(-rf2000_pulse_ticks);
 +      TIFR0 = RF2000_TIMER0_FLAGS;
 +      TIMSK0 = _BV(TOIE0); // Second phase begins at the actual STEP edge.
++      #if RF2000_CNC
++        rf2000_direction_pending = false;
++      #endif
 +    #else
      STEP_PORT(0) = st.step_bits[0]; // Begin step pulse.
      STEP_PORT(1) = st.step_bits[1]; // Begin step pulse.
      STEP_PORT(2) = st.step_bits[2]; // Begin step pulse.
-@@ -640,6 +863,7 @@
+@@ -640,6 +949,7 @@
      #endif
      #if N_AXIS > 5
        STEP_PORT(5) = st.step_bits[5]; // Begin step pulse.
@@ -3960,7 +4241,7 @@
      #endif
    }
  #endif
-@@ -666,6 +890,15 @@
+@@ -666,6 +976,15 @@
  
    // Initialize stepper driver idle state.
    st_go_idle();
@@ -3976,19 +4257,24 @@
  
    // Initialize stepper algorithm variables.
    memset(&prep, 0, sizeof(st_prep_t));
-@@ -682,6 +915,11 @@
+@@ -682,6 +1001,16 @@
      st.dir_outbits[idx] = dir_port_invert_mask[idx]; // Initialize direction bits to default.
    }
  
 +  #ifdef CPU_MAP_2560_RENKFORCE_CTC_V3
 +    rf2000_write_steps(rf2000_step_idle_bits());
 +    rf2000_write_directions(dir_port_invert_mask[0], dir_port_invert_mask[1], dir_port_invert_mask[2]);
++    #if RF2000_CNC
++      rf2000_direction_valid = false;
++      rf2000_direction_update = true;
++      rf2000_direction_pending = true;
++    #endif
 +    SREG = interrupt_state;
 +  #else
    STEP_PORT(0) = (STEP_PORT(0) & ~(1 << STEP_BIT(0))) | step_port_invert_mask[0];
    DIRECTION_PORT(0) = (DIRECTION_PORT(0) & ~(1 << DIRECTION_BIT(0))) | dir_port_invert_mask[0];
  
-@@ -701,6 +939,7 @@
+@@ -701,6 +1030,7 @@
    #if N_AXIS > 5
      STEP_PORT(5) = (STEP_PORT(5) & ~(1 << STEP_BIT(5))) | step_port_invert_mask[5];
      DIRECTION_PORT(5) = (DIRECTION_PORT(5) & ~(1 << DIRECTION_BIT(5))) | dir_port_invert_mask[5];
@@ -3996,7 +4282,7 @@
    #endif
  }
  
-@@ -760,9 +999,14 @@
+@@ -760,9 +1090,14 @@
    TIMSK0 &= ~((1<<OCIE0B) | (1<<OCIE0A) | (1<<TOIE0)); // Disconnect OC0 outputs and OVF interrupt.
    TCCR0A = 0; // Normal operation
    TCCR0B = 0; // Disable Timer0 until needed
@@ -4011,6 +4297,18 @@
    #endif
  }
  
+@@ -1188,6 +1523,11 @@
+         cycles >>= prep_segment->amass_level;
+         prep_segment->n_step <<= prep_segment->amass_level;
+       }
++      #if RF2000_CNC
++        for (uint8_t axis = 0; axis < N_AXIS; ++axis) {
++          prep_segment->steps[axis] = st_prep_block->steps[axis] >> prep_segment->amass_level;
++        }
++      #endif
+       if (cycles < (1UL << 16)) { prep_segment->cycles_per_tick = cycles; } // < 65536 (4.1ms @ 16MHz)
+       else { prep_segment->cycles_per_tick = 0xffff; } // Just set the slowest speed possible.
+     #else
 --- a/grbl/stepper.h
 +++ b/grbl/stepper.h
 @@ -22,6 +22,11 @@
@@ -4486,7 +4784,7 @@
 +echo 'AVR tools and pinned Arduino AVR core available. No device was flashed.'
 --- /dev/null
 +++ b/tools/package-release.py
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,68 @@
 +#!/usr/bin/env python3
 +"""Package reviewed sources, reference documents, and current build artifacts."""
 +from pathlib import Path
@@ -4537,7 +4835,9 @@
 +for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
 +             'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
 +             'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log',
-+             'gsender-detection.log', 'menu-simulation.log', 'recovery-simulation.log'):
++             'gsender-detection.log', 'menu-simulation.log', 'recovery-simulation.log',
++             'speed-simulation.log', 'homing-wait-simulation.log',
++             'speed-host-validation.log', 'speed-exploration.tsv'):
 +    p = artifacts / name
 +    if p.is_file():
 +        files.append(p)
@@ -4884,7 +5184,7 @@
 +console.log(`AVR transcript SHA256 ${crypto.createHash('sha256').update(transcript).digest('hex')}`);
 --- /dev/null
 +++ b/tools/test_rf2000_drv8711.py
-@@ -0,0 +1,220 @@
+@@ -0,0 +1,230 @@
 +#!/usr/bin/env python3
 +"""Exercise the actual driver state machine with a host GPIO/register model.
 +
@@ -5021,7 +5321,10 @@
 +  assert(reset_count==1 && waited_ms==35);
 +  assert((EICRB & (_BV(ISC61)|_BV(ISC60))) == _BV(ISC61));
 +  assert(EIMSK & _BV(INT6));
-+  assert(mock_registers[0][0]==0xe29 && mock_registers[1][0]==0xe29);
++  const uint16_t xy_control = RF2000_CNC ? 0xe11 : 0xe29;
++  assert(RF2000_XY_MICROSTEPS == (RF2000_CNC ? 4 : 32));
++  assert(RF2000_Z_MICROSTEPS == 16);
++  assert(mock_registers[0][0]==xy_control && mock_registers[1][0]==xy_control);
 +  assert(mock_registers[2][0]==0xe21 && mock_registers[3][0]==0xe28 && mock_registers[4][0]==0xe28);
 +  assert(mock_registers[0][1]==0x16e && mock_registers[1][1]==0x16e);
 +  assert(mock_registers[2][1]==0x169 && mock_registers[3][1]==0x15a && mock_registers[4][1]==0x15a);
@@ -5084,6 +5387,10 @@
 +
 +
 +def main():
++    config = (ROOT / "grbl/config.h").read_text()
++    profile = config.split("/* RF2000_MICROSTEP_PROFILE_BEGIN:", 1)[1]
++    profile = profile[profile.index("*/") + 2:]
++    profile = profile.split("/* RF2000_MICROSTEP_PROFILE_END */", 1)[0]
 +    source = (ROOT / "grbl/rf2000_drv8711.c").read_text()
 +    source = source.replace('#include "grbl.h"', '#include "mock_avr.h"')
 +    source = source.replace('#include <util/atomic.h>', "")
@@ -5092,15 +5399,18 @@
 +    source = source[:start] + MOCK_TRANSFER + source[end:]
 +    with tempfile.TemporaryDirectory(prefix="rf2000-driver-test-") as temporary:
 +        directory = Path(temporary)
-+        (directory / "mock_avr.h").write_text(MOCK_HEADER)
++        (directory / "mock_avr.h").write_text(MOCK_HEADER + profile)
 +        harness = directory / "driver_test.c"
 +        harness.write_text(source + TEST_BODY)
 +        binary = directory / "driver_test"
-+        subprocess.run([
-+            os.environ.get("HOST_CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror",
-+            "-Wno-unused-function", f"-I{ROOT / 'grbl'}", str(harness), "-o", str(binary)
-+        ], check=True)
-+        subprocess.run([str(binary)], check=True)
++        for cnc in (0, 1):
++            print(f"DRV8711 {'CNC 1/4' if cnc else 'legacy/test 1/32'} profile", flush=True)
++            subprocess.run([
++                os.environ.get("HOST_CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror",
++                f"-DRF2000_CNC={cnc}", "-Wno-unused-function", f"-I{ROOT / 'grbl'}",
++                str(harness), "-o", str(binary)
++            ], check=True)
++            subprocess.run([str(binary)], check=True)
 +
 +
 +if __name__ == "__main__":
@@ -5248,6 +5558,283 @@
 +    subprocess.run([os.environ.get('CC', 'cc'), '-std=c99', '-Wall', '-Wextra',
 +                    '-Werror', '-O2', str(c_file), '-o', str(executable)], check=True)
 +    subprocess.run([str(executable)], check=True)
+--- /dev/null
++++ b/tools/test_rf2000_settings_migration.py
+@@ -0,0 +1,274 @@
++#!/usr/bin/env python3
++"""Exercise production CNC settings migration, including every write boundary.
++
++The EEPROM transport/reporters are substituted. The settings structure is
++packed to AVR's byte alignment and checked against its measured 85-byte layout;
++production record/checksum and migration function bodies are compiled unchanged.
++"""
++from pathlib import Path
++import os
++import re
++import subprocess
++import tempfile
++
++ROOT = Path(__file__).resolve().parents[1]
++settings = (ROOT / "grbl/settings.c").read_text()
++header = (ROOT / "grbl/settings.h").read_text()
++config = (ROOT / "grbl/config.h").read_text()
++eeprom = (ROOT / "grbl/eeprom.c").read_text()
++
++
++def function(source, name):
++    match = re.search(r"^(?:void|uint8_t|int) " + name + r"\([^;]*?\)\s*\{", source, re.M)
++    assert match, name
++    depth, end = 1, match.end()
++    while depth:
++        if source[end] == "{":
++            depth += 1
++        elif source[end] == "}":
++            depth -= 1
++        end += 1
++    return source[match.start():end] + "\n"
++
++
++profile = config.split("/* RF2000_MICROSTEP_PROFILE_BEGIN:", 1)[1]
++profile = profile[profile.index("*/") + 2:]
++profile = profile.split("/* RF2000_MICROSTEP_PROFILE_END */", 1)[0]
++header = header.replace('#include "grbl.h"', "")
++header = header.replace("typedef struct {", "typedef struct __attribute__((packed)) {")
++globals_start = settings.index("settings_t settings;")
++globals_end = settings.index("// Method to store startup lines", globals_start)
++
++mock = r'''
++#include <assert.h>
++#include <stdbool.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include <math.h>
++#include <setjmp.h>
++#include <stddef.h>
++#define CPU_MAP_2560_RENKFORCE_CTC_V3
++#define RF2000_CNC 1
++#define RF2000_Y_HOMING_TEST 0
++#define RF2000_HOMING_VERIFIED 0
++#define DEFAULTS_RENKFORCE_RF2000V2
++#define N_AXIS 3
++#define AXIS_1 0
++#define AXIS_2 1
++#define AXIS_3 2
++#define N_STARTUP_LINE 2
++#define MAX_STEP_RATE_HZ 18000
++#define bit(n) (1u << (n))
++#define __flash
++#define PSTR(s) (s)
++#define clear_vector_float(data) memset(data, 0, sizeof(float)*N_AXIS)
++#define STATUS_SETTING_READ_FAIL 7
++#define NO_CUT (~0u)
++static uint8_t storage[4096];
++static unsigned writes, cut_before=NO_CUT;
++static jmp_buf power_loss;
++static char messages[2048];
++static unsigned status_errors, reports;
++static void eeprom_put_char(unsigned int addr, unsigned char value)
++{
++  assert(addr < sizeof(storage));
++  if (writes == cut_before) longjmp(power_loss, 1);
++  storage[addr]=value; ++writes;
++}
++static unsigned char eeprom_get_char(unsigned int addr)
++{
++  assert(addr < sizeof(storage)); return storage[addr];
++}
++static void printPgmString(const char *s)
++{
++  assert(strlen(messages)+strlen(s)<sizeof(messages)); strcat(messages,s);
++}
++static void print_uint8_base10(uint8_t n)
++{
++  char text[4]; snprintf(text,sizeof(text),"%u",n); printPgmString(text);
++}
++static void printFloat(float n,uint8_t decimals)
++{
++  char text[32]; snprintf(text,sizeof(text),"%.*f",decimals,(double)n); printPgmString(text);
++}
++static void report_status_message(uint8_t code)
++{
++  assert(code==STATUS_SETTING_READ_FAIL); ++status_errors;
++}
++static void report_grbl_settings(void) { ++reports; }
++static uint8_t is_report_grbl_settings_running(void) { return 0; }
++'''
++
++tests = r'''
++static void reports_reset(void)
++{
++  messages[0]=0; status_errors=reports=0;
++}
++static void boot_globals(void)
++{
++  cut_before=NO_CUT; writes=0; reports_reset();
++  rf2000_preserve_eeprom_records=0;
++  memset(&settings,0xa7,sizeof(settings));
++  settings_init();
++  assert(storage[0]==SETTINGS_VERSION && read_global_settings());
++}
++static void old_fixture(float x,float y)
++{
++  memset(storage,0xff,sizeof(storage));
++  cut_before=NO_CUT; writes=0; reports_reset();
++  settings=defaults;
++  settings.steps_per_mm[0]=x; settings.steps_per_mm[1]=y;
++  settings.max_rate[0]=100; settings.max_rate[1]=100; settings.max_rate[2]=150;
++  for (unsigned axis=0;axis<3;++axis) settings.acceleration[axis]=10*3600;
++  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL,(char*)&settings,sizeof(settings));
++  eeprom_put_char(0,RF2000_SETTINGS_PREVIOUS_VERSION);
++  float coordinates[3]={-1.25f,2.5f,-3.0f};
++  for (unsigned n=0;n<=SETTING_INDEX_NCOORD;++n) {
++    coordinates[0]=(float)n-1.25f;
++    settings_write_coord_data(n,coordinates);
++  }
++  char n0[]="G21G90G54",n1[]="G17",build[]="RETAINED_RF2000";
++  settings_store_startup_line(0,n0); settings_store_startup_line(1,n1);
++  settings_store_build_info(build);
++  writes=0; reports_reset();
++}
++static void assert_records_equal(const uint8_t *image)
++{
++  // No coordinate, startup, build-info, gap or unrelated byte may change.
++  const unsigned after_global=EEPROM_ADDR_GLOBAL+sizeof(settings_t)+1;
++  assert(!memcmp(storage+after_global,image+after_global,sizeof(storage)-after_global));
++  char line[EEPROM_LINE_SIZE];
++  assert(settings_read_startup_line(0,line) && !strcmp(line,"G21G90G54"));
++  assert(settings_read_startup_line(1,line) && !strcmp(line,"G17"));
++  assert(settings_read_build_info(line) && !strcmp(line,"RETAINED_RF2000"));
++  float coordinates[3];
++  assert(settings_read_coord_data(0,coordinates));
++  assert(coordinates[0]==-1.25f && coordinates[1]==2.5f && coordinates[2]==-3.0f);
++}
++int main(void)
++{
++  _Static_assert(sizeof(settings_t)==85,"AVR settings layout changed");
++  _Static_assert(offsetof(settings_t,homing_pulloff)==81,"AVR settings offset changed");
++  assert(RF2000_XY_MICROSTEPS==4 && RF2000_Z_MICROSTEPS==16);
++  assert(defaults.steps_per_mm[0]==320 && defaults.steps_per_mm[1]==320 &&
++    defaults.steps_per_mm[2]==1280);
++  uint8_t image[4096];
++
++  old_fixture(2568,2552);
++  settings.max_rate[0]=80; settings.max_rate[1]=90; settings.max_rate[2]=120;
++  settings.acceleration[0]=4*3600; settings.acceleration[1]=20*3600;
++  settings.acceleration[2]=9*3600;
++  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL,(char*)&settings,sizeof(settings));
++  memcpy(image,storage,sizeof(image)); boot_globals();
++  assert(settings.steps_per_mm[0]==321 && settings.steps_per_mm[1]==319 &&
++    settings.steps_per_mm[2]==1280);
++  assert(settings.max_rate[0]==80 && settings.max_rate[1]==90 && settings.max_rate[2]==120);
++  assert(settings.acceleration[0]==4*3600 &&
++    settings.acceleration[1]==fminf(20*3600,defaults.acceleration[1]) &&
++    settings.acceleration[2]==9*3600);
++  assert(!status_errors && !reports && strstr(messages,"74->75; X/Y microsteps 32->4"));
++  assert(!strstr(messages,"obsolete")); assert_records_equal(image);
++  boot_globals();
++  assert(settings.steps_per_mm[0]==321 && settings.steps_per_mm[1]==319 && !writes);
++  assert(!strstr(messages,"74->75")); assert_records_equal(image);
++
++  old_fixture(152.38f,2560);
++  settings.max_rate[0]=500;
++  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL,(char*)&settings,sizeof(settings));
++  memcpy(image,storage,sizeof(image)); boot_globals();
++  assert(settings.steps_per_mm[0]==320 && settings.steps_per_mm[1]==320);
++  assert(settings.max_rate[0]==fminf(500,defaults.max_rate[0]));
++  assert(strstr(messages,"X: obsolete 152.380 corrected to 320"));
++  assert(!strstr(messages,"Y: obsolete")); assert_records_equal(image);
++  old_fixture(152.38f,152.38f); boot_globals();
++  assert(strstr(messages,"X: obsolete") && strstr(messages,"Y: obsolete"));
++
++  old_fixture(2560,2560);
++  memcpy(image,storage,sizeof(image)); boot_globals();
++  const unsigned migration_writes=writes;
++  assert(migration_writes==sizeof(settings_t)+3);
++  for (unsigned cut=0;cut<migration_writes;++cut) {
++    memcpy(storage,image,sizeof(storage)); writes=0; cut_before=cut;
++    reports_reset(); rf2000_preserve_eeprom_records=0;
++    if (!setjmp(power_loss)) {
++      assert(read_global_settings());
++      assert(!"migration reached completion despite an armed power cut");
++    }
++    if (cut) assert(storage[0]==RF2000_SETTINGS_MIGRATING_VERSION);
++    else assert(storage[0]==RF2000_SETTINGS_PREVIOUS_VERSION);
++    boot_globals();
++    assert(settings.steps_per_mm[0]==320 && settings.steps_per_mm[1]==320 &&
++      settings.steps_per_mm[2]==1280);
++    assert_records_equal(image);
++    boot_globals();
++    assert(settings.steps_per_mm[0]==320 && settings.steps_per_mm[1]==320 && !writes);
++  }
++
++  // A fresh version75 global update has the same transactional guarantee.
++  old_fixture(2560,2560); boot_globals();
++  memcpy(image,storage,sizeof(image));
++  for (unsigned cut=0;cut<migration_writes;++cut) {
++    memcpy(storage,image,sizeof(storage)); settings=defaults;
++    settings.steps_per_mm[0]=321; writes=0; cut_before=cut;
++    if (!setjmp(power_loss)) {
++      write_global_settings();
++      assert(!"global update reached completion despite an armed power cut");
++    }
++    boot_globals();
++    assert(settings.steps_per_mm[0]==320 && settings.steps_per_mm[1]==320);
++    assert_records_equal(image);
++  }
++
++  // Recognized corrupt global records recover only settings, not offsets.
++  for (unsigned previous=0;previous<2;++previous) {
++    old_fixture(2560,2560);
++    if (!previous) boot_globals();
++    memcpy(image,storage,sizeof(image));
++    storage[EEPROM_ADDR_GLOBAL+sizeof(settings_t)-1]^=1;
++    boot_globals();
++    assert(status_errors==1 && reports==1 && strstr(messages,"settings recovered"));
++    assert(settings.steps_per_mm[0]==320); assert_records_equal(image);
++  }
++  old_fixture(2560,2560);
++  settings.steps_per_mm[0]=NAN;
++  memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL,(char*)&settings,sizeof(settings));
++  memcpy(image,storage,sizeof(image)); boot_globals();
++  assert(status_errors==1 && settings.steps_per_mm[0]==320); assert_records_equal(image);
++
++  // A foreign version retains the pre-existing profile-isolation/reset policy.
++  old_fixture(2560,2560); storage[0]=73; boot_globals();
++  assert(status_errors==1 && settings.steps_per_mm[0]==320);
++  char line[EEPROM_LINE_SIZE];
++  assert(settings_read_startup_line(0,line) && !line[0]);
++  assert(settings_read_build_info(line) && !line[0]);
++  float coordinates[3]; assert(settings_read_coord_data(0,coordinates));
++  assert(!coordinates[0] && !coordinates[1] && !coordinates[2]);
++  printf("PASS: actual CNC settings74->75 migration; fine calibration/legacy152.380 correction, Z unchanged, conservative rates and records retained\n");
++  printf("PASS: power cut before each of%u migration writes and each of%u current-profile update writes; no double conversion; known corrupt records recover settings only\n",
++    migration_writes,migration_writes);
++  puts("PASS: AVR85-byte packed layout/checksum, repeated boots, foreign-profile isolation; ASAN/UBSAN enabled");
++  return 0;
++}
++'''
++
++source = mock + profile + header + '\n#include "defaults.h"\n'
++source += settings[globals_start:globals_end]
++source += function(eeprom, "memcpy_to_eeprom_with_checksum")
++source += function(eeprom, "memcpy_from_eeprom_with_checksum")
++for name in ("settings_store_startup_line", "settings_store_build_info",
++             "settings_write_coord_data", "write_global_settings", "settings_restore",
++             "settings_read_startup_line", "settings_read_build_info", "settings_read_coord_data",
++             "read_global_settings", "settings_init"):
++    source += function(settings, name)
++source += tests
++
++with tempfile.TemporaryDirectory(prefix="rf2000-settings-migration-") as directory:
++    directory = Path(directory)
++    cfile, binary = directory / "settings_migration.c", directory / "settings_migration"
++    cfile.write_text(source)
++    subprocess.run([
++        os.environ.get("HOST_CC", "cc"), "-std=c11", "-Wall", "-Wextra", "-Werror",
++        "-fsanitize=address,undefined", "-g", f"-I{ROOT/'grbl'}", str(cfile), "-lm", "-o", str(binary)
++    ], check=True)
++    subprocess.run([str(binary)], check=True)
 --- /dev/null
 +++ b/tools/test_serial_ring.py
 @@ -0,0 +1,201 @@
@@ -5454,9 +6041,12 @@
 +    print("Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS")
 --- /dev/null
 +++ b/tests/rf2000_cnc_sim.c
-@@ -0,0 +1,388 @@
+@@ -0,0 +1,408 @@
 +/* Actual AVR CNC profile: gSender commands, XYZ hardware, LCD, jobs and faults.
 + * Reuse the real LCD decoder and five-DRV8711 peripheral model. GPL-3.0+. */
++#ifndef RF2000_TEST_XY_CTRL
++#define RF2000_TEST_XY_CTRL 0xe11
++#endif
 +#define RF2000_PANEL_TEST_MAIN unused_y_panel_suite
 +#include "rf2000_panel_sim.c"
 +#include <math.h>
@@ -5567,7 +6157,7 @@
 +  // $I alone must identify Grbl on reconnect, without a reset/banner.
 +  const char *identity=command("$I\n",80);
 +  CHECK(strstr(identity,"[MSG:Grbl-Mega-5X RF2000]\r\n"),"reconnect firmware name missing: %s",identity);
-+  CHECK(strstr(identity,"20261019-rf2000-cnc-panel"),"CNC build identity missing");
++  CHECK(strstr(identity,"20261022-rf2000-cnc-speed"),"CNC build identity missing");
 +  CHECK(strstr(identity,"[VER:1.2i.") && strstr(identity,"ok\r\n"),"GRBL version or acknowledgement missing: %s",identity);
 +  // Optional transcript for running a sender's actual detection code.
 +  const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
@@ -5579,9 +6169,9 @@
 +  const char *settings_reply=command("$$\n",350);
 +  CHECK(strstr(settings_reply,"$1=255") && strstr(settings_reply,"$22=1") &&
 +    strstr(settings_reply,"$23=3"),"CNC hold/homing defaults wrong: %s",settings_reply);
-+  CHECK(strstr(settings_reply,"$100=2560.000") && strstr(settings_reply,"$101=2560.000") &&
-+    strstr(settings_reply,"$102=1280.000") && strstr(settings_reply,"$110=100.000") &&
-+    strstr(settings_reply,"$111=100.000") && strstr(settings_reply,"$112=150.000"),
++  CHECK(strstr(settings_reply,"$100=320.000") && strstr(settings_reply,"$101=320.000") &&
++    strstr(settings_reply,"$102=1280.000") && strstr(settings_reply,"$110=600.000") &&
++    strstr(settings_reply,"$111=600.000") && strstr(settings_reply,"$112=300.000"),
 +    "SFU1605 2:1 calibration/rates wrong: %s",settings_reply);
 +  assert_ok("$G\n",60); assert_ok("$#\n",100);
 +  CHECK(strstr(command("?",30),"MPos:") && strstr(sim.log,"WCO:"),"gSender position/WCO fields missing");
@@ -5591,6 +6181,7 @@
 +  assert_error("M8\n"); assert_error("G38.2Z-1F10\n");
 +  assert_error("G0A1\n"); assert_error("G0B1\n");
 +  assert_error("$5=1\n"); assert_error("$21=0\n");
++  assert_error("$110=4000\n"); assert_error("$112=900\n"); //18-kHz public setting guards.
 +  reserves_off(); all_asleep();
 +  printf("PASS: gSender handshake/settings/G54/status; XYZ homing default; manual spindle M3/M4/S accepted without outputs; unwired commands blocked\n");
 +  avr_terminate(sim.avr);
@@ -5604,9 +6195,9 @@
 +  press(KEY_OK); press(KEY_DOWN); press(KEY_OK); run_us(200000);
 +  CHECK(display_has("JOG BEREIT") && !sim.step_count[0],"CNC jog page entry moved an axis");
 +  press(KEY_RIGHT); run_us(600000);
-+  CHECK(sim.step_count[0]==256 && !sim.step_count[1] && !sim.step_count[2],"local X 0.1mm jog not256 X-only steps");
++  CHECK(sim.step_count[0]==32 && !sim.step_count[1] && !sim.step_count[2],"local X 0.1mm jog not32 X-only steps");
 +  press(KEY_UP); run_us(600000);
-+  CHECK(sim.step_count[1]==256 && sim.step_count[0]==256,"local Y 0.1mm jog not256 Y-only steps");
++  CHECK(sim.step_count[1]==32 && sim.step_count[0]==32,"local Y 0.1mm jog not32 Y-only steps");
 +  press(KEY_E2); run_us(600000);
 +  CHECK(sim.step_count[2]==128,"local Z jog not128 steps");
 +  run_us(250000);
@@ -5670,11 +6261,11 @@
 +  assert_ok("M3S12000\n",60);
 +  assert_ok("G1X0.21F60\n",40);
 +  run_us(190000);
-+  CHECK(display_has("FAHRT") || sim.step_count[0]==538,"running job state not visible");
++  CHECK(display_has("FAHRT") || sim.step_count[0]==67,"running job state not visible");
 +  assert_ok("G1Y0.21\n",40); assert_ok("G1X0\n",40); assert_ok("G1Y0\n",40);
 +  assert_ok("G1Z-0.025F30\n",40); assert_ok("G1Z0\n",40);
 +  assert_ok("M5\n",1500); assert_ok("M30\n",100);
-+  CHECK(sim.step_count[0]==1076 && sim.step_count[1]==1076 && sim.step_count[2]==64,
++  CHECK(sim.step_count[0]==134 && sim.step_count[1]==134 && sim.step_count[2]==64,
 +    "rectangle/depth job pulse counts wrong %u/%u/%u",sim.step_count[0],sim.step_count[1],sim.step_count[2]);
 +  const unsigned before=sim.step_count[0];
 +  assert_ok("G91G1X1F60\n",60); run_us(180000);
@@ -5683,7 +6274,7 @@
 +  unsigned held=sim.step_count[0]; run_us(200000);
 +  CHECK(sim.step_count[0]==held,"feed hold did not stop steps");
 +  command("~",1300);
-+  CHECK(strstr(command("?",30),"<Idle") && sim.step_count[0]-before==2560,
++  CHECK(strstr(command("?",30),"<Idle") && sim.step_count[0]-before==320,
 +    "gSender cycle resume failed after hold");
 +  reserves_off();
 +  printf("PASS: streamed metric G54 rectangle with Z depth and manual spindle words; exact XYZ pulses; gSender ! hold and ~ resume complete same move\n");
@@ -5698,7 +6289,7 @@
 +  assert_ok("G3X0Y0I-0.105J0\n",40);
 +  run_us(1200000);
 +  CHECK(strstr(command("?",30),"<Idle"),"arc pair did not finish");
-+  CHECK(sim.step_count[0]==1076 && sim.step_count[1]>=944 && sim.step_count[1]<=1076 && !sim.step_count[2],
++  CHECK(sim.step_count[0]==134 && sim.step_count[1]>=118 && sim.step_count[1]<=134 && !sim.step_count[2],
 +    "semicircle endpoint/travel pulses wrong %u/%u/%u",sim.step_count[0],sim.step_count[1],sim.step_count[2]);
 +  CHECK(machine.position[0]==64 && machine.position[1]==80,"arc pair failed to return to its start");
 +  reserves_off();
@@ -5733,7 +6324,7 @@
 +  avr_eeprom_desc_t eeprom={.ee=NULL,.offset=0,.size=sizeof(image)};
 +  avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
 +  CHECK(eeprom.ee,"CNC EEPROM snapshot unavailable"); memcpy(image,eeprom.ee,sizeof(image));
-+  CHECK(image[0]==74 && eeprom_mode_writes[1]>0,"CNC profile/erase-only EEPROM path was not exercised");
++  CHECK(image[0]==75 && eeprom_mode_writes[1]>0,"CNC profile/erase-only EEPROM path was not exercised");
 +  avr_terminate(sim.avr);
 +  eeprom_boot_image=image;
 +  cnc_boot(elf);
@@ -5748,46 +6339,62 @@
 +  avr_terminate(sim.avr);
 +}
 +
++/* Historical AVR EEPROM74 layout:85 data bytes at1, checksum at86.
++ * Confirmed with avr-nm sizeof(settings)==0x55; this fixture preserves the
++ * real firmware-written remainder, work coordinates and startup records. */
++static void cnc_v74_float(uint8_t *image,unsigned offset,float value)
++{
++  CHECK(sizeof(float)==4,"host float must encode historical AVR binary32");
++  uint32_t bits; memcpy(&bits,&value,4);
++  for (unsigned i=0;i<4;++i) image[1+offset+i]=(uint8_t)(bits>>(8*i));
++}
++static void cnc_v74_checksum(uint8_t *image)
++{
++  uint8_t sum=0;
++  for (unsigned i=1;i<=85;++i) { sum=(uint8_t)((sum<<1)|(sum>>7)); sum+=image[i]; }
++  image[0]=74; image[86]=sum;
++}
 +static void test_cnc_calibration_update(const char *elf)
 +{
 +  cnc_boot(elf); cnc_unlock();
-+  // Recreate a valid version74 record from the previous stock RF2000 defaults.
-+  assert_ok("$100=152.38\n",350); assert_ok("$101=152.38\n",350);
-+  assert_ok("$110=500\n",350); assert_ok("$111=500\n",350);
 +  assert_ok("G10L2P1X-1.25Y2.5Z-3\n",150);
-+  uint8_t image[4096];
++  assert_ok("$N0=G21G90G54\n",350);
++  assert_ok("$I=KEEP_ME\n",350);
++  uint8_t image[4096],tail[4096-512];
 +  avr_eeprom_desc_t eeprom={.ee=NULL,.offset=0,.size=sizeof(image)};
 +  avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
-+  CHECK(eeprom.ee && eeprom.ee[0]==74,"legacy CNC record missing");
-+  memcpy(image,eeprom.ee,sizeof(image)); avr_terminate(sim.avr);
++  CHECK(eeprom.ee && eeprom.ee[0]==75,"current CNC record missing");
++  memcpy(image,eeprom.ee,sizeof(image));
++  memcpy(tail,image+512,sizeof(tail));
++  cnc_v74_float(image,0,2560.0f);  // Correct previous1/32 SFU1605 calibration.
++  cnc_v74_float(image,4,152.38f); // Known obsolete stock RF2000 calibration.
++  cnc_v74_float(image,12,100.0f); cnc_v74_float(image,16,500.0f);
++  cnc_v74_checksum(image);
++  avr_terminate(sim.avr);
 +  eeprom_boot_image=image; cnc_boot(elf); eeprom_boot_image=NULL;
 +  const char *reply=command("$$\n",350);
-+  CHECK(strstr(reply,"$100=152.380") && strstr(reply,"$101=152.380") &&
-+    strstr(reply,"$110=500.000") && strstr(reply,"$111=500.000"),
-+    "existing calibration was silently overwritten on firmware upgrade: %s",reply);
-+  CHECK(strstr(command("$100=2560\n",60),"error:12"),"unsafe update order did not hit step-rate guard");
-+  assert_ok("$110=100\n",350); assert_ok("$111=100\n",350); assert_ok("$112=150\n",350);
-+  assert_ok("$100=2560\n",350); assert_ok("$101=2560\n",350); assert_ok("$102=1280\n",350);
-+  eeprom.ee=NULL; // The previous MCU and its EEPROM allocation were destroyed.
-+  avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
-+  CHECK(eeprom.ee,"updated CNC record missing");
++  CHECK(strstr(reply,"$100=320.000") && strstr(reply,"$101=320.000") &&
++    strstr(reply,"$102=1280.000"),"EEPROM74 microstep migration wrong: %s",reply);
++  CHECK(strstr(command("$#\n",100),"[G54:-1.250,2.500,-3.000]"),"migration erased work coordinates");
++  CHECK(strstr(command("$N\n",100),"$N0=G21G90G54"),"migration erased startup modes");
++  CHECK(strstr(command("$I\n",100),"KEEP_ME"),"migration erased custom build info");
++  eeprom.ee=NULL; avr_ioctl(sim.avr,AVR_IOCTL_EEPROM_GET,&eeprom);
++  CHECK(eeprom.ee && eeprom.ee[0]==75 && !memcmp(eeprom.ee+512,tail,sizeof(tail)),
++    "migration changed unrelated EEPROM records or did not commit75");
 +  memcpy(image,eeprom.ee,sizeof(image)); avr_terminate(sim.avr);
 +  eeprom_boot_image=image; cnc_boot(elf); eeprom_boot_image=NULL;
 +  reply=command("$$\n",350);
-+  CHECK(strstr(reply,"$100=2560.000") && strstr(reply,"$101=2560.000") &&
-+    strstr(reply,"$102=1280.000") && strstr(reply,"$110=100.000") &&
-+    strstr(reply,"$111=100.000") && strstr(reply,"$112=150.000"),
-+    "updated calibration was not retained after reboot: %s",reply);
-+  CHECK(strstr(command("$#\n",100),"[G54:-1.250,2.500,-3.000]"),"calibration update erased work coordinates");
++  CHECK(strstr(reply,"$100=320.000") && strstr(reply,"$101=320.000"),
++    "new MCU migrated an already75 record twice: %s",reply);
 +  cnc_unlock();
 +  assert_ok("$J=G91G21X1F60\n",1300);
-+  CHECK(sim.step_count[0]==2560 && !sim.step_count[1] && !sim.step_count[2],"1mm X jog did not emit exactly2560 pulses");
++  CHECK(sim.step_count[0]==320 && !sim.step_count[1] && !sim.step_count[2],"1mm X jog did not emit exactly320 pulses");
 +  assert_ok("$J=G91G21Y1F60\n",1300);
-+  CHECK(sim.step_count[1]==2560 && sim.step_count[0]==2560 && !sim.step_count[2],"1mm Y jog did not emit exactly2560 pulses");
++  CHECK(sim.step_count[1]==320 && sim.step_count[0]==320 && !sim.step_count[2],"1mm Y jog did not emit exactly320 pulses");
 +  assert_ok("$J=G91G21Z1F60\n",1300);
-+  CHECK(sim.step_count[2]==1280 && sim.step_count[0]==2560 && sim.step_count[1]==2560,"1mm Z jog did not emit exactly1280 pulses");
++  CHECK(sim.step_count[2]==1280 && sim.step_count[0]==320 && sim.step_count[1]==320,"1mm Z jog did not emit exactly1280 pulses");
 +  reserves_off();
-+  printf("PASS: retained legacy EEPROM; rate-first calibration update survives reboot without coordinate erase; 1mm XYZ jogs emit2560/2560/1280 pulses\n");
++  printf("PASS: EEPROM74 SFU1605 and obsolete152.38 migrate to75 exactly once; G54/startup/build info retained;1mmXYZ emit320/320/1280 pulses\n");
 +  avr_terminate(sim.avr);
 +}
 +
@@ -5841,6 +6448,82 @@
 +  #undef CASE
 +  if (!selected) return 2;
 +  printf("PASS: %u real-AVR CNC cases\n",selected);
++  return 0;
++}
+--- /dev/null
++++ b/tests/rf2000_homing_wait_sim.c
+@@ -0,0 +1,73 @@
++/* Actual ATmega2560 homing regression: one XY switch arrives long before
++ * the other. Observe physical STEP pins and the HD44780 bus. GPL-3.0+. */
++#define RF2000_CNC_TEST_MAIN unused_cnc_suite
++#include "rf2000_cnc_sim.c"
++
++static void test_homing_wait(const char *elf, unsigned first)
++{
++  cnc_boot(elf);
++  assert_ok("$27=0.1\n",350);
++  assert_ok("$26=5\n",350);
++  const unsigned other=first ^ 1u;
++  machine.position[first]=13;
++  machine.position[other]=625;
++  machine.enabled=1;
++  const size_t log_start=sim.log_len;
++  command("$H\n",1);
++  const uint64_t contact_deadline=sim.avr->cycle+CPU_HZ*5;
++  while (!machine.contacts[first] && sim.avr->cycle<contact_deadline) run_us(1000);
++  CHECK(machine.contacts[first]==1 && !machine.contacts[other],
++    "first %c switch was not reached before %c",'X'+first,'X'+other);
++  CHECK(machine.first_axis==3 && machine.contacts[2]==2 && machine.releases[2]==2,
++    "XY began before the complete Z reference cycle");
++
++  // Give the foreground homing lock one complete Timer2 tick to react to
++  // the physical switch. Then keep it held while the other axis travels.
++  run_us(2000);
++  const unsigned stopped_steps=sim.step_count[first], moving_steps=sim.step_count[other];
++  run_us(500000);
++  CHECK(machine.switch_active[first] && !machine.switch_active[other],
++    "switch model did not retain the long one-axis waiting interval");
++  CHECK(sim.step_count[first]==stopped_steps,
++    "%c continued stepping into its active switch while waiting for %c",'X'+first,'X'+other);
++  CHECK(sim.step_count[other]>moving_steps+125,
++    "%c failed to continue seeking while %c waited",'X'+other,'X'+first);
++  CHECK(display_has("REF X+Y: SUCHEN"),
++    "LCD did not identify the still-running XY search:\n%s",display_text());
++  CHECK(!strstr(sim.log+log_start,"ALARM:") && !strstr(sim.log+log_start,"error:"),
++    "waiting for the second switch triggered a failure: %s",sim.log+log_start);
++  printf("PASS: %c waits with its switch held for500ms and no further STEP; %c continues seeking; LCD stays REF X+Y: SUCHEN\n",
++    'X'+first,'X'+other);
++
++  const uint64_t finish_deadline=sim.avr->cycle+CPU_HZ*8;
++  while (!strstr(sim.log+log_start,"ok\r\n") && sim.avr->cycle<finish_deadline) run_us(10000);
++  CHECK(strstr(sim.log+log_start,"ok\r\n") &&
++    !strstr(sim.log+log_start,"ALARM:") && !strstr(sim.log+log_start,"error:"),
++    "home failed after both switches: %s",sim.log+log_start);
++  for (unsigned axis=0;axis<3;++axis)
++    CHECK(machine.contacts[axis]==2 && machine.releases[axis]==2 && machine.phases[axis]==4,
++      "axis%u reference did not finish its four phases: contacts%u releases%u phases%u",
++      axis,machine.contacts[axis],machine.releases[axis],machine.phases[axis]);
++  CHECK(!machine.switch_active[0] && !machine.switch_active[1] && !machine.switch_active[2],
++    "completed homing retained an active switch");
++  run_us(250000);
++  CHECK(display_has("XYZ") && display_has("BEREIT"),
++    "completed homing LCD not referenced/ready:\n%s",display_text());
++  CHECK(strstr(command("?",40),"<Idle"),"completed homing did not enter Idle");
++  reserves_off();
++  printf("PASS: %c-first full $H completes Z then XY seek/pull-off/locate/final-pull-off, all switches free and Idle XYZ\n",
++    'X'+first);
++  avr_terminate(sim.avr);
++}
++
++int main(int argc,char **argv)
++{
++  setvbuf(stdout,NULL,_IOLBF,0);
++  if (argc<2 || argc>3) return 2;
++  unsigned cases=0;
++  if (argc==2 || !strcmp(argv[2],"y-first")) { test_homing_wait(argv[1],1); ++cases; }
++  if (argc==2 || !strcmp(argv[2],"x-first")) { test_homing_wait(argv[1],0); ++cases; }
++  if (!cases) return 2;
++  printf("PASS: %u actual-AVR staggered XY homing cases\n",cases);
 +  return 0;
 +}
 --- /dev/null
@@ -5929,9 +6612,9 @@
 +  for (unsigned i=0;i<6;++i) {
 +    const unsigned axis=i/2, before=sim.step_count[axis];
 +    press(keys[i]); menu_wait_idle(1500);
-+    CHECK(sim.step_count[axis]-before==(axis==2 ? 128 : 256),"physical key%u wrong0.1mm pulse count",keys[i]);
++    CHECK(sim.step_count[axis]-before==(axis==2 ? 128 : 32),"physical key%u wrong0.1mm pulse count",keys[i]);
 +    CHECK(machine.position[axis]==(i%2 ? (axis==0 ? 64 : axis==1 ? 80 : -100) :
-+      (axis==0 ? 320 : axis==1 ? 336 : 28)),"physical direction of key%u incorrect",keys[i]);
++      (axis==0 ? 96 : axis==1 ? 112 : 28)),"physical direction of key%u incorrect",keys[i]);
 +  }
 +  const unsigned count=menu_steps();
 +  for (unsigned i=0;i<4;++i) press(KEY_E4);
@@ -5940,7 +6623,7 @@
 +  run_us(220000); CHECK(display_has("S0.01"),"minus did not clamp jog distance at0.01mm");
 +  press(KEY_OK); run_us(220000); CHECK(display_has("CNC MENUE"),"jog OK did not return to menu");
 +  menu_no_motion(count); reserves_off();
-+  printf("PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit256/256/128 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move\n");
++  printf("PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit32/32/128 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move\n");
 +  avr_terminate(sim.avr);
 +}
 +
@@ -6032,9 +6715,9 @@
 +  CHECK(strstr(command("?",30),"Ov:100,100,100"),"physical plus did not clamp real feed override to100%%");
 +  CHECK(sim.step_count[0]==held,"feed override keys moved a held job");
 +  press(KEY_STOP1); menu_wait_idle(4000);
-+  CHECK(sim.step_count[0]==5120 && !sim.step_count[1] && !sim.step_count[2],"Play did not finish exactly the same2mm job");
++  CHECK(sim.step_count[0]==640 && !sim.step_count[1] && !sim.step_count[2],"Play did not finish exactly the same2mm job");
 +  reserves_off();
-+  printf("PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100%% while stopped; Play resumes same5120-pulse job\n");
++  printf("PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100%% while stopped; Play resumes same640-pulse job\n");
 +  avr_terminate(sim.avr);
 +}
 +
@@ -6044,7 +6727,7 @@
 +  assert_ok("$J=G91G21Y5F60\n",60); run_us(250000);
 +  press(KEY_STOP2); menu_wait_idle(1500);
 +  const unsigned stopped=sim.step_count[1];
-+  CHECK(stopped>0 && stopped<12800,"physical Pause did not cancel partial jog");
++  CHECK(stopped>0 && stopped<1600,"physical Pause did not cancel partial jog");
 +  press(KEY_STOP1); run_us(500000);
 +  CHECK(strstr(command("?",30),"<Idle") && sim.step_count[1]==stopped,"Play restarted a cancelled jog");
 +  CHECK(!strstr(sim.log,"ALARM:"),"short jog Pause unnecessarily reset/alarmed machine");
@@ -6079,7 +6762,7 @@
 +  menu_no_motion(0); all_asleep();
 +  key_level(KEY_STOP2,1); run_us(60000); cnc_unlock();
 +  assert_ok("$J=G91G21X0.1F20\n",40); menu_wait_idle(1500);
-+  CHECK(sim.step_count[0]==256,"machine not reusable after a wake-up Pause/reset");
++  CHECK(sim.step_count[0]==32,"machine not reusable after a wake-up Pause/reset");
 +  reserves_off(); avr_terminate(sim.avr);
 +  menu_boot(elf); cnc_unlock();
 +  assert_ok("G91G1X2F60\n",60); run_us(100000);
@@ -6116,10 +6799,10 @@
 +  menu_boot(elf); cnc_unlock(); menu_enter(1);
 +  press(KEY_RIGHT);
 +  const uint64_t deadline=sim.avr->cycle+CPU_HZ;
-+  while (sim.step_count[0]<240 && sim.avr->cycle<deadline) run_us(1000);
-+  CHECK(sim.step_count[0]>=240,"short X jog did not progress");
++  while (sim.step_count[0]<30 && sim.avr->cycle<deadline) run_us(1000);
++  CHECK(sim.step_count[0]>=30,"short X jog did not progress");
 +  key_level(KEY_UP,0); run_us(250000);
-+  CHECK(sim.step_count[0]==256 && !sim.step_count[1],"busy-edge key queued Y after X ended");
++  CHECK(sim.step_count[0]==32 && !sim.step_count[1],"busy-edge key queued Y after X ended");
 +  key_level(KEY_UP,1); run_us(60000); press(KEY_OK); press(KEY_LEFT);
 +  menu_enter(2); press(KEY_OK); run_us(220000);
 +  CHECK(display_has("XYZ referenzieren?"),"reference consent screen not present");
@@ -7016,7 +7699,7 @@
 +  if (sensor==3) assert_ok("$23=7\n",350);
 +  escape.release_after=80; escape.bounce=bounce;
 +  const size_t start=recovery_start();
-+  assert_success(start,sensor<2 ? 5120 : 2560);
++  assert_success(start,sensor<2 ? 640 : 2560);
 +  CHECK(escape.releases==1 && !escape.active,"selected physical sensor was not released");
 +  CHECK(sim.min_pulse>=160,"recovery pulse below10us");
 +  printf("PASS: $LR %s%s%s: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced\n",
@@ -7047,8 +7730,8 @@
 +  recovery_observe(1); escape.active=1; escape.release_after=80;
 +  assert_error("$X\n"); assert_error("$J=G91G21Y1F20\n"); assert_error("$HY\n");
 +  assert_no_escape();
-+  const size_t start=recovery_start(); assert_success(start,5120);
-+  CHECK(sim.step_count[0]==x_before && sim.step_count[1]==y_before+5120,
++  const size_t start=recovery_start(); assert_success(start,640);
++  CHECK(sim.step_count[0]==x_before && sim.step_count[1]==y_before+640,
 +    "recovery resumed or retained pre-limit planner blocks");
 +  printf("PASS: runtime hard limit stops queued job; Ctrl-X then $LR releases only Y; unlock/jog/home cannot bypass active switch; queued X never runs\n");
 +  avr_terminate(sim.avr);
@@ -7081,11 +7764,11 @@
 +  assert_ok("$101=2000000000\n",350);
 +  recovery_limit(1,1); run_us(12000);
 +  assert_error("$LR\n"); assert_no_escape();
-+  assert_ok("$101=20000\n",350);
++  assert_ok("$101=1000000\n",350);
 +  assert_error("$LR\n"); assert_no_escape();
 +  assert_ok("$101=0.1\n",350);
 +  assert_error("$LR\n"); assert_no_escape();
-+  printf("PASS: $LR rejects a2mm signed-counter overflow, more than30000 pulses/5kHz, and sub-one-pulse calibration before any motor movement\n");
++  printf("PASS: $LR rejects a2mm signed-counter overflow, an excessive escape pulse budget, and sub-one-pulse calibration before any motor movement\n");
 +  avr_terminate(sim.avr);
 +}
 +
@@ -7104,8 +7787,8 @@
 +static void test_release_stuck(const char *elf)
 +{
 +  recovery_boot(elf,1,0);
-+  const size_t start=recovery_start(); assert_recovery_alarm(start,8,5120);
-+  CHECK(escape_steps()==5120,"stuck switch did not stop exactly at2mm");
++  const size_t start=recovery_start(); assert_recovery_alarm(start,8,640);
++  CHECK(escape_steps()==640,"stuck switch did not stop exactly at2mm");
 +  printf("PASS: stuck selected Y switch stops exactly after2mm with alarm8 and all drivers asleep\n");
 +  avr_terminate(sim.avr);
 +}
@@ -7165,7 +7848,7 @@
 +  recovery_boot(elf,1,0); escape.release_after=80;
 +  const size_t start=recovery_start(); wait_for_escape_steps(40);
 +  press(key);
-+  assert_success(start,5120);
++  assert_success(start,640);
 +  CHECK(!escape.active,"ignored navigation/play prevented the switch release");
 +  printf("PASS: %s cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds\n",
 +    key==KEY_LEFT ? "local LEFT navigation" : "local PH7 Play");
@@ -7193,7 +7876,7 @@
 +  const size_t start=sim.log_len;
 +  press(KEY_OK); run_us(200000);
 +  CHECK(display_has("RUECKZUG"),"active withdrawal phase not visible:\n%s",display_text());
-+  assert_success(start,5120);
++  assert_success(start,640);
 +  printf("PASS: LCD Endschalter frei menu requires two distinct OK presses, cancellation clears consent, live RUECKZUG then Alarm without reference\n");
 +  avr_terminate(sim.avr);
 +}
@@ -7223,7 +7906,7 @@
 +}
 --- /dev/null
 +++ b/tests/rf2000_sim.c
-@@ -0,0 +1,462 @@
+@@ -0,0 +1,465 @@
 +/* Run the real ATmega2560 ELF in simavr with a five-channel DRV8711 SPI
 + * register model. This verifies digital firmware behavior, not real hardware,
 + * power electronics, switch wiring or analog current regulation. GPL-3.0+. */
@@ -7544,7 +8227,10 @@
 +
 +static void verify_registers(void)
 +{
-+  const uint16_t ctrl[5] = {0xe29,0xe29,0xe21,0xe28,0xe28};
++  #ifndef RF2000_TEST_XY_CTRL
++    #define RF2000_TEST_XY_CTRL 0xe29
++  #endif
++  const uint16_t ctrl[5] = {RF2000_TEST_XY_CTRL,RF2000_TEST_XY_CTRL,0xe21,0xe28,0xe28};
 +  const uint16_t torque[5] = {0x16e,0x16e,0x169,0x15a,0x15a};
 +  const uint16_t common[8] = {0,0,0x97,0x1d7,0x430,0x83c,0xf0,0};
 +  for (int d=0;d<5;++d) for (int r=0;r<8;++r) {
@@ -7684,6 +8370,337 @@
 +  assert_error("$X\n");
 +  printf("PASS: INT6 latches a completed 1us FAULTn pulse and blocks unlock\n");
 +  avr_terminate(sim.avr);
++  return 0;
++}
+--- /dev/null
++++ b/tests/rf2000_speed_sim.c
+@@ -0,0 +1,328 @@
++/* Real ATmega2560 digital timing/stop regression. Experimental mode patches
++ * max_rate/acceleration in simulated SRAM only; it never raises the shipped
++ * firmware ceiling or authorizes mechanical speeds. GPL-3.0+. */
++#define RF2000_CNC_TEST_MAIN unused_cnc_suite
++#include "rf2000_cnc_sim.c"
++
++static uint16_t settings_address, position_address;
++static double requested_rate;
++static unsigned requested_pulse_us=10;
++static int public_settings;
++static float resolution[3];
++static unsigned expected_pulses[3];
++static unsigned pulse_divisor[3]={1,1,1};
++static struct {
++  unsigned count[3];
++  int32_t signed_steps[3];
++  uint64_t last_rise[3], last_fall[3], min_low[3], max_interval[3];
++  uint64_t plateau_first[3], plateau_last[3], plateau_window[3][64];
++  uint64_t min_window[3], max_window[3];
++  unsigned plateau_count[3];
++  uint8_t last_level[3];
++} timing;
++
++static uint16_t find_symbol(const char *elf,const char *name)
++{
++  elf_firmware_t f={0};
++  CHECK(!elf_read_firmware(elf,&f),"cannot inspect ELF %s",elf);
++  for (unsigned i=0;i<f.symbolcount;++i)
++    if (!strcmp(f.symbol[i]->symbol,name)) return (uint16_t)(f.symbol[i]->addr-0x800000);
++  CHECK(0,"ELF symbol %s absent",name); return 0;
++}
++
++static float read_float(uint16_t address)
++{
++  float value; memcpy(&value,sim.avr->data+address,sizeof(value)); return value;
++}
++static void write_float(uint16_t address,float value)
++{
++  memcpy(sim.avr->data+address,&value,sizeof(value));
++}
++
++static void speed_set(const char *line)
++{
++  const size_t start=sim.log_len;
++  command(line,0);
++  const uint64_t deadline=sim.avr->cycle+CPU_HZ/2;
++  while (!strstr(sim.log+start,"ok\r\n") && !strstr(sim.log+start,"error:") &&
++         sim.avr->cycle<deadline) run_us(1000);
++  CHECK(strstr(sim.log+start,"ok\r\n") && !strstr(sim.log+start,"error:"),
++    "public setting rejected: %s reply=%s",line,sim.log+start);
++}
++
++static void speed_step(struct avr_irq_t *irq,uint32_t value,void *opaque)
++{
++  (void)irq;
++  const unsigned axis=(uintptr_t)opaque;
++  const uint8_t level=value&1, previous=timing.last_level[axis];
++  timing.last_level[axis]=level;
++  if (level==previous) return;
++  if (!level) { timing.last_fall[axis]=sim.avr->cycle; return; }
++  const uint64_t now=sim.avr->cycle;
++  if (timing.last_fall[axis]) {
++    const uint64_t low=now-timing.last_fall[axis];
++    if (low<timing.min_low[axis]) timing.min_low[axis]=low;
++    CHECK(low>=32,"axis%u STEP low %.3fus shorter than2us",axis,low/16.0);
++  }
++  const char port=axis==2 ? 'L' : 'F';
++  const uint8_t bit=axis==0 ? 1 : axis==1 ? 7 : 1;
++  const int direction=gpio_level(port,bit) ? (axis==0 ? -1 : 1) : (axis==0 ? 1 : -1);
++  timing.signed_steps[axis]+=direction;
++  const unsigned count=++timing.count[axis], expected=expected_pulses[axis];
++  if (count>=expected/4 && count<=expected*3/4 && expected) {
++    if (!timing.plateau_first[axis]) timing.plateau_first[axis]=now;
++    timing.plateau_last[axis]=now;
++    const unsigned n=timing.plateau_count[axis]++, slot=n&63;
++    if (timing.plateau_window[axis][slot]) {
++      const uint64_t cycles=now-timing.plateau_window[axis][slot];
++      if (cycles<timing.min_window[axis]) timing.min_window[axis]=cycles;
++      if (cycles>timing.max_window[axis]) timing.max_window[axis]=cycles;
++    }
++    timing.plateau_window[axis][slot]=now;
++    if (timing.last_rise[axis] && now-timing.last_rise[axis]>timing.max_interval[axis])
++      timing.max_interval[axis]=now-timing.last_rise[axis];
++  }
++  timing.last_rise[axis]=now;
++}
++
++static void speed_boot(const char *elf)
++{
++  held_at_boot=-1; extra_peripheral_init=cnc_peripheral_init;
++  boot(elf,0); extra_peripheral_init=NULL; run_us(300000);
++  CHECK(strstr(sim.log,"RF2000 XYZ CNC"),"wrong profile");
++  verify_registers(); all_asleep();
++  CHECK(lcd.four_bit && lcd.data_bytes>=80,"live CNC LCD absent");
++  settings_address=find_symbol(elf,"settings");
++  position_address=find_symbol(elf,"sys_position");
++  char setting[48];
++  snprintf(setting,sizeof(setting),"$0=%u\n",requested_pulse_us);
++  speed_set(setting);
++  for (unsigned axis=0;axis<3;++axis) {
++    pulse_divisor[axis]=1;
++    resolution[axis]=read_float(settings_address+4*axis);
++    CHECK(resolution[axis]>0 && resolution[axis]<10000,"bad SRAM resolution");
++    if (public_settings) {
++      snprintf(setting,sizeof(setting),"$%u=%.6f\n",110+axis,requested_rate*60/resolution[axis]);
++      speed_set(setting);
++      snprintf(setting,sizeof(setting),"$%u=2000\n",120+axis); speed_set(setting);
++    } else {
++      /* Test-only injection avoids modifying the production ceiling. CTRL
++       * microsteps and all timer code remain intact. */
++      write_float(settings_address+12+4*axis,(float)(requested_rate*60/resolution[axis]));
++      write_float(settings_address+24+4*axis,2000.0f*60*60);
++    }
++  }
++  assert_ok("$X\n",50);
++  memset(&timing,0,sizeof(timing)); memset(expected_pulses,0,sizeof(expected_pulses));
++  const uint8_t step_bits[3]={0,6,3};
++  for (uintptr_t axis=0;axis<3;++axis) {
++    timing.min_low[axis]=timing.min_window[axis]=UINT64_MAX;
++    avr_irq_register_notify(pin_irq('F',step_bits[axis]),speed_step,(void *)axis);
++  }
++}
++
++static void start_move(unsigned mask,int direction)
++{
++  const unsigned pulses=(unsigned)lround(requested_rate*0.4);
++  char line[160]; unsigned used=(unsigned)snprintf(line,sizeof(line),"G21G91G1");
++  double length_squared=0;
++  for (unsigned axis=0;axis<3;++axis) {
++    expected_pulses[axis]=(mask&(1u<<axis)) ? pulses/pulse_divisor[axis] : 0;
++    if (mask&(1u<<axis)) {
++      const double distance=expected_pulses[axis]/resolution[axis];
++      length_squared+=distance*distance;
++      used+=(unsigned)snprintf(line+used,sizeof(line)-used,"%c%.6f",'X'+axis,direction*distance);
++    }
++  }
++  snprintf(line+used,sizeof(line)-used,"F%.5f\n",sqrt(length_squared)*150.0);
++  const char *reply=command(line,0);
++  CHECK(!strstr(reply,"error:"),"speed motion rejected: %s",reply);
++}
++
++static void speed_wait_steps(unsigned axis,unsigned minimum)
++{
++  const uint64_t deadline=sim.avr->cycle+CPU_HZ*2;
++  while (timing.count[axis]<minimum && sim.avr->cycle<deadline) run_us(500);
++  CHECK(timing.count[axis]>=minimum,"high-rate motion never reached step%u",minimum);
++}
++
++static void wait_idle(void)
++{
++  const uint64_t deadline=sim.avr->cycle+CPU_HZ*3;
++  do {
++    CHECK(!strstr(sim.log,"ALARM:"),"high-rate move alarmed: %s",sim.log);
++    if (strstr(command("?",10),"<Idle")) return;
++  } while (sim.avr->cycle<deadline);
++  CHECK(0,"high-rate move did not return Idle");
++}
++
++static void check_timing(unsigned mask,const char *label)
++{
++  for (unsigned axis=0;axis<3;++axis) {
++    CHECK(timing.count[axis]==expected_pulses[axis],"%s axis%u pulses%u expected%u",label,axis,timing.count[axis],expected_pulses[axis]);
++    if (!(mask&(1u<<axis))) continue;
++    CHECK(timing.plateau_count[axis]>64,"plateau too short");
++    CHECK(sim.min_pulse>=requested_pulse_us*16,
++      "STEP high %.3fus shorter thanconfigured%uus",sim.min_pulse/16.0,requested_pulse_us);
++    const double mean=(timing.plateau_count[axis]-1)*(double)CPU_HZ/
++      (timing.plateau_last[axis]-timing.plateau_first[axis]);
++    const double fastest=64.0*CPU_HZ/timing.min_window[axis];
++    const double slowest=64.0*CPU_HZ/timing.max_window[axis];
++    const double axis_rate=requested_rate/pulse_divisor[axis];
++    printf("MEASURE: %s axis%c rate requested%.2f mean%.2f fastest64%.2f slowest64%.2f maxinterval%.3fus minLOW%.3fus minHIGH%.3fus DIRsetup%.3fus pulses%u\n",
++      label,'X'+axis,axis_rate,mean,fastest,slowest,timing.max_interval[axis]/16.0,
++      timing.min_low[axis]/16.0,sim.min_pulse/16.0,sim.min_setup/16.0,timing.count[axis]);
++    CHECK(mean>axis_rate*0.97 && mean<axis_rate*1.03,
++      "%s axis%c sustained rate %.2f differs from requested%.2f",label,'X'+axis,mean,axis_rate);
++    CHECK(slowest>axis_rate*0.92 && fastest<axis_rate*1.08,
++      "%s axis%c 64-edge jitter outside8%% bounds",label,'X'+axis);
++    int32_t stored; memcpy(&stored,sim.avr->data+position_address+4*axis,4);
++    CHECK(stored==timing.signed_steps[axis],"stored position differs from physical signed pulses");
++  }
++  reserves_off();
++}
++
++static void test_timing(const char *elf,unsigned mask,int reverse,int unequal)
++{
++  speed_boot(elf); sim.verify_xy_synchronous=(mask&3)==3;
++  if (unequal) { pulse_divisor[1]=2; pulse_divisor[2]=4; sim.verify_xy_synchronous=0; }
++  const unsigned lcd_before=lcd.data_bytes;
++  const size_t log_start=sim.log_len;
++  const unsigned first_axis=(mask&1) ? 0 : (mask&2) ? 1 : 2;
++  start_move(mask,1); speed_wait_steps(first_axis,1); wait_idle(); check_timing(mask,"forward");
++  CHECK(lcd.data_bytes>lcd_before+40,"LCD stalled during high-rate motion");
++  unsigned status_count=0; const char *cursor=sim.log+log_start;
++  while ((cursor=strstr(cursor,"<Run"))) { ++status_count; ++cursor; }
++  CHECK(status_count>=10,"UART status stalled during high-rate motion (%u reports)",status_count);
++  if (reverse) {
++    memset(&timing,0,sizeof(timing));
++    for (unsigned a=0;a<3;++a) timing.min_low[a]=timing.min_window[a]=UINT64_MAX;
++    start_move(mask,-1); speed_wait_steps(first_axis,1); wait_idle();
++    for (unsigned a=0;a<3;++a) {
++      CHECK(timing.count[a]==expected_pulses[a],"reverse pulse count mismatch");
++      int32_t position; memcpy(&position,sim.avr->data+position_address+4*a,4);
++      CHECK(position==0,"reverse did not restore actual position axis%u",a);
++    }
++    /* Counts are relative to this move; the position comparison above covers
++     * the complete forward/backward move. */
++    CHECK(sim.min_pulse>=requested_pulse_us*16,
++      "reversed STEP pulse shorter thanconfigured%uus",requested_pulse_us);
++    printf("PASS: reverse XYZ exact pulses and physical position returns to zero; minHIGH%.3fus DIRsetup%.3fus\n",
++      sim.min_pulse/16.0,sim.min_setup/16.0);
++  }
++  printf("PASS: %s at%.0f requestedsteps/s with live LCD and100Hz status; exact physical pulses and position\n",mask==7 ? "XYZ" : mask==1 ? "X" : mask==2 ? "Y" : "Z",requested_rate);
++  avr_terminate(sim.avr);
++}
++
++static void test_fault_loaded(const char *elf)
++{
++  speed_boot(elf); start_move(7,1);
++  speed_wait_steps(0,expected_pulses[0]/3);
++  const uint64_t trigger=sim.avr->cycle;
++  input_pin('E',6,0); run_us(1); input_pin('E',6,1);
++  run_us(1200); all_asleep();
++  const unsigned stopped=sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
++  CHECK(timing.last_rise[0]<=trigger || timing.last_rise[0]-trigger<16000,
++    "driver fault took more than1ms to stop steps");
++  run_us(600000);
++  CHECK(sim.step_count[0]+sim.step_count[1]+sim.step_count[2]==stopped,"faulted high-rate XYZ restarted");
++  CHECK(strstr(sim.log,"ALARM:12"),"specific sticky driver alarm12 lost");
++  reserves_off();
++  printf("PASS: completed1usFAULTpulse interrupts full-rateXYZ, all five asleep within1.2ms and no laterSTEP; alarm12\n");
++  avr_terminate(sim.avr);
++}
++
++static void test_fault(const char *elf,int delayed)
++{
++  speed_boot(elf); start_move(1,-1);
++  const uint32_t entry=delayed ? sim.timer0_compare_entry : sim.timer1_entry;
++  const uint64_t deadline=sim.avr->cycle+CPU_HZ;
++  while (sim.avr->pc!=entry && sim.avr->cycle<deadline) avr_run(sim.avr);
++  CHECK(sim.avr->pc==entry,"fault injection ISR not reached");
++  const unsigned before=sim.step_count[0]; input_pin('E',6,0);
++  const uint64_t stop_deadline=sim.avr->cycle+16000;
++  while (sim.avr->data[sim.alarm_address]!=12 && sim.avr->cycle<stop_deadline) avr_run(sim.avr);
++  CHECK(sim.avr->data[sim.alarm_address]==12,"specific driver fault missing");
++  all_asleep(); run_us(5000);
++  CHECK(sim.step_count[0]==before,"STEP escaped deterministic fault guard"); reserves_off();
++  printf("PASS: FAULT at Timer%d entry cancels pending STEP, alarm12, all five drivers asleep\n",delayed?0:1);
++  avr_terminate(sim.avr);
++}
++
++static void speed_test_stop(const char *elf,unsigned kind)
++{
++  speed_boot(elf); start_move(7,1); speed_wait_steps(0,expected_pulses[0]/3);
++  const unsigned before=sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
++  const uint64_t trigger=sim.avr->cycle;
++  if (kind<4) {
++    const char ports[4]={'C','C','C','H'}; const uint8_t bits[4]={2,0,6,1};
++    input_pin(ports[kind],bits[kind],0);
++  } else if (kind==4) command("\030",0);
++  else key_level(KEY_STOP2,0);
++  run_us(kind==5 ? 1200000 : 1500);
++  all_asleep();
++  const unsigned stopped=sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
++  CHECK(stopped>=before,"step counter reversed");
++  run_us(600000);
++  CHECK(sim.step_count[0]+sim.step_count[1]+sim.step_count[2]==stopped,"motion restarted after stop");
++  CHECK(strstr(command("?",30),"<Alarm"),"stop did not remain alarm locked");
++  if (kind<4) CHECK(strstr(sim.log,"ALARM:1"),"hard limit alarm1 absent");
++  reserves_off();
++  printf("PASS: stopcase%u interrupts requested%.0fHz XYZ load; no later pulses, all drivers asleep (triggercycle%"PRIu64")\n",kind,requested_rate,trigger);
++  avr_terminate(sim.avr);
++}
++
++static void test_soft_limits(const char *elf)
++{
++  speed_boot(elf);
++  assert_ok("$27=0.1\n",350); assert_ok("$26=5\n",350);
++  memset(&machine,0,sizeof(machine));
++  machine.position[0]=64; machine.position[1]=80; machine.position[2]=-100;
++  machine.enabled=1;
++  const uint8_t bits[3]={0,6,3};
++  for (uintptr_t axis=0;axis<3;++axis)
++    avr_irq_register_notify(pin_irq('F',bits[axis]),cnc_step,(void *)axis);
++  const char *home=command("$H\n",4500);
++  CHECK(strstr(home,"ok\r\n") && !strstr(home,"ALARM:"),"soft-limit fixture homing failed");
++  assert_ok("$20=1\n",350);
++  const unsigned before=sim.step_count[0]+sim.step_count[1]+sim.step_count[2];
++  CHECK(strstr(command("$J=G21G90X1F20\n",100),"error:15"),"jog outside homed machine envelope not rejected");
++  CHECK(sim.step_count[0]+sim.step_count[1]+sim.step_count[2]==before,"rejected jog moved");
++  const char *normal=command("G21G90G53G1X1F20\n",700);
++  CHECK(strstr(normal,"ALARM:2"),"normal motion outside homed envelope lacks soft-limit alarm2");
++  CHECK(sim.step_count[0]+sim.step_count[1]+sim.step_count[2]==before,"soft-limit violation emitted steps");
++  all_asleep(); reserves_off();
++  printf("PASS: full homing/ZMAX preserved; enabled soft limits reject out-of-envelope jog without motion and alarm2 normal move\n");
++  avr_terminate(sim.avr);
++}
++
++int main(int argc,char **argv)
++{
++  setvbuf(stdout,NULL,_IOLBF,0);
++  if (argc<3 || argc>4) return 2;
++  requested_rate=strtod(argv[2],NULL);
++  if (requested_rate<1000 || requested_rate>60000) return 2;
++  const char *pulse=getenv("RF2000_TEST_PULSE_US");
++  if (pulse) requested_pulse_us=(unsigned)strtoul(pulse,NULL,10);
++  if (requested_pulse_us<10 || requested_pulse_us>20) return 2;
++  public_settings=getenv("RF2000_SPEED_PUBLIC_SETTINGS") &&
++    strcmp(getenv("RF2000_SPEED_PUBLIC_SETTINGS"),"0");
++  printf("MODE: %s; pulse%uus; acceleration2000mm/s^2 is a digital stress fixture, not a machine recommendation\n",
++    public_settings ? "public UART rate/acceleration settings" : "EXPERIMENTAL SRAM rate/acceleration injection",requested_pulse_us);
++  unsigned cases=0;
++  #define CASE(name,statement) do { if (argc==3 || !strcmp(argv[3],name)) { statement; ++cases; } } while(0)
++  CASE("x",test_timing(argv[1],1,0,0)); CASE("y",test_timing(argv[1],2,0,0));
++  CASE("z",test_timing(argv[1],4,0,0)); CASE("xyz",test_timing(argv[1],7,1,0));
++  CASE("unequal",test_timing(argv[1],7,1,1));
++  CASE("fault-step",test_fault(argv[1],0)); CASE("fault-delay",test_fault(argv[1],1));
++  CASE("fault-loaded",test_fault_loaded(argv[1]));
++  CASE("limit-x",speed_test_stop(argv[1],0)); CASE("limit-y",speed_test_stop(argv[1],1));
++  CASE("limit-zmin",speed_test_stop(argv[1],2)); CASE("limit-zmax",speed_test_stop(argv[1],3));
++  CASE("reset",speed_test_stop(argv[1],4)); CASE("pause-reset",speed_test_stop(argv[1],5));
++  CASE("soft-limits",test_soft_limits(argv[1]));
++  #undef CASE
++  if (!cases) return 2;
++  printf("PASS: %u real-AVR speed cases; requested%.0fHz; %s; pulse%uus\n",cases,requested_rate,
++    public_settings ? "public UART settings" : "test-only SRAM rate/acceleration injection",requested_pulse_us);
 +  return 0;
 +}
 --- /dev/null
@@ -8023,6 +9040,20 @@
 +  -Wl,-rpath,"$sim_lib" -lsimavr -lm -o "$repo_root/build/tests/rf2000_cnc_sim"
 +"$repo_root/build/tests/rf2000_cnc_sim" "${1:-$repo_root/build/cnc/main.elf}" "${@:2}"
 --- /dev/null
++++ b/tests/run-homing-wait-sim.sh
+@@ -0,0 +1,11 @@
++#!/usr/bin/env bash
++set -euo pipefail
++repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++tool_root="${RF2000_AVR_ROOT:-/workspace/.tools/avr}"
++sim_lib="$tool_root/usr/lib/x86_64-linux-gnu"
++mkdir -p "$repo_root/build/tests"
++cc -std=c11 -O2 -Wall -Wextra -Werror \
++  -I"$tool_root/usr/include/simavr" \
++  "$repo_root/tests/rf2000_homing_wait_sim.c" -L"$sim_lib" \
++  -Wl,-rpath,"$sim_lib" -lsimavr -lm -o "$repo_root/build/tests/rf2000_homing_wait_sim"
++"$repo_root/build/tests/rf2000_homing_wait_sim" "${1:-$repo_root/artifacts/cnc/rf2000-grbl.elf}" "${@:2}"
+--- /dev/null
 +++ b/tests/run-menu-sim.sh
 @@ -0,0 +1,11 @@
 +#!/usr/bin/env bash
@@ -8079,6 +9110,21 @@
 +  -Wl,-rpath,"$sim_lib" -lsimavr -o "$repo_root/build/tests/rf2000_sim"
 +"$repo_root/build/tests/rf2000_sim" "${1:-$repo_root/build/main.elf}"
 --- /dev/null
++++ b/tests/run-speed-sim.sh
+@@ -0,0 +1,12 @@
++#!/usr/bin/env bash
++set -euo pipefail
++repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
++tool_root="${RF2000_AVR_ROOT:-/workspace/.tools/avr}"
++sim_lib="$tool_root/usr/lib/x86_64-linux-gnu"
++test_ctrl="${RF2000_TEST_XY_CTRL:-0xe11}"
++mkdir -p "$repo_root/build/tests"
++cc -std=c11 -O2 -Wall -Wextra -Werror -DRF2000_TEST_XY_CTRL="$test_ctrl" \
++  -I"$tool_root/usr/include/simavr" \
++  "$repo_root/tests/rf2000_speed_sim.c" -L"$sim_lib" \
++  -Wl,-rpath,"$sim_lib" -lsimavr -lm -o "$repo_root/build/tests/rf2000_speed_sim"
++"$repo_root/build/tests/rf2000_speed_sim" "${1:-$repo_root/build/cnc/main.elf}" "${2:-10000}" "${@:3}"
+--- /dev/null
 +++ b/tests/run-y-homing-sim.sh
 @@ -0,0 +1,11 @@
 +#!/usr/bin/env bash
@@ -8094,7 +9140,7 @@
 +"$repo_root/build/tests/rf2000_y_homing_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
 --- /dev/null
 +++ b/docs/bedienfeld-menue.md
-@@ -0,0 +1,232 @@
+@@ -0,0 +1,238 @@
 +# RF2000-CNC: Display, Tasten und Menü
 +
 +Diese Anleitung gilt für das Profil **`rf2000_cnc`** und das originale
@@ -8261,12 +9307,18 @@
 +Schrittweite und lokales Jogtempo gelten für die aktuelle Sitzung. Nach
 +Reset sind wieder **0,10 mm** und **20 mm/min** eingestellt.
 +
-+Die CNC-Grundeinstellungen sind **2560 Schritte/mm für X/Y**, **1280 für Z**
-+und maximale Vorschübe **100 / 100 / 150 mm/min**. Das passt zu 2:1-Übersetzung,
-+5-mm-Spindelsteigung und 1/32-Mikroschritten für X/Y bzw. 1/16 für Z.
-+Gespeicherte GRBL-Einstellungen bleiben beim Firmwareupdate erhalten;
-+gegebenenfalls zuerst die [Kalibrierung in gSender umstellen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
-+Y ist am Gerät bestätigt; X/Z-Fahrweg und Schalter sind noch am Gerät zu prüfen.
++Die CNC-Grundeinstellungen sind **320 Schritte/mm für X/Y**, **1280 für Z**
++und Factory-Maximalvorschübe **600 / 600 / 300 mm/min** bei 10 mm/s².
++Das passt zu 2:1-Übersetzung, 5-mm-Spindelsteigung und festen
++1/4-Mikroschritten für X/Y bzw. 1/16 für Z. Der lokale Jog bleibt bei
++seinen langsameren 10/20/30 mm/min.
++Alte CNC-EEPROM-Werte werden von Version 74 auf 75 umgerechnet; vorhandene
++100/100/150-Tempi bleiben erhalten. Vor der ersten Bewegung die
++[Migration in gSender prüfen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
++**Alte X/Y-Werte 2560 nicht zurückschreiben.** Nach dem Mikroprofilwechsel
++alle Achsen zunächst langsam vermessen. Der bisherige Y-Nachweis war noch
++bei 1/32; die neue reale Positioniergenauigkeit ist nicht gemessen.
++Der [Geschwindigkeits-Testplan](geschwindigkeit-optimieren.md) beschreibt die Schritte.
 +
 +## Referenzieren am Display oder über gSender
 +
@@ -8329,11 +9381,11 @@
 +implementiert; sie ist keine allgemeine GRBL-Standardbelegung.
 --- /dev/null
 +++ b/docs/befehle.md
-@@ -0,0 +1,312 @@
+@@ -0,0 +1,333 @@
 +# RF2000-CNC: Befehlsübersicht für gSender
 +
 +Diese Übersicht gilt für das Projektprofil **`rf2000_cnc`**, Stand
-+19.10.2026, ab Version `20261019-rf2000-cnc-panel`. Sie beschreibt die
++22.10.2026, ab Version `20261022-rf2000-cnc-speed`. Sie beschreibt die
 +im RF2000-Code vorhandenen Befehle. Das separate Y-Testprofil hat andere
 +Beschränkungen. [Bedienfeld und Menü](bedienfeld-menue.md) ·
 +[Einrichten und Fräsen mit gSender](cnc-gsender.md)
@@ -8347,7 +9399,9 @@
 +
 +**`$$` sind zwei Dollarzeichen, keine Paragraphenzeichen `§§`.** Zum Lesen
 +der Einstellungen `$$` senden. `$101` allein ist kein gültiger Lesebefehl;
-+`$101=2560` schreibt einen neuen Wert.
++`$101=320` schreibt einen neuen Wert. Im neuen festen 1/4-CNC-Profil
++niemals die alten X/Y-Werte 2560 zurückschreiben: Damit würden achtfach
++zu große reale Fahrwege entstehen.
 +
 +`ok` bedeutet angenommen bzw. gepuffert, nicht zwingend fertig gefahren.
 +Der Echtzeitstatus `?` zeigt den Zustand; nach normalen Fahrten steht dort
@@ -8500,8 +9554,9 @@
 +## Einstellungen lesen und ändern
 +
 +**`$$` zeigt die tatsächlich gespeicherten Werte.** Die folgenden Werte
-+sind die CNC-Projektvorgaben; ein Update überschreibt vorhandene Einstellungen
-+nicht. Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
++sind die CNC-Factory-Vorgaben. Die Migration von Version 74 rechnet X/Y auf
++1/4 um und erhält vorhandene niedrigere Tempi; sie erhöht sie nicht automatisch.
++Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
 +ändern; diese Befehle schreiben ins EEPROM.
 +
 +| Einstellung | Vorgabe | Bedeutung / Einschränkung |
@@ -8528,8 +9583,8 @@
 +| `$30` | 1000 | Logischer maximaler Spindel-Sollwert; keine physische Drehzahlsteuerung |
 +| `$31` | 0 | Logischer minimaler Spindel-Sollwert |
 +| `$32` | 0 | Lasermodus, fest ausgeschaltet |
-+| `$100` / `$101` / `$102` | 2560 / 2560 / 1280 | Schritte pro mm für X / Y / Z |
-+| `$110` / `$111` / `$112` | 100 / 100 / 150 | Maximaltempo X / Y / Z in mm/min |
++| `$100` / `$101` / `$102` | 320 / 320 / 1280 | Schritte pro mm bei festem X/Y 1/4 und Z 1/16 |
++| `$110` / `$111` / `$112` | 600 / 600 / 300 | Factory-Maximaltempo X / Y / Z in mm/min; migrierte 100/100/150 bleiben zunächst erhalten |
 +| `$120` / `$121` / `$122` | 10 / 10 / 10 | Beschleunigung X / Y / Z in mm/s² |
 +| `$130` / `$131` / `$132` | 200 / 290 / 185 | Verfahrweg X / Y / Z in mm; keine automatische Vermessung |
 +
@@ -8537,26 +9592,44 @@
 +Achseinstellungen für A/B. Hardwarefeste Werte mit anderen Werten werden
 +abgewiesen. Die Richtungswerte `$3`/`$23` nur nach Prüfung am Gerät ändern.
 +
-+Die Firmware begrenzt auf **5000 Schritte/s**:
++Das CNC-Profil begrenzt auf **18.000 Schritte/s**; die getrennten
++Standard-/Y-Testprofile bleiben bei 5000 Schritte/s:
 +
 +```text
-+Schritte/mm × Maximaltempo / 60 <= 5000
++Schritte/mm × Maximaltempo / 60 <= 18000
 +```
 +
-+Damit liegt die rechnerische Grenze mit aktueller Kalibrierung bei etwa
-+117,18 mm/min für X/Y und 234,37 mm/min für Z. Das ist keine gemessene
-+mechanische Freigabe. Für die korrekte Umstellung einer älteren CNC-Version
-+zuerst das Tempo senken und dann die Schrittzahl setzen:
++Damit liegt die rechnerische CNC-Grenze bei **3375 mm/min für X/Y** und
++**843,75 mm/min für Z**. Das ist keine gemessene mechanische Freigabe.
++
++Nach der neuen Firmware zuerst `$I` und `$$` lesen. Version 74 wird auf 75
++migriert: X/Y werden durch acht geteilt, Z bleibt unverändert. Der vom Nutzer
++bestätigte alte Satz 2560/2560/1280 wird zu 320/320/1280. Feinabgleiche werden
++proportional erhalten; erkannte veraltete 152,380-Werte werden mit Meldung
++auf 320 korrigiert. Ein beim Schreiben gesetzter Marker `0xA5` verhindert
++nach einer Unterbrechung eine doppelte Umrechnung. Koordinaten, Startzeilen
++und Buildtext bleiben bei erkannter CNC-Migration erhalten.
++
++**Nicht die alten `$100=2560` / `$101=2560` aus früheren Anleitungen senden.**
++Vollständiger Ablauf und Wiederherstellung:
++[EEPROM-Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
++Die bestätigten alten 100/100/150-Tempi bleiben beim gültigen Update erhalten.
++Nach langsamer Wegprüfung können diese neuen Startvorgaben gewählt werden:
 +
 +```text
-+$110=100
-+$111=100
-+$112=150
-+$100=2560
-+$101=2560
-+$102=1280
++$110=600
++$111=600
++$112=300
++$120=10
++$121=10
++$122=10
 +$$
 +```
++
++Für die allerersten Messungen 100/100/150 und kleine F20-Jogs verwenden;
++höhere Werte nur nach dem [Hardwaretestplan](geschwindigkeit-optimieren.md).
++Die feste Mikroauflösung wird von der Firmware programmiert, nicht von
++einem dieser GRBL-Parameter umgeschaltet.
 +
 +## Weitere Systembefehle
 +
@@ -8613,7 +9686,7 @@
 +| `error:5` | Funktion/Einstellung in diesem Profil deaktiviert |
 +| `error:8` | Befehl passt nicht zum aktuellen Betriebszustand; Stillstand abwarten |
 +| `error:9` | Alarm/Hardware sperrt die Aktion; `?` und `$DRV` prüfen |
-+| `error:12` | Einstellung würde die **5-kHz-Schrittgrenze** überschreiten; ältere Sendertexte nennen dafür noch 30 kHz |
++| `error:12` | Einstellung würde die **18-kHz-CNC-Schrittgrenze** überschreiten; getrennte Testprofile: 5 kHz; allgemeine Sendertexte nennen noch 30 kHz |
 +| `error:20` | G-/M-Befehl nicht unterstützt |
 +| `ALARM:1` | Endschalter im normalen Betrieb ausgelöst |
 +| `ALARM:3` | Bewegung durch Reset abgebrochen; Positionsbezug ungesichert |
@@ -8644,7 +9717,7 @@
 +die im RF2000-Profil bewusst nicht vorhanden sind.
 --- /dev/null
 +++ b/docs/cnc-gsender.md
-@@ -0,0 +1,272 @@
+@@ -0,0 +1,304 @@
 +# XYZ fräsen mit gSender und Originaldisplay
 +
 +Alle verfügbaren Konsolenbefehle mit Beispielen stehen in der
@@ -8665,8 +9738,11 @@
 +
 +Der Nutzer hat Display, Tastenerkennung, Y-Motor, Y-Referenzfahrt und
 +Y-Referenzschalter am 19.10.2026 als funktionierend bestätigt. Auch der
-+Y-Fahrweg mit **2560 Schritten/mm** wurde inzwischen durch den Nutzer
-+bestätigt. XYZ-Homing wurde ausdrücklich auf Basis der Annahme freigegeben, dass die
++Y-Fahrweg mit **2560 Schritten/mm bei bisher 1/32** wurde durch den Nutzer
++bestätigt. Am 22.10.2026 zeigte sein CNC-EEPROM tatsächlich
++2560 / 2560 / 1280 Schritte/mm und 100 / 100 / 150 mm/min.
++Das neue feste 1/4-Profil benötigt eine erneute langsame Wegprüfung.
++XYZ-Homing wurde ausdrücklich auf Basis der Annahme freigegeben, dass die
 +Repetier-Zuordnung funktioniert: **X/Y nach MIN, Z nach MAX**. X-/Z-Richtung
 +und Schalter wurden dabei ausdrücklich noch nicht physisch geprüft. Das
 +CNC-Profil setzt `RF2000_CNC=1`; es behauptet keine vollständige
@@ -8689,12 +9765,12 @@
 +Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 +
 +Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-+`$I` enthält `20261019-rf2000-cnc-panel`. Das Y-Testprofil bleibt mit
++`$I` enthält `20261022-rf2000-cnc-speed`. Das Y-Testprofil bleibt mit
 +`-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 +
-+**Nach einem Update einer bestehenden CNC-Version zuerst die unten
-+beschriebene [Kalibrierung umstellen](#bestehende-cnc-einstellungen-umstellen).**
-+Das Aufspielen allein ersetzt gespeicherte Einstellungen nicht.
++**Nach einem Update zuerst die unten beschriebene
++[EEPROM-Migration prüfen](#bestehende-cnc-einstellungen-umstellen).**
++Alte X/Y-Schritte/mm dürfen bei der neuen Mikroauflösung nicht zurückgespielt werden.
 +
 +## gSender verwenden
 +
@@ -8854,15 +9930,15 @@
 +**allen drei Achsen**: Motor mit 1,8° bzw. 200 Vollschritten/Umdrehung,
 +SFU1605-Kugelgewindespindel mit 5 mm Steigung und einer Übersetzung von 2:1
 +zwischen Motor und Spindel. Zwei Motorumdrehungen bewegen die Achse damit 5 mm. Mit
-+1/32-Mikroschritten für X/Y und 1/16 für Z ergibt
-+`200 × Mikroschritte × 2 / 5` die folgenden Schritte/mm. Der Nutzer hat
-+den resultierenden Y-Fahrweg bestätigt. X/Z übernehmen dieselbe
-+Übersetzung; deren Kalibrierung ist noch durch eine Fahrwegmessung zu prüfen.
++festen 1/4-Mikroschritten für X/Y und 1/16 für Z ergibt
++`200 × Mikroschritte × 2 / 5` die folgenden Schritte/mm. Der frühere
++Y-Fahrweg war bei 1/32 bestätigt; nach der Umstellung alle drei Achsen
++langsam vermessen. Es gibt keine automatische Mikroschrittumschaltung während einer Fahrt.
 +
 +| Einstellung | Vorgabe |
 +| --- | --- |
-+| Schritte/mm X/Y/Z | 2560 / 2560 / 1280 |
-+| Maximaltempo X/Y/Z | 100 / 100 / 150 mm/min |
++| Schritte/mm X/Y/Z | 320 / 320 / 1280 |
++| Factory-Maximaltempo X/Y/Z | 600 / 600 / 300 mm/min |
 +| Beschleunigung | 10 mm/s² |
 +| Referenzrichtung `$23` | 3: X/Y-Min, Z-Max |
 +| Homing `$22`, Hard Limits `$21` | jeweils 1 |
@@ -8874,40 +9950,69 @@
 +| Pulsbreite | 10 µs; einstellbar 10–20 µs |
 +
 +Das CNC-Profil speichert GRBL-Einstellungen und Arbeitsnullpunkte im EEPROM
-+(Profilversion weiterhin 74). Beim ersten Start mit leerem EEPROM werden
-+CNC-Standardwerte initialisiert;
-+die EEPROM-Belegung ist nicht mit Repetier bzw. dem XYZ-Testprofil kompatibel.
-+Ein Update einer bestehenden CNC-Version behält deren Einstellungen und
-+Arbeitskoordinaten. Die getrennten XYZ- und Y-Testprofile verwenden weiterhin
-+ihre bisherige Repetier-Kalibrierung.
++mit **Profilversion 75**. Ein gültiger Vorgänger mit Version 74 wird
++automatisch umgerechnet. Die getrennten XYZ- und Y-Testprofile behalten
++ihre bisherige Kalibrierung und die 5-kHz-Grenze; ihre EEPROM-Belegung ist
++nicht mit dem CNC-Profil austauschbar.
 +
-+Die geprüfte Schrittfrequenzgrenze bleibt 5000 Hz. Bei 2560 Schritten/mm
-+entsprechen 100 mm/min auf X/Y etwa **4266,7 Schritten/s**; die rechnerische
-+Obergrenze beträgt **117,1875 mm/min**. Die bisherigen 500 mm/min sind mit
-+dieser Übersetzung nicht zulässig. Z erreicht bei 150 mm/min 3200 Schritte/s.
++Die CNC-Schrittfrequenzgrenze beträgt **18.000 Hz**. Mit 320 Schritten/mm
++brauchen X/Y bei 2000 mm/min 10.667 und bei 3000 mm/min 16.000 Schritte/s.
++Die rechnerische Obergrenze ist **3375 mm/min für X/Y**, für Z bei
++1280 Schritten/mm **843,75 mm/min**. Diese Grenzen sind keine gemessene
++mechanische Freigabe. Der Einstieg mit 600/600/300 und 10 mm/s² bleibt
++bewusst darunter; zunächst sind langsame Wegmessungen erforderlich.
++Messgrundlage und Testplan: [Geschwindigkeit optimieren](geschwindigkeit-optimieren.md).
 +
 +### Bestehende CNC-Einstellungen umstellen
 +
-+Bei ruhender Maschine in der gSender-Konsole nacheinander senden und jede
-+Antwort `ok` abwarten:
++Vor dem Aufspielen `$I`, `$$`, `$#` und `$N` sichern. Nach dem Aufspielen
++im Stillstand `$I` und `$$` lesen. Die Migration meldet:
 +
 +```text
-+$110=100
-+$111=100
-+$112=150
-+$100=2560
-+$101=2560
-+$102=1280
++[MSG:RF2000 EEPROM 74->75; X/Y microsteps 32->4]
++[MSG:RF2000 offsets/startup retained; rehome and verify travel]
++```
++
++X/Y werden durch acht geteilt; ein gemessener Feinabgleich bleibt dabei
++proportional erhalten. Für den vom Nutzer bestätigten alten Satz
++2560 / 2560 / 1280 ergibt das **320 / 320 / 1280**. Der bekannte
++veraltete Wert 152,380 wird gesondert auf 320 korrigiert und als Korrektur
++gemeldet. Z wird nicht skaliert. G54–G59, G28/G30, Startzeilen und eigener
++Buildtext bleiben bei der Migration erhalten. Bestehende Tempi werden
++nicht automatisch erhöht: 100 / 100 / 150 bleiben 100 / 100 / 150.
++Höhere alte Tempi/Beschleunigungen werden höchstens auf die neuen
++Factory-Vorgaben begrenzt.
++
++Der Schreibvorgang setzt zunächst den Marker `0xA5`, schreibt Datensatz und
++Prüfsumme und setzt zuletzt Version 75. Ein erkannter unterbrochener oder
++beschädigter CNC-Datensatz stellt nur globale Einstellungen wieder her;
++die getrennten Koordinaten-/Startdatensätze bleiben erhalten. Dabei meldet
++die Firmware `settings recovered; offsets/startup retained` und kann wieder
++Factory-Tempi enthalten: deshalb `$$` vor jeder ersten Fahrt prüfen.
++Ein fremdes/leer erkanntes Profil wird wie bisher vollständig initialisiert.
++
++**Nach der neuen Firmware niemals `$100=2560` oder `$101=2560` senden.**
++Der Treiber arbeitet dann mit 1/4; diese alten Werte würden achtfach zu
++große reale Wege erzeugen. Für das normale Update ist **kein `$RST=*`**
++erforderlich; damit würden auch Werkstücknullpunkte gelöscht.
++
++Zuerst mit den langsamen 100/100/150-Werten und kleinen F20-Jogs den Weg
++prüfen und neu referenzieren. Nach bestandenen Messungen können im
++Stillstand die neuen Startvorgaben gewählt werden:
++
++```text
++$110=600
++$111=600
++$112=300
++$120=10
++$121=10
++$122=10
 +$$
 +```
 +
-+Zuerst das Maximaltempo senken: Andernfalls würde das Einstellen von 2560
-+Schritten/mm bei noch gespeicherten 500 mm/min die 5-kHz-Grenze verletzen
-+und zurückgewiesen. `$$` muss anschließend die sechs Werte bestätigen.
-+Die Befehle werden im EEPROM gespeichert; es ist kein Reset der Einstellungen
-+nötig. Insbesondere **kein `$RST=*`** senden, denn das würde auch die
-+gespeicherten Arbeitskoordinaten löschen. Nach der Kalibrierungsänderung
-+erneut referenzieren und den Werkstücknullpunkt neu prüfen bzw. setzen.
++Diese Befehle ändern Einstellungen, bewegen aber keine Achse. Höhere
++Tempi erst nach dem [stufenweisen Hardwaretest](geschwindigkeit-optimieren.md#hardwaretest-in-acht-stufen)
++ermitteln. Nach jeder Kalibrierungsänderung Referenz und Werkstücknull prüfen.
 +
 +Die lokale Auswahl von Schrittweite und Jogtempo bleibt im RAM und
 +startet nach Reset wieder bei 0,10 mm und 20 mm/min. Nach Änderungen von
@@ -8919,7 +10024,7 @@
 +`tests/run-cnc-sim.sh .pio/build/rf2000_cnc/firmware.elf` geprüft werden.
 --- /dev/null
 +++ b/docs/development.md
-@@ -0,0 +1,116 @@
+@@ -0,0 +1,123 @@
 +# Entwicklung und Build
 +
 +Die Cloudumgebung verwendet den vorhandenen Checkout `/workspace/RF2000`.
@@ -8968,6 +10073,13 @@
 +`make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.
 +`make cnc` baut `build/cnc/main.elf` und `artifacts/cnc/rf2000-grbl.*`.
 +`make check-cnc` prüft gSender-Protokoll, XYZ-Homing, G-Code, LCD und Fehler.
++`make check-menu`, `make check-recovery` und `make check-homing-wait` prüfen
++Bedienfeld, begrenztes Freifahren und gemeinsam referenzierende X/Y-Achsen.
++`make check-speed` prüft den CNC-Pfad mit 18 kHz unter UART-/LCD-Last;
++`RF2000_TEST_PULSE_US=20 make check-speed` wählt die längste erlaubte
++Pulsbreite. Alle diese Ziele simulieren das gebaute AVR-Programm und
++bewegen keine reale Maschine. Messwerte und Grenzen stehen in
++[validation.md](validation.md) und [geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 +`make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
 +Die Speicherprüfung reserviert 8 KiB für einen möglichen Mega-Bootloader;
 +das tatsächliche Programmierverfahren ist separat am Gerät festzulegen.
@@ -9038,7 +10150,7 @@
 +Nutzer mit bisheriger und neuer Zuordnung ausdrücklich mitgeteilt.
 --- /dev/null
 +++ b/docs/drv8711.md
-@@ -0,0 +1,179 @@
+@@ -0,0 +1,198 @@
 +# DRV8711 auf I851 CTC V3.0
 +
 +Der Port initialisiert fünf physische Treiber, während GRBL im Standardprofil nur
@@ -9055,6 +10167,12 @@
 +`0x02`: Nur Y erhält CTRL.ENBL=1; X/Z/A/B behalten CTRL.ENBL=0. Alle fünf
 +Kanäle durchlaufen weiterhin den sicheren Reset und Registerreadback. Die
 +folgenden Registerbeispiele beschreiben das Standardprofil.
++
++Das CNC-Profil `20261022-rf2000-cnc-speed` verwendet für X/Y dagegen fest
++**1/4** (`CTRL.MODE=2`), Z bleibt bei 1/16. Das ergibt mit SFU1605/2:1
++320/320/1280 Schritte/mm. Die getrennten Standard-/Y-Testprofile behalten
++ihre bisherigen Register. Es gibt keine adaptive Mikroauflösungsumschaltung
++während einer Bewegung. [Analyse und Hardwaretest](geschwindigkeit-optimieren.md).
 +
 +## Verifizierte Verdrahtung
 +
@@ -9097,7 +10215,8 @@
 +
 +| Register | X/Y | Z | A/B | Bedeutung |
 +| --- | --- | --- | --- | --- |
-+| CTRL / 0 | `0xE29` | `0xE21` | `0xE28` | 1/32, 1/16, 1/32; ENBL nur XYZ=1 |
++| CTRL / 0, Standardprofil | `0xE29` | `0xE21` | `0xE28` | 1/32, 1/16, 1/32; ENBL nur XYZ=1 |
++| CTRL / 0, CNC-Profil | `0xE11` | `0xE21` | `0xE28` | 1/4, 1/16, 1/32; ENBL nur XYZ=1 |
 +| TORQUE / 1 | `0x16E` | `0x169` | `0x15A` | SMPLTH=1 (100 µs); TORQUE=110/105/90 |
 +| OFF / 2 | `0x097` | gleich | gleich | Originalwert |
 +| BLANK / 3 | `0x1D7` | gleich | gleich | Originalwert |
@@ -9130,6 +10249,18 @@
 +Das sind rechnerische typische Werte ohne Bauteiltoleranzen; sie ersetzen keine
 +Strommessung. Es werden keine erhöhten Werte aus `MOTOR_CURRENT_MAX` übernommen.
 +A/B führen trotz programmierter Stromcodes keinen Motorstrom, solange sie schlafen.
++
++Die feste CNC-Umstellung verändert weder ISGAIN noch TORQUE. Die Angabe
++2,5 A auf dem Wantai-Motor ist keine automatische neue Stromvorgabe. Der
++nominelle X/Y-Befehlsabstand beträgt bei 1/4 **3,125 µm**; die tatsächliche
++Positioniergenauigkeit und verfügbare Motorkraft bleiben zu messen.
++
++TORQUE.SMPLTH=1 bedeutet weiterhin **100 µs Back-EMF-Abtastzeit** für die
++Stallerkennung. Bei 18 kHz folgen STEP-Ereignisse bereits nach etwa 55,6 µs.
++Die Konfiguration belegt deshalb keine zuverlässige Back-EMF-Stallmessung
++bei dieser Rate. STALLn wird nicht als Ersatz für Endschalter oder als
++garantierte Schrittverlustüberwachung verwendet. Die normale Stromregelung
++ist von dieser diagnostischen Back-EMF-Abtastung zu unterscheiden.
 +
 +## Start, Freigabe und Fehler
 +
@@ -9219,21 +10350,378 @@
 +es gibt keine Umgehungsoption. Die kontrollierten Messungen aus dem
 +Hardware-Testplan sind vor einem tatsächlichen Achsentest notwendig.
 --- /dev/null
++++ b/docs/geschwindigkeit-optimieren.md
+@@ -0,0 +1,340 @@
++# RF2000-CNC: höhere Achsgeschwindigkeit und Testplan
++
++Stand: 22.10.2026. Diese Anleitung betrifft das CNC-Profil `rf2000_cnc` mit
++originaler I851 CTC V3.0, ATmega2560 und fünf DRV8711. XYZ sind aktiv; A/B
++bleiben Reserve. Die Frässpindel wird weiterhin manuell bedient.
++Die Firmwarekennung lautet **`20261022-rf2000-cnc-speed`**. Die gewählte
++CNC-Konfiguration verwendet **fest X/Y 1/4, Z 1/16 und 18 kHz**; adaptive
++Mikroschrittumschaltung ist nicht implementiert.
++
++## Warum bisher nur geringe Geschwindigkeiten möglich waren
++
++Der CNC-Vorgänger verwendete **5000 Schritte/s**, nicht
++30.000. `error:12` erscheint, wenn Schritte/mm und Achsmaximum zusammen diese
++Grenze überschreiten. Der allgemeine gSender-Fehlertext nennt hierfür noch
++„30 kHz“; maßgeblich ist die Grenze der tatsächlich gebauten RF2000-Firmware.
++
++Die bisherige Konfiguration war:
++
++| Achse | Mikroschritte | Schritte/mm | Vorgabe mm/min | Rechnerisches Maximum bei 5 kHz |
++| --- | ---: | ---: | ---: | ---: |
++| X | 1/32 | 2560 | 100 | 117,19 mm/min |
++| Y | 1/32 | 2560 | 100 | 117,19 mm/min |
++| Z | 1/16 | 1280 | 150 | 234,38 mm/min |
++
++Am 22.10.2026 bestätigte der Nutzer mit der aktuellen Geräteausgabe
++**2560 / 2560 / 1280 Schritte/mm** und **100 / 100 / 150 mm/min**. Damit ist
++der Ausgangspunkt für diese Migration geklärt. Die noch älteren
++**152,380 Schritte/mm** gehören zur ursprünglichen RF2000-Mechanik der
++getrennten Testprofile und passen nicht zur vorgegebenen SFU1605-Mechanik.
++Solche Werte werden bei der erkannten alten CNC-Version gesondert korrigiert.
++`$$` bleibt für den tatsächlichen Inhalt des jeweiligen Geräts maßgeblich.
++
++## Mechanik, Mikroschritte und benötigte Frequenzen
++
++Die Rechnung verwendet 200 Vollschritte pro Motorumdrehung, eine
++5-mm-Spindelsteigung und zwei Motorumdrehungen pro Spindelumdrehung:
++
++```text
++Weg pro Motorumdrehung = 5 mm / 2 = 2,5 mm
++Schritte/mm = 200 × Mikroschritte × 2 / 5
++Schrittfrequenz = Schritte/mm × Vorschub in mm/min / 60
++```
++
++| Mikroschritte | Schritte/mm | Nomineller Weg pro STEP |
++| --- | ---: | ---: |
++| 1/32 | 2560 | 0,390625 µm |
++| 1/16 | 1280 | 0,78125 µm |
++| 1/8 | 640 | 1,5625 µm |
++| 1/4 | 320 | 3,125 µm |
++
++Dieser Weg pro STEP ist die **Befehlsauflösung**. Er beschreibt keine
++gemessene Positioniergenauigkeit. Motor-Schrittfehler, lastabhängige
++Mikroschrittpositionen, Elastizität, Umkehrspiel und die Maschine selbst
++beeinflussen das tatsächliche Ergebnis.
++
++Untersucht wurde zunächst **1/8** für X/Y. Damit wären für 2000 mm/min
++schon 21,333 kHz und für 3000 mm/min 32 kHz nötig. Das überschreitet die
++gewählte 18-kHz-Grenze. Mit 1/8 wären rechnerisch nur 1687,5 mm/min möglich.
++Deshalb ist die gewählte feste Auflösung **1/4 für X/Y**: Damit passen
++2000–3000 mm/min in 10,667–16 kHz. Z behält zunächst **1/16**, weil dort
++Auflösung und Last getrennt zu beurteilen sind.
++
++| Vorschub | X/Y bei 1/4 | Z bei 1/16 | Motordrehzahl |
++| --- | ---: | ---: | ---: |
++| 1000 mm/min | 5.333 Schritte/s | 21.333 Schritte/s | 400 U/min |
++| 2000 mm/min | 10.667 Schritte/s | 42.667 Schritte/s | 800 U/min |
++| 2500 mm/min | 13.333 Schritte/s | 53.333 Schritte/s | 1000 U/min |
++| 3000 mm/min | 16.000 Schritte/s | 64.000 Schritte/s | 1200 U/min |
++
++Die 2:1-Untersetzung erhöht die erforderliche Motordrehzahl. Ausreichendes
++Drehmoment bei 800–1200 U/min ist noch am Gerät nachzuweisen. Die geringere
++STEP-Anforderung allein beweist keine verlustfreie mechanische Bewegung.
++Die Mikroschritte werden im DRV8711 programmiert; allein `$100` bis `$102`
++zu ändern genügt nicht. Die durch TI dokumentierten MODE-Einstellungen
++ermöglichen diese feste Wahl. Ein adaptives Umschalten mit laufender
++Phasen-/Positionsnachführung bleibt eine mögliche spätere Entwicklung und
++ist ausdrücklich kein Bestandteil dieses Profils.
++
++## Konkrete Änderungen
++
++X/Y 1/4 verwendet im DRV8711 `CTRL.MODE=2`: mit freigegebenem Kanal ergibt
++sich `CTRL=0xE11`, während der gesperrten Initialisierung `0xE10`. Z bleibt
++bei `0xE21` und 1/16. Die A/B-Register bleiben mit `CTRL=0xE28` gesperrt.
++STEP-/DIR-/SLEEP- und Endschalterpins werden dadurch nicht verändert.
++
++Die neuen nominalen CNC-Schrittwerte sind **320 / 320 / 1280 Schritte/mm**.
++Die gemeinsame Mikroprofildefinition wird sowohl von der DRV8711-
++Initialisierung als auch von den GRBL-Vorgaben verwendet.
++
++Die CNC-Schrittausgabe schreibt eine unveränderte Richtung nicht bei jedem
++Tick neu. Bei stabiler Richtung beginnt STEP direkt im Timer1-Interrupt;
++Timer0 beendet den Puls. Nur der erste tatsächliche STEP nach einem
++Richtungswechsel durchläuft zusätzlich den mindestens 5 µs langen
++Timer0-Vorlauf. Das gilt auch, wenn dazwischen AMASS-Ticks ohne STEP liegen.
++Die AMASS-Schrittinkremente werden im Vordergrund vorbereitet, wodurch
++variable 32-Bit-Verschiebungen aus dem zeitkritischen Segmentwechsel
++entfallen. AMASS selbst bleibt aktiv. Pulsende, Fehlerprüfung und Schutz
++vor Pulsüberlappung bleiben wirksam; es gibt keine Laufzeit-SPI-Zugriffe.
++
++Die CNC-Grenze beträgt **18.000 Schritte/s**. Das entspricht rechnerisch
++**3375 mm/min für X/Y** und **843,75 mm/min für Z**. Die getrennten Standard-
++und Y-Testprofile behalten ihr altes Mikroprofil und ihre 5-kHz-Grenze.
++
++Ein isolierter Vorversuch des optimierten Pfads erreichte bei 20-kHz-
++Anforderung im XYZ-Test durchschnittlich **19.975,87 Schritte/s**. Ein
++22-kHz-Versuch bestand nicht. Deshalb werden weder 22 noch 30 kHz als
++Produktionsgrenze übernommen; die gewählten 18 kHz lassen Abstand zum
++bestandenen Vorversuch. Dieser Versuch ist vom Nachweis des endgültigen
++Release-ELF zu unterscheiden. Die finalen Puls-, Plateau-, Mehrachs-,
++UART-/LCD- und Fehlerfallmesswerte stehen im [Prüfbericht](validation.md).
++
++Der finale AVR-Lauf bestand 15 Geschwindigkeits-/Fehlerfälle bei 10 µs
++eingestellter Pulsbreite sowie zusätzlich den XYZ-Rücklauftest bei 20 µs.
++Für die XYZ-Fahrt mit Richtungswechsel und 18-kHz-Anforderung ergaben sich:
++
++| Pulsbreiteneinstellung | Plateau-Mittel | Fenster über 64 Flanken | Kleinster HIGH-Puls | Kleinste LOW-Zeit |
++| --- | ---: | ---: | ---: | ---: |
++| 10 µs | 17.977,53 Schritte/s | 17.886,15–18.068,89 Schritte/s | 10,625 µs | 24,250 µs |
++| 20 µs | 17.977,51 Schritte/s | 17.885,53–18.070,16 Schritte/s | 20,688 µs | 16,625 µs |
++
++Im zusätzlichen 20-µs-Rücklauftest lag der kleinste gemessene DIR-Vorlauf
++bei 168,25 µs. Das sind Ergebnisse des simulierten AVR-Programms unter
++Kommunikations-/Displaylast, keine Oszilloskopmessungen an der Maschine.
++Die Schwankungen der kurzen Fenster entstehen durch Interruptlatenzen;
++die Einstellung 18 kHz beschreibt die nominale Frequenzgrenze.
++
++Der gebaute CNC-Stand verwendet 46.076 Byte Flash und 3.836 Byte statisches
++SRAM (`.text=45958`, `.data=118`, `.bss=3718`). Sein ELF-SHA256 lautet
++`0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`.
++Build- und Simulationsprotokolle müssen sich auf diesen ausgelieferten
++Stand beziehen; eine maximale mechanische Geschwindigkeit ist damit noch
++nicht gemessen.
++
++## EEPROM und bestehende Kalibrierung
++
++Der CNC-Datensatz wechselt von **Version 74 auf 75**. Ein gültiger alter
++X/Y-Feinabgleich wird durch acht geteilt, passend zu 1/32 → 1/4; Z bleibt
++unverändert. Der bestätigte Satz 2560/2560/1280 ergibt somit 320/320/1280.
++Der bekannte veraltete Wert 152,380 wird gesondert auf 320 korrigiert und
++als Korrektur gemeldet. Ein blindes Teilen dieses alten Mechanikwerts
++würde falsche 19,0475 Schritte/mm erzeugen.
++
++Die Migration meldet:
++
++```text
++[MSG:RF2000 EEPROM 74->75; X/Y microsteps 32->4]
++[MSG:RF2000 offsets/startup retained; rehome and verify travel]
++```
++
++G54–G59, G28/G30, Startzeilen und eigener Buildtext bleiben bei erkannten
++CNC-Datensätzen erhalten. Vorhandene Maximaltempi/Beschleunigungen werden
++nicht erhöht; zu hohe Werte werden auf die neuen Factory-Vorgaben begrenzt.
++Damit bleiben die bestätigten **100 / 100 / 150 mm/min** beim gültigen Update
++zunächst erhalten.
++
++Der globale Schreibvorgang setzt zuerst Versionmarker **`0xA5`**, schreibt
++Daten und Prüfsumme und setzt zuletzt Version 75. Ein unterbrochener
++Schreibvorgang oder beschädigter bekannter CNC-Datensatz wird mit globalen
++Vorgaben wiederhergestellt; die getrennten Koordinaten-/Startdaten bleiben
++erhalten. Diese Wiederherstellung meldet `settings recovered; offsets/startup
++retained` und kann Factory-Tempi ergeben. Bei leerem/fremdem Profil gilt
++weiter die vollständige Initialisierung. Deshalb nach jedem Update vor
++Bewegungen `$I` und `$$` prüfen.
++
++**Alte `$100=2560` / `$101=2560` nach dieser Firmware niemals zurückspielen.**
++Bei den neuen festen 1/4-Registern würden damit achtfach zu große reale Wege
++entstehen. Ein pauschales `$RST=*` ist für die erkannte Migration nicht nötig
++und würde die gespeicherten Werkstücknullpunkte löschen.
++
++Die GRBL-Maschinenkoordinaten bleiben in der vereinbarten Konvention:
++X/Y referenzieren MIN, Z referenziert MAX. Arbeitsnull und Maschinenreferenz
++bleiben getrennte Funktionen. Die höhere Geschwindigkeit ändert keine
++Referenzrichtung und schaltet Hard Limits nicht ab.
++
++## Motorstrom und Spindeldrehzahl
++
++Die Motor-Typenschildangabe **2,5 A pro Phase** ist kein Anlass, den bisherigen
++Stromcode anzuheben. TORQUE bleibt X/Y=110 und Z=105, ISGAIN-Verstärkung 20
++bei angenommenen 0,033 Ω Messwiderständen. Daraus folgen rechnerisch:
++
++| Achsen | Phasen-Spitzenstrom | Sinusförmiger RMS-Wert |
++| --- | ---: | ---: |
++| X/Y | ca. 1,790 A | ca. 1,266 A |
++| Z | ca. 1,709 A | ca. 1,208 A |
++
++TORQUE.SMPLTH=1 bleibt bei 100 µs Back-EMF-Abtastzeit. Bei 18 kHz beträgt
++das STEP-Intervall nur etwa 55,6 µs; daraus wird keine zuverlässige
++Back-EMF-Stallerkennung abgeleitet. STALLn ersetzt hier weder Endschalter
++noch eine Messung von Schrittverlusten. Die Stromregelung ist von dieser
++diagnostischen Back-EMF-Abtastung zu unterscheiden.
++
++Das sind typische Rechenwerte, keine Strommessungen. Mehr Drehzahl kann
++auch an Versorgung, Wicklungsinduktivität, Riemenspannung und verfügbarer
++Motorkraft scheitern. Ein höherer Strom ersetzt diese Prüfung nicht.
++
++**24.000 U/min betreffen die Frässpindel.** Ihre Drehzahl ist unabhängig
++von der Schrittmotordrehzahl. Für einen 6-mm-Fräser ergibt sich ein sinnvoller
++Schnittvorschub erst aus Werkzeug, Schneidenzahl, Zahnvorschub, Eingriff,
++Material und Maschinensteifigkeit. Die erreichbare Leerfahrt ist keine
++Freigabe, Aluminium mit demselben Vorschub zu fräsen.
++
++## Konservative erste Einstellungen
++
++Die Factory-Vorgaben für ein neues bzw. wiederhergestelltes CNC-Profil sind
++**600 / 600 / 300 mm/min** bei **10 / 10 / 10 mm/s²**. Sie liegen deutlich
++unter den rechnerischen Frequenzobergrenzen. Beim gültigen Update bleiben
++niedrigere gespeicherte Werte zunächst erhalten.
++
++Für die ersten Wegmessungen nach der Firmwareumstellung können die
++bisherigen langsamen Grenzwerte verwendet werden. Dazu im Stillstand
++die folgenden Zeilen einzeln senden:
++
++```text
++$110=100
++$111=100
++$112=150
++$120=10
++$121=10
++$122=10
++$$
++```
++
++Das setzt noch keine Achse in Bewegung. Die Werte sind mm/min für
++`$110`–`$112` und mm/s² für `$120`–`$122`. Vor dem Fahren muss `$$` zusätzlich
++die zur tatsächlich programmierten Mikroschrittauflösung passende
++Kalibrierung zeigen. Nicht versuchsweise nur die Schrittzahl ändern, um
++eine Schrittfrequenzwarnung zu umgehen.
++
++Nach bestandener langsamer Wegprüfung können im Stillstand die neuen
++Startvorgaben gewählt werden, jeweils eine Zeile senden und `ok` abwarten:
++
++```text
++$110=600
++$111=600
++$112=300
++$120=10
++$121=10
++$122=10
++$$
++```
++
++Höhere Tempi erst stufenweise testen. Für Z bedeuten 1/16 und 18 kHz maximal
++843,75 mm/min auf der Frequenzseite; 2000–3000 mm/min sind damit für Z nicht
++freigegeben. Auch X/Y 2000–3000 erfordern erst einen bestandenen
++mechanischen Test einschließlich Rückkehrmessung.
++
++## Hardwaretest in acht Stufen
++
++Die folgenden Bewegungen führt ausschließlich der Bediener an der Maschine
++aus. Die Cloud hat keinen Hardwaretest durchgeführt und führt keine
++automatische reale Bewegung aus. Fräser entfernen, Frässpindel am Gerät
++ausschalten und freie Fahrwege herstellen. `M5`, Pause und Reset schalten
++die manuelle Spindel nicht aus.
++
++1. **Konfiguration und kleine Bewegung prüfen.** Vor dem Update `$I`, `$$`,
++   `$#` und `$N` sichern. Nach dem Update Firmwarekennung, Migrationsmeldung,
++   Schritte/mm und Grenzwerte prüfen. Mit `$DRV` freie Schalter und bereite
++   Treiber kontrollieren. Jeweils nur eine Achse mit 0,1 bzw. 1 mm bei F20
++   bewegen; Richtung und tatsächliche Bewegung beobachten. Beispiel:
++
++   ```text
++   $J=G21G91X1F20
++   $J=G21G91X-1F20
++   ```
++
++2. **Tatsächlichen Weg messen.** X/Y zunächst über 10 mm, danach über
++   50 mm messen; Z nur mit ausreichend freiem Weg über eine geeignete
++   Länge. Immer denselben Messbezug und eine Bewegungsrichtung verwenden,
++   um Umkehrspiel nicht als Schrittzahlfehler zu behandeln. Eine Korrektur
++   lautet `neue Schritte/mm = alte Schritte/mm × Sollweg / Istweg`.
++   Grobe Faktorenfehler zuerst anhand Mechanik und Mikroschritten klären.
++
++3. **Rückkehr und Schrittverluste prüfen.** Eine Messuhr oder einen
++   ausreichend wiederholbaren Messbezug an einer freien Position verwenden.
++   Zehnmal einen begrenzten Weg hin und zurück fahren, jeweils Stillstand
++   abwarten, und die Rückkehr messen. Auch unter der später üblichen
++   Achslast prüfen. GRBL besitzt hier keinen Positionsgeber: Die angezeigte
++   Rückkehr zu 0 allein beweist nicht, dass keine Schritte verloren gingen.
++
++4. **Geschwindigkeit je Achse erhöhen.** Beschleunigung zunächst bei
++   10 mm/s² belassen. Einen begrenzten Weg verwenden, der das gewünschte
++   Tempo überhaupt erreicht. Aus den langsamen Startwerten in kleinen
++   Stufen erhöhen, etwa 100, 200, 300, 400, 600 mm/min; höhere Stufen nur
++   innerhalb der dokumentierten Firmwaregrenze und nach bestandener
++   vorheriger Stufe. Pro Stufe Rückkehrmessung, Motorgeräusch und Verhalten
++   prüfen. Bei Schrittverlusten oder Störungen zur letzten bestandenen
++   Stufe zurückgehen und Reserve einplanen. `$110`/`$111`/`$112` begrenzen
++   auch ein höheres F; zum Prüfen müssen Achsmaximum und F zusammenpassen.
++   Bei 10 mm/s² benötigt eine Fahrt mit 2000 mm/min schon je 55,6 mm
++   für Beschleunigung und Bremsung, bei 3000 mm/min je 125 mm. Eine kurze
++   10- oder 50-mm-Fahrt erreicht diese Tempi daher nicht. Reicht der freie
++   Achsweg nicht aus, zunächst mit dem niedrigeren bestandenen Tempo die
++   Beschleunigung separat prüfen; nicht allein aus einer hohen F-Anzeige
++   auf eine erreichte Geschwindigkeit schließen.
++
++5. **Beschleunigung separat optimieren.** Erst nach Wahl eines zuverlässig
++   bestandenen Tempos Beschleunigung in kleinen Schritten erhöhen. Kurze
++   Wechselbewegungen und längere Fahrten messen. Tempo und Beschleunigung
++   nicht gleichzeitig erhöhen. Als Bewegungsmodell gilt
++   `Bremsweg = Geschwindigkeit² / (2 × Beschleunigung)`, wobei die
++   Geschwindigkeit dafür in mm/s eingesetzt wird. Endschalter ersetzen
++   keine eingeplante Bremsstrecke.
++
++6. **Gemeinsame Bewegungen und Kommunikation prüfen.** Danach X/Y und XYZ
++   gemeinsam mit dem späteren Senderbetrieb testen. Gleiche F-Angaben
++   beschreiben bei normalem G-Code den Bahn- bzw. Vektorvorschub; sie sind
++   nicht automatisch die Geschwindigkeit jeder beteiligten Achse.
++   Pause/Fortsetzen einer normalen Fahrt und Jog-Abbruch kontrollieren.
++
++7. **Referenzfahrt und Grenzen erneut prüfen.** `$HX`, `$HY` und `$HZ`
++   einzeln prüfen, dann `$H`: erst Z-Max, danach X/Y-Min. Der zuerst
++   erreichte X/Y-Schalter bleibt beim parallelen Suchlauf betätigt, bis
++   auch die andere Achse ihren Kontakt erreicht hat; danach folgt der
++   gemeinsame Rückzug. Suche, Feinanfahrt und abschließendes Freifahren
++   müssen vollständig funktionieren. Hard Limits bei geringer Testfahrt
++   durch gezieltes Betätigen eines Schalters prüfen, ohne in einen
++   mechanischen Anschlag zu fahren. Für den Rückzug nach Alarm den
++   dokumentierten Ablauf Reset → `$LR` → neu referenzieren verwenden.
++   Soft Limits erst nach geprüften Fahrwegen `$130`–`$132` und erfolgreicher
++   Referenzfahrt aktivieren und im freien Bereich kontrollieren.
++
++8. **Erst danach Fräsversuche.** Werkstück und Werkzeug einrichten,
++   Werkstücknull setzen und zunächst eine Leerfahrt des Programms mit
++   Abstand zum Werkstück prüfen. Erste Aluminiumversuche mit kleinem
++   Eingriff und zu Werkzeug/Material passenden Schnittdaten beginnen.
++   Die Spindeldrehzahl von bis zu 24.000 U/min ist keine eigenständige
++   Vorschubvorgabe.
++
++Für jede Achse sollten Firmwarekennung, Mikroauflösung, Schritte/mm,
++Maximaltempo, Beschleunigung, gemessener Weg, Rückkehrfehler und gewählte
++Reserve protokolliert werden. Nur eine tatsächlich bestandene Kombination
++aus diesen Werten als Maschinenkonfiguration speichern.
++
++## Weiterführende Projektdokumente
++
++- [Befehle und Einstellungen](befehle.md)
++- [CNC und gSender](cnc-gsender.md)
++- [Bedienfeld und Menü](bedienfeld-menue.md)
++- [DRV8711-Register und Stromberechnung](drv8711.md)
++- [Build- und Simulationsnachweise](validation.md)
+--- /dev/null
 +++ b/docs/hardware-test.md
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,206 @@
 +# Kontrollierter Hardwaretest
 +
 +Dieser Plan bereitet einen Test vor. Er dokumentiert **keinen bereits bestandenen Hardwaretest** und erteilt keine pauschale Freigabe zum Flashen oder Bewegen einer Maschine. Die verbindliche Quellenpriorität und der Quellabgleich stehen in [hardware-verification.md](hardware-verification.md): Bei abweichenden Hardwarezuordnungen gilt nach jüngster Nutzervorgabe die als funktionierend angenommene RF2000v2-Repetier-Konfiguration. Jede Stufe setzt die protokollierte Erfüllung der vorherigen Stufe voraus; bei Abweichung Versorgung sicher abschalten und die Ursache klären.
 +
 +Arbeiten an 230 V und an der vorhandenen Netz-/Not-Aus-Schaltung gehören in qualifizierte Hände. Für alle ersten Stufen Netzspannungsverbraucher, Spindel, Heizbett und Heizpatronen **physisch abtrennen**; USB allein ist keine verlässlich getrennte Versorgung für sämtliche Platinenbereiche. Keine Motorstecker unter Spannung stecken oder lösen. Z gegen Absinken sichern, Werkzeuge entfernen, Arbeitsbereich räumen.
 +
-+Die nachstehenden XYZ-Schritte beschreiben das bisherige Testprofil `rf2000_grbl`. Das neue [CNC-Profil](cnc-gsender.md) erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auf Basis angenommener X/Z-Richtungen; die physischen Prüfpunkte bleiben als Nachweis offen.
++Die elektrischen Vorprüfungen gelten für alle RF2000-Profile. Die
++ursprünglichen XYZ-Inbetriebnahmeschritte unten beschreiben
++`rf2000_grbl`; Unterschiede des aktuellen CNC-Profils sind ausdrücklich
++genannt. Das [CNC-Profil](cnc-gsender.md)
++`20261022-rf2000-cnc-speed` verwendet fest **X/Y 1/4, Z 1/16**,
++320/320/1280 Schritte/mm und eine **18-kHz-Grenze**. Seine Factory-Tempi
++sind 600/600/300 mm/min bei 10 mm/s². Ein gültiger alter CNC-Datensatz
++wird migriert; die bisherigen 100/100/150-Tempi werden nicht automatisch
++erhöht. Vor jeder ersten Bewegung nach Update `$I`/`$$` und die
++[EEPROM-Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
++prüfen. **Alte X/Y-Werte 2560 nicht zurückschreiben.**
++
++Das CNC-Profil erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auf Basis angenommener X/Z-Richtungen; die physischen Prüfpunkte bleiben als Nachweis offen.
 +Für den ersten Test ausschließlich der Y-Achse gibt es zusätzlich
 +`rf2000_y_homing_test`: Nur Y kann bestromt werden, X/Z/A/B bleiben gesperrt.
 +Seine konkreten Build-, Monitor-, Jog- und `$HY`-Kommandos stehen in
 +[y-axis-test.md](y-axis-test.md). Die elektrischen Vorprüfungen dieses Plans
 +gelten auch dafür; die Y-Richtung und Schalterpolarität müssen vor dessen
-+Homing geprüft sein. Es gibt keine allgemeine XYZ-Homing-Freigabe.
++Homing geprüft sein. Das Standard-/Y-Testprofil behält seine alte
++Mikroauflösung und 5-kHz-Grenze. Für den höheren CNC-Vorschub gilt zusätzlich
++der [stufenweise Geschwindigkeits- und Wegtest](geschwindigkeit-optimieren.md).
 +
 +## 1. Dokumentation, Rückweg und stromloser Aufbau
 +
@@ -9264,7 +10752,18 @@
 +
 +1. HIGH-aktive SCS-Phase, LOW-Ruhetakt und genau 16 MSB-first Takte pro Schreibwort bestätigen. Es darf beim Lesen immer nur ein SCS HIGH sein; SDATO muss echte wechselnde Daten liefern und darf nicht lediglich den Pullupwert abbilden.
 +2. RESET_DRV/PE7: HIGH-Puls und anschließende Wartezeit entsprechend Implementierung prüfen. **Reset muss bei wachen Treibern erfolgen**, da TI §7.4.1 Reset im Sleep ausschließt. Vor dieser Wake-Phase muss CTRL.ENBL=0 für alle fünf Kanäle geschrieben und verifiziert worden sein; es darf keine STEP-Flanke geben. UVLO erst im wachen Zustand löschen, Ursache einer tatsächlichen Unterspannung nicht übergehen. Wake-up-Zeit ab SLEEPn-HIGH messen (Datenblatt maximal 1 ms; Port verwendet längere Wartezeit).
-+3. Jeden der fünf Treiber einzeln auslesen. CTRL.MODE: X/Y/A/B 1/32, Z 1/16; CTRL.ISGAIN=20; TORQUE X=110, Y=110, Z=105, A/B=90. OFF/BLANK/DECAY/STALL/DRIVE gegen die Quellwerte vergleichen. Reserve-ENBL soll nach Konfiguration gesperrt sein. Der read-only Befehl **`$DRV`** meldet den gespeicherten Starttest: `[DRV:READY=1|FAULT=0|READBACK=0|LIMITS=0|STATUS=0,0,0,0,0]` ist der normale fehlerfreie Ausgangspunkt. Werte sind dezimal; FAULT ist eine Bitmaske (1=FAULTn, 2=Readback, 4=STATUS-Leistungsfehler), READBACK Bits 0–4 entsprechen DRV1–5. STATUS sind gespeicherte Startwerte, keine neue SPI-Messung während der Bewegung. Der Befehl ersetzt den Logikanalysator nicht.
++3. Jeden der fünf Treiber einzeln auslesen. Im Standard-/Y-Testprofil gilt
++   CTRL.MODE X/Y/A/B 1/32, Z 1/16. Im aktuellen CNC-Profil gilt dagegen
++   **X/Y 1/4 (`CTRL=0xE11`), Z 1/16 (`0xE21`)**, Reserve A/B weiterhin
++   1/32 bei ENBL=0 (`0xE28`). ISGAIN ist als 2 codiert und bedeutet
++   Verstärkung 20; TORQUE bleibt X=110, Y=110, Z=105, A/B=90.
++   OFF/BLANK/DECAY/STALL/DRIVE gegen die Quellwerte vergleichen. Der
++   read-only Befehl **`$DRV`** meldet den gespeicherten Starttest:
++   `[DRV:READY=1|FAULT=0|READBACK=0|LIMITS=0|STATUS=0,0,0,0,0]` ist der
++   normale fehlerfreie Ausgangspunkt. Werte sind dezimal; FAULT ist eine
++   Bitmaske (1=FAULTn, 2=Readback, 4=STATUS-Leistungsfehler), READBACK Bits
++   0–4 entsprechen DRV1–5. STATUS sind gespeicherte Startwerte, keine neue
++   SPI-Messung während der Bewegung. Der Befehl ersetzt den Logikanalysator nicht.
 +4. STATUS und gemeinsames FAULTn prüfen. Ein angeblich erfolgreicher Read mit `0x000` oder `0xFFF` allein genügt nicht: auch bekannte, unterschiedliche Konfigurationsregister müssen stimmen. Keine nachträgliche Freigabe nach fehlgeschlagenem Readback.
 +5. Fehlerpfad zuerst ohne Motoren und nur mit elektrisch verträglicher, kontrollierter Signalinjektion prüfen. FAULTn ist Open-Drain: niemals aktiv gegen einen Treiberausgang HIGH treiben. Kein absichtlicher Kurzschluss an einer Motorbrücke. LOW muss Alarm/Abschaltung auslösen und darf keine automatische Wiederaufnahme bewirken.
 +
@@ -9294,11 +10793,33 @@
 +- Ruhestand und aktive STEP-Polarität; Puls-HIGH und -LOW jeweils mindestens **1,9 µs** nach TI §6.7. Die konfigurierte GRBL-Pulsbreite darf diese Grenze nicht unterschreiten.
 +- DIR vor dem ersten STEP stabil; Richtungsvorlauf und Nachlauf jeweils mindestens **200 ns** nach TI §6.7 auch beim schnellen Richtungswechsel messen.
 +- X/Y/Z einzeln und synchron; korrektes Setzen/Löschen auf PORTF/PORTL ohne Änderung von SLEEPn/PF2 oder sonstigen Fremdbits.
-+- Timer-Overflow/Pulsendende, Reset während eines Pulses, Alarm während einer Bewegung und UART-Last untersuchen. Keine verkürzten oder zusätzlichen Pulse, kein ständig HIGH bleibender STEP.
-+- Maximale im Prüfbuild eingestellte Schrittfrequenz anhand Feedrate und steps/mm bestimmen und messen. Der Port begrenzt die Parametrierung auf **5 kHz je Achse**, Standardpulsbreite 10 µs und DIR-Vorlauf 5 µs. Die ersten Default-Raten ergeben X/Y ca. 1270 Schritte/s und Z 3200 Schritte/s. Eine Messung bei kleiner Frequenz qualifiziert nicht automatisch den upstream-Maximalwert.
++- Timer-Overflow/Pulsendende, Reset während eines Pulses, Alarm während einer Bewegung und UART-Last untersuchen. Im normalen Betrieb keine verkürzten oder zusätzlichen Pulse und kein ständig HIGH bleibender STEP. Eine Fehler-/Resetabschaltung darf einen laufenden Puls bewusst verkürzen; sie darf keine spätere STEP-Flanke zulassen.
++- Maximale im gewählten Build eingestellte Schrittfrequenz anhand Feedrate
++  und steps/mm bestimmen und messen. Standard-/Y-Testprofile bleiben bei
++  **5 kHz**; deren Standard-X/Y-Raten ergeben ca. 1270 Schritte/s, Z 3200.
++  Das aktuelle CNC-Profil begrenzt dagegen auf **18 kHz**. Seine neuen
++  Factory-Raten 600/600/300 bei 320/320/1280 Schritte/mm ergeben
++  3200/3200/6400 Schritte/s; gültige migrierte 100/100/150 bleiben zunächst
++  langsamer. Die Standardpulsbreite bleibt 10 µs (10–20 µs einstellbar).
++  Der erste tatsächliche STEP nach einem Richtungswechsel verwendet
++  mindestens 5 µs Timer0-Vorlauf. Bei stabiler DIR beginnt der CNC-STEP
++  direkt in Timer1; Timer0 beendet den Puls. Dieser optimierte Pfad und die
++  vorgezogenen AMASS-Berechnungen ändern weder Pins noch Mikroauflösung
++  während der Fahrt. Alle gewünschten Raten unter UART-/Displaylast und
++  bei Richtungswechsel prüfen; eine Messung bei kleiner Frequenz
++  qualifiziert nicht automatisch die höhere Grenze.
 +- Während sämtlicher Tests PA4/PC1 (Reserve-STEP), PA2/PC7 (Reserve-SLEEPn) und Heiz-/P230-Ausgänge mitbeobachten: A/B niemals schalten/freigeben, Lasten inaktiv.
 +
 +**Abbruch:** Zeitverletzung, Fremdbitänderung, verlorene Pulse, ISR-Überlastung oder irgendeine Reservebewegung.
++
++Als Softwarevergleich bestand das finale CNC-ELF
++`0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`
++15 AVR-Fälle bei 10 µs Pulsbreiteneinstellung und einen zusätzlichen
++XYZ-Rücklauf bei 20 µs. Bei 18-kHz-Anforderung betrug das gemessene
++XYZ-Plateau im Simulator 17.977,53 bzw. 17.977,51 Schritte/s. Minimale
++HIGH/LOW-Zeiten waren 10,625/24,250 µs bzw. 20,688/16,625 µs.
++Das ist **kein elektrischer Hardwaremesswert**. Vollständige Zeitmessungen:
++[STEP-/DIR-Timing](step-timing.md) und [Prüfbericht](validation.md).
 +
 +## 6. Erster einzelner Motor, dann XYZ
 +
@@ -9309,13 +10830,34 @@
 +3. Eine einzelne sehr kurze, langsam begrenzte XYZ-Jogbewegung unter Totmannaufsicht ausführen, etwa **0,1 mm** in der jeweils zuvor als kollisionsfrei bewerteten Richtung. Die konkrete Richtung erst am Gerät festlegen; hier stehen bewusst keine blind ausführbaren G-Code-Fahrbefehle. Nur eine Bewegung im Puffer, sofortige Abschaltung erreichbar.
 +4. Bewegungsrichtung, tatsächlichen Weg und Stillstand nach Ende prüfen; Gegenrichtung erst nach positivem Ergebnis. Limits bei minimaler Geschwindigkeit und ausreichendem Abstand kontrolliert nachweisen. Hard-Limits stoppen abrupt und sichern die Z-Last nicht gegen Absinken.
 +5. Spannung aus; X trennen, Y anschließen und entsprechend prüfen. Danach Z mit besonderer Sicherung gegen Absinken und Kollision testen. Erst danach die drei Motoren gemeinsam anschließen.
-+6. Schritte/mm mit Messuhr bestätigen: Quellenwerte X/Y 152,38, Z 1280 sind Startwerte für unveränderte Mechanik. Strom und Temperatur anschließend stufenweise unter einer kleinen realen Last beobachten. Geschwindigkeiten und Beschleunigungen nur nach Messergebnissen erhöhen.
++6. Schritte/mm mit Messuhr bestätigen. Für unveränderte Originalmechanik
++   gelten die Testprofil-Startwerte X/Y 152,38 und Z 1280. Für die
++   vorgegebene CNC-Mechanik mit SFU1605/2:1 und festen 1/4-X/Y-Registern
++   gelten dagegen nominal **320/320/1280**. Nicht zwischen diesen Profilen
++   mischen. Zuerst langsame kleine Wege, dann 10/50-mm-Messung und
++   wiederholte Rückkehr zum Messbezug prüfen. Strom und Temperatur
++   anschließend stufenweise unter einer kleinen realen Last beobachten.
++   Geschwindigkeit und Beschleunigung getrennt nach dem
++   [Geschwindigkeits-Testplan](geschwindigkeit-optimieren.md) erhöhen.
 +
-+Bei betätigtem Endschalter wird nicht per Software zwangsfrei gefahren. Zunächst spannungsfrei und mechanisch sicher entlasten. Wiederanlauf nach Fault/Reset nur nach Ursachenklärung und erneuter Positionsprüfung.
++Das Standard-Testprofil hat keinen softwareseitigen Freifahrablauf. Im
++CNC-Profil ist nach Hard Limit hingegen der ausdrücklich angeforderte
++Ablauf **Reset → `$LR` → neu referenzieren** möglich, wenn genau ein
++physischer Schalter aktiv ist, die Treiber bereit sind und der Rückzugsweg
++frei ist. Er fährt höchstens 2 mm mit bis zu 20 mm/min und bleibt danach
++im Alarm; es gibt keine automatische Rückfahrt oder Jobfortsetzung.
++[Einzelheiten und Abbruchbedingungen](cnc-gsender.md#nach-einem-hard-limit-freifahren).
++Wiederanlauf nach Fault/Reset nur nach Ursachenklärung und erneuter Positionsprüfung.
 +
 +## 7. Homing bleibt ein eigener Freigabeschritt
 +
-+Das bisherige XYZ-Testprofil hält `RF2000_HOMING_VERIFIED=0`. Das neue CNC-Profil ist nach ausdrücklicher Nutzeranweisung mit angenommenen X/Z-Richtungen freigegeben; siehe [cnc-gsender.md](cnc-gsender.md). `$22` oder EEPROM-Werte dürfen das nicht verändern. Eine messtechnisch bestätigte XYZ-Freigabe erfordert ein ausgefülltes Prüfprotokoll für alle Richtungen/Schalter und einen bewusst neu erzeugten Build.
++Das bisherige XYZ-Testprofil hält `RF2000_HOMING_VERIFIED=0`; `$22` oder
++EEPROM-Werte umgehen dessen Sperre nicht. Das aktuelle CNC-Profil ist nach
++ausdrücklicher Nutzeranweisung mit angenommenen X/Z-Richtungen freigegeben;
++siehe [cnc-gsender.md](cnc-gsender.md). Es erlaubt `$H` sowie `$HX`/`$HY`/`$HZ`
++bei `$22=1` und freien Eingängen. Die Mikroauflösungs-/Timingänderung liefert
++keinen neuen physischen Richtungs- oder Schalternachweis. Ein ausgefülltes
++Prüfprotokoll dokumentiert die Prüfung aller Richtungen und Kontakte.
 +
 +Das zusätzliche Y-Testprofil ist eine getrennte Ausnahme nur für Y: nach
 +realer Prüfung von Y-Richtung und Y-Min-Polarität kann ausschließlich `$HY`
@@ -9333,6 +10875,12 @@
 +bleibt erforderlich.
 +
 +Für die CNC-Anwendung ist **Z-Max mit positiver Z-Referenzrichtung** aus dem Repetier-Fräsmodus der Quellenkandidat. Das bedeutet erst nach realer Richtungsprüfung „vom Werkstück weg“. X/Y sind Quellkandidaten Richtung Min. Nach erfolgreicher Prüfung Homing zuerst ohne Motoren am Logikanalysator, danach einzeln langsam mit Totmannaufsicht testen: freier Start, bereits aktiver Schalter, dauerhaft aktiver Schalter, nicht erreichter/abgetrennter Schalter, Pull-off, zweite langsame Annäherung, erneutes Auslösen und Alarm. Keine automatische Freigabe aus diesem Dokument ableiten.
++
++Beim vollständigen CNC-`$H` fährt zuerst Z vollständig, danach X/Y parallel.
++Die zuerst angekommene X/Y-Achse wartet ohne weitere STEP-Pulse am Kontakt,
++bis auch die zweite Achse ihren Schalter erreicht hat. Erst dann folgt der
++gemeinsame Rückzug. Die langsamen Referenztempi bleiben 100/20 mm/min;
++der höhere mögliche Fräsvorschub erhöht sie nicht automatisch.
 +
 +## Protokollvorlage
 +
@@ -9352,10 +10900,10 @@
 +| HZ/P230/OUT inaktiv über alle Zustände | offen |
 +| Not-Aus / Totmann / Z-Sicherung geprüft | offen |
 +| XYZ-Richtung, Wegmessung, Strom und Temperatur | offen |
-+| Homing-Freigabe, verantwortliche Person, Datum | **nicht erteilt** |
++| Physischer Homing-Nachweis, verantwortliche Person, Datum | offen; CNC-Ausführung nach Nutzeranweisung freigegeben |
 --- /dev/null
 +++ b/docs/hardware-verification.md
-@@ -0,0 +1,174 @@
+@@ -0,0 +1,183 @@
 +# Hardwareabgleich RF2000v2 / I851 CTC V3.0
 +
 +Stand: 19.10.2026. Dies ist ein Quellenabgleich und ein Prüfprotokoll für die Inbetriebnahme. Es wurde keine reale Platine angeschlossen, keine Spannung gemessen und keine Achse bewegt. Ein erfolgreicher AVR-Build bestätigt weder die tatsächliche Platinenrevision noch Strom, Drehrichtung oder Störfestigkeit.
@@ -9422,6 +10970,9 @@
 +
 +`I_FS = (2,75 V × TORQUE / 256) / (ISGAIN × R_SENSE)`
 +
++Die folgende Tabelle dokumentiert das ursprüngliche Repetier-Mikroprofil,
++das die getrennten Standard-/Y-Testprofile weiterhin verwenden:
++
 +| Kanal | TORQUE | ISGAIN | Shunt | Rechnerischer I_FS | Mikroschritte | CTRL bei ENBL=1 |
 +|---|---|---|---|---|---|---|
 +| X | 110 | 20 | 0,033 Ω | ca. 1,790 A | 1/32 | 0x0E29 |
@@ -9433,6 +10984,12 @@
 +Diese Zahlen sind nominale Wicklungs-Spitzenstrom-Sollwerte, keine gemessenen Ströme und keine Netzteil-Gesamtströme. Motor- und Platinenstromgrenzen, Widerstandstoleranz, Verstärkerfehler, Decay, Mikroschrittposition und Temperatur bleiben zu prüfen. Die in Repetier vorhandene grobe Bemerkung „126 ≈ 2 A“ ist keine genauere Berechnungsgrundlage. Für schlafende beziehungsweise über ENBL gesperrte A/B wird kein Motorstrom freigegeben.
 +
 +Die Tabelle zeigt den Referenz-CTRL mit ENBL=1; Reserve A/B muss im Port mit gelöschtem ENBL, also CTRL `0x0E28`, abgelegt werden. Die kurze Wake-Phase während des Starts ist damit keine Freigabe der Motorbrücke. Weitere aus der Referenz übernommene SPI-Wörter: OFF `0x2097`, BLANK `0x31D7`, DECAY `0x4430`, STALL `0x583C`, DRIVE `0x60F0`, STATUS-Schreibwert `0x7000`. Das oberste Adressnibble ist nicht Teil des jeweiligen 12-Bit-Registerinhalts. TORQUE.SMPLTH Bit 10 ist laut TI §7.6.3 nur schreibbar und muss vom Readback-Vergleich ausgenommen werden. Diese Werte sind keine beliebig sicheren Defaults für andere MOSFETs, Motoren oder Shunts.
++
++Das aktuelle CNC-Profil verwendet ab `20261022-rf2000-cnc-speed` für X/Y
++fest **1/4 und CTRL `0x0E11` bei ENBL=1**. Z bleibt bei 1/16, A/B bleiben
++gesperrt. Stromwerte und Hardwarepins ändern sich nicht. Mit der vom Nutzer
++vorgegebenen SFU1605-/2:1-Mechanik ergibt dies **320/320/1280 Schritte/mm**.
++Migration und Prüfablauf: [geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 +
 +Die nominelle Mechanik aus `RF2000v2.h` und `Configuration.h` ergibt X/Y `4,761875 × 32 = 152,38 steps/mm`, Z `80 × 16 = 1280 steps/mm`. Das gilt nur bei unveränderter Mechanik. Eine kurze Messfahrt muss den realen Weg bestätigen, bevor größere Wege erlaubt werden.
 +
@@ -9877,7 +11434,7 @@
 +Repetier stehen in [hardware-verification.md](hardware-verification.md).
 --- /dev/null
 +++ b/docs/platformio.md
-@@ -0,0 +1,202 @@
+@@ -0,0 +1,208 @@
 +# GRBL mit PlatformIO kompilieren
 +
 +Die Datei `platformio.ini` im Repository-Hauptverzeichnis definiert die
@@ -9887,6 +11444,12 @@
 +Alle Profile verwenden ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
 +und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
 +Die CNC-Bedienung einschließlich gSender steht in [cnc-gsender.md](cnc-gsender.md).
++Das aktuelle CNC-Profil verwendet fest X/Y 1/4 und Z 1/16. Beim Update von
++CNC-Version 74 auf 75 werden alte X/Y-Schrittwerte passend umgerechnet;
++die nominalen Werte sind danach **320/320/1280 Schritte/mm**. Alte X/Y-Werte
++2560 anschließend nicht aus einer Sicherung zurückspielen. Vor Bewegungen
++`$I` und `$$` prüfen; Ablauf und Geschwindigkeitsstufen stehen in
++[geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 +
 +## VS Code
 +
@@ -10151,10 +11714,10 @@
 +Für spätere Aufgaben den vorhandenen Checkout verwenden; die Cloudmaschine ist bereits isoliert und benötigt keinen Git-Worktree. Flashen ist keine Setupaktion und wurde nicht durchgeführt.
 --- /dev/null
 +++ b/docs/step-timing.md
-@@ -0,0 +1,69 @@
+@@ -0,0 +1,134 @@
 +# RF2000 STEP/DIR timing
 +
-+The standard test profile uses three logical Grbl axes. Five physical DRV8711 channels
++All RF2000 profiles use three logical Grbl axes. Five physical DRV8711 channels
 +are initialized by the driver module; the two reserve channels have no planner
 +axis and remain asleep throughout motion. Initialization temporarily wakes
 +their digital circuitry with CTRL.ENBL=0 to perform RESET and clear status;
@@ -10165,12 +11728,20 @@
 +to PF6 and limits driver enable to Y. It uses the same pulse timers and minimum
 +timing constraints; X/Z/A/B motor bridges remain disabled.
 +
++The current `rf2000_cnc` profile is identified by
++`20261022-rf2000-cnc-speed`. It programs **fixed X/Y 1/4 and Z 1/16**
++(320/320/1280 steps/mm for the specified SFU1605/2:1 mechanics) and limits
++configured physical step rates to **18 kHz**. The standard/Y commissioning
++profiles retain X/Y 1/32, their former mechanics and **5 kHz**. Adaptive
++driver microstep switching during a move is not implemented.
++
 +All XYZ STEP pins share PORTF (PF0/PF6/PF3). X/Y direction pins PF1/PF7 and Y
 +SLEEPn PF2 share the same register. Each pulse edge therefore uses one masked
 +PORTF write. The upstream delayed-pulse path caches complete port values per
 +axis; applying that path to this board would overwrite other axis STEP bits,
-+direction bits or the enable signal. The RF2000 path caches only STEP bits and
-+combines them with the **current** PORTF value inside the interrupt.
++direction bits or the enable signal. The RF2000 path retains only masked
++STEP/DIR values and combines them with the **current** PORTF value inside
++the interrupt; it never replays a complete cached PORTF image.
 +
 +X/Y direction bits are written together; Z direction uses PL1. These writes
 +occur with interrupts disabled, before Timer0 is started. Every other RF2000
@@ -10178,7 +11749,10 @@
 +Timer1 reenables interrupts only after the port writes and pulse timer setup,
 +so Timer0 cannot interrupt the read/modify/write sequence.
 +
-+At the original 16 MHz clock, Timer0 runs at 2 MHz (0.5 us ticks):
++## Common pulse constraints and legacy timer sequence
++
++At the original 16 MHz clock, Timer0 runs at 2 MHz (0.5 us ticks). The
++standard and Y commissioning profiles retain this sequence for every pulse:
 +
 +1. Timer1 writes direction and starts Timer0 from zero. Compare A is set to
 +   `STEP_PULSE_DELAY * 2`, with the test default **5 us**.
@@ -10194,14 +11768,39 @@
 +the rising-edge interrupt cannot shorten the requested pulse. Timer0 is not
 +armed for AMASS ticks that contain no physical step.
 +
-+The test profile accepts `$0` from 10 to 20 us and independently clamps that
++All profiles accept `$0` from 10 to 20 us and independently clamp that
 +range in the pulse code. `$2=0` and `$4=0` are required: STEP is active HIGH,
-+and the physical nSLEEP polarity is fixed by the board. The planner caps
-+physical step rates at 5000 Hz; the existing AMASS scheduler may execute its
-+Timer1 interrupt up to 16000 times per second. This is a conservative software
-+profile, not a measured hardware maximum. If Timer1 reaches a new output
-+update before Timer0 completes the previous pulse, motion stops with alarm 3
-+instead of truncating a pulse or changing direction during it.
++and the physical nSLEEP polarity is fixed by the board. With the legacy
++5-kHz physical-rate limit, AMASS can still execute Timer1 up to 16,000 times
++per second because smoothing inserts ticks without a physical pulse.
++
++## Optimized CNC timer sequence
++
++The CNC path caches the applied direction bits, not a complete output-port
++image. Segment loading marks a potential direction update. Timer1 rewrites
++DIR only when the actual masked direction differs from the cached value.
++That change leaves a pending setup flag until the **first physical STEP**
++has used the 5-us Timer0 Compare A delay. AMASS ticks with no STEP do not
++consume this flag.
++
++Once DIR is stable, subsequent physical rising edges are written directly
++by Timer1 after its driver/fault/reset checks. Timer0 is reloaded from the
++actual rising edge and its overflow ISR still performs the falling edge.
++This steady-state path therefore avoids the separate rising-edge interrupt
++without removing the direction setup interval after a change. The delayed
++first-edge path retains its own checks immediately before STEP rises.
++
++CNC AMASS increments are prepared in foreground code and stored in each
++segment. Segment loading copies them rather than performing variable
++32-bit shifts inside the ISR. AMASS and Bresenham pulse-count semantics
++remain active. No ISR performs software SPI or a driver wake-up delay.
++
++The 18-kHz CNC limit is a nominal settings-admission limit, not a guarantee
++that every individual measured interval is exactly 55.556 us. Interrupt
++collisions introduce timing variation. If Timer1 reaches a new output update
++before Timer0 completes the previous pulse, motion stops with alarm 3
++instead of truncating a pulse or changing direction during it. The source
++does not silently resume such a stopped motion.
 +
 +Driver wake-up waits the original 25 ms in foreground context before Timer1
 +is enabled. Neither timer ISR performs SPI or wakes a driver. A fault or reset
@@ -10209,24 +11808,53 @@
 +Emergency stopping can intentionally shorten a pulse already in progress;
 +minimum-width guarantees apply to ordinary motion, not emergency shutdown.
 +
++## Measured software evidence
++
++The final CNC ELF SHA256 is
++`0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`.
++`tests/run-speed-sim.sh` exercises public UART settings, physical STEP/DIR
++edges, exact counts and position, live LCD plus 100-Hz status requests,
++direction reversals and fault/limit/reset/pause cases. The final run passed
++15 cases at `$0=10`, plus an XYZ reverse case at `$0=20`.
++
++| Requested rate | Pulse setting | XYZ plateau mean | Fastest/slowest 64-edge windows | Minimum HIGH | Minimum LOW |
++| --- | --- | --- | --- | --- | --- |
++| 18,000 steps/s | 10 us | 17,977.53 steps/s | 18,068.89 / 17,886.15 steps/s | 10.625 us | 24.250 us |
++| 18,000 steps/s | 20 us | 17,977.51 steps/s | 18,070.16 / 17,885.53 steps/s | 20.688 us | 16.625 us |
++
++The additional 20-us reverse case measured at least 168.25 us DIR setup.
++An isolated development probe passed 20 kHz but failed at 22 kHz; those
++experiments are not the released rate setting. The release uses 18 kHz
++with margin. Complete output is in `artifacts/speed-simulation.log`; the
++[validation report](validation.md) records the associated build and tests.
++
++At fixed 320/320/1280 steps/mm the nominal frequency limit corresponds to
++3375/3375/843.75 mm/min. Factory starts are 600/600/300 mm/min with
++10 mm/s² acceleration. Valid old 100/100/150 settings remain at those
++lower speeds after EEPROM migration. Hardware tuning must follow the
++[speed and travel test plan](geschwindigkeit-optimieren.md).
++
++## Historical commissioning evidence
++
 +`tests/run-sim.sh` executes the actual ELF on a simulated ATmega2560 with a
 +DRV8711 register model. It records physical GPIO edges, exact pulse counts,
 +direction setup and pulse widths, and exercises shutdown and admission guards.
-+The initial 16 MHz simulation recorded a minimum ordinary STEP width of
++The historical standard-profile 16 MHz simulation recorded a minimum ordinary STEP width of
 +14.312 us and 4992.81 steps/s over the fastest 64-edge window of a commanded
 +4992 steps/s Z move under continuous UART status traffic. Forward/reverse XYZ
 +moves produced the exact expected 64/64/32 pulses. Deterministic FAULTn
 +injections at both STEP ISR entry points canceled the pending edge and retained
 +driver alarm 12 before the safety poll could run. These are simulator results.
-+It cannot establish signal integrity, real driver current, motor direction,
++Neither the old nor the new simulator can establish signal integrity,
++real driver current, motor direction,
 +switch wiring or timing under the real electrical load. Use the hardware test
 +procedure and an oscilloscope before increasing feed rates or enabling homing.
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,353 @@
+@@ -0,0 +1,411 @@
 +# Prüfbericht
 +
-+Stand: 19.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
++Stand: 22.10.2026. Alle folgenden Befehle wurden in der Cloudmaschine
 +ausgeführt. Die Cloudwerkzeuge haben keine Platine programmiert und keinen
 +Motor bewegt. Der Nutzer hat Display, Tasten, Y-Referenzfahrt und
 +Referenzschalter mit dem bisherigen Menü als funktionierend bestätigt;
@@ -10238,7 +11866,7 @@
 +| --- | ---: | ---: | --- |
 +| GRBL RF2000 XYZ-Test | 35.226 / 253.952 Byte | 3.520 / 8.192 Byte | gebaut |
 +| GRBL separater Y-Test mit Bedienfeld | 38.448 / 253.952 Byte | 3.697 / 8.192 Byte | gebaut |
-+| XYZ-CNC mit Display und manueller Spindel | 45.258 / 253.952 Byte | 3.710 / 8.192 Byte | gebaut |
++| XYZ-CNC mit Display und manueller Spindel | 46.076 / 253.952 Byte | 3.836 / 8.192 Byte | gebaut |
 +| Repetier Community RF2000v2 | 218.996 / 253.952 Byte | 6.914 / 8.192 Byte | gebaut |
 +
 +Das Standardprofil verwendet `.text=35176`, `.data=50`, `.bss=3470`;
@@ -10259,16 +11887,15 @@
 +mit `make check` vollständig geprüft. Repetier wurde mehrfach gebaut; HEX, ELF und EEP waren bei Wiederholung
 +bytegleich. MAP-Dateien können temporäre LTO-Pfade enthalten.
 +
-+Nach der SFU1605-Anpassung bleibt das XYZ-Test-HEX bytegleich zum zuvor
-+vollständig getesteten Stand. Dessen früheres Testprotokoll bezieht sich
-+weiterhin auf den dort genannten ELF-Hash; `rebuilt_elf_sha256` kennzeichnet
-+den Neubuild. Das separate Y-Profil erhält ebenfalls den unten beschriebenen
-+LCD-Abstandsfix; seine mechanische Kalibrierung bleibt unverändert. Nach der
-+aktuellen CNC-Menü-/Freifahrerweiterung wurden Standard und Y erneut gebaut:
-+Beide HEX-Dateien bleiben bytegleich zu ihren vollständig geprüften Vorgängern.
-+Ihre ELF-Dateien enthalten neue Debug-/Link-Metadaten. Die alten Prüfprotokolle
-+behalten ihren tatsächlich simulierten ELF-Hash; die Buildmanifeste nennen
-+zusätzlich den Hash des jeweiligen Neubuilds.
++Am 22.10.2026 wurden CNC, Standard und Y neu gebaut. Standard- und Y-HEX
++bleiben bytegleich zu ihren zuvor geprüften Vorgängern. `make check` lief
++zusätzlich auf dem aktuellen Standard-ELF vollständig durch. Die Y-Protokolle
++behalten ihren tatsächlich simulierten historischen ELF-Hash; das
++Y-Buildmanifest nennt zusätzlich den Hash des Neubuilds. Der neue CNC-Pfad
++wurde mit allen unten genannten 56 Fällen auf demselben finalen ELF geprüft.
++Ein zusätzlicher CNC-Build ohne Bedienfeld bestand ebenfalls (38.472 Byte
++Flash, 3.651 Byte statisches SRAM); dieses Profil ist kein ausgeliefertes
++Standardartefakt.
 +
 +Firmware-SHA256:
 +
@@ -10276,7 +11903,7 @@
 +GRBL     fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f
 +Repetier cffc216c8d5f4c40fb4f7691d6aa3490faa1e21fdb5dfb04bf7d173bd58ca013
 +Y-Test   3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa
-+CNC      d869cd2ba480c6df88d53bca8ad426610f245b44c6aa2454e1e73e871834859a
++CNC      727b8c5dcbab9189245f3ee4cb91f3218e9a3907aa77385032599faed1b8be8e
 +```
 +
 +Die 64 extrahierten Repetier-Referenzdateien wurden zusätzlich byteweise
@@ -10293,11 +11920,12 @@
 +| --- | --- |
 +| Tatsächlicher Limit-Code mit GPIO-Modell | Alle 16 Kombinationen der vier Eingänge; feste Polarität; aktiver Eingang beim Init; sofortige Stopentscheidung; fünf freie Samples; Prellen; Z-Min/Z-Max; Fehlersperre; spätere Homing-Schalterauswahl |
 +| Tatsächliche DRV8711-Zustandsmaschine | Alle fünf Registerprofile; ENBL0 vor Wake; wirksamer Awake-Reset; UVLO-Löschung; Readbackfehler in allen drei Phasen; XYZ-Maske; Reserve ENBL0; 25-ms-Wake; persistenter Fault; Fehler während Wake; INT6-Flankenkonfiguration |
++| CNC-Migration mit ASAN/UBSAN | AVR-Layout mit 85 Byte; 74→75 und Feinabgleich; 88 Unterbrechungspunkte bei Migration sowie 88 bei späterem Schreiben; kein doppeltes Teilen; bekannte beschädigte Datensätze setzen nur globale Einstellungen zurück |
 +| Tatsächliche EEPROM-Funktionen mit ASAN/UBSAN | Getrennte Datensätze; Längen-/Indexgrenzen; NUL-Behandlung; Wiederherstellen; SREG-Erhaltung |
 +| Tatsächlicher serieller Treiber mit Host-UART-Modell | Fünf RX/TX-Konfigurationen, alle Startpositionen, FIFO/Umlauf, Voll/Leer, counts/available, Reset, Echtzeitbefehle, Jog-Abbruch und Überlaufalarm; sechs ungültige Kapazitäten abgewiesen |
 +| Echter AVR-ELF in simavr | Fünf DRV8711-SPI-Modelle; fabrikleeres EEPROM; Bootalarm; Befehls-/Einstellungsgrenzen; EEPROM über UART; STEP-/DIR-GPIO; bewegter Z-Max-Test; Fault-/Readback-Fehler; zwei gezielte ISR-Fehlerzeitpunkte; kurzer INT6-Puls |
 +
-+Der ELF-Simulator prüfte genau 32/32/16 XYZ-Schritte vorwärts und dieselbe
++Der ELF-Simulator prüfte genau 32/32/16 XYZ-Schritte je Einzeljog, insgesamt 64/64/32 vorwärts und dieselbe
 +Anzahl zurück. Die minimale normale Pulsbreite dieses Laufs betrug
 +**14,312 µs** bei eingestellten 10 µs. Ein weiterer Z-Lauf erzeugte genau
 +**6.400 Pulse**, mit **4992,81 Schritten/s** im schnellsten Fenster über
@@ -10369,11 +11997,11 @@
 +## XYZ-CNC und gSender-Protokoll
 +
 +Ergebnis: **zehn CNC-Fälle bestanden**,
-+alle mit ELF `449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446`.
-+Protokoll: `artifacts/cnc-simulation.log`. Nach der neuen Menüführung und
-+dem begrenzten Endschalter-Freifahren wurden alle neun Funktionsfälle und
-+der Timingfall zusammen erneut ausgeführt. Der CNC-Build verwendet
-+`.text=45140`, `.data=118`, `.bss=3592`; Buildprotokoll: `artifacts/cnc-build.log`.
++alle mit ELF `0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`.
++Protokoll: `artifacts/cnc-simulation.log`. Nach der Geschwindigkeitsoptimierung
++wurden alle neun Funktionsfälle und der Timingfall zusammen erneut
++ausgeführt. Der CNC-Build verwendet `.text=45958`, `.data=118`, `.bss=3718`;
++Buildprotokoll: `artifacts/cnc-build.log`.
 +
 +Die `$I`-Antwort dieses AVR-Laufs wurde außerdem durch die tatsächliche
 +`Connection`-Klasse von [gSender v1.6.4](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/server/lib/Connection.js)
@@ -10401,14 +12029,19 @@
 +schalten ab; Alarm 12 bleibt auf dem Display sichtbar.
 +
 +Ein zusätzlicher Kalibrierungsfall startet mit einem gültigen alten
-+EEPROM-74-Datensatz: X/Y 152,38 Schritte/mm bei 500 mm/min. Das neue Programm
-+behält ihn beim Update. Eine verfrühte Umstellung auf 2560 Schritte/mm wird
-+wegen der 5-kHz-Grenze abgewiesen. Die dokumentierte Reihenfolge mit zuerst
-+100 mm/min funktioniert; die neuen Werte bleiben nach einem weiteren
-+MCU-Neustart erhalten, ebenso G54. Anschließende einzelne 1-mm-Jogs erzeugen
-+genau **2560 / 2560 / 1280 reale GPIO-Schrittimpulse** im Simulator.
++EEPROM-74-Datensatz: X mit 2560, Y mit dem überholten Wert 152,38 und Z
++mit 1280 Schritten/mm. Das tatsächliche AVR-Programm migriert automatisch
++auf Version 75 und **320 / 320 / 1280 Schritte/mm**. X wird durch acht
++geteilt, der bekannte falsche Y-Mechanikwert gesondert korrigiert und Z
++beibehalten. G54, Startzeile und eigener Buildtext bleiben erhalten.
++Beim erneuten MCU-Neustart findet keine zweite Umrechnung statt.
++Anschließende einzelne 1-mm-Jogs erzeugen genau **320 / 320 / 1280 reale
++GPIO-Schrittimpulse**. Der ergänzende Hosttest prüft den tatsächlichen
++Produktionscode mit Feinabgleichen und vor jedem der 88 Byte-Schreibaufrufe
++unterbrochenen Aktualisierungen; dies simuliert keine analogen
++Brownout-/Teilbytefehler. Protokoll: `artifacts/speed-host-validation.log`.
 +
-+Mit der höheren X/Y-Schrittzahl fand der Homing-/Alarmfall einen zu kurzen
++Bei der früheren Umstellung auf 2560 Schritte/mm fand der Homing-/Alarmfall einen zu kurzen
 +LCD-Byteabstand von 206,938 µs. Der Service hatte seinen Zeitstempel vor
 +der Formatierung gesetzt; unter Schrittinterruptlast konnte diese bereits
 +mehrere Timer-Ticks dauern. Der Zeitstempel wird nun zusätzlich unmittelbar
@@ -10426,9 +12059,10 @@
 +Der Firmware-EEPROM-Treiber wurde dafür nicht verändert.
 +
 +Mit aktivem CNC-LCD und 100-Hz-UART-Status entstehen genau **6400 Z-Pulse**,
-+bei **4994,59 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
-+**14,312 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
-+die Firmwarevorgabe für Z bleibt 150 mm/min.
++bei **4994,61 Schritten/s** im schnellsten 64-Flanken-Fenster und minimal
++**10,625 µs Pulsbreite**. Hierfür wurde nur im Simulator `$112=234` eingestellt;
++die neue Fabrikvorgabe für Z beträgt 300 mm/min. Dieser beibehaltene
++5-kHz-Vergleichsfall ist vom zusätzlichen 18-kHz-Nachweis unten zu unterscheiden.
 +
 +Dies ist ein Test der gSender-relevanten seriellen Befehle und des tatsächlichen
 +AVR-Programms, kein Lauf der gSender-Desktopanwendung an realer Hardware. Der
@@ -10447,7 +12081,7 @@
 +
 +Geprüft sind Navigation und Zurück ohne Bewegung, Start-/Freigabesperre für
 +Play, Jogschritt- und Tempogrenzen, alle sechs Achsrichtungstasten mit
-+256/256/128 Pulsen für 0,1 mm, Einzelnull nur für Y mit getrenntem
++32/32/128 Pulsen für 0,1 mm, Einzelnull nur für Y mit getrenntem
 +Bestätigungsdruck und die vier Homingphasen mit Z vor X+Y. Normale Fräsfahrt
 +zeigt ihren tatsächlich ausgeführten Achsblock; II bremst ab, ein zu früher
 +Play-Druck wird verworfen, Play setzt erst nach Stillstand fort. Vorschub-
@@ -10486,6 +12120,58 @@
 +verlangt einen getrennten Bestätigungsdruck und zeigt den laufenden Rückzug.
 +Die elektrische Polarität und mechanische Freifahrrichtung an realer
 +Hardware werden damit nicht gemessen.
++
++## Gemeinsames XY-Referenzieren
++
++Ergebnis: **zwei Fälle bestanden**, Exitstatus 0 auf dem finalen CNC-ELF.
++Protokoll: `artifacts/homing-wait-simulation.log`; Reproduktion:
++`make check-homing-wait`. Einmal erreicht Y zuerst den Schalter, einmal X.
++Die erste Achse bleibt 500 ms ohne weitere STEP-Flanke am Schalter stehen,
++während die andere weitersucht. Anschließend durchlaufen beide Rückzug,
++Feinannäherung und letzten Rückzug; `$H` endet nach vorherigem Z-Zyklus mit
++freien Schaltern und Referenzanzeige XYZ im Leerlauf. Das gemeinsame Warten
++ist Teil des unveränderten GRBL-Ablaufs.
++
++## Höhere CNC-Schrittfrequenz
++
++Ergebnis: **15 Geschwindigkeits-/Fehlerfälle bei 10 µs und ein zusätzlicher
++XYZ-Vor-/Rücklauf bei 20 µs bestanden**, jeweils Exitstatus 0 auf dem finalen
++CNC-ELF. Damit wurden insgesamt **56 reale AVR-Simulatorfälle** aus CNC,
++Menü, Freifahren, gemeinsamem Homing und Geschwindigkeit geprüft.
++Protokoll mit ELF-Hash und Aufrufen: `artifacts/speed-simulation.log`.
++Reproduktion: `make check-speed`; für die zusätzliche Pulsbreite
++`RF2000_TEST_PULSE_US=20 make check-speed` (führt alle Fälle mit 20 µs aus).
++
++Der Freigabenachweis verwendet echte UART-Einstellbefehle und die
++18-kHz-Firmwaregrenze, keinen SRAM-Patch. Die Testbeschleunigung von
++2000 mm/s² dient ausschließlich der digitalen Belastung; die Fabrikvorgabe
++bleibt 10 mm/s². Display und UART-Status mit 100 Hz bleiben aktiv.
++
++| XYZ bei nominal 18 kHz | Mittelwert | 64-Flanken-Fenster | Min. HIGH | Min. LOW |
++| --- | ---: | ---: | ---: | ---: |
++| `$0=10` | 17.977,53 Hz | 17.886,15–18.068,89 Hz | 10,625 µs | 24,250 µs |
++| `$0=20` | 17.977,51 Hz | 17.885,53–18.070,16 Hz | 20,688 µs | 16,625 µs |
++
++Gleichzeitige XYZ-Fahrt erzeugt genau 7200 Schritte je Achse und kehrt mit
++korrekter Richtung zur Ausgangs-Schrittposition zurück. Weitere Fälle
++prüfen Einzelachsen, unterschiedliche Achsanteile, Richtungsvorlauf,
++Pulsüberlappung, Stop-/Reset-Eingänge, vier Hard Limits, Homing und Soft
++Limits. FAULT wird gezielt beim Timer1-/Timer0-Eintritt und als abgeschlossener
++1-µs-Puls unter Last eingespeist. Ein bereits am ISR-Eintritt aktiver Fehler
++verhindert den STEP; das ist keine Behauptung einer verzögerungsfreien
++Abschaltung an jedem beliebigen Zeitpunkt innerhalb eines ISR.
++A/B und die stillgelegten Lastenausgänge bleiben inaktiv.
++
++Vorversuche mit übergangenen Einstellgrenzen dokumentieren die Begründung
++für 18 kHz in `artifacts/speed-exploration.tsv`. Diese Zwischenstände sind
++keine ausgelieferten Firmwareprofile. 20 kHz gelangen im optimierten
++Vorversuch, 22 kHz bestanden nicht. Eine bloß angehobene 30-kHz-Grenze des
++alten Pfads lieferte nur etwa 14,5 kHz und bestand nicht.
++
++Die Messungen belegen digitale Zeitabläufe im Simulator. Mechanische
++Schrittverluste, Motordrehmoment, elektrische Signalqualität und Fräslast
++bleiben am Gerät zu prüfen. Vorgehen und Grenzen stehen in
++[geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 +
 +## Codeprüfung und Grenzen
 +

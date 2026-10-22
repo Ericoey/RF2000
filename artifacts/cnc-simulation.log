@@ -1,38 +1,38 @@
-449731eb040e8e1833e64088ccc9cc5becd1b18fbe460189bfa109e2ade57446  build/tests/release-cnc-v2.elf
-Loaded 45140 .text at address 0x0
+0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3  build/tests/speed-release-final.elf
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: gSender handshake/settings/G54/status; XYZ homing default; manual spindle M3/M4/S accepted without outputs; unwired commands blocked
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: LCD XYZ work coordinates; front-panel X/Y/Z jog; two-press work zero without motion; idle hold and raw STOP
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: $H homes Z-MAX before XY-MIN; each axis two contacts/releases and four phases; XYZ reference indication; Z-MIN trips alarm and disables all
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: streamed metric G54 rectangle with Z depth and manual spindle words; exact XYZ pulses; gSender ! hold and ~ resume complete same move
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: one-microsecond FAULT stops CNC Z jog, all drivers sleep, LCD alarm12 persists
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: clockwise/counterclockwise GRBL arcs interpolate XY and return to starting position without Z or reserve movement
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: $HX/$HY/$HZ independently reference the selected motor and accumulate XYZ reference indicators
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
 PASS: CNC calibration and G54 persist in EEPROM across a fresh MCU; reboot remains alarm locked without movement
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
-Loaded 45140 .text at address 0x0
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
-PASS: retained legacy EEPROM; rate-first calibration update survives reboot without coordinate erase; 1mm XYZ jogs emit2560/2560/1280 pulses
-Loaded 45140 .text at address 0x0
+PASS: EEPROM74 SFU1605 and obsolete152.38 migrate to75 exactly once; G54/startup/build info retained;1mmXYZ emit320/320/1280 pulses
+Loaded 45958 .text at address 0x0
 Loaded 118 .data
-PASS: live CNC LCD plus100Hz UART status:6400 Z pulses at4994.59steps/s, min pulse14.312us
+PASS: live CNC LCD plus100Hz UART status:6400 Z pulses at4994.61steps/s, min pulse10.625us
 PASS: 10 real-AVR CNC cases
