@@ -149,8 +149,8 @@ void write_global_settings()
   #endif
   #if RF2000_CNC
     // Mark the record before modifying its units or contents. If power fails,
-    // a later boot must neither accept old 1/32 values as the coarser profile
-    // nor scale an already converted record a second time.
+    // a later boot must neither accept former physical-step units as virtual
+    // units nor scale an already converted record a second time.
     eeprom_put_char(0, RF2000_SETTINGS_MIGRATING_VERSION);
     memcpy_to_eeprom_with_checksum(EEPROM_ADDR_GLOBAL, (char*)&settings, sizeof(settings_t));
     eeprom_put_char(0, SETTINGS_VERSION);
@@ -256,12 +256,15 @@ uint8_t read_global_settings() {
   #if RF2000_CNC
     rf2000_preserve_eeprom_records = version == SETTINGS_VERSION ||
       version == RF2000_SETTINGS_PREVIOUS_VERSION ||
-      version == RF2000_SETTINGS_MIGRATING_VERSION;
-    if (version == RF2000_SETTINGS_MIGRATING_VERSION) { return(false); }
+      version == RF2000_SETTINGS_OLDER_VERSION ||
+      version == RF2000_SETTINGS_MIGRATING_VERSION ||
+      version == RF2000_SETTINGS_OLDER_MIGRATING_VERSION;
+    if (version == RF2000_SETTINGS_MIGRATING_VERSION ||
+        version == RF2000_SETTINGS_OLDER_MIGRATING_VERSION) { return(false); }
   #endif
   if (version == SETTINGS_VERSION
       #if RF2000_CNC
-        || version == RF2000_SETTINGS_PREVIOUS_VERSION
+        || version == RF2000_SETTINGS_PREVIOUS_VERSION || version == RF2000_SETTINGS_OLDER_VERSION
       #endif
       ) {
     // Read settings-record and check checksum
@@ -280,12 +283,25 @@ uint8_t read_global_settings() {
     #if !RF2000_HOMING_VERIFIED && !RF2000_CNC
       if (settings.flags & (BITFLAG_HOMING_ENABLE | BITFLAG_SOFT_LIMIT_ENABLE)) { return(false); }
     #endif
+    #if RF2000_CNC
+      // Old records use physical pulses/mm; current records use virtual
+      // 1/256 units/mm. The executor may group up to32 units per1/8 pulse.
+      const float virtual_rate_ceiling = version == RF2000_SETTINGS_OLDER_VERSION ? 5000.0f :
+        version == RF2000_SETTINGS_PREVIOUS_VERSION ? 18000.0f :
+        RF2000_ADAPTIVE_PULSE_HZ * (256.0f / RF2000_ADAPTIVE_MIN_MICROSTEPS);
+      if (!isfinite(settings.homing_feed_rate) || settings.homing_feed_rate <= 0 ||
+          !isfinite(settings.homing_seek_rate) || settings.homing_seek_rate <= 0 ||
+          (version == SETTINGS_VERSION &&
+           (settings.homing_feed_rate > RF2000_ADAPTIVE_MAX_RATE ||
+            settings.homing_seek_rate > RF2000_ADAPTIVE_MAX_RATE))) { return(false); }
+    #endif
     for (uint8_t axis=0; axis<N_AXIS; axis++) {
       if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0 ||
           !isfinite(settings.max_rate[axis]) || settings.max_rate[axis] <= 0 ||
           settings.steps_per_mm[axis]*settings.max_rate[axis] >
             #if RF2000_CNC
-              (version == RF2000_SETTINGS_PREVIOUS_VERSION ? 5000.0f : MAX_STEP_RATE_HZ)*60.0f ||
+              virtual_rate_ceiling*60.0f ||
+              (version == SETTINGS_VERSION && settings.max_rate[axis] > RF2000_ADAPTIVE_MAX_RATE) ||
             #else
               MAX_STEP_RATE_HZ*60.0f ||
             #endif
@@ -294,42 +310,48 @@ uint8_t read_global_settings() {
     }
   #endif
   #if RF2000_CNC
-    if (version == RF2000_SETTINGS_PREVIOUS_VERSION) {
+    if (version == RF2000_SETTINGS_PREVIOUS_VERSION || version == RF2000_SETTINGS_OLDER_VERSION) {
       uint8_t obsolete_axes = 0;
       for (uint8_t axis=0; axis<N_AXIS; ++axis) {
-        if (axis == AXIS_1 || axis == AXIS_2) {
-          // These exact former RF2000 defaults describe its original belt
-          // mechanics, not the user's SFU1605/2:1 CNC mechanics. They were
-          // already observed in the user's old CNC EEPROM. Do not turn them
-          // into another wrong value by blindly scaling obsolete mechanics.
-          if (fabsf(settings.steps_per_mm[axis] - 152.38f) <= 0.001f) {
-            settings.steps_per_mm[axis] = defaults.steps_per_mm[axis];
-            obsolete_axes |= bit(axis);
-          } else {
-            settings.steps_per_mm[axis] *= RF2000_XY_MICROSTEPS / 32.0f;
-          }
-          if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0)
-            return(false);
+        if (version == RF2000_SETTINGS_OLDER_VERSION && axis != AXIS_3 &&
+            fabsf(settings.steps_per_mm[axis] - 152.38f) <= 0.001f) {
+          // This recognized value belongs to the original RF2000 mechanics,
+          // not the user's SFU1605/2:1 axes. Correct it explicitly.
+          settings.steps_per_mm[axis] = defaults.steps_per_mm[axis];
+          obsolete_axes |= bit(axis);
+        } else {
+          const float former_microsteps = axis == AXIS_3 ? 16.0f :
+            version == RF2000_SETTINGS_PREVIOUS_VERSION ? 4.0f : 32.0f;
+          settings.steps_per_mm[axis] *= 256.0f / former_microsteps;
         }
-        // An update must not unexpectedly accelerate an untested machine.
+        if (!isfinite(settings.steps_per_mm[axis]) || settings.steps_per_mm[axis] <= 0)
+          return(false);
+        // Preserve slower saved limits; never speed up the machine on update.
         if (settings.max_rate[axis] > defaults.max_rate[axis])
           settings.max_rate[axis] = defaults.max_rate[axis];
         if (settings.acceleration[axis] > defaults.acceleration[axis])
           settings.acceleration[axis] = defaults.acceleration[axis];
+        if (settings.steps_per_mm[axis]*settings.max_rate[axis] >
+            RF2000_ADAPTIVE_PULSE_HZ*60.0f*(256.0f/RF2000_ADAPTIVE_MIN_MICROSTEPS))
+          return(false);
       }
+      if (settings.homing_feed_rate > RF2000_ADAPTIVE_MAX_RATE)
+        settings.homing_feed_rate = RF2000_ADAPTIVE_MAX_RATE;
+      if (settings.homing_seek_rate > RF2000_ADAPTIVE_MAX_RATE)
+        settings.homing_seek_rate = RF2000_ADAPTIVE_MAX_RATE;
       write_global_settings();
-      printPgmString(PSTR("[MSG:RF2000 EEPROM 74->75; X/Y microsteps 32->"));
-      print_uint8_base10(RF2000_XY_MICROSTEPS);
-      printPgmString(PSTR("]\r\n"));
+      printPgmString(PSTR("[MSG:RF2000 EEPROM "));
+      print_uint8_base10(version);
+      printPgmString(PSTR("->76; adaptive virtual XYZ 1/256]\r\n"));
       if (obsolete_axes & bit(AXIS_1)) {
         printPgmString(PSTR("[MSG:RF2000 X: obsolete 152.380 corrected to "));
         printFloat(defaults.steps_per_mm[AXIS_1], 3);
-        printPgmString(PSTR(" steps/mm]\r\n"));
+        printPgmString(PSTR(" virtual units/mm]\r\n"));
       }
       if (obsolete_axes & bit(AXIS_2)) {
         printPgmString(PSTR("[MSG:RF2000 Y: obsolete 152.380 corrected to "));
         printFloat(defaults.steps_per_mm[AXIS_2], 3);
-        printPgmString(PSTR(" steps/mm]\r\n"));
+        printPgmString(PSTR(" virtual units/mm]\r\n"));
       }
       printPgmString(PSTR("[MSG:RF2000 offsets/startup retained; rehome and verify travel]\r\n"));
     }
@@ -359,6 +381,12 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
       if ((parameter == 20 || parameter == 22) && value != 0) { return(STATUS_SETTING_DISABLED); }
     #endif
     if (parameter >= AXIS_SETTINGS_START_VAL && value <= 0) { return(STATUS_INVALID_STATEMENT); }
+    #if RF2000_CNC
+      if ((parameter == 24 || parameter == 25) &&
+          (value <= 0 || value > RF2000_ADAPTIVE_MAX_RATE)) {
+        return(STATUS_MAX_STEP_RATE_EXCEEDED);
+      }
+    #endif
   #endif
   if (value < 0.0) { return(STATUS_NEGATIVE_VALUE); }
   if (parameter >= AXIS_SETTINGS_START_VAL) {
@@ -372,13 +400,24 @@ uint8_t settings_store_global_setting(uint8_t parameter, float value) {
         switch (set_idx) {
           case 0:
             #ifdef MAX_STEP_RATE_HZ
-              if (value*settings.max_rate[parameter] > (MAX_STEP_RATE_HZ*60.0)) { return(STATUS_MAX_STEP_RATE_EXCEEDED); }
+              #if RF2000_CNC
+                if (value*settings.max_rate[parameter] > RF2000_ADAPTIVE_PULSE_HZ*60.0f*
+                    (256.0f/RF2000_ADAPTIVE_MIN_MICROSTEPS)) { return(STATUS_MAX_STEP_RATE_EXCEEDED); }
+              #else
+                if (value*settings.max_rate[parameter] > (MAX_STEP_RATE_HZ*60.0)) { return(STATUS_MAX_STEP_RATE_EXCEEDED); }
+              #endif
             #endif
             settings.steps_per_mm[parameter] = value;
             break;
           case 1:
             #ifdef MAX_STEP_RATE_HZ
-              if (value*settings.steps_per_mm[parameter] > (MAX_STEP_RATE_HZ*60.0)) {  return(STATUS_MAX_STEP_RATE_EXCEEDED); }
+              #if RF2000_CNC
+                if (value > RF2000_ADAPTIVE_MAX_RATE ||
+                    value*settings.steps_per_mm[parameter] > RF2000_ADAPTIVE_PULSE_HZ*60.0f*
+                    (256.0f/RF2000_ADAPTIVE_MIN_MICROSTEPS)) { return(STATUS_MAX_STEP_RATE_EXCEEDED); }
+              #else
+                if (value*settings.steps_per_mm[parameter] > (MAX_STEP_RATE_HZ*60.0)) { return(STATUS_MAX_STEP_RATE_EXCEEDED); }
+              #endif
             #endif
             settings.max_rate[parameter] = value;
             break;

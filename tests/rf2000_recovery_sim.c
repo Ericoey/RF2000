@@ -163,7 +163,7 @@ static void successful_sensor(const char *elf,unsigned sensor,uint8_t power_on,u
   if (sensor==3) assert_ok("$23=7\n",350);
   escape.release_after=80; escape.bounce=bounce;
   const size_t start=recovery_start();
-  assert_success(start,sensor<2 ? 640 : 2560);
+  assert_success(start,40960);
   CHECK(escape.releases==1 && !escape.active,"selected physical sensor was not released");
   CHECK(sim.min_pulse>=160,"recovery pulse below10us");
   printf("PASS: $LR %s%s%s: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced\n",
@@ -194,8 +194,8 @@ static void test_release_runtime_reset(const char *elf)
   recovery_observe(1); escape.active=1; escape.release_after=80;
   assert_error("$X\n"); assert_error("$J=G91G21Y1F20\n"); assert_error("$HY\n");
   assert_no_escape();
-  const size_t start=recovery_start(); assert_success(start,640);
-  CHECK(sim.step_count[0]==x_before && sim.step_count[1]==y_before+640,
+  const size_t start=recovery_start(); assert_success(start,40960);
+  CHECK(sim.step_count[0]==x_before && sim.step_count[1]==y_before+40960,
     "recovery resumed or retained pre-limit planner blocks");
   printf("PASS: runtime hard limit stops queued job; Ctrl-X then $LR releases only Y; unlock/jog/home cannot bypass active switch; queued X never runs\n");
   avr_terminate(sim.avr);
@@ -251,8 +251,8 @@ static void assert_recovery_alarm(size_t start,unsigned alarm,unsigned maximum)
 static void test_release_stuck(const char *elf)
 {
   recovery_boot(elf,1,0);
-  const size_t start=recovery_start(); assert_recovery_alarm(start,8,640);
-  CHECK(escape_steps()==640,"stuck switch did not stop exactly at2mm");
+  const size_t start=recovery_start(); assert_recovery_alarm(start,8,40960);
+  CHECK(escape_steps()==40960,"stuck switch did not stop exactly at2mm");
   printf("PASS: stuck selected Y switch stops exactly after2mm with alarm8 and all drivers asleep\n");
   avr_terminate(sim.avr);
 }
@@ -261,7 +261,7 @@ static void test_release_recontact(const char *elf)
 {
   recovery_boot(elf,1,0);
   escape.release_after=30; escape.recontact_after=90;
-  const size_t start=recovery_start(); assert_recovery_alarm(start,1,92);
+  const size_t start=recovery_start(); assert_recovery_alarm(start,1,99);
   CHECK(escape_steps()>=90,"recontact test did not reach its deliberate second contact");
   printf("PASS: selected switch is rearmed after stable release; recontact during escape stops within1ms as hard-limit alarm1\n");
   avr_terminate(sim.avr);
@@ -273,7 +273,7 @@ static void test_release_other_limit(const char *elf)
   const size_t start=recovery_start(); wait_for_escape_steps(40);
   const unsigned before=escape_steps();
   recovery_limit(3,1); run_us(1200); all_asleep();
-  assert_recovery_alarm(start,1,before+2);
+  assert_recovery_alarm(start,1,before+10);
   printf("PASS: nonselected physical Z-MAX remains armed throughout Y release and stops all drivers within1ms\n");
   avr_terminate(sim.avr);
 }
@@ -297,7 +297,7 @@ static void interrupt_recovery(const char *elf,int control)
   if (control<0) command(control==-1 ? "\030" : control==-2 ? "!" : "\205",2);
   else { key_level((enum panel_key)control,0); run_us(1200); }
   all_asleep();
-  assert_recovery_alarm(start,6,before+2);
+  assert_recovery_alarm(start,6,before+10);
   printf("PASS: %s aborts bounded recovery with alarm6, no later pulses and all drivers asleep\n",
     control==-1 ? "Ctrl-X" : control==-2 ? "serial !" : control==-3 ? "UART0x85 jog-cancel" : control==KEY_LEFT ? "local LEFT/STOP" :
     control==KEY_STOP1 ? "local PH7 STOP" : "local PH2 STOP");
@@ -312,7 +312,7 @@ static void ignored_recovery_key(const char *elf,enum panel_key key)
   recovery_boot(elf,1,0); escape.release_after=80;
   const size_t start=recovery_start(); wait_for_escape_steps(40);
   press(key);
-  assert_success(start,640);
+  assert_success(start,40960);
   CHECK(!escape.active,"ignored navigation/play prevented the switch release");
   printf("PASS: %s cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds\n",
     key==KEY_LEFT ? "local LEFT navigation" : "local PH7 Play");
@@ -340,7 +340,7 @@ static void test_release_panel_confirm(const char *elf)
   const size_t start=sim.log_len;
   press(KEY_OK); run_us(200000);
   CHECK(display_has("RUECKZUG"),"active withdrawal phase not visible:\n%s",display_text());
-  assert_success(start,640);
+  assert_success(start,40960);
   printf("PASS: LCD Endschalter frei menu requires two distinct OK presses, cancellation clears consent, live RUECKZUG then Alarm without reference\n");
   avr_terminate(sim.avr);
 }

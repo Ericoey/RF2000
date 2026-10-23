@@ -123,7 +123,7 @@ typedef struct {
   uint8_t  st_block_index;   // Stepper block data index. Uses this information to execute this segment.
   #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
     uint8_t amass_level;    // Indicates AMASS level for the ISR to execute this segment
-    #if RF2000_CNC
+    #if RF2000_CNC && !RF2000_ADAPTIVE_MICROSTEPS
       // Compute variable-width shifts in the foreground. Segment loading in
       // Timer1 then has fixed-size copies, including at AMASS transitions.
       uint32_t steps[N_AXIS];
@@ -132,6 +132,11 @@ typedef struct {
     uint8_t prescaler;      // Without AMASS, a prescaler is required to adjust for slow timing.
   #endif
   uint16_t spindle_pwm;
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    uint16_t adaptive_pulses[3];
+    uint8_t adaptive_first[3];
+    uint8_t adaptive_shift, adaptive_negative;
+  #endif
 } segment_t;
 static segment_t segment_buffer[SEGMENT_BUFFER_SIZE];
 
@@ -275,6 +280,10 @@ typedef struct {
   uint16_t current_spindle_pwm;
 } st_prep_t;
 static st_prep_t prep;
+
+#if RF2000_ADAPTIVE_MICROSTEPS
+  #include "rf2000_adaptive_stepper.inc"
+#endif
 
 
 /*    BLOCK VELOCITY PROFILE DEFINITION
@@ -555,6 +564,9 @@ void st_go_idle()
 // with probing and homing cycles that require true real-time positions.
 ISR(TIMER1_COMPA_vect)
 {
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    rf_adaptive_tick();
+  #else
   int i;
 
   if (busy) { return; } // The busy-flag is used to avoid reentering this interrupt
@@ -869,6 +881,7 @@ ISR(TIMER1_COMPA_vect)
       st.step_outbits[i] ^= step_port_invert_mask[i];  // Apply step port invert mask
   #endif
   busy = false;
+  #endif /* RF2000_ADAPTIVE_MICROSTEPS */
 }
 
 
@@ -928,6 +941,9 @@ ISR(TIMER0_OVF_vect)
       }
       TIMSK0 = 0;
       rf2000_write_steps(st.step_bits[0]);
+      #if RF2000_ADAPTIVE_MICROSTEPS
+        rf_adaptive_account_edges(st.step_bits[0]);
+      #endif
       // Keep the timer clock running while reloading: this also preserves
       // correct TCNT scheduling in simavr 1.6, whose clock-start path ignores
       // a counter preload made while the clock was stopped.
@@ -986,6 +1002,12 @@ void st_reset()
     TIFR0 = RF2000_TIMER0_FLAGS;
   #endif
 
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    rf_ad_mode_wait = 0;
+    rf_ad_tail_pending = 0;
+    rf_ad_predict_valid = false;
+    /* Preserve rf_ad_phase: only a real driver RESET resets its indexer. */
+  #endif
   // Initialize stepper algorithm variables.
   memset(&prep, 0, sizeof(st_prep_t));
   memset(&st, 0, sizeof(stepper_t));
@@ -1175,10 +1197,22 @@ static uint8_t st_next_block_index(uint8_t block_index)
 */
 void st_prep_buffer()
 {
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    rf_adaptive_service_mode();
+    if (sys.abort || sys_rt_exec_alarm || (sys_rt_exec_state & EXEC_RESET)) return;
+    if (!rf_adaptive_publish_tail()) return;
+    rf_adaptive_service_mode();
+  #endif
   // Block step prep buffer, while in a suspend state and there is no suspend motion to execute.
   if (bit_istrue(sys.step_control,STEP_CONTROL_END_MOTION)) { return; }
 
   while (segment_buffer_tail != segment_next_head) { // Check if we need to fill the buffer.
+    #if RF2000_ADAPTIVE_MICROSTEPS
+      if (!rf_adaptive_publish_tail()) return;
+      rf_adaptive_service_mode();
+      if (segment_buffer_tail == segment_next_head || sys_rt_exec_alarm ||
+          (sys_rt_exec_state & EXEC_RESET)) return;
+    #endif
 
     // Determine if we need to load a new planner block or if the block needs to be recomputed.
     if (pl_block == NULL) {
@@ -1223,6 +1257,11 @@ void st_prep_buffer()
           st_prep_block->step_event_count = pl_block->step_event_count << MAX_AMASS_LEVEL;
         #endif
 
+        #if RF2000_ADAPTIVE_MICROSTEPS
+          if (!rf_ad_predict_valid) rf_adaptive_snapshot();
+          for (uint8_t axis=0; axis<3; ++axis)
+            rf_ad_ideal_counter[axis] = st_prep_block->step_event_count/2u;
+        #endif
         // Initialize segment buffer data for generating the segments.
         prep.steps_remaining = (float)pl_block->step_event_count;
         prep.step_per_mm = prep.steps_remaining/pl_block->millimeters;
@@ -1488,6 +1527,12 @@ void st_prep_buffer()
     // Bail if we are at the end of a feed hold and don't have a step to execute.
     if (prep_segment->n_step == 0) {
       if (sys.step_control & STEP_CONTROL_EXECUTE_HOLD) {
+        #if RF2000_ADAPTIVE_MICROSTEPS
+          if (sys.state != STATE_HOMING) {
+            rf_ad_tail_block = prep.st_block_index;
+            rf_ad_tail_pending = 1;
+          }
+        #endif
         // Less than one step to decelerate to zero speed, but already very close. AMASS
         // requires full steps to execute. So, just bail.
         bit_true(sys.step_control,STEP_CONTROL_END_MOTION);
@@ -1512,7 +1557,12 @@ void st_prep_buffer()
     // Compute CPU cycles per step for the prepped segment.
     uint32_t cycles = ceil( (TICKS_PER_MICROSECOND*1000000*60)*inv_rate ); // (cycles/step)
 
-    #ifdef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING
+    #if RF2000_ADAPTIVE_MICROSTEPS
+      if (!rf_adaptive_prepare_segment(prep_segment,prep_segment->n_step,cycles)) {
+        rf_adaptive_geometry_fault();
+        return;
+      }
+    #elif defined(ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING)
       // Compute step timing and multi-axis smoothing level.
       // NOTE: AMASS overdrives the timer with each level, so only one prescalar is required.
       if (cycles < AMASS_LEVEL1) { prep_segment->amass_level = 0; }
@@ -1548,6 +1598,13 @@ void st_prep_buffer()
       }
     #endif
 
+    #if RF2000_ADAPTIVE_MICROSTEPS
+      if (mm_remaining == prep.mm_complete && prep.current_speed == 0.0f &&
+          sys.state != STATE_HOMING) {
+        rf_ad_tail_block = prep.st_block_index;
+        rf_ad_tail_pending = 1;
+      }
+    #endif
     // Segment complete! Increment segment buffer indices, so stepper ISR can immediately execute it.
     segment_buffer_head = segment_next_head;
     if ( ++segment_next_head == SEGMENT_BUFFER_SIZE ) { segment_next_head = 0; }

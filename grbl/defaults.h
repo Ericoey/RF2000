@@ -33,10 +33,10 @@
     #if RF2000_CNC
       // User-specified SFU1605 mechanics on XYZ: 200 full steps/rev,
       // 5 mm/rev screw, motor turns twice per screw revolution.
-      // Use exactly the same microstep profile as the DRV8711 CTRL registers.
-      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0) // 320 steps/mm
+      // Fixed 1/256 coordinate units; the adaptive executor chooses hardware MODE.
+      #define DEFAULT_AXIS1_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0) // 20480 virtual units/mm
       #define DEFAULT_AXIS2_STEPS_PER_UNIT (200.0*RF2000_XY_MICROSTEPS*2.0/5.0)
-      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*RF2000_Z_MICROSTEPS*2.0/5.0) // 1280 steps/mm
+      #define DEFAULT_AXIS3_STEPS_PER_UNIT (200.0*RF2000_Z_MICROSTEPS*2.0/5.0) // 20480 virtual units/mm
       #define DEFAULT_AXIS1_MAX_RATE 600.0 // Conservative start; tune on hardware.
       #define DEFAULT_AXIS2_MAX_RATE 600.0
     #else
@@ -48,7 +48,7 @@
       #define DEFAULT_AXIS2_MAX_RATE 500.0
     #endif
     #if RF2000_CNC
-      #define DEFAULT_AXIS3_MAX_RATE 300.0 // Z retains 1/16; tune its load separately.
+      #define DEFAULT_AXIS3_MAX_RATE 300.0 // Conservative Z start; hardware microsteps are adaptive.
     #else
       #define DEFAULT_AXIS3_MAX_RATE 150.0 // Preserve commissioning rate.
     #endif

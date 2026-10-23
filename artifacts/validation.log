@@ -1,11 +1,11 @@
-Standard ELF SHA256: ddd7b2b7f172a502758a77f3ec014e00c00d543ba2ae23b4cb20c3ea8bd07ec1
+Standard ELF SHA256: e21ce1591a3984e9456f6fe1b4e0977b544b17224dd73a87740f21b75e6ace6e
 Command: make check
 Exit status: 0
 
 python3 tools/test_check_avr_size.py
 ........
 ----------------------------------------------------------------------
-Ran 8 tests in 0.008s
+Ran 8 tests in 0.005s
 
 OK
 python3 tools/test_rf2000_limits.py
@@ -16,14 +16,20 @@ PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
 XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
 persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
 INT6 falling-edge configuration and short recovered FAULT pulse latch.
-DRV8711 CNC 1/4 profile
+DRV8711 adaptive CNC 1/256..1/8 profile
+PASS: adaptive MODE256..8 transactions preserve current/other registers/reserves;
+all3 readback failures latch; reset/alarm/fault after each of6 frames cancel publication; UNKNOWN state is reverified.
 PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,
 XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,
 persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,
 INT6 falling-edge configuration and short recovered FAULT pulse latch.
+python3 tools/test_rf2000_adaptive_math.py
+PASS: production adaptive math; 897036 phase/direction/stride cases, coarse/fine residuals, exact stop tails, overflow guards and hysteresis
 python3 tools/test_rf2000_settings_migration.py
-PASS: actual CNC settings74->75 migration; fine calibration/legacy152.380 correction, Z unchanged, conservative rates and records retained
-PASS: power cut before each of88 migration writes and each of88 current-profile update writes; no double conversion; known corrupt records recover settings only
+PASS: actual planner nominal profile caps diagonal, rapid and override path feeds at1000 while preserving lower axis limits
+PASS: actual CNC74/75->76 migration, fine calibration, old152.380 correction, conservative retained limits and independent records
+PASS: power cut before each of88 writes for BOTH former versions and88 current-profile writes; no repeat conversion; A5/A6/corrupt recovery keeps offsets
+PASS: actual setting writes/readback enforce1000mm/min axis/homing caps and12kHz effective physical pulse budget
 PASS: AVR85-byte packed layout/checksum, repeated boots, foreign-profile isolation; ASAN/UBSAN enabled
 python3 tools/test_eeprom_records.py
 EEPROM record separation, length/index guards, NUL handling, restore and SREG: PASS

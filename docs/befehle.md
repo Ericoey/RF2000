@@ -1,7 +1,7 @@
 # RF2000-CNC: Befehlsübersicht für gSender
 
 Diese Übersicht gilt für das Projektprofil **`rf2000_cnc`**, Stand
-22.10.2026, ab Version `20261022-rf2000-cnc-speed`. Sie beschreibt die
+22.10.2026, ab Version `20261022-rf2000-cnc-adaptive`. Sie beschreibt die
 im RF2000-Code vorhandenen Befehle. Das separate Y-Testprofil hat andere
 Beschränkungen. [Bedienfeld und Menü](bedienfeld-menue.md) ·
 [Einrichten und Fräsen mit gSender](cnc-gsender.md)
@@ -15,9 +15,9 @@ Zeile einzeln senden. Bewegungsbeispiele setzen freie Fahrwege voraus.
 
 **`$$` sind zwei Dollarzeichen, keine Paragraphenzeichen `§§`.** Zum Lesen
 der Einstellungen `$$` senden. `$101` allein ist kein gültiger Lesebefehl;
-`$101=320` schreibt einen neuen Wert. Im neuen festen 1/4-CNC-Profil
-niemals die alten X/Y-Werte 2560 zurückschreiben: Damit würden achtfach
-zu große reale Fahrwege entstehen.
+`$101=20480` schreibt einen neuen Wert. Im adaptiven Profil beschreiben
+die Schritte/mm ein festes virtuelles 1/256-Raster. Alte Werte 320, 1280
+oder 2560 nicht zurückspielen; die Firmware skaliert sie beim Update.
 
 `ok` bedeutet angenommen bzw. gepuffert, nicht zwingend fertig gefahren.
 Der Echtzeitstatus `?` zeigt den Zustand; nach normalen Fahrten steht dort
@@ -29,6 +29,7 @@ schalten die physische Spindel nicht aus.**
 | Befehl | Wirkung |
 | --- | --- |
 | `$HY` | **Nur Y referenzieren**, zum Y-Min-Schalter |
+| `$MS` | Virtuelles Raster, aktuelles Hardware-Mikroprofil und Geschwindigkeits-/Pulsbudget lesen; keine Bewegung |
 | `$HX` | Nur X referenzieren, zum X-Min-Schalter |
 | `$HZ` | Nur Z referenzieren, zum Z-Max-Schalter |
 | `$H` | Alle referenzieren: erst Z-Max, danach X-Min und Y-Min gemeinsam |
@@ -52,6 +53,13 @@ Bei freien Eingängen und bereiten Treibern zeigt `$DRV` unter anderem
 2=Y-Min, 4=Z-Min, 8=Z-Max; mehrere betätigte Eingänge addieren ihre Werte.
 `STATUS` enthält die beim Treiberstart gelesenen Registerwerte, keine laufende
 SPI-Abfrage.
+
+`$MS` antwortet beispielsweise mit
+`[MS:VIRTUAL=256|MICRO=256|MAX=1000|PULSE_MAX=12000]` und `ok`.
+`MICRO` gibt den Nenner der aktuell bestätigten Hardware-Stufe an, also
+256 für 1/256 oder 8 für 1/8; 0 bedeutet unbekannt. `VIRTUAL` bleibt 256,
+`MAX` ist die Feedgrenze in mm/min und `PULSE_MAX` das Pulsbudget in STEP/s.
+Die Abfrage startet weder SPI noch eine Bewegung.
 
 ## Achsen einzeln fahren: Joggen
 
@@ -170,8 +178,9 @@ befehle aus Repetier/Marlin sind keine Befehle dieser CNC-Firmware.
 ## Einstellungen lesen und ändern
 
 **`$$` zeigt die tatsächlich gespeicherten Werte.** Die folgenden Werte
-sind die CNC-Factory-Vorgaben. Die Migration von Version 74 rechnet X/Y auf
-1/4 um und erhält vorhandene niedrigere Tempi; sie erhöht sie nicht automatisch.
+sind die CNC-Factory-Vorgaben. Die Migration von Version 74 oder 75 rechnet
+auf das virtuelle 1/256-Raster um und erhält niedrigere Tempi; sie erhöht sie
+nicht automatisch.
 Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
 ändern; diese Befehle schreiben ins EEPROM.
 
@@ -192,15 +201,15 @@ Schreiben mit `$Nummer=Wert`, z. B. `$111=100`. Nur im Stillstand
 | `$21` | 1 | Hard Limits, auf dieser Platine fest eingeschaltet |
 | `$22` | 1 | Referenzfahrt freigeben 0/1; Abschalten deaktiviert auch Soft Limits |
 | `$23` | 3 | Homing-Richtungsmaske X=1, Y=2, Z=4; 3 bedeutet hier X/Y-Min, Z-Max |
-| `$24` | 20 | Langsames Referenztempo in mm/min |
-| `$25` | 100 | Suchtempo beim Referenzieren in mm/min |
+| `$24` | 20 | Langsames Referenztempo in mm/min, höchstens 1000 |
+| `$25` | 100 | Suchtempo beim Referenzieren in mm/min, höchstens 1000 |
 | `$26` | 250 | Referenzschalter-Entprellpause in ms; diese Implementierung übernimmt 0–255 |
 | `$27` | 2 | Rückzug vom Referenzschalter in mm |
 | `$30` | 1000 | Logischer maximaler Spindel-Sollwert; keine physische Drehzahlsteuerung |
 | `$31` | 0 | Logischer minimaler Spindel-Sollwert |
 | `$32` | 0 | Lasermodus, fest ausgeschaltet |
-| `$100` / `$101` / `$102` | 320 / 320 / 1280 | Schritte pro mm bei festem X/Y 1/4 und Z 1/16 |
-| `$110` / `$111` / `$112` | 600 / 600 / 300 | Factory-Maximaltempo X / Y / Z in mm/min; migrierte 100/100/150 bleiben zunächst erhalten |
+| `$100` / `$101` / `$102` | 20480 / 20480 / 20480 | Virtuelle Einheiten/mm im festen 1/256-Raster; Hardware-Stufe wechselt automatisch |
+| `$110` / `$111` / `$112` | 600 / 600 / 300 | Achsmaximum in mm/min, höchstens 1000; niedrigere migrierte Werte bleiben erhalten |
 | `$120` / `$121` / `$122` | 10 / 10 / 10 | Beschleunigung X / Y / Z in mm/s² |
 | `$130` / `$131` / `$132` | 200 / 290 / 185 | Verfahrweg X / Y / Z in mm; keine automatische Vermessung |
 
@@ -208,26 +217,22 @@ Für Achseinstellungen sind positive Werte erforderlich. Es gibt keine
 Achseinstellungen für A/B. Hardwarefeste Werte mit anderen Werten werden
 abgewiesen. Die Richtungswerte `$3`/`$23` nur nach Prüfung am Gerät ändern.
 
-Das CNC-Profil begrenzt auf **18.000 Schritte/s**; die getrennten
-Standard-/Y-Testprofile bleiben bei 5000 Schritte/s:
+Das adaptive CNC-Profil begrenzt Achs- und Bahnfeed auf **1000 mm/min**.
+Die Hardware-Stufe 1/256 bis 1/8 wird mit einem physischen Pulsbudget von
+12 kHz gewählt; bei 1000 mm/min und 1/8 sind nominal 10.666,7 STEP/s nötig.
+`$100`–`$102` bleiben dabei konstant. `$MS` liest die aktuelle Auswahl.
+Die getrennten Standard-/Y-Testprofile behalten ihre feste Auflösung und
+5-kHz-Grenze. [Automatik und Grenzen](adaptive-mikroschritte.md).
 
-```text
-Schritte/mm × Maximaltempo / 60 <= 18000
-```
+Nach dem Update `$I`, `$$` und `$MS` prüfen. CNC-Version 75 skaliert X/Y ×64,
+Z ×16; Version 74 skaliert X/Y ×8 und Z ×16. Das ergibt nominal
+**20480/20480/20480**. Feinabgleiche werden proportional erhalten; bekannte
+überholte X/Y-Werte 152,380 werden gesondert korrigiert. Die neue Version 76
+wird erst nach vollständigem globalem Schreibvorgang gültig. Erkannte
+unterbrochene CNC-Datensätze stellen globale Vorgaben wieder her und
+bewahren getrennte Koordinaten-/Startdatensätze.
 
-Damit liegt die rechnerische CNC-Grenze bei **3375 mm/min für X/Y** und
-**843,75 mm/min für Z**. Das ist keine gemessene mechanische Freigabe.
-
-Nach der neuen Firmware zuerst `$I` und `$$` lesen. Version 74 wird auf 75
-migriert: X/Y werden durch acht geteilt, Z bleibt unverändert. Der vom Nutzer
-bestätigte alte Satz 2560/2560/1280 wird zu 320/320/1280. Feinabgleiche werden
-proportional erhalten; erkannte veraltete 152,380-Werte werden mit Meldung
-auf 320 korrigiert. Ein beim Schreiben gesetzter Marker `0xA5` verhindert
-nach einer Unterbrechung eine doppelte Umrechnung. Koordinaten, Startzeilen
-und Buildtext bleiben bei erkannter CNC-Migration erhalten.
-
-**Nicht die alten `$100=2560` / `$101=2560` aus früheren Anleitungen senden.**
-Vollständiger Ablauf und Wiederherstellung:
+**Alte Werte 320, 1280 oder 2560 nicht zurückspielen.** Vollständiger Ablauf:
 [EEPROM-Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
 Die bestätigten alten 100/100/150-Tempi bleiben beim gültigen Update erhalten.
 Nach langsamer Wegprüfung können diese neuen Startvorgaben gewählt werden:
@@ -244,8 +249,9 @@ $$
 
 Für die allerersten Messungen 100/100/150 und kleine F20-Jogs verwenden;
 höhere Werte nur nach dem [Hardwaretestplan](geschwindigkeit-optimieren.md).
-Die feste Mikroauflösung wird von der Firmware programmiert, nicht von
-einem dieser GRBL-Parameter umgeschaltet.
+Die Hardware-Mikroauflösung wird automatisch von der Firmware gewählt.
+`$100`–`$102` beschreiben die feste virtuelle Kalibrierung; sie werden nicht
+pro Hardware-Stufe neu gesetzt.
 
 ## Weitere Systembefehle
 
@@ -302,7 +308,7 @@ bei dieser Hardwarekonfiguration keine Geräte.
 | `error:5` | Funktion/Einstellung in diesem Profil deaktiviert |
 | `error:8` | Befehl passt nicht zum aktuellen Betriebszustand; Stillstand abwarten |
 | `error:9` | Alarm/Hardware sperrt die Aktion; `?` und `$DRV` prüfen |
-| `error:12` | Einstellung würde die **18-kHz-CNC-Schrittgrenze** überschreiten; getrennte Testprofile: 5 kHz; allgemeine Sendertexte nennen noch 30 kHz |
+| `error:12` | Einstellung überschreitet CNC-Maximum 1000 mm/min bzw. das physische Pulsbudget; getrennte Testprofile: 5 kHz; allgemeine Sendertexte können noch 30 kHz nennen |
 | `error:20` | G-/M-Befehl nicht unterstützt |
 | `ALARM:1` | Endschalter im normalen Betrieb ausgelöst |
 | `ALARM:3` | Bewegung durch Reset abgebrochen; Positionsbezug ungesichert |

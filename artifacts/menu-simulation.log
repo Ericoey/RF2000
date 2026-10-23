@@ -1,38 +1,40 @@
-0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3  build/tests/speed-release-final.elf
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+ELF SHA256: 148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874
+Command: tests/run-menu-sim.sh build/tests/adaptive-candidate.elf
+Exit status: 0
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: startup Play cannot unlock; status/menu/back/Right navigation; diagnostics and jog-feed10..30 bounds never move
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit32/32/128 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+PASS: physical cross X+/X-/Y+/Y- and Z+/Z- each emit2048 1/256 pulses per0.1mm, correct direction; +/- distance0.01..0.50 and OK never move
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: independent Y work zero requires a separate confirmation; Back cancels; only G54 Y changes, XYZ never step
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: local Y-only submenu+confirmation reports every actual four-phase action; full $H LCD reports Z then X+Y; contacts/releases/reference masks correct
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100% while stopped; Play resumes same640-pulse job
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+PASS: actual X block shown; physical II controlled feed hold; +/- real feed override10..100% while stopped; Play resumes same40960-fine-unit job across MODE changes
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: physical II decelerates/cancels jog to Idle; Play never restarts cancelled motion; no reset/alarm
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: holding II1s resets; Play+II chord stops within1ms; held Pause at runtime and power-up blocks UART unlock/jog with all five drivers asleep
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: near-end busy key cannot queue motion; UART action replaces confirmation; new/repeated alarms replace active/idle menus; diagnostics remain reachable after reset
 PASS: 8 actual-AVR menu/control cases

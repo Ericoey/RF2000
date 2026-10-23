@@ -1,62 +1,64 @@
-0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3  build/tests/speed-release-final.elf
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+ELF SHA256: 148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874
+Command: tests/run-recovery-sim.sh build/tests/adaptive-candidate.elf
+Exit status: 0
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR rejects no switch, malformed syntax, multiple physical switches, held STOP and sticky driver fault without motion
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: UART0x85 jog-cancel aborts bounded recovery with alarm6, no later pulses and all drivers asleep
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR rejects a2mm signed-counter overflow, an excessive escape pulse budget, and sub-one-pulse calibration before any motor movement
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: LCD Endschalter frei menu requires two distinct OK presses, cancellation clears consent, live RUECKZUG then Alarm without reference
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR X-MIN: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR Y-MIN: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR Z-MIN: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR Z-MAX: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR Y-MIN active at power-on: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: $LR Y-MIN with sub-five-tick contact bounce: exactly2mm away at20mm/min, no other axis/reserve, remains Alarm and unreferenced
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: runtime hard limit stops queued job; Ctrl-X then $LR releases only Y; unlock/jog/home cannot bypass active switch; queued X never runs
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: stuck selected Y switch stops exactly after2mm with alarm8 and all drivers asleep
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: selected switch is rearmed after stable release; recontact during escape stops within1ms as hard-limit alarm1
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: nonselected physical Z-MAX remains armed throughout Y release and stops all drivers within1ms
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: one-microsecond driver FAULT pulse aborts $LR with sticky alarm12 and all five drivers asleep
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: Ctrl-X aborts bounded recovery with alarm6, no later pulses and all drivers asleep
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: serial ! aborts bounded recovery with alarm6, no later pulses and all drivers asleep
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: local LEFT navigation cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: local PH7 Play cannot reset, resume, queue motion or change a running withdrawal; exactly2mm Y-only escape succeeds
-Loaded 45958 .text at address 0x0
-Loaded 118 .data
+Loaded 52004 .text at address 0x0
+Loaded 126 .data
 PASS: local PH2 STOP aborts bounded recovery with alarm6, no later pulses and all drivers asleep
 PASS: 20 real-AVR limit-release cases

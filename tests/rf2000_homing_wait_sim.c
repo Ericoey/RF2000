@@ -10,7 +10,7 @@ static void test_homing_wait(const char *elf, unsigned first)
   assert_ok("$26=5\n",350);
   const unsigned other=first ^ 1u;
   machine.position[first]=13;
-  machine.position[other]=625;
+  machine.position[other]=6250;
   machine.enabled=1;
   const size_t log_start=sim.log_len;
   command("$H\n",1);

@@ -26,7 +26,7 @@ if upstream.is_dir():
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-for directory in ('grbl', 'y-homing', 'cnc'):
+for directory in ('grbl', 'y-homing', 'cnc', 'platformio-cnc'):
     build_out = artifacts / directory
     if build_out.is_dir():
         (build_out / 'SHA256SUMS').write_text(''.join(
@@ -43,14 +43,16 @@ for p in sorted(root.rglob('*')):
     if p.suffix == '.log' or '__pycache__' in rel.parts:
         continue
     files.append(p)
-for directory in ('grbl', 'repetier', 'y-homing', 'cnc'):
+for directory in ('grbl', 'repetier', 'y-homing', 'cnc', 'platformio-cnc'):
     files += [p for p in sorted((artifacts / directory).iterdir()) if p.is_file()]
 for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
              'y-homing-build.log', 'y-homing-simulation.log', 'panel-validation.log',
              'platformio-y-homing-build.log', 'cnc-build.log', 'cnc-simulation.log',
              'gsender-detection.log', 'menu-simulation.log', 'recovery-simulation.log',
              'speed-simulation.log', 'homing-wait-simulation.log',
-             'speed-host-validation.log', 'speed-exploration.tsv'):
+             'speed-host-validation.log', 'speed-exploration.tsv',
+             'adaptive-simulation.log', 'adaptive-platformio-simulation.log',
+             'adaptive-host-validation.log', 'platformio-cnc-build.log'):
     p = artifacts / name
     if p.is_file():
         files.append(p)

@@ -33,6 +33,9 @@ MOCK_HEADER = r"""
 static uint8_t PORTA,PORTB,PORTC,PORTD,PORTE,PORTF,PORTG,PORTJ,PORTK,PORTL;
 static uint8_t DDRA,DDRB,DDRC,DDRD,DDRE,DDRF,DDRG,DDRJ,DDRK,DDRL,PINE;
 static uint8_t EIMSK,EICRB,EIFR;
+static struct { uint8_t abort; } sys;
+static uint8_t sys_rt_exec_state,sys_rt_exec_alarm;
+#define EXEC_RESET 0x01u
 static unsigned waited_ms, reset_count;
 static bool initializing, fault_during_enable;
 static void mock_delay_ms(unsigned n);
@@ -47,6 +50,8 @@ MOCK_TRANSFER = r"""
 static uint16_t mock_registers[5][8];
 static int drop_driver = -1, corrupt_after_reset_driver = -1;
 static int drop_final_driver = -1, persistent_status_driver = -1;
+static unsigned runtime_frames;
+static int runtime_reset_frame=-1,runtime_alarm_frame=-1,runtime_fault_frame=-1;
 static uint8_t physical_awake(void)
 {
   return ((PORTD >> PD7) & 1) | (((PORTF >> PF2) & 1) << 1) |
@@ -74,6 +79,19 @@ static uint16_t transfer(uint8_t driver, uint16_t command)
   } else mock_registers[driver][address] = command & 0xfff;
   return 0;
 }
+#if RF2000_ADAPTIVE_MICROSTEPS
+static uint16_t fast_transfer(uint8_t driver,uint16_t command)
+{
+  assert(!initializing);
+  assert(!(PORTF & (_BV(PF0)|_BV(PF3)|_BV(PF6))));
+  const uint16_t result=transfer(driver,command);
+  const unsigned frame=runtime_frames++;
+  if ((int)frame==runtime_reset_frame) sys_rt_exec_state|=EXEC_RESET;
+  if ((int)frame==runtime_alarm_frame) sys_rt_exec_alarm=1;
+  if ((int)frame==runtime_fault_frame) PINE=0;
+  return result;
+}
+#endif
 """
 
 TEST_BODY = r"""
@@ -111,6 +129,9 @@ static void fixture(void)
   PINE=_BV(PE6); waited_ms=reset_count=0;
   drop_driver=corrupt_after_reset_driver=drop_final_driver=persistent_status_driver=-1;
   initializing=true; fault_during_enable=false;
+  sys.abort=sys_rt_exec_state=sys_rt_exec_alarm=0;
+  runtime_frames=0;
+  runtime_reset_frame=runtime_alarm_frame=runtime_fault_frame=-1;
   for (unsigned d=0; d<5; ++d) {
     for (unsigned a=0; a<8; ++a) mock_registers[d][a]=0;
     /* A previous running firmware can retain ENBL=1 across MCU-only reset. */
@@ -134,11 +155,11 @@ int main(void)
   assert(reset_count==1 && waited_ms==35);
   assert((EICRB & (_BV(ISC61)|_BV(ISC60))) == _BV(ISC61));
   assert(EIMSK & _BV(INT6));
-  const uint16_t xy_control = RF2000_CNC ? 0xe11 : 0xe29;
-  assert(RF2000_XY_MICROSTEPS == (RF2000_CNC ? 4 : 32));
-  assert(RF2000_Z_MICROSTEPS == 16);
+  const uint16_t xy_control = RF2000_CNC ? 0xe41 : 0xe29;
+  assert(RF2000_XY_MICROSTEPS == (RF2000_CNC ? 256 : 32));
+  assert(RF2000_Z_MICROSTEPS == (RF2000_CNC ? 256 : 16));
   assert(mock_registers[0][0]==xy_control && mock_registers[1][0]==xy_control);
-  assert(mock_registers[2][0]==0xe21 && mock_registers[3][0]==0xe28 && mock_registers[4][0]==0xe28);
+  assert(mock_registers[2][0]==(RF2000_CNC ? 0xe41 : 0xe21) && mock_registers[3][0]==0xe28 && mock_registers[4][0]==0xe28);
   assert(mock_registers[0][1]==0x16e && mock_registers[1][1]==0x16e);
   assert(mock_registers[2][1]==0x169 && mock_registers[3][1]==0x15a && mock_registers[4][1]==0x15a);
   for (unsigned d=0; d<5; ++d) {
@@ -191,6 +212,52 @@ int main(void)
   PINE=_BV(PE6); mock_int6_vector();
   assert(!rf2000_drivers_ready()); assert(rf2000_drivers_fault_active()); assert_asleep();
   rf2000_drivers_init(); rf2000_drivers_enable(7); assert_asleep();
+  #if RF2000_ADAPTIVE_MICROSTEPS
+  fixture(); boot(); rf2000_drivers_enable(7);
+  assert(rf2000_drivers_microstep_shift()==0);
+  assert(rf2000_drivers_set_microstep_shift(0) && runtime_frames==0);
+  assert(!rf2000_drivers_set_microstep_shift(6) && runtime_frames==0);
+  uint16_t original[5][8];
+  for (unsigned d=0;d<5;++d) for (unsigned r=0;r<8;++r) original[d][r]=mock_registers[d][r];
+  for (int shift=5;shift>=0;--shift) {
+    assert(rf2000_drivers_set_microstep_shift((uint8_t)shift));
+    assert(rf2000_drivers_microstep_shift()==shift && physical_awake()==7);
+    for (unsigned d=0;d<5;++d) for (unsigned r=0;r<8;++r) {
+      uint16_t expected=original[d][r];
+      if (d<3 && r==0) expected=(expected & ~0x78u) | ((8u-shift)<<3);
+      assert(mock_registers[d][r]==expected);
+    }
+  }
+  assert(runtime_frames==36);
+  for (int dropped=0;dropped<3;++dropped) {
+    fixture(); boot(); rf2000_drivers_enable(7); drop_driver=dropped;
+    assert(!rf2000_drivers_set_microstep_shift(3));
+    assert(rf2000_drivers_microstep_shift()==0xff);
+    assert(!rf2000_drivers_ready() && (rf2000_drivers_readback_failed_mask() & (1u<<dropped)));
+    assert(rf2000_drivers_fault_reason() & RF2000_DRIVER_FAULT_READBACK);
+    assert_asleep(); drop_driver=-1;
+    assert(!rf2000_drivers_set_microstep_shift(0));
+  }
+  for (int frame=0;frame<6;++frame) {
+    fixture(); boot(); rf2000_drivers_enable(7); runtime_reset_frame=frame;
+    assert(!rf2000_drivers_set_microstep_shift(3));
+    assert(rf2000_drivers_microstep_shift()==0xff && runtime_frames==(unsigned)frame+1);
+    sys_rt_exec_state=0; runtime_reset_frame=-1;
+    assert(rf2000_drivers_set_microstep_shift(3));
+    assert(rf2000_drivers_microstep_shift()==3);
+    fixture(); boot(); rf2000_drivers_enable(7); runtime_alarm_frame=frame;
+    assert(!rf2000_drivers_set_microstep_shift(3));
+    assert(rf2000_drivers_microstep_shift()==0xff && runtime_frames==(unsigned)frame+1);
+    fixture(); boot(); rf2000_drivers_enable(7); runtime_fault_frame=frame;
+    assert(!rf2000_drivers_set_microstep_shift(3));
+    assert(rf2000_drivers_microstep_shift()==0xff);
+    assert(!rf2000_drivers_ready() && rf2000_drivers_fault_active()); assert_asleep();
+  }
+  fixture(); boot(); sys.abort=1;
+  assert(!rf2000_drivers_set_microstep_shift(3) && runtime_frames==0);
+  puts("PASS: adaptive MODE256..8 transactions preserve current/other registers/reserves;");
+  puts("all3 readback failures latch; reset/alarm/fault after each of6 frames cancel publication; UNKNOWN state is reverified.");
+  #endif
   puts("PASS: actual DRV8711 state machine; all five profiles, awake reset/UVLO clear,");
   puts("XYZ-only enable, reserve ENBL=0, wake timing, readback failures at all phases,");
   puts("persistent STATUS/FAULT, sticky soft-reset latch, fault during enable,");
@@ -217,7 +284,7 @@ def main():
         harness.write_text(source + TEST_BODY)
         binary = directory / "driver_test"
         for cnc in (0, 1):
-            print(f"DRV8711 {'CNC 1/4' if cnc else 'legacy/test 1/32'} profile", flush=True)
+            print(f"DRV8711 {'adaptive CNC 1/256..1/8' if cnc else 'legacy/test 1/32'} profile", flush=True)
             subprocess.run([
                 os.environ.get("HOST_CC", "cc"), "-std=c99", "-Wall", "-Wextra", "-Werror",
                 f"-DRF2000_CNC={cnc}", "-Wno-unused-function", f"-I{ROOT / 'grbl'}",

@@ -1,134 +1,110 @@
 # RF2000 STEP/DIR timing
 
-All RF2000 profiles use three logical Grbl axes. Five physical DRV8711 channels
-are initialized by the driver module; the two reserve channels have no planner
-axis and remain asleep throughout motion. Initialization temporarily wakes
-their digital circuitry with CTRL.ENBL=0 to perform RESET and clear status;
-their motor bridges remain disabled. The STEP implementation is guarded by
-`CPU_MAP_2560_RENKFORCE_CTC_V3` and `N_AXIS == 3`.
+All RF2000 profiles use three logical Grbl axes and initialize five physical
+DRV8711 channels. A/B have no planner axis and remain disabled. Their digital
+circuits are temporarily awake during initial RESET/readback with CTRL.ENBL=0;
+their motor bridges remain disabled. Pins and current settings are unchanged.
 
-The separate `rf2000_y_homing_test` profile further masks physical STEP output
-to PF6 and limits driver enable to Y. It uses the same pulse timers and minimum
-timing constraints; X/Z/A/B motor bridges remain disabled.
+The current CNC profile is **`20261022-rf2000-cnc-adaptive`**. It retains a
+fixed virtual 1/256 coordinate grid, nominal **20480 units/mm on XYZ**, while
+physical resolution changes between **1/256, 1/128, 1/64, 1/32, 1/16 and 1/8**.
+Axis and path feed are capped at **1000 mm/min**. The physical pulse budget is
+12 kHz. These are configuration/output limits, not a mechanical qualification.
+The separate standard/Y commissioning profiles retain their former fixed
+resolutions and 5-kHz limit.
 
-The current `rf2000_cnc` profile is identified by
-`20261022-rf2000-cnc-speed`. It programs **fixed X/Y 1/4 and Z 1/16**
-(320/320/1280 steps/mm for the specified SFU1605/2:1 mechanics) and limits
-configured physical step rates to **18 kHz**. The standard/Y commissioning
-profiles retain X/Y 1/32, their former mechanics and **5 kHz**. Adaptive
-driver microstep switching during a move is not implemented.
+## Shared GPIO and pulse constraints
 
-All XYZ STEP pins share PORTF (PF0/PF6/PF3). X/Y direction pins PF1/PF7 and Y
-SLEEPn PF2 share the same register. Each pulse edge therefore uses one masked
-PORTF write. The upstream delayed-pulse path caches complete port values per
-axis; applying that path to this board would overwrite other axis STEP bits,
-direction bits or the enable signal. The RF2000 path retains only masked
-STEP/DIR values and combines them with the **current** PORTF value inside
-the interrupt; it never replays a complete cached PORTF image.
+All XYZ STEP pins share PORTF: PF0/PF6/PF3. X/Y DIR uses PF1/PF7, and Y SLEEPn
+shares PF2. A pulse edge uses one masked write of the current PORTF value; the
+firmware never replays a cached whole-port image. Z DIR uses PL1, shared with
+several SCS signals. Shared-port changes use short atomic operations.
 
-X/Y direction bits are written together; Z direction uses PL1. These writes
-occur with interrupts disabled, before Timer0 is started. Every other RF2000
-module that writes shared ports uses short atomic GPIO operations as well.
-Timer1 reenables interrupts only after the port writes and pulse timer setup,
-so Timer0 cannot interrupt the read/modify/write sequence.
+Timer0 runs at 2 MHz, or 0.5-us ticks, at the original 16-MHz clock. `$0`
+accepts 10–20 us. STEP is active HIGH; `$2=0` and `$4=0` are hardware-fixed.
+The first physical rising edge after a DIR change uses the Timer0 Compare A
+setup delay of at least 5 us. A tick without a physical pulse cannot consume
+that requirement. Once DIR is stable, a physical rising edge can be written
+from Timer1; Timer0 measures the width from the actual edge and clears STEP.
+Interrupt latency lengthens these minimum intervals.
 
-## Common pulse constraints and legacy timer sequence
+A new output update must not overlap an unfinished pulse or change DIR while
+STEP is HIGH. Such an inconsistency stops motion instead of silently
+truncating ordinary pulses. A fault/reset shutdown can intentionally shorten
+an active pulse; ordinary minimum-width guarantees do not apply to emergency
+shutdown. SPI and the 25-ms driver wake delay do not run inside STEP ISRs.
 
-At the original 16 MHz clock, Timer0 runs at 2 MHz (0.5 us ticks). The
-standard and Y commissioning profiles retain this sequence for every pulse:
+## Adaptive segment execution
 
-1. Timer1 writes direction and starts Timer0 from zero. Compare A is set to
-   `STEP_PULSE_DELAY * 2`, with the test default **5 us**.
-2. Compare A checks driver readiness, FAULTn and pending reset/alarm before
-   writing the simultaneous XYZ STEP edges.
-3. Immediately after that edge, Timer0 is reloaded for the
-   requested pulse width, **10 us** by default. Overflow clears all STEP pins
-   in one masked write and stops Timer0.
+The planner retains virtual fine-grid positions. Foreground segment
+preparation converts the desired absolute endpoints into physical pulse
+counts appropriate to the selected resolution. It carries a future ideal
+position and predicted physical position separately, rather than using the
+current live position for queued work. An ISR distributes those prepared
+physical pulses across the segment. It does not iterate over every virtual
+1/256 position at high feed.
 
-There is no empirical “minus 2 us” timing correction in this board path.
-Interrupt latency and setup instructions lengthen these minimum intervals.
-The pulse timer starts its width interval after the actual edge, so latency in
-the rising-edge interrupt cannot shorten the requested pulse. Timer0 is not
-armed for AMASS ticks that contain no physical step.
+The driver electrical phase is independent of GRBL coordinates. TI
+§7.3.3 specifies that, after MODE changes, the next STEP advances to the next
+valid state of that new mode. That first increment can be shorter than a
+normal new-mode increment. Position accounting uses the actual phase-aware
+increment of each emitted pulse. Suppressed homing pulses cannot advance the
+hardware phase or reported physical position.
 
-All profiles accept `$0` from 10 to 20 us and independently clamp that
-range in the pulse code. `$2=0` and `$4=0` are required: STEP is active HIGH,
-and the physical nSLEEP polarity is fixed by the board. With the legacy
-5-kHz physical-rate limit, AMASS can still execute Timer1 up to 16,000 times
-per second because smoothing inserts ticks without a physical pulse.
+The normal quantizer carries remaining distance in the planned direction;
+MODE refinement does not create artificial reverse steps. With nominal
+mechanics, the carried following distance is at most 31 fine-grid units,
+about **1.514 um per axis**, below one 1/8 step. This is a digital trajectory
+bound, not an achieved machining tolerance. Rest distance is resolved at a
+zero-speed junction, feed hold or final stop. Continuous CAM lines and arcs
+carry it across block boundaries rather than stopping after every line.
+Fine completion may add up to 31 pulses per axis at a bounded rate around
+6 kHz, about 5.2 ms before other processing delays. Fault/reset discards this
+completion; it must not trigger corrective motion after an alarm.
 
-## Optimized CNC timer sequence
+A common XYZ resolution is selected from the highest required axis rate in
+the actual prepared segment. The selection coarsens above a 12-kHz physical
+requirement and refines only when the finer mode would stay at or below
+9 kHz. Hysteresis avoids chatter. Initial nominal stage boundaries are about
+35.16/70.31/140.63/281.25/562.5 mm/min; the final 1/8 range ends at the
+1000-mm/min feed cap. At 1000 mm/min its nominal pulse rate is 10,666.7 Hz.
 
-The CNC path caches the applied direction bits, not a complete output-port
-image. Segment loading marks a potential direction update. Timer1 rewrites
-DIR only when the actual masked direction differs from the cached value.
-That change leaves a pending setup flag until the **first physical STEP**
-has used the 5-us Timer0 Compare A delay. AMASS ticks with no STEP do not
-consume this flag.
+Homing uses one fixed profile through each phase, normally 1/32 at the
+100/20-mm/min defaults. If the configured seek/locate rates require it,
+the phase profile is coarsened to 1/16 or 1/8 before the phase starts.
+This avoids changing the predicted phase of a motor already stopped by its
+homing switch. `$LR` at F20 uses fine 1/256 resolution.
 
-Once DIR is stable, subsequent physical rising edges are written directly
-by Timer1 after its driver/fault/reset checks. Timer0 is reloaded from the
-actual rising edge and its overflow ISR still performs the falling edge.
-This steady-state path therefore avoids the separate rising-edge interrupt
-without removing the direction setup interval after a change. The delayed
-first-edge path retains its own checks immediately before STEP rises.
+## MODE transfer barrier
 
-CNC AMASS increments are prepared in foreground code and stored in each
-segment. Segment loading copies them rather than performing variable
-32-bit shifts inside the ISR. AMASS and Bresenham pulse-count semantics
-remain active. No ISR performs software SPI or a driver wake-up delay.
+A requested MODE change waits until no STEP pulse is pending. Timer1 is
+paused before foreground SPI writes and reads back the XYZ CTRL fields.
+The matching segment metadata becomes active only after verified register
+values and another fault/reset check. MODE setup/hold relative to STEP must
+meet TI §6.7. A mismatched readback latches a driver fault and disables all
+five channels; it does not continue with an assumed resolution.
 
-The 18-kHz CNC limit is a nominal settings-admission limit, not a guarantee
-that every individual measured interval is exactly 55.556 us. Interrupt
-collisions introduce timing variation. If Timer1 reaches a new output update
-before Timer0 completes the previous pulse, motion stops with alarm 3
-instead of truncating a pulse or changing direction during it. The source
-does not silently resume such a stopped motion.
+Other interrupts remain available during transfers, apart from short atomic
+GPIO operations. Timer2 limit polling, UART and INT6 fault latching therefore
+remain active. Runtime transfers have a dedicated bounded transport; the
+slower initialization transaction is not inserted into a STEP ISR.
 
-Driver wake-up waits the original 25 ms in foreground context before Timer1
-is enabled. Neither timer ISR performs SPI or wakes a driver. A fault or reset
-cancels pending pulse edges, sleeps all five drivers and stops the pulse timer.
-Emergency stopping can intentionally shorten a pulse already in progress;
-minimum-width guarantees apply to ordinary motion, not emergency shutdown.
+Transfer/readback and fine completion add time. High rates and exact command
+endpoints do not imply an identical wall-clock profile at every short segment.
+The real output rate, pause duration, pulse widths, phase-weighted travel and
+failure paths must be assessed together. `$MS` reads the current cached mode
+without SPI or motion; the LCD continues to identify the current operation.
 
-## Measured software evidence
+## Validation and hardware
 
-The final CNC ELF SHA256 is
-`0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`.
-`tests/run-speed-sim.sh` exercises public UART settings, physical STEP/DIR
-edges, exact counts and position, live LCD plus 100-Hz status requests,
-direction reversals and fault/limit/reset/pause cases. The final run passed
-15 cases at `$0=10`, plus an XYZ reverse case at `$0=20`.
+The current build, exact ELF hash, executed test commands and measured
+limits are recorded in [validation.md](validation.md). Historical 18-kHz
+measurements from the fixed quarter-step CNC profile are not evidence for
+the adaptive implementation. Tests must decode MODE and the TI indexer
+semantics, not merely count unweighted STEP edges.
 
-| Requested rate | Pulse setting | XYZ plateau mean | Fastest/slowest 64-edge windows | Minimum HIGH | Minimum LOW |
-| --- | --- | --- | --- | --- | --- |
-| 18,000 steps/s | 10 us | 17,977.53 steps/s | 18,068.89 / 17,886.15 steps/s | 10.625 us | 24.250 us |
-| 18,000 steps/s | 20 us | 17,977.51 steps/s | 18,070.16 / 17,885.53 steps/s | 20.688 us | 16.625 us |
-
-The additional 20-us reverse case measured at least 168.25 us DIR setup.
-An isolated development probe passed 20 kHz but failed at 22 kHz; those
-experiments are not the released rate setting. The release uses 18 kHz
-with margin. Complete output is in `artifacts/speed-simulation.log`; the
-[validation report](validation.md) records the associated build and tests.
-
-At fixed 320/320/1280 steps/mm the nominal frequency limit corresponds to
-3375/3375/843.75 mm/min. Factory starts are 600/600/300 mm/min with
-10 mm/s² acceleration. Valid old 100/100/150 settings remain at those
-lower speeds after EEPROM migration. Hardware tuning must follow the
-[speed and travel test plan](geschwindigkeit-optimieren.md).
-
-## Historical commissioning evidence
-
-`tests/run-sim.sh` executes the actual ELF on a simulated ATmega2560 with a
-DRV8711 register model. It records physical GPIO edges, exact pulse counts,
-direction setup and pulse widths, and exercises shutdown and admission guards.
-The historical standard-profile 16 MHz simulation recorded a minimum ordinary STEP width of
-14.312 us and 4992.81 steps/s over the fastest 64-edge window of a commanded
-4992 steps/s Z move under continuous UART status traffic. Forward/reverse XYZ
-moves produced the exact expected 64/64/32 pulses. Deterministic FAULTn
-injections at both STEP ISR entry points canceled the pending edge and retained
-driver alarm 12 before the safety poll could run. These are simulator results.
-Neither the old nor the new simulator can establish signal integrity,
-real driver current, motor direction,
-switch wiring or timing under the real electrical load. Use the hardware test
-procedure and an oscilloscope before increasing feed rates or enabling homing.
+Simulation can verify the actual AVR code, weighted GPIO displacement,
+phase continuity, fault guards, and retained positions. It cannot establish
+signal integrity, current, mechanical direction, real step loss or machining
+accuracy. Follow [hardware-test.md](hardware-test.md) and
+[adaptive-mikroschritte.md](adaptive-mikroschritte.md).

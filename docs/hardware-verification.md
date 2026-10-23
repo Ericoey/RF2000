@@ -79,11 +79,14 @@ Diese Zahlen sind nominale Wicklungs-Spitzenstrom-Sollwerte, keine gemessenen St
 
 Die Tabelle zeigt den Referenz-CTRL mit ENBL=1; Reserve A/B muss im Port mit gelöschtem ENBL, also CTRL `0x0E28`, abgelegt werden. Die kurze Wake-Phase während des Starts ist damit keine Freigabe der Motorbrücke. Weitere aus der Referenz übernommene SPI-Wörter: OFF `0x2097`, BLANK `0x31D7`, DECAY `0x4430`, STALL `0x583C`, DRIVE `0x60F0`, STATUS-Schreibwert `0x7000`. Das oberste Adressnibble ist nicht Teil des jeweiligen 12-Bit-Registerinhalts. TORQUE.SMPLTH Bit 10 ist laut TI §7.6.3 nur schreibbar und muss vom Readback-Vergleich ausgenommen werden. Diese Werte sind keine beliebig sicheren Defaults für andere MOSFETs, Motoren oder Shunts.
 
-Das aktuelle CNC-Profil verwendet ab `20261022-rf2000-cnc-speed` für X/Y
-fest **1/4 und CTRL `0x0E11` bei ENBL=1**. Z bleibt bei 1/16, A/B bleiben
-gesperrt. Stromwerte und Hardwarepins ändern sich nicht. Mit der vom Nutzer
-vorgegebenen SFU1605-/2:1-Mechanik ergibt dies **320/320/1280 Schritte/mm**.
-Migration und Prüfablauf: [geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
+Das aktuelle CNC-Profil `20261022-rf2000-cnc-adaptive` startet XYZ mit
+1/256 und CTRL `0x0E41` bei ENBL=1. Im Betrieb wechselt MODE zwischen
+1/256 und 1/8 an pulsfreien Abschnittsgrenzen mit Readback. A/B bleiben
+1/32 und gesperrt. Pins und Stromwerte ändern sich nicht. GRBL verwendet
+bei der vorgegebenen SFU1605-/2:1-Mechanik ein festes virtuelles Raster
+mit nominal **20480/20480/20480 Einheiten/mm**. Dieses Raster darf nicht
+mit der momentanen Hardware-STEP-Zahl verwechselt werden.
+[Phasenführung und Migration](adaptive-mikroschritte.md).
 
 Die nominelle Mechanik aus `RF2000v2.h` und `Configuration.h` ergibt X/Y `4,761875 × 32 = 152,38 steps/mm`, Z `80 × 16 = 1280 steps/mm`. Das gilt nur bei unveränderter Mechanik. Eine kurze Messfahrt muss den realen Weg bestätigen, bevor größere Wege erlaubt werden.
 

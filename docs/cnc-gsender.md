@@ -21,7 +21,7 @@ Y-Referenzschalter am 19.10.2026 als funktionierend bestätigt. Auch der
 Y-Fahrweg mit **2560 Schritten/mm bei bisher 1/32** wurde durch den Nutzer
 bestätigt. Am 22.10.2026 zeigte sein CNC-EEPROM tatsächlich
 2560 / 2560 / 1280 Schritte/mm und 100 / 100 / 150 mm/min.
-Das neue feste 1/4-Profil benötigt eine erneute langsame Wegprüfung.
+Das adaptive Mikroprofil benötigt eine erneute langsame Wegprüfung.
 XYZ-Homing wurde ausdrücklich auf Basis der Annahme freigegeben, dass die
 Repetier-Zuordnung funktioniert: **X/Y nach MIN, Z nach MAX**. X-/Z-Richtung
 und Schalter wurden dabei ausdrücklich noch nicht physisch geprüft. Das
@@ -45,12 +45,12 @@ HEX/ELF/MAP liegen unter `.pio/build/rf2000_cnc/`.
 Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 
 Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-`$I` enthält `20261022-rf2000-cnc-speed`. Das Y-Testprofil bleibt mit
+`$I` enthält `20261022-rf2000-cnc-adaptive`. Das Y-Testprofil bleibt mit
 `-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 
 **Nach einem Update zuerst die unten beschriebene
 [EEPROM-Migration prüfen](#bestehende-cnc-einstellungen-umstellen).**
-Alte X/Y-Schritte/mm dürfen bei der neuen Mikroauflösung nicht zurückgespielt werden.
+Alte Schritte/mm dürfen bei dem neuen virtuellen Raster nicht zurückgespielt werden.
 
 ## gSender verwenden
 
@@ -206,18 +206,19 @@ Tastenerkennung ersetzt diesen Bedienungstest nicht.
 
 ## Einstellungen und Speicherung
 
-Die CNC-Vorgaben beruhen auf der vom Nutzer vorgegebenen Mechanik auf
-**allen drei Achsen**: Motor mit 1,8° bzw. 200 Vollschritten/Umdrehung,
-SFU1605-Kugelgewindespindel mit 5 mm Steigung und einer Übersetzung von 2:1
-zwischen Motor und Spindel. Zwei Motorumdrehungen bewegen die Achse damit 5 mm. Mit
-festen 1/4-Mikroschritten für X/Y und 1/16 für Z ergibt
-`200 × Mikroschritte × 2 / 5` die folgenden Schritte/mm. Der frühere
-Y-Fahrweg war bei 1/32 bestätigt; nach der Umstellung alle drei Achsen
-langsam vermessen. Es gibt keine automatische Mikroschrittumschaltung während einer Fahrt.
+Die CNC-Vorgaben beruhen auf der vorgegebenen Mechanik aller drei Achsen:
+200 Vollschritte je Motorumdrehung, SFU1605 mit 5 mm Steigung und 2:1
+zwischen Motor und Spindel. GRBL behält ein festes virtuelles 1/256-Raster;
+die Hardware verwendet automatisch Stufen von 1/256 bis 1/8. Deshalb
+bleiben `$100`–`$102` während der Fahrt konstant. Der frühere Y-Fahrweg war
+bei festem 1/32 bestätigt; nach dem Update alle Achsen langsam vermessen.
+[Funktionsweise der Automatik](adaptive-mikroschritte.md).
 
 | Einstellung | Vorgabe |
 | --- | --- |
-| Schritte/mm X/Y/Z | 320 / 320 / 1280 |
+| Virtuelle Einheiten/mm X/Y/Z | 20480 / 20480 / 20480 |
+| Hardware-Mikroschritte | automatisch 1/256 bis 1/8 |
+| Firmware-Maximum | 1000 mm/min für Achs- und Bahnfeed |
 | Factory-Maximaltempo X/Y/Z | 600 / 600 / 300 mm/min |
 | Beschleunigung | 10 mm/s² |
 | Referenzrichtung `$23` | 3: X/Y-Min, Z-Max |
@@ -229,52 +230,50 @@ langsam vermessen. Es gibt keine automatische Mikroschrittumschaltung während e
 | Soft Limits `$20` | 0; nach bestätigtem Referenzbezug und passendem Verfahrbereich auf 1 einstellbar |
 | Pulsbreite | 10 µs; einstellbar 10–20 µs |
 
-Das CNC-Profil speichert GRBL-Einstellungen und Arbeitsnullpunkte im EEPROM
-mit **Profilversion 75**. Ein gültiger Vorgänger mit Version 74 wird
-automatisch umgerechnet. Die getrennten XYZ- und Y-Testprofile behalten
-ihre bisherige Kalibrierung und die 5-kHz-Grenze; ihre EEPROM-Belegung ist
-nicht mit dem CNC-Profil austauschbar.
+Das CNC-Profil speichert Einstellungen und Arbeitsnullpunkte im EEPROM mit
+**Profilversion 76**. Gültige Vorgänger der CNC-Versionen 74 und 75 werden
+automatisch umgerechnet. Die getrennten XYZ-/Y-Testprofile behalten ihre
+bisherige Kalibrierung und 5-kHz-Grenze; ihre EEPROM-Belegung ist nicht
+mit dem CNC-Profil austauschbar.
 
-Die CNC-Schrittfrequenzgrenze beträgt **18.000 Hz**. Mit 320 Schritten/mm
-brauchen X/Y bei 2000 mm/min 10.667 und bei 3000 mm/min 16.000 Schritte/s.
-Die rechnerische Obergrenze ist **3375 mm/min für X/Y**, für Z bei
-1280 Schritten/mm **843,75 mm/min**. Diese Grenzen sind keine gemessene
-mechanische Freigabe. Der Einstieg mit 600/600/300 und 10 mm/s² bleibt
-bewusst darunter; zunächst sind langsame Wegmessungen erforderlich.
-Messgrundlage und Testplan: [Geschwindigkeit optimieren](geschwindigkeit-optimieren.md).
+Die Firmware begrenzt Achs- und Bahnfeed auf höchstens **1000 mm/min**.
+Ein gemeinsames XYZ-Mikroprofil richtet sich nach der schnellsten Achse
+im tatsächlich vorbereiteten Abschnitt. Das physische Pulsbudget ist
+12 kHz; Verfeinerung verwendet Hysterese. Referenzphasen verwenden
+standardmäßig fest 1/32; erhöhte Such-/Feintempi können vor Phasenbeginn
+1/16 oder 1/8 erfordern. Innerhalb einer Phase bleibt das Profil konstant. `$MS` zeigt das virtuelle Raster und das
+aktuelle Hardware-Mikroprofil, ohne die Einstellung zu ändern. Das Display
+zeigt weiterhin die konkrete Achse und Aktion. Die Grenzen belegen keine
+mechanische Freigabe: zuerst den [Hardwaretest](geschwindigkeit-optimieren.md)
+durchführen.
 
 ### Bestehende CNC-Einstellungen umstellen
 
-Vor dem Aufspielen `$I`, `$$`, `$#` und `$N` sichern. Nach dem Aufspielen
-im Stillstand `$I` und `$$` lesen. Die Migration meldet:
+Vor dem Aufspielen `$I`, `$$`, `$#` und `$N` sichern. Danach im Stillstand
+`$I`, `$$` und `$MS` lesen. Die neue Kennung enthält `cnc-adaptive` und die
+nominalen Werte für `$100`/`$101`/`$102` sind **20480/20480/20480**.
 
-```text
-[MSG:RF2000 EEPROM 74->75; X/Y microsteps 32->4]
-[MSG:RF2000 offsets/startup retained; rehome and verify travel]
-```
+- Version 75 mit nominal 320/320/1280: X/Y ×64, Z ×16.
+- Version 74 mit nominal 2560/2560/1280: X/Y ×8, Z ×16.
+- Der überholte X/Y-Mechanikwert 152,380 in Version 74 wird gesondert auf
+  nominal 20480 korrigiert und gemeldet.
 
-X/Y werden durch acht geteilt; ein gemessener Feinabgleich bleibt dabei
-proportional erhalten. Für den vom Nutzer bestätigten alten Satz
-2560 / 2560 / 1280 ergibt das **320 / 320 / 1280**. Der bekannte
-veraltete Wert 152,380 wird gesondert auf 320 korrigiert und als Korrektur
-gemeldet. Z wird nicht skaliert. G54–G59, G28/G30, Startzeilen und eigener
-Buildtext bleiben bei der Migration erhalten. Bestehende Tempi werden
-nicht automatisch erhöht: 100 / 100 / 150 bleiben 100 / 100 / 150.
-Höhere alte Tempi/Beschleunigungen werden höchstens auf die neuen
-Factory-Vorgaben begrenzt.
+Ein gemessener Feinabgleich bleibt proportional erhalten. G54–G59,
+G28/G30, Startzeilen und eigener Buildtext bleiben bei erkannten CNC-
+Datensätzen erhalten. Niedrigere Tempi wie 100/100/150 werden nicht erhöht;
+höhere alte Werte und Beschleunigungen werden konservativ begrenzt.
 
-Der Schreibvorgang setzt zunächst den Marker `0xA5`, schreibt Datensatz und
-Prüfsumme und setzt zuletzt Version 75. Ein erkannter unterbrochener oder
-beschädigter CNC-Datensatz stellt nur globale Einstellungen wieder her;
-die getrennten Koordinaten-/Startdatensätze bleiben erhalten. Dabei meldet
-die Firmware `settings recovered; offsets/startup retained` und kann wieder
-Factory-Tempi enthalten: deshalb `$$` vor jeder ersten Fahrt prüfen.
-Ein fremdes/leer erkanntes Profil wird wie bisher vollständig initialisiert.
+Der globale Schreibvorgang markiert zuerst eine laufende Transaktion,
+schreibt Daten und Prüfsumme und setzt zuletzt Version 76. Ein erkannter
+unterbrochener oder beschädigter CNC-Datensatz stellt nur globale Vorgaben
+wieder her; die getrennten Koordinaten-/Startdatensätze bleiben erhalten.
+Ein leeres oder fremdes Profil wird vollständig initialisiert. Deshalb
+vor der ersten Bewegung die tatsächlich gemeldeten Werte prüfen.
 
-**Nach der neuen Firmware niemals `$100=2560` oder `$101=2560` senden.**
-Der Treiber arbeitet dann mit 1/4; diese alten Werte würden achtfach zu
-große reale Wege erzeugen. Für das normale Update ist **kein `$RST=*`**
-erforderlich; damit würden auch Werkstücknullpunkte gelöscht.
+**Alte Schritte/mm 320, 1280 oder 2560 nicht zurückspielen.** Die Werte
+beschreiben nun das feste virtuelle Raster und nicht die gerade gewählte
+Hardware-Stufe. Für das normale Update ist kein `$RST=*` erforderlich;
+dieser Befehl würde Werkstücknullpunkte löschen.
 
 Zuerst mit den langsamen 100/100/150-Werten und kleinen F20-Jogs den Weg
 prüfen und neu referenzieren. Nach bestandenen Messungen können im
@@ -292,13 +291,14 @@ $$
 
 Diese Befehle ändern Einstellungen, bewegen aber keine Achse. Höhere
 Tempi erst nach dem [stufenweisen Hardwaretest](geschwindigkeit-optimieren.md#hardwaretest-in-acht-stufen)
-ermitteln. Nach jeder Kalibrierungsänderung Referenz und Werkstücknull prüfen.
+ermitteln; mehr als 1000 mm/min ist in diesem Profil nicht vorgesehen. Nach jeder
+Kalibrierungsänderung Referenz und Werkstücknull prüfen.
 
 Die lokale Auswahl von Schrittweite und Jogtempo bleibt im RAM und
 startet nach Reset wieder bei 0,10 mm und 20 mm/min. Nach Änderungen von
 Kalibrierung, Richtung oder Mechanik erneut referenzieren.
 
 Die Softwareprüfungen stehen in [validation.md](validation.md).
-`make check-cnc` führt die CNC-AVR-Simulation aus. Ein lokal mit PlatformIO
-erzeugtes ELF kann mit
-`tests/run-cnc-sim.sh .pio/build/rf2000_cnc/firmware.elf` geprüft werden.
+`make check-adaptive` bzw. `make check-cnc` führt die adaptive CNC-AVR-Simulation
+aus. Ein lokal mit PlatformIO erzeugtes ELF kann mit
+`tests/run-adaptive-sim.sh .pio/build/rf2000_cnc/firmware.elf` geprüft werden.

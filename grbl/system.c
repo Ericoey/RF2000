@@ -136,6 +136,15 @@ uint8_t system_execute_line(char *line)
     #if RF2000_CNC
       if (!strcmp(line, "$LR")) return rf2000_limits_recover();
     #endif
+    #if RF2000_ADAPTIVE_MICROSTEPS
+      if (!strcmp(line, "$MS")) {
+        const uint8_t shift = rf2000_drivers_microstep_shift();
+        printPgmString(PSTR("[MS:VIRTUAL=256|MICRO="));
+        print_uint16_base10(shift <= 5 ? 256u >> shift : 0);
+        printPgmString(PSTR("|MAX=1000|PULSE_MAX=12000]\r\n"));
+        return STATUS_OK;
+      }
+    #endif
     // Read-only diagnostic; cached startup registers only, never SPI or enable.
     if (!strcmp(line, "$DRV")) {
       printPgmString(PSTR("[DRV:READY="));

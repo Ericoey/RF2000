@@ -1,0 +1,187 @@
+Independent pinned PlatformIO AVR-GCC7.3.0 firmware validation; no physical hardware attached.
+Test executable compiled independently from frozen production-fixture source; original shared binary untouched.
+8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06  build/tests/adaptive-platformio.elf
+53a8db4f14542af2ef7c3439285c76e84f4785f80a2f32fbb2e6f132f1cc7606  build/tests/rf2000_adaptive_sim_pio
+7721073a1c0dde91850c2f3f9c631ab5f658629a839fbb7193dbfcb9a2a79d1b  build/tests/rf2000_adaptive_pio_source.c
+
+Command: build/tests/rf2000_adaptive_sim_pio build/tests/adaptive-platformio.elf connect
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive256-grid boot, MODE256XYZ/current/reserve profiles, identity, hard1000mm/min setting limits and unchanged safety guards
+PASS: 1 actual-AVR adaptive-resolution cases; publicUART settings, independentTIphase model, no physicalhardware
+Exit status: 0
+
+Command: build/tests/rf2000_adaptive_sim_pio build/tests/adaptive-platformio.elf speed-xyz-20us
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+MEASURE: adaptive axisX pathF1000 actual569.576mm/min fastest64physical8227.212Hz pulse20us minHIGH30.250us minLOW64.312us
+MEASURE: adaptive axisY pathF1000 actual569.576mm/min fastest64physical8227.212Hz pulse20us minHIGH30.250us minLOW64.312us
+MEASURE: adaptive axisZ pathF1000 actual569.576mm/min fastest64physical8227.212Hz pulse20us minHIGH30.250us minLOW64.312us
+PASS: XYZ1000mm/min path atpulse20us with liveLCD/status, weighted plateau and exact finalendpoint
+PASS: 1 actual-AVR adaptive-resolution cases; publicUART settings, independentTIphase model, no physicalhardware
+Exit status: 0
+
+Command: build/tests/rf2000_adaptive_sim_pio build/tests/adaptive-platformio.elf
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive256-grid boot, MODE256XYZ/current/reserve profiles, identity, hard1000mm/min setting limits and unchanged safety guards
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+MEASURE: F20 MODE8 pulses3413 finalfineposition3413
+MEASURE: F50 MODE7 pulses4263 finalfineposition8533
+MEASURE: F100 MODE6 pulses4259 finalfineposition17067
+MEASURE: F200 MODE5 pulses4252 finalfineposition34133
+MEASURE: F400 MODE4 pulses4182 finalfineposition68267
+MEASURE: F800 MODE3 pulses4231 finalfineposition136533
+MEASURE: F1000 MODE3 pulses5287 finalfineposition170667
+PASS: all six useful modes256/128/64/32/16/8 exercised through public feed changes, weighted physical endpoints and reverse return exact
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: unaligned electrical phase, unequal XYZ, real reversals, tiny endpoints and G2/G3 maintain exact final256-grid coordinates and independent weighted indexer positions
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+MEASURE: adaptive axisX pathF1000 actual992.890mm/min fastest64physical10677.121Hz pulse10us minHIGH14.438us minLOW60.562us
+PASS: X1000mm/min path atpulse10us with liveLCD/status, weighted plateau and exact finalendpoint
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+MEASURE: adaptive axisX pathF1000 actual569.578mm/min fastest64physical8231.180Hz pulse10us minHIGH20.188us minLOW76.750us
+MEASURE: adaptive axisY pathF1000 actual569.578mm/min fastest64physical8231.180Hz pulse10us minHIGH20.188us minLOW76.750us
+MEASURE: adaptive axisZ pathF1000 actual569.578mm/min fastest64physical8231.180Hz pulse10us minHIGH20.188us minLOW76.750us
+PASS: XYZ1000mm/min path atpulse10us with liveLCD/status, weighted plateau and exact finalendpoint
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+MEASURE: adaptive axisX pathF1000 actual569.576mm/min fastest64physical8227.212Hz pulse20us minHIGH30.250us minLOW64.312us
+MEASURE: adaptive axisY pathF1000 actual569.576mm/min fastest64physical8227.212Hz pulse20us minHIGH30.250us minLOW64.312us
+MEASURE: adaptive axisZ pathF1000 actual569.576mm/min fastest64physical8227.212Hz pulse20us minHIGH30.250us minLOW64.312us
+PASS: XYZ1000mm/min path atpulse20us with liveLCD/status, weighted plateau and exact finalendpoint
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: alternateDIRpolarity, logical softreset and awake/sleep preserve electricalphase and weighted coordinate mapping
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: X-only adaptive homing reaches two contacts/releases per selectedaxis; phase survives coordinate rebases; following weighted fine jog correct
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: Y-only adaptive homing reaches two contacts/releases per selectedaxis; phase survives coordinate rebases; following weighted fine jog correct
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: Z-only adaptive homing reaches two contacts/releases per selectedaxis; phase survives coordinate rebases; following weighted fine jog correct
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: combinedXYZ adaptive homing reaches two contacts/releases per selectedaxis; phase survives coordinate rebases; following weighted fine jog correct
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive feedhold stops with true weighted positions and resumes the same exact fine-grid endpoint
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase0 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase1 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase2 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase3 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase4 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase5 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive stopcase6 leaves all5asleep, retains specific alarm and never executes queued or residual correction steps
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: completed1usFAULT during MODE transaction prevents STEP publication, sleeps all5 and remains sticky across CtrlX
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: readback mismatch during MODE transaction prevents STEP publication, sleeps all5 and remains sticky across CtrlX
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: CtrlX during MODE switching cancels motion; subsequent motion revalidates partial registers and retains exact weighted phase/position
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive Timer1 ISR-entryFAULT suppresses pending physicalpulse and virtualaccounting, alarm12
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive Timer0 ISR-entryFAULT suppresses pending physicalpulse and virtualaccounting, alarm12
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive fullhoming and normal/jog softlimits preserve negativeGRBL machine envelope and reject withoutphysicalmovement
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: adaptive bounded$LR uses fine256, exactly2mmY-only awayfromswitch, remainsAlarm and unreferenced
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+PASS: actual AVR migrates EEPROM75 physical320/320/1280 to76 virtual20480XYZ once; retains100/100/150rates andG54/startup/buildrecords; freshMCU1mmXYZ weightedmoves exact
+PASS: 27 actual-AVR adaptive-resolution cases; publicUART settings, independentTIphase model, no physicalhardware
+Exit status: 0

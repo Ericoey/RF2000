@@ -37,6 +37,19 @@ void rf2000_drivers_disable(void);
 bool rf2000_drivers_fault_active(void);
 bool rf2000_drivers_ready(void);
 
+#if RF2000_ADAPTIVE_MICROSTEPS
+/* Foreground only. The caller must stop Timer1, finish Timer0 and keep STEP
+ * LOW throughout this barrier. 0..5 selects 1/256..1/8 (stride1..32 in the
+ * virtual 1/256 grid). All XYZ CTRL registers are verified before success;
+ * no motor wakes and no STEP is generated here. Interrupts remain enabled.
+ * A/B and every CTRL field except MODE remain unchanged. */
+bool rf2000_drivers_set_microstep_shift(uint8_t shift);
+
+/* Last fully verified common shift; 0xff after an interrupted/failed change.
+ * SLEEP and GRBL coordinate resets do not reset the physical driver phase. */
+uint8_t rf2000_drivers_microstep_shift(void);
+#endif
+
 /* Startup diagnostic snapshots only. No SPI is performed by these getters.
  * driver is zero based (0=X .. 4=B); invalid indices return 0xffff. */
 uint8_t rf2000_drivers_fault_reason(void);

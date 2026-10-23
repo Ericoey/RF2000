@@ -45,14 +45,22 @@ Ausgabepfade stehen in [platformio.md](platformio.md).
 
 `make` erzeugt `build/main.elf` sowie HEX, ELF und MAP unter `artifacts/grbl/`.
 `make cnc` baut `build/cnc/main.elf` und `artifacts/cnc/rf2000-grbl.*`.
-`make check-cnc` prüft gSender-Protokoll, XYZ-Homing, G-Code, LCD und Fehler.
-`make check-menu`, `make check-recovery` und `make check-homing-wait` prüfen
+`make check-adaptive` prüft MODE-Wechsel, phasengewichtete STEP-Wege,
+Restwege, Richtung, Homing und Fehler unter UART-/LCD-Last am gebauten
+CNC-ELF. `make check-cnc` und `make check-speed` sind weitere Namen für
+dieselbe adaptive Suite. `make check-menu`, `make check-recovery` und
+`make check-homing-wait` verwenden ihre getrennten Prüfprogramme für
 Bedienfeld, begrenztes Freifahren und gemeinsam referenzierende X/Y-Achsen.
-`make check-speed` prüft den CNC-Pfad mit 18 kHz unter UART-/LCD-Last;
-`RF2000_TEST_PULSE_US=20 make check-speed` wählt die längste erlaubte
-Pulsbreite. Alle diese Ziele simulieren das gebaute AVR-Programm und
-bewegen keine reale Maschine. Messwerte und Grenzen stehen in
-[validation.md](validation.md) und [geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
+Der frühere 18-kHz-Nachweis des festen Profils allein qualifiziert den
+adaptiven Generator nicht. Alle diese Ziele simulieren das AVR-Programm
+und bewegen keine reale Maschine. Kommandos, Ergebnisse und zugehörige
+ELF-Hashes stehen in [validation.md](validation.md).
+
+Das aktuelle CNC-Profil wurde zusätzlich mit dem festgelegten PlatformIO-
+AVR-GCC 7.3.0 gebaut: 50.958 Byte Flash, 3.893 Byte statisches SRAM.
+Der Make-Build mit AVR-GCC 14.2.0 benötigt 52.130/3.893 Byte. Beide Builds
+sind von den jeweils getrennten AVR-Simulationsnachweisen zu unterscheiden.
+[PlatformIO-Buildnachweis](platformio.md#stand-der-cloudprüfung).
 `make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
 Die Speicherprüfung reserviert 8 KiB für einen möglichen Mega-Bootloader;
 das tatsächliche Programmierverfahren ist separat am Gerät festzulegen.

@@ -12,18 +12,19 @@ ausdrücklicher Vorgabe mit angenommenen X/Y-Min- und Z-Max-Richtungen
 freigegeben; X/Z sind noch nicht physisch geprüft. Der getrennte Y-Test
 und das bisherige XYZ-Testprofil bleiben verfügbar.
 
-Das CNC-Profil verwendet die vom Nutzer vorgegebene Fräsmechanik auf allen
-drei Achsen: 200 Vollschritte/Umdrehung, SFU1605 mit 5 mm Steigung und
-2:1 Motor-zu-Spindel-Übersetzung. Mit festem **X/Y 1/4 und Z 1/16** ergeben
-sich **320 / 320 / 1280 Schritte/mm**. Die Factory-Vorgaben sind
-**600 / 600 / 300 mm/min** bei 10 mm/s². Gültige alte CNC-Einstellungen
-werden migriert; ihre bisherigen 100 / 100 / 150 mm/min werden dabei nicht
-automatisch angehoben. Die CNC-Schrittfrequenzgrenze beträgt **18 kHz**.
-Die getrennten Testprofile behalten ihre
-bisherige Repetier-Kalibrierung. X und Z übernehmen dieselbe Übersetzung;
-deren tatsächlichen Fahrweg hat der Nutzer noch nicht durch Messung bestätigt.
-Analyse, Grenzen und stufenweiser Hardwaretest:
-[Geschwindigkeit optimieren](docs/geschwindigkeit-optimieren.md).
+Das CNC-Profil verwendet die vorgegebene Fräsmechanik: 200 Vollschritte je
+Motorumdrehung, SFU1605 mit 5 mm Steigung und 2:1 Motor-zu-Spindel-Übersetzung.
+GRBL arbeitet auf allen Achsen mit einem festen virtuellen 1/256-Raster,
+nominal **20480 Einheiten/mm**. Die DRV8711 wechseln abhängig vom tatsächlich
+vorbereiteten Tempo zwischen **1/256, 1/128, 1/64, 1/32, 1/16 und 1/8**.
+Die Firmware begrenzt Einzelachsen und Bahnfeed auf **höchstens 1000 mm/min**.
+Factory-Tempi bleiben **600/600/300 mm/min** bei 10 mm/s²; gespeicherte
+niedrigere Werte wie 100/100/150 werden beim Update nicht erhöht.
+Restwege und elektrische Treiberphase werden unabhängig von der jeweiligen
+Auflösung weitergeführt. Die feine Befehlsauflösung ist keine gemessene
+mechanische Genauigkeit. X/Z-Fahrwege und das neue adaptive Profil sind
+noch am Gerät zu prüfen. [Automatik und Migration](docs/adaptive-mikroschritte.md) ·
+[Stufenweiser Hardwaretest](docs/geschwindigkeit-optimieren.md).
 
 Die Grundlage ist das hochgeladene GRBL-Mega-5X-Archiv. Seine Quelldateien
 entsprechen dem offiziellen `edge`-Commit
@@ -54,6 +55,10 @@ pio run
 
 Das HEX liegt anschließend unter `.pio/build/rf2000_cnc/firmware.hex`.
 Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
+Das adaptive CNC-Profil wurde in der Cloud auch mit dem festgelegten
+PlatformIO-AVR-GCC 7.3.0 erfolgreich gebaut (50.958 Byte Flash, 3.893 Byte
+statisches SRAM). Softwareprüfungen werden dem tatsächlich geprüften ELF
+zugeordnet: [Prüfbericht](docs/validation.md).
 
 Zum Aufspielen gSender und seriellen Monitor vorher schließen und
 den tatsächlichen USB-Port angeben, beispielsweise auf dem Mac:
@@ -64,14 +69,14 @@ pio device monitor --port /dev/cu.usbserial-AL03P2K9
 ```
 
 Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-115200 Baud** verbinden. `$I` enthält `20261022-rf2000-cnc-speed`.
+115200 Baud** verbinden. `$I` enthält `20261022-rf2000-cnc-adaptive`.
 **Vor der ersten Bewegung die [EEPROM-Migration prüfen](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).**
-Version 74 wird auf 75 umgestellt: X/Y-Schritte/mm werden durch acht geteilt,
-Z bleibt unverändert. G54–G59, Startzeilen und eigener Buildtext bleiben bei
-dieser Migration gespeichert. **Nach dem Update niemals die alten X/Y-Werte
-2560 zurückschreiben:** Bei 1/4 würden damit achtfach zu große Wege entstehen.
-Mit `$$` die neue Kalibrierung prüfen, dann langsam neu referenzieren und
-Fahrweg sowie Werkstücknull kontrollieren.
+Die CNC-Versionen 74 und 75 werden auf **76** umgerechnet. Danach gelten
+nominal **20480/20480/20480 Einheiten/mm**, vorhandene Feinabgleiche werden
+proportional erhalten. G54–G59, Startzeilen und eigener Buildtext bleiben
+bei erkannter CNC-Migration gespeichert. **Alte Werte 320, 1280 oder 2560
+nicht zurückspielen.** Mit `$$` und `$MS` Kalibrierung und Mikroprofil prüfen,
+dann langsam neu referenzieren und Fahrweg sowie Werkstücknull kontrollieren.
 
 Home / `$H` referenziert Z-Max, danach X/Y-Min;
 `$HX`, `$HY`, `$HZ` funktionieren einzeln. XYZ-Jogs und normale GRBL-Dateien
@@ -114,7 +119,7 @@ Bestehender Make-Build einschließlich Repetier-Referenz:
 cd /workspace/RF2000
 tools/install-toolchain.sh
 make cnc
-make check-cnc
+make check-adaptive
 make check
 make repetier
 ```
@@ -133,8 +138,8 @@ Die Repetier-Referenz enthält weiterhin ihre ursprünglichen Drucker-/Heizfunkt
 - Eigene Plattform `CPU_MAP_2560_RENKFORCE_CTC_V3`, ohne RAMPS-Ausgänge.
 - Portmaskierte gemeinsame STEP-Ausgabe auf PF0/PF6/PF3; DIR auf PF1/PF7/PL1.
 - Fünfkanaliges HIGH-aktives Software-SPI mit kontrollierter ENBL0-Wake-/Resetsequenz und verpflichtendem Registerreadback.
-- CNC: feste Mikroschritte X/Y 1/4, Z 1/16; Testprofile X/Y 1/32. Reserve A/B 1/32; TORQUE 110/110/105/90/90 bei ISGAIN-Verstärkung 20.
-- CNC: 18-kHz-Grenze, unveränderte Richtung wird zwischengespeichert; erster STEP nach Richtungswechsel behält mindestens 5 µs Vorlauf, Pulsende bleibt timergeführt.
+- CNC: adaptive Mikroschritte 1/256 bis 1/8 auf XYZ bei festem virtuellem Raster; Testprofile bleiben X/Y 1/32, Z 1/16. Reserve A/B bleiben 1/32 und gesperrt; TORQUE 110/110/105/90/90 bei Verstärkung 20.
+- CNC: höchstens 1000 mm/min, physisches Pulsbudget 12 kHz; MODE-Wechsel an pulsfreien Abschnittsgrenzen mit Registerreadback. Richtungswechsel behalten mindestens 5 µs Vorlauf, Pulsende bleibt timergeführt.
 - LOW-aktive X-/Y-/Z-Min und Z-Max auf Port C/H, Timer2-Abfrage mit 1 kHz, sofortige Stopentscheidung und fünf freie Samples vor Wiederfreigabe.
 - CNC: ausdrücklich angefordertes `$LR` zum begrenzten Freifahren eines einzelnen aktiven Endschalters; danach erneutes Referenzieren erforderlich.
 - Treiberfehler über INT6 auch bei kurzen FAULTn-Pulsen verriegelt bis zum echten MCU-Neustart; Boot und Softreset starten verriegelt, Freigabe über Homing oder `$X` bei freien Eingängen.

@@ -1,7 +1,10 @@
 /* Actual AVR CNC profile: gSender commands, XYZ hardware, LCD, jobs and faults.
  * Reuse the real LCD decoder and five-DRV8711 peripheral model. GPL-3.0+. */
 #ifndef RF2000_TEST_XY_CTRL
-#define RF2000_TEST_XY_CTRL 0xe11
+#define RF2000_TEST_XY_CTRL 0xe41
+#endif
+#ifndef RF2000_TEST_Z_CTRL
+#define RF2000_TEST_Z_CTRL 0xe41
 #endif
 #define RF2000_PANEL_TEST_MAIN unused_y_panel_suite
 #include "rf2000_panel_sim.c"

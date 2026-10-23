@@ -265,6 +265,11 @@ float plan_compute_profile_nominal_speed(plan_block_t *block)
     if (!(block->condition & PL_COND_FLAG_NO_FEED_OVERRIDE)) { nominal_speed *= (0.01*sys.f_override); }
     if (nominal_speed > block->rapid_rate) { nominal_speed = block->rapid_rate; }
   }
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    // The requested limit applies to path speed, including diagonals and
+    // overrides, rather than merely to each axis component.
+    if (nominal_speed > RF2000_ADAPTIVE_MAX_RATE) { nominal_speed = RF2000_ADAPTIVE_MAX_RATE; }
+  #endif
   if (nominal_speed > MINIMUM_FEED_RATE) { return(nominal_speed); }
   return(MINIMUM_FEED_RATE);
 }
@@ -393,6 +398,11 @@ uint8_t plan_buffer_line(float *target, plan_line_data_t *pl_data)
   block->millimeters = convert_delta_vector_to_unit_vector(unit_vec);
   block->acceleration = limit_value_by_axis_maximum(settings.acceleration, unit_vec);
   block->rapid_rate = limit_value_by_axis_maximum(settings.max_rate, unit_vec);
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    if (block->rapid_rate > RF2000_ADAPTIVE_MAX_RATE) {
+      block->rapid_rate = RF2000_ADAPTIVE_MAX_RATE;
+    }
+  #endif
 
   // Store programmed rate.
   if (block->condition & PL_COND_FLAG_RAPID_MOTION) { block->programmed_rate = block->rapid_rate; }

@@ -7,12 +7,13 @@ isolierten Y-Test und `rf2000_grbl` als XYZ-Test ohne LCD und Homing.
 Alle Profile verwenden ATmega2560 bei 16 MHz. Die RF2000-Pinbelegung
 und sämtliche Sicherheitsparameter stammen weiterhin aus dem GRBL-Quellcode.
 Die CNC-Bedienung einschließlich gSender steht in [cnc-gsender.md](cnc-gsender.md).
-Das aktuelle CNC-Profil verwendet fest X/Y 1/4 und Z 1/16. Beim Update von
-CNC-Version 74 auf 75 werden alte X/Y-Schrittwerte passend umgerechnet;
-die nominalen Werte sind danach **320/320/1280 Schritte/mm**. Alte X/Y-Werte
-2560 anschließend nicht aus einer Sicherung zurückspielen. Vor Bewegungen
-`$I` und `$$` prüfen; Ablauf und Geschwindigkeitsstufen stehen in
-[geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
+Das aktuelle CNC-Profil verwendet adaptive Hardware-Mikroschritte von
+1/256 bis 1/8 bei einem festen virtuellen Raster von nominal
+**20480/20480/20480 Einheiten/mm**. Die CNC-Versionen 74 und 75 werden auf
+Version 76 umgerechnet. Alte Werte 320, 1280 oder 2560 nicht zurückspielen.
+Nach dem Aufspielen `$I`, `$$` und `$MS` prüfen. Betrieb und Testplan:
+[Adaptive Mikroschritte](adaptive-mikroschritte.md) und
+[Geschwindigkeit](geschwindigkeit-optimieren.md).
 
 ## VS Code
 
@@ -188,21 +189,50 @@ Die Referenz-Repetier-Firmware wird weiterhin über den in
 
 ## Stand der Cloudprüfung
 
-PlatformIO Core 6.1.19 wurde installiert und die Projektkonfiguration wurde
-mit `pio project config` erfolgreich eingelesen. Die offizielle
-Atmel-AVR-Plattformquelle und die Mega-Boarddefinition wurden geprüft.
-Der vollständige PlatformIO-Build ist in dieser Cloudmaschine derzeit noch
-**nicht verifiziert**: Der Netzwerkproxy verweigert den Registry-Abruf mit
-HTTP 403, bevor der Compiler installiert werden kann. Die benötigten
-Registry-/Download-Domains sind in der Umgebungskonfiguration eingetragen;
-der erneute Abruf für das Y-Profil scheitert weiterhin an diesem Proxy.
-Die Konfiguration aller drei Umgebungen einschließlich geerbter Buildflags wurde
-erfolgreich eingelesen. Der Make-Build mit AVR-GCC 14.2.0 ist davon getrennt.
-Wenn der Registry-Zugriff verfügbar ist, die gewünschte PlatformIO-Umgebung
-bauen und deren tatsächliches ELF prüfen: für das XYZ-Profil mit
-`tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf`, für das Y-Profil mit
-`tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf`.
-Die lokale Bedienung wird zusätzlich mit
-`tests/run-panel-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf` geprüft.
-Für CNC einschließlich Display, XYZ-Homing und Programmausführung:
-`tests/run-cnc-sim.sh .pio/build/rf2000_cnc/firmware.elf`.
+Am 22.10.2026 wurde das adaptive CNC-Profil mit der festgelegten
+PlatformIO-Plattform **Atmel AVR 5.1.0** und **AVR-GCC 7.3.0** vollständig
+gebaut. Flash: **50.958 Byte**, statisches SRAM: **3.893 Byte**. Auch die
+zusätzliche Sektions-/Kapazitätsprüfung und die HEX-Erzeugung liefen
+mit Exitstatus 0 durch. Der frühere Registry-403 verhinderte diesen
+aktuellen Build nicht; nach einem verweigerten Spiegel wurde ein anderer
+Paketspiegel erfolgreich verwendet.
+
+Der dabei erzeugte ELF-SHA256 lautet:
+
+```text
+8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06
+```
+
+HEX-SHA256:
+
+```text
+6cc3c14af6c076a5e338bd7ebd806b08614dcfd86ce3763ddcc71c2b59759bda
+```
+
+Der separate Make-Build mit AVR-GCC 14.2.0 benötigt 52.130 Byte Flash und
+3.893 Byte statisches SRAM. Die unterschiedlichen Compiler erzeugen
+verschiedene Programme; Prüfergebnisse müssen deshalb dem jeweiligen ELF
+zugeordnet werden. Ein erfolgreicher Build allein belegt noch keinen
+bestandenen Bewegungs-/Fehlerfall. Das erzeugte PlatformIO-ELF hat die vollständige adaptive Suite mit
+**27 AVR-Simulatorfällen** bestanden, Exitstatus 0. Genaue Kommandos,
+Messwerte und Hashzuordnung stehen im [Prüfbericht](validation.md).
+
+Reproduktion der adaptiven AVR-Prüfung mit einem lokal gebauten Image:
+
+```bash
+tests/run-adaptive-sim.sh .pio/build/rf2000_cnc/firmware.elf
+```
+
+`make check-adaptive`, `make check-cnc` und `make check-speed` verwenden
+dieselbe adaptive Suite mit dem Make-ELF. Die getrennten Standard-/Y-Profile
+haben weiterhin eigene Testprogramme:
+
+```bash
+tests/run-sim.sh .pio/build/rf2000_grbl/firmware.elf
+tests/run-y-homing-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf
+tests/run-panel-sim.sh .pio/build/rf2000_y_homing_test/firmware.elf
+```
+
+Dazu die jeweilige Umgebung vorher ausdrücklich bauen. Die erfolgreiche
+CNC-Kompilierung ist keine Behauptung, dass alle drei PlatformIO-Images in
+diesem Lauf geprüft wurden. Es wurde keine Platine programmiert.

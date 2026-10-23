@@ -54,12 +54,19 @@
   #define RF2000_CNC 0
 #endif
 /* RF2000_MICROSTEP_PROFILE_BEGIN: shared by registers and travel calibration. */
+#define RF2000_ADAPTIVE_MICROSTEPS RF2000_CNC
+#define RF2000_ADAPTIVE_MAX_RATE 1000.0f
+#define RF2000_ADAPTIVE_MIN_MICROSTEPS 8u
+#define RF2000_ADAPTIVE_MAX_SHIFT 5u
+#define RF2000_ADAPTIVE_PULSE_HZ 12000u
 #if RF2000_CNC
-  #define RF2000_XY_MICROSTEPS 4u
+  // These fixed virtual units never change when the hardware MODE changes.
+  #define RF2000_XY_MICROSTEPS 256u
+  #define RF2000_Z_MICROSTEPS 256u
 #else
   #define RF2000_XY_MICROSTEPS 32u
+  #define RF2000_Z_MICROSTEPS 16u
 #endif
-#define RF2000_Z_MICROSTEPS 16u
 #define RF2000_DRV8711_MODE(microsteps) \
   ((microsteps) == 1u ? 0u : (microsteps) == 2u ? 1u : \
    (microsteps) == 4u ? 2u : (microsteps) == 8u ? 3u : \
@@ -538,8 +545,8 @@
 // at 16MHz is used.
 // NOTE: For now disabled, will enable if flash space permits.
 #if RF2000_CNC
-  // Validated under simultaneous XYZ/LCD/UART load, with margin below
-  // the separately probed 20-kHz CNC candidate.
+  // Former fixed-resolution CNC ceiling, retained for its stored records.
+  // Adaptive execution uses the separate12000-Hz physical pulse budget above.
   #define MAX_STEP_RATE_HZ 18000
 #else
   #define MAX_STEP_RATE_HZ 5000 // Preserve the commissioning profiles.

@@ -164,18 +164,21 @@ referenzieren bzw. für die manuelle Einrichtung freigeben.
 Schrittweite und lokales Jogtempo gelten für die aktuelle Sitzung. Nach
 Reset sind wieder **0,10 mm** und **20 mm/min** eingestellt.
 
-Die CNC-Grundeinstellungen sind **320 Schritte/mm für X/Y**, **1280 für Z**
-und Factory-Maximalvorschübe **600 / 600 / 300 mm/min** bei 10 mm/s².
-Das passt zu 2:1-Übersetzung, 5-mm-Spindelsteigung und festen
-1/4-Mikroschritten für X/Y bzw. 1/16 für Z. Der lokale Jog bleibt bei
-seinen langsameren 10/20/30 mm/min.
-Alte CNC-EEPROM-Werte werden von Version 74 auf 75 umgerechnet; vorhandene
-100/100/150-Tempi bleiben erhalten. Vor der ersten Bewegung die
-[Migration in gSender prüfen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
-**Alte X/Y-Werte 2560 nicht zurückschreiben.** Nach dem Mikroprofilwechsel
-alle Achsen zunächst langsam vermessen. Der bisherige Y-Nachweis war noch
-bei 1/32; die neue reale Positioniergenauigkeit ist nicht gemessen.
-Der [Geschwindigkeits-Testplan](geschwindigkeit-optimieren.md) beschreibt die Schritte.
+Die CNC-Grundeinstellungen verwenden nominal **20480 virtuelle Einheiten/mm
+auf X/Y/Z** und Factory-Tempi **600/600/300 mm/min** bei 10 mm/s². Die
+DRV8711 wechseln automatisch zwischen 1/256 und 1/8; die Millimeterwerte
+der lokalen Schritte ändern sich dabei nicht. Der lokale Jog bleibt bei
+10/20/30 mm/min. Die Obergrenze für Achsen und Bahnfeed beträgt 1000 mm/min.
+Das Display zeigt weiterhin die aktuelle Aktion; `$MS` liest das momentane
+Mikroprofil in gSender.
+
+CNC-EEPROM-Versionen 74 und 75 werden auf 76 und das feste virtuelle Raster
+umgerechnet. Vorhandene niedrigere Tempi bleiben erhalten. Vor der ersten
+Bewegung [Migration prüfen](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).
+**Alte Werte 320, 1280 oder 2560 nicht zurückschreiben.** Alle Achsen langsam
+vermessen. Die neue Befehlsauflösung ist keine gemessene Positioniergenauigkeit.
+[Adaptive Mikroschritte](adaptive-mikroschritte.md) ·
+[Geschwindigkeits-Testplan](geschwindigkeit-optimieren.md).
 
 ## Referenzieren am Display oder über gSender
 

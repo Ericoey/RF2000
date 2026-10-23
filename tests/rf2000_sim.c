@@ -33,6 +33,12 @@ struct simulation {
   unsigned writes[5][8], reads[5][8];
   unsigned reset_count[5];
   unsigned step_count[5];
+  /* Independent TI indexer model: 1024 states/electrical cycle, RESET=45deg.
+   * Coordinates are not inferred from firmware counters or a fixed mode. */
+  uint16_t indexer_phase[5];
+  int64_t indexer_displacement[5];
+  unsigned mode_pulses[5][9], mode_changes[5];
+  uint64_t mode_changed_at[5];
   uint64_t step_start[3], dir_changed[3];
   uint64_t step_window[3][64], min_window_cycles[3];
   unsigned window_count[3];
@@ -130,6 +136,7 @@ static void pin_changed(struct avr_irq_t *irq, uint32_t value, void *opaque)
     for (int d=0;d<5;++d) if (awake(d)) {
       memset(sim.regs[d],0,sizeof(sim.regs[d]));
       sim.regs[d][0] = 0x0c10; // Relevant RESET property: ENBL=0.
+      sim.indexer_phase[d] = 128; // TI §7.3.3 RESET indexer position:45deg.
       ++sim.reset_count[d];
     }
   }
@@ -148,6 +155,12 @@ static void pin_changed(struct avr_irq_t *irq, uint32_t value, void *opaque)
       if (sim.spi_word & 0x8000) ++sim.reads[driver][address];
       else {
         uint16_t data = sim.spi_word & 0x0fff;
+        if (address == 0 && ((data ^ sim.regs[driver][0]) & 0x78)) {
+          for (unsigned axis=0;axis<3;++axis)
+            CHECK(!sim.step_start[axis],"DRV MODE changed during active STEP");
+          ++sim.mode_changes[driver];
+          sim.mode_changed_at[driver] = sim.avr->cycle;
+        }
         if (address == 7 && !awake(driver))
           data |= sim.regs[driver][7] & 0x20; // UVLO cannot clear in SLEEP.
         sim.regs[driver][address] = data;
@@ -178,6 +191,20 @@ static void pin_changed(struct avr_irq_t *irq, uint32_t value, void *opaque)
     if (level) {
       CHECK(axis < 3, "reserve axis %d emitted STEP",axis);
       CHECK(awake(axis), "axis %d STEP occurred while asleep",axis);
+      CHECK(sim.selected < 0,"STEP occurred inside a DRV SPI transaction");
+      const unsigned mode=(sim.regs[axis][0] >> 3) & 15;
+      CHECK(mode>=1 && mode<=8,"unsupported indexer MODE%u on STEP",mode);
+      const unsigned stride=256u >> mode;
+      const char dir_port=axis==2 ? 'L' : 'F';
+      const uint8_t dir_bit=axis==0 ? 1 : axis==1 ? 7 : 1;
+      const int positive=sim.pins[dir_port-'A'][dir_bit];
+      const unsigned remainder=sim.indexer_phase[axis] & (stride-1u);
+      const unsigned delta=positive ? stride-remainder : remainder ? remainder : stride;
+      sim.indexer_displacement[axis] += positive ? (int)delta : -(int)delta;
+      sim.indexer_phase[axis]=(sim.indexer_phase[axis]+(positive ? delta : 1024u-delta)) & 1023u;
+      ++sim.mode_pulses[axis][mode];
+      CHECK(sim.avr->cycle-sim.mode_changed_at[axis]>=4,
+        "MODE setup below200ns before STEP");
       if (axis == 1 && sim.verify_xy_synchronous)
         CHECK(sim.step_start[0] == sim.avr->cycle,
           "equal XY trajectory did not produce simultaneous PORTF edges");
@@ -321,7 +348,10 @@ static void verify_registers(void)
   #ifndef RF2000_TEST_XY_CTRL
     #define RF2000_TEST_XY_CTRL 0xe29
   #endif
-  const uint16_t ctrl[5] = {RF2000_TEST_XY_CTRL,RF2000_TEST_XY_CTRL,0xe21,0xe28,0xe28};
+  #ifndef RF2000_TEST_Z_CTRL
+    #define RF2000_TEST_Z_CTRL 0xe21
+  #endif
+  const uint16_t ctrl[5] = {RF2000_TEST_XY_CTRL,RF2000_TEST_XY_CTRL,RF2000_TEST_Z_CTRL,0xe28,0xe28};
   const uint16_t torque[5] = {0x16e,0x16e,0x169,0x15a,0x15a};
   const uint16_t common[8] = {0,0,0x97,0x1d7,0x430,0x83c,0xf0,0};
   for (int d=0;d<5;++d) for (int r=0;r<8;++r) {

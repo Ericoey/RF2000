@@ -19,8 +19,9 @@
 
 /* All five physical channels exist independently of the Grbl axis count.
  * CTRL: DTIME=3 (850 ns), ISGAIN=2 (20), EXSTALL=0, RDIR=0,
- * RSTEP=0. MODE comes from the same microstep profile as steps/mm: CNC X/Y
- * use 1/4; separate test profiles use 1/32. Z stays 1/16 and A/B stay 1/32.
+ * RSTEP=0. MODE comes from the same microstep profile as steps/mm: adaptive
+ * CNC starts XYZ at 1/256; separate test profiles retain X/Y 1/32, Z 1/16.
+ * A/B stay at 1/32 with their bridges disabled.
  * ENBL is set only for configured active channels after safe awake reset. */
 static const uint16_t control[RF2000_DRIVER_COUNT] = {
   0x0e00 | (RF2000_DRV8711_MODE(RF2000_XY_MICROSTEPS) << 3) | ((RF2000_DRIVER_ACTIVE_MASK >> 0) & 1),
@@ -44,6 +45,12 @@ static volatile uint8_t fault_reason;
 static volatile uint8_t awake_mask;
 static uint8_t readback_failed_mask;
 static uint16_t initial_status[RF2000_DRIVER_COUNT];
+#if RF2000_ADAPTIVE_MICROSTEPS
+/* 0..5 means stride1..32 in the fixed 1/256 coordinate grid. 0xff means
+ * that an interrupted multi-channel update needs a complete resynchronization.
+ * A GRBL reset or SLEEP must not claim that it reset the hardware indexer. */
+static volatile uint8_t microstep_shift;
+#endif
 
 /* Several of these ports are shared with STEP/DIR. Protect the read/modify/
  * write sequence, including when called inside an ISR with interrupts on.
@@ -109,6 +116,64 @@ static uint16_t transfer(uint8_t driver, uint16_t command)
   return received;
 }
 
+#if RF2000_ADAPTIVE_MICROSTEPS
+/* Only the foreground MODE barrier may use this transport. Its caller has
+ * stopped Timer1, completed Timer0 and left every STEP LOW. SPI is clocked
+ * with atomic low-I/O SBI/CBI instructions; interrupts remain enabled so a
+ * fault, limit or serial reset can still disable the drivers. The unrolled
+ * bits avoid the old per-bit 7-us delay and variable shifts. At 16MHz each
+ * NOP is 62.5ns, SBI/CBI take two cycles: HIGH/LOW exceed TI's 25ns minima,
+ * the full clock period exceeds 250ns, and SDATI setup exceeds 5ns. Existing
+ * SCS helpers retain 1us setup/inactive time, exceeding the 100ns minimum.
+ * SDATO is sampled after the preceding falling edge, before the next rise. */
+static uint16_t fast_transfer(uint8_t driver, uint16_t command)
+{
+  uint16_t received = 0;
+  select_driver(driver);
+  #define RF2000_FAST_DATA(bit_index) do { \
+    if (command & ((uint16_t)1u << (bit_index))) PORTD |= _BV(PD6); \
+    else PORTD &= ~_BV(PD6); \
+  } while (0)
+  #define RF2000_FAST_CLOCK() do { \
+    PORTD |= _BV(PD5); \
+    __asm__ __volatile__("nop"); \
+    PORTD &= ~_BV(PD5); \
+    __asm__ __volatile__("nop"); \
+  } while (0)
+  #define RF2000_FAST_HEADER(bit_index) do { \
+    RF2000_FAST_DATA(bit_index); \
+    RF2000_FAST_CLOCK(); \
+  } while (0)
+  #define RF2000_FAST_PAYLOAD(bit_index) do { \
+    RF2000_FAST_DATA(bit_index); \
+    if (PIND & _BV(PD4)) received |= (uint16_t)1u << (bit_index); \
+    RF2000_FAST_CLOCK(); \
+  } while (0)
+  RF2000_FAST_HEADER(15);
+  RF2000_FAST_HEADER(14);
+  RF2000_FAST_HEADER(13);
+  RF2000_FAST_HEADER(12);
+  RF2000_FAST_PAYLOAD(11);
+  RF2000_FAST_PAYLOAD(10);
+  RF2000_FAST_PAYLOAD(9);
+  RF2000_FAST_PAYLOAD(8);
+  RF2000_FAST_PAYLOAD(7);
+  RF2000_FAST_PAYLOAD(6);
+  RF2000_FAST_PAYLOAD(5);
+  RF2000_FAST_PAYLOAD(4);
+  RF2000_FAST_PAYLOAD(3);
+  RF2000_FAST_PAYLOAD(2);
+  RF2000_FAST_PAYLOAD(1);
+  RF2000_FAST_PAYLOAD(0);
+  #undef RF2000_FAST_PAYLOAD
+  #undef RF2000_FAST_HEADER
+  #undef RF2000_FAST_CLOCK
+  #undef RF2000_FAST_DATA
+  deselect_drivers();
+  return received;
+}
+#endif
+
 static uint16_t read_register(uint8_t driver, uint8_t address)
 {
   return transfer(driver, 0x8000u | ((uint16_t)address << 12));
@@ -133,6 +198,9 @@ void rf2000_drivers_init(void)
   if (initialized) return;
   initialized = 1;
   ready = 0;
+  #if RF2000_ADAPTIVE_MICROSTEPS
+    microstep_shift = 0;
+  #endif
   EIMSK &= ~_BV(INT6); /* Ignore expected startup/reset FAULT transitions. */
 
   /* Preload inactive output levels BEFORE changing DDR. Keep A/B STEP low,
@@ -202,7 +270,7 @@ void rf2000_drivers_init(void)
   _delay_ms(5); /* TI requires approximately 1 ms to become functional. */
 
   /* RESET defaults ENBL=0. Program and verify while all power stages remain
-   * disabled. No SPI routine is exposed to real-time execution. */
+   * disabled. Slow initialization SPI is never used by the step ISR. */
   for (driver = 0; driver < RF2000_DRIVER_COUNT; ++driver) {
     for (address = 0; address < 8; ++address) {
       uint16_t expected = expected_register(driver, address);
@@ -274,6 +342,51 @@ bool rf2000_drivers_ready(void)
 {
   return ready && !fault_reason;
 }
+
+#if RF2000_ADAPTIVE_MICROSTEPS
+static bool microstep_change_allowed(void)
+{
+  if (!ready || fault_reason || sys.abort || sys_rt_exec_alarm ||
+      (sys_rt_exec_state & EXEC_RESET)) return false;
+  return !rf2000_drivers_fault_active();
+}
+
+bool rf2000_drivers_set_microstep_shift(uint8_t shift)
+{
+  if (shift > 5u || !microstep_change_allowed()) return false;
+  if (shift == microstep_shift) return true;
+
+  /* All three drivers must agree before the stepper may publish the new
+   * physical stride. If reset interrupts a partial update, retain UNKNOWN
+   * until a future barrier rewrites and verifies all three registers. */
+  microstep_shift = 0xffu;
+  for (uint8_t driver = 0; driver < 3u; ++driver) {
+    if (!microstep_change_allowed()) return false;
+    const uint16_t next_control =
+      (control[driver] & ~0x0078u) | ((uint16_t)(8u - shift) << 3);
+    (void)fast_transfer(driver, next_control);
+    if (!microstep_change_allowed()) return false;
+    const uint16_t observed = fast_transfer(driver, 0x8000u);
+    if ((observed ^ next_control) & readback_mask[0]) {
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        readback_failed_mask |= (uint8_t)1u << driver;
+        fault_reason |= RF2000_DRIVER_FAULT_READBACK;
+        ready = 0;
+      }
+      rf2000_drivers_disable();
+      return false;
+    }
+    if (!microstep_change_allowed()) return false;
+  }
+  microstep_shift = shift;
+  return true;
+}
+
+uint8_t rf2000_drivers_microstep_shift(void)
+{
+  return microstep_shift;
+}
+#endif
 
 void rf2000_drivers_enable(uint8_t axes_mask)
 {

@@ -8,13 +8,13 @@ Die elektrischen Vorprüfungen gelten für alle RF2000-Profile. Die
 ursprünglichen XYZ-Inbetriebnahmeschritte unten beschreiben
 `rf2000_grbl`; Unterschiede des aktuellen CNC-Profils sind ausdrücklich
 genannt. Das [CNC-Profil](cnc-gsender.md)
-`20261022-rf2000-cnc-speed` verwendet fest **X/Y 1/4, Z 1/16**,
-320/320/1280 Schritte/mm und eine **18-kHz-Grenze**. Seine Factory-Tempi
-sind 600/600/300 mm/min bei 10 mm/s². Ein gültiger alter CNC-Datensatz
-wird migriert; die bisherigen 100/100/150-Tempi werden nicht automatisch
-erhöht. Vor jeder ersten Bewegung nach Update `$I`/`$$` und die
-[EEPROM-Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen)
-prüfen. **Alte X/Y-Werte 2560 nicht zurückschreiben.**
+`20261022-rf2000-cnc-adaptive` verwendet automatische XYZ-Auflösungen von
+**1/256 bis 1/8**, ein festes virtuelles Raster mit nominal
+**20480/20480/20480 Einheiten/mm** und höchstens **1000 mm/min Achs-/Bahnfeed**.
+Factory-Tempi bleiben 600/600/300 mm/min bei 10 mm/s². Gültige niedrigere
+alte Tempi werden nicht erhöht. Vor Bewegungen `$I`, `$$`, `$MS` und die
+[Migration](cnc-gsender.md#bestehende-cnc-einstellungen-umstellen) prüfen.
+**Alte Werte 320, 1280 oder 2560 nicht zurückspielen.**
 
 Das CNC-Profil erlaubt XYZ-Homing nach ausdrücklicher Nutzervorgabe auf Basis angenommener X/Z-Richtungen; die physischen Prüfpunkte bleiben als Nachweis offen.
 Für den ersten Test ausschließlich der Y-Achse gibt es zusätzlich
@@ -57,8 +57,8 @@ Oszilloskop/Logikanalysator gemeinsam an Masse, SCLK/PD5, SDATI/PD6, SDATO/PD4, 
 2. RESET_DRV/PE7: HIGH-Puls und anschließende Wartezeit entsprechend Implementierung prüfen. **Reset muss bei wachen Treibern erfolgen**, da TI §7.4.1 Reset im Sleep ausschließt. Vor dieser Wake-Phase muss CTRL.ENBL=0 für alle fünf Kanäle geschrieben und verifiziert worden sein; es darf keine STEP-Flanke geben. UVLO erst im wachen Zustand löschen, Ursache einer tatsächlichen Unterspannung nicht übergehen. Wake-up-Zeit ab SLEEPn-HIGH messen (Datenblatt maximal 1 ms; Port verwendet längere Wartezeit).
 3. Jeden der fünf Treiber einzeln auslesen. Im Standard-/Y-Testprofil gilt
    CTRL.MODE X/Y/A/B 1/32, Z 1/16. Im aktuellen CNC-Profil gilt dagegen
-   **X/Y 1/4 (`CTRL=0xE11`), Z 1/16 (`0xE21`)**, Reserve A/B weiterhin
-   1/32 bei ENBL=0 (`0xE28`). ISGAIN ist als 2 codiert und bedeutet
+   **XYZ zunächst 1/256 (`CTRL=0xE41`)**, anschließend automatische
+   Stufen bis 1/8 (`0xE19`). Reserve A/B bleiben 1/32 und ENBL=0 (`0xE28`). ISGAIN ist als 2 codiert und bedeutet
    Verstärkung 20; TORQUE bleibt X=110, Y=110, Z=105, A/B=90.
    OFF/BLANK/DECAY/STALL/DRIVE gegen die Quellwerte vergleichen. Der
    read-only Befehl **`$DRV`** meldet den gespeicherten Starttest:
@@ -98,31 +98,30 @@ Nach positiven Stufen 1–4 und ausschließlich mit lastlosen Ausgängen die XYZ
 - X/Y/Z einzeln und synchron; korrektes Setzen/Löschen auf PORTF/PORTL ohne Änderung von SLEEPn/PF2 oder sonstigen Fremdbits.
 - Timer-Overflow/Pulsendende, Reset während eines Pulses, Alarm während einer Bewegung und UART-Last untersuchen. Im normalen Betrieb keine verkürzten oder zusätzlichen Pulse und kein ständig HIGH bleibender STEP. Eine Fehler-/Resetabschaltung darf einen laufenden Puls bewusst verkürzen; sie darf keine spätere STEP-Flanke zulassen.
 - Maximale im gewählten Build eingestellte Schrittfrequenz anhand Feedrate
-  und steps/mm bestimmen und messen. Standard-/Y-Testprofile bleiben bei
-  **5 kHz**; deren Standard-X/Y-Raten ergeben ca. 1270 Schritte/s, Z 3200.
-  Das aktuelle CNC-Profil begrenzt dagegen auf **18 kHz**. Seine neuen
-  Factory-Raten 600/600/300 bei 320/320/1280 Schritte/mm ergeben
-  3200/3200/6400 Schritte/s; gültige migrierte 100/100/150 bleiben zunächst
-  langsamer. Die Standardpulsbreite bleibt 10 µs (10–20 µs einstellbar).
-  Der erste tatsächliche STEP nach einem Richtungswechsel verwendet
-  mindestens 5 µs Timer0-Vorlauf. Bei stabiler DIR beginnt der CNC-STEP
-  direkt in Timer1; Timer0 beendet den Puls. Dieser optimierte Pfad und die
-  vorgezogenen AMASS-Berechnungen ändern weder Pins noch Mikroauflösung
-  während der Fahrt. Alle gewünschten Raten unter UART-/Displaylast und
-  bei Richtungswechsel prüfen; eine Messung bei kleiner Frequenz
-  qualifiziert nicht automatisch die höhere Grenze.
-- Während sämtlicher Tests PA4/PC1 (Reserve-STEP), PA2/PC7 (Reserve-SLEEPn) und Heiz-/P230-Ausgänge mitbeobachten: A/B niemals schalten/freigeben, Lasten inaktiv.
+  und tatsächlicher MODE-Stufe bestimmen. Standard-/Y-Testprofile bleiben
+  bei 5 kHz. Das adaptive CNC-Profil begrenzt Achs-/Bahnfeed auf 1000 mm/min
+  und verwendet ein 12-kHz-Pulsbudget. Bei 1/8 und 1000 sind nominal
+  10.666,7 STEP/s nötig. Die virtuelle Kalibrierung 20480 ist nicht die
+  physische STEP/mm-Zahl jeder Stufe.
+- MODE-Wechsel gemeinsam mit STEP und SCS beobachten: kein aktiver Puls
+  während Schreiben/Readback, keine neue Flanke vor bestätigten Registern,
+  ausreichend MODE-Setup/Hold. Den ersten Schritt nach einem nicht ausgerichteten MODE-Wechsel
+  gemäß TI als Weg zur nächsten gültigen Indexerposition auswerten.
+- Beim Beschleunigen/Abbremsen alle Stufen und Hysterese prüfen. Langsame
+  Nebenachsen, Richtungswechsel, kurze CAM-Segmente und Kreise beobachten.
+  Positionsvergleich muss phasengewichtete Wege prüfen; die reine Anzahl
+  von STEP-Flanken ist bei wechselnder Auflösung nicht ausreichend.
+- Feine Restwege dürfen bei regulärem Halt abgeschlossen werden. Fehler oder
+  Reset dürfen keine nachträgliche Korrekturfahrt starten. Limits und FAULT
+  gezielt auch während eines MODE-Transfers testen. Die Zeit für Transfers
+  und Restwegabschluss gemeinsam mit der tatsächlichen Fahrzeit messen.
 
-**Abbruch:** Zeitverletzung, Fremdbitänderung, verlorene Pulse, ISR-Überlastung oder irgendeine Reservebewegung.
-
-Als Softwarevergleich bestand das finale CNC-ELF
-`0785cad168cbbb4a712c643ac81fab901868654282091ec0879c0968f5dee1f3`
-15 AVR-Fälle bei 10 µs Pulsbreiteneinstellung und einen zusätzlichen
-XYZ-Rücklauf bei 20 µs. Bei 18-kHz-Anforderung betrug das gemessene
-XYZ-Plateau im Simulator 17.977,53 bzw. 17.977,51 Schritte/s. Minimale
-HIGH/LOW-Zeiten waren 10,625/24,250 µs bzw. 20,688/16,625 µs.
-Das ist **kein elektrischer Hardwaremesswert**. Vollständige Zeitmessungen:
-[STEP-/DIR-Timing](step-timing.md) und [Prüfbericht](validation.md).
+Die Softwaremesswerte und der genaue geprüfte ELF-Stand stehen in
+[validation.md](validation.md). Die früheren 18-kHz-Messungen des festen
+1/4-Profils qualifizieren die adaptive Version nicht. Auflösung ist keine
+mechanische Genauigkeit; der reale Test folgt zusätzlich
+[adaptive-mikroschritte.md](adaptive-mikroschritte.md) und
+[geschwindigkeit-optimieren.md](geschwindigkeit-optimieren.md).
 
 ## 6. Erster einzelner Motor, dann XYZ
 
@@ -135,8 +134,8 @@ Diese Stufe ist erst nach erfolgreicher elektrischer Prüfung vertretbar. Die te
 5. Spannung aus; X trennen, Y anschließen und entsprechend prüfen. Danach Z mit besonderer Sicherung gegen Absinken und Kollision testen. Erst danach die drei Motoren gemeinsam anschließen.
 6. Schritte/mm mit Messuhr bestätigen. Für unveränderte Originalmechanik
    gelten die Testprofil-Startwerte X/Y 152,38 und Z 1280. Für die
-   vorgegebene CNC-Mechanik mit SFU1605/2:1 und festen 1/4-X/Y-Registern
-   gelten dagegen nominal **320/320/1280**. Nicht zwischen diesen Profilen
+   vorgegebene CNC-Mechanik mit SFU1605/2:1 und adaptiven Registern
+   gilt dagegen ein festes virtuelles Raster **20480/20480/20480**. Nicht zwischen diesen Profilen
    mischen. Zuerst langsame kleine Wege, dann 10/50-mm-Messung und
    wiederholte Rückkehr zum Messbezug prüfen. Strom und Temperatur
    anschließend stufenweise unter einer kleinen realen Last beobachten.
