@@ -1,13 +1,12 @@
-ELF SHA256: 148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874
-Command: tests/run-homing-wait-sim.sh build/tests/adaptive-candidate.elf
-Exit status: 0
-
-Loaded 52004 .text at address 0x0
+ELF SHA256: 92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
+Command: tests/run-homing-wait-sim.sh build/tests/spi-fix-platformio.elf
+Loaded 50786 .text at address 0x0
 Loaded 126 .data
 PASS: Y waits with its switch held for500ms and no further STEP; X continues seeking; LCD stays REF X+Y: SUCHEN
 PASS: Y-first full $H completes Z then XY seek/pull-off/locate/final-pull-off, all switches free and Idle XYZ
-Loaded 52004 .text at address 0x0
+Loaded 50786 .text at address 0x0
 Loaded 126 .data
 PASS: X waits with its switch held for500ms and no further STEP; Y continues seeking; LCD stays REF X+Y: SUCHEN
 PASS: X-first full $H completes Z then XY seek/pull-off/locate/final-pull-off, all switches free and Idle XYZ
 PASS: 2 actual-AVR staggered XY homing cases
+Exit status: 0

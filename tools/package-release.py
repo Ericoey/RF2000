@@ -52,7 +52,8 @@ for name in ('validation.log', 'grbl-repro-build.log', 'repetier-build.log',
              'speed-simulation.log', 'homing-wait-simulation.log',
              'speed-host-validation.log', 'speed-exploration.tsv',
              'adaptive-simulation.log', 'adaptive-platformio-simulation.log',
-             'adaptive-host-validation.log', 'platformio-cnc-build.log'):
+             'adaptive-host-validation.log', 'platformio-cnc-build.log',
+             'spi-readback-regression.log'):
     p = artifacts / name
     if p.is_file():
         files.append(p)

@@ -191,7 +191,7 @@ Die Referenz-Repetier-Firmware wird weiterhin über den in
 
 Am 22.10.2026 wurde das adaptive CNC-Profil mit der festgelegten
 PlatformIO-Plattform **Atmel AVR 5.1.0** und **AVR-GCC 7.3.0** vollständig
-gebaut. Flash: **50.958 Byte**, statisches SRAM: **3.893 Byte**. Auch die
+gebaut. Flash: **50.912 Byte**, statisches SRAM: **3.893 Byte**. Auch die
 zusätzliche Sektions-/Kapazitätsprüfung und die HEX-Erzeugung liefen
 mit Exitstatus 0 durch. Der frühere Registry-403 verhinderte diesen
 aktuellen Build nicht; nach einem verweigerten Spiegel wurde ein anderer
@@ -200,21 +200,21 @@ Paketspiegel erfolgreich verwendet.
 Der dabei erzeugte ELF-SHA256 lautet:
 
 ```text
-8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06
+92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
 ```
 
 HEX-SHA256:
 
 ```text
-6cc3c14af6c076a5e338bd7ebd806b08614dcfd86ce3763ddcc71c2b59759bda
+d477d766d5b8650f4125237629c57a0580d4afa16d063535ff0953a5b81def56
 ```
 
-Der separate Make-Build mit AVR-GCC 14.2.0 benötigt 52.130 Byte Flash und
+Der separate Make-Build mit AVR-GCC 14.2.0 benötigt 52.078 Byte Flash und
 3.893 Byte statisches SRAM. Die unterschiedlichen Compiler erzeugen
 verschiedene Programme; Prüfergebnisse müssen deshalb dem jeweiligen ELF
 zugeordnet werden. Ein erfolgreicher Build allein belegt noch keinen
 bestandenen Bewegungs-/Fehlerfall. Das erzeugte PlatformIO-ELF hat die vollständige adaptive Suite mit
-**27 AVR-Simulatorfällen** bestanden, Exitstatus 0. Genaue Kommandos,
+**28 AVR-Simulatorfällen** bestanden, Exitstatus 0. Genaue Kommandos,
 Messwerte und Hashzuordnung stehen im [Prüfbericht](validation.md).
 
 Reproduktion der adaptiven AVR-Prüfung mit einem lokal gebauten Image:

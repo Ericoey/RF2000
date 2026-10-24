@@ -1,7 +1,7 @@
 # RF2000-CNC: Befehlsübersicht für gSender
 
 Diese Übersicht gilt für das Projektprofil **`rf2000_cnc`**, Stand
-22.10.2026, ab Version `20261022-rf2000-cnc-adaptive`. Sie beschreibt die
+22.10.2026, ab Version `20261024-rf2000-cnc-adaptive-spi`. Sie beschreibt die
 im RF2000-Code vorhandenen Befehle. Das separate Y-Testprofil hat andere
 Beschränkungen. [Bedienfeld und Menü](bedienfeld-menue.md) ·
 [Einrichten und Fräsen mit gSender](cnc-gsender.md)

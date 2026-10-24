@@ -8,7 +8,7 @@ Die elektrischen Vorprüfungen gelten für alle RF2000-Profile. Die
 ursprünglichen XYZ-Inbetriebnahmeschritte unten beschreiben
 `rf2000_grbl`; Unterschiede des aktuellen CNC-Profils sind ausdrücklich
 genannt. Das [CNC-Profil](cnc-gsender.md)
-`20261022-rf2000-cnc-adaptive` verwendet automatische XYZ-Auflösungen von
+`20261024-rf2000-cnc-adaptive-spi` verwendet automatische XYZ-Auflösungen von
 **1/256 bis 1/8**, ein festes virtuelles Raster mit nominal
 **20480/20480/20480 Einheiten/mm** und höchstens **1000 mm/min Achs-/Bahnfeed**.
 Factory-Tempi bleiben 600/600/300 mm/min bei 10 mm/s². Gültige niedrigere

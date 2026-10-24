@@ -195,7 +195,7 @@ static void test_adaptive_connect(const char *elf)
 {
   adaptive_boot(elf);
   const char *identity=command("$I\n",100);
-  CHECK(strstr(identity,"20261022-rf2000-cnc-adaptive"),"adaptive identity absent");
+  CHECK(strstr(identity,"20261024-rf2000-cnc-adaptive-spi"),"adaptive identity absent");
   const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
   if (identity_path) {
     FILE *file=fopen(identity_path,"w");
@@ -336,6 +336,51 @@ static void test_adaptive_home(const char *elf,int single)
   CHECK(stored_position(1)==before+20 || stored_position(1)==before+21,"posthome fine jog endpoint wrong");
   reserves_off();
   printf("PASS: %s adaptive homing reaches two contacts/releases per selectedaxis; phase survives coordinate rebases; following weighted fine jog correct\n",single<0?"combinedXYZ":single==0?"X-only":single==1?"Y-only":"Z-only");
+  avr_terminate(sim.avr);
+}
+
+/* A finite released-HIGH rise is separate from the driver's propagation
+ * delay. Enable only after boot: this targets the new runtime MODE transport
+ * without changing the already working startup read sequence. One microsecond
+ * is an illustrative regression fixture, not a measurement of the RF2000 bus. */
+static void test_adaptive_spi_slow_rise(const char *elf)
+{
+  adaptive_boot(elf);
+  assert_ok("$27=0.1\n",350); assert_ok("$26=5\n",350);
+  sim.sdato_rise_delay_cycles = CPU_HZ/1000000UL;
+  adaptive_machine.enabled = 1;
+  const size_t start = sim.log_len;
+  command("$H\n",0);
+  const uint64_t deadline = sim.avr->cycle+CPU_HZ*12;
+  while (!strstr(sim.log+start,"ok\r\n") &&
+      !strstr(sim.log+start,"ALARM:") && sim.avr->cycle<deadline)
+    run_us(1000);
+  CHECK(strstr(sim.log+start,"ok\r\n") &&
+      !strstr(sim.log+start,"ALARM:"),
+    "1us released-HIGH SDATO rise broke first MODE32 homing readback");
+  for (unsigned axis=0;axis<3;++axis) {
+    CHECK(adaptive_machine.contacts[axis]==2 && adaptive_machine.releases[axis]==2,
+      "slow-rise homing axis%c contacts/releases incomplete",'X'+axis);
+    CHECK(sim.mode_pulses[axis][5],"slow-rise homing omitted MODE32");
+    CHECK(!adaptive_machine.active[axis],"slow-rise homing left switch active");
+  }
+  adaptive_machine.enabled = 0;
+  anchor_coordinates(); configure_speed();
+  const int32_t before[3]={stored_position(0),stored_position(1),stored_position(2)};
+  adaptive_move("G21G91G1X6F1000\n");
+  CHECK(sim.mode_pulses[0][3],"slow-rise high-speed move never reached MODE8");
+  CHECK(stored_position(0)==before[0]+6*20480 &&
+      stored_position(1)==before[1] && stored_position(2)==before[2],
+    "slow-rise mode transition changed the requested endpoint");
+  adaptive_move("G21G91G1X-6F1000\n");
+  for (unsigned axis=0;axis<3;++axis)
+    CHECK(stored_position(axis)==before[axis],"slow-rise reverse endpoint differs");
+  CHECK(sim.sdato_delayed_highs>50,"SDATO rise-delay fixture was not exercised");
+  CHECK(strstr(command("$DRV\n",80),"READY=1|FAULT=0|READBACK=0"),
+    "slow-rise readback test did not retain verified ready state");
+  verify_actual_positions(); reserves_off();
+  printf("PASS: 1us released-HIGH SDATO delay survives first MODE32 XYZ home and MODE8 F1000 forward/reverse; weighted positions exact, readback guards remain active (%u delayed rises)\n",
+    sim.sdato_delayed_highs);
   avr_terminate(sim.avr);
 }
 
@@ -553,6 +598,7 @@ int main(int argc,char **argv)
   CASE("fault-loaded",test_adaptive_stop(argv[1],4));
   CASE("reset",test_adaptive_stop(argv[1],5));
   CASE("pause-reset",test_adaptive_stop(argv[1],6));
+  CASE("spi-slow-rise",test_adaptive_spi_slow_rise(argv[1]));
   CASE("spi-fault",test_adaptive_spi_fault(argv[1],0));
   CASE("spi-readback",test_adaptive_spi_fault(argv[1],1));
   CASE("spi-reset",test_adaptive_spi_reset(argv[1]));

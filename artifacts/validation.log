@@ -1,4 +1,4 @@
-Standard ELF SHA256: e21ce1591a3984e9456f6fe1b4e0977b544b17224dd73a87740f21b75e6ace6e
+ELF SHA256: 2c72164e61deb1e3028ec886fb9adf7a69ec4bf7db81a8dcf8f986ab6696f12f
 Command: make check
 Exit status: 0
 

@@ -1,7 +1,7 @@
 # Prüfbericht
 
-Stand: 23.10.2026. Dieser Bericht beschreibt die adaptive CNC-Firmware
-`20261022-rf2000-cnc-adaptive`. Die Cloud hat keine Platine programmiert
+Stand: 24.10.2026. Dieser Bericht beschreibt die adaptive CNC-Firmware
+`20261024-rf2000-cnc-adaptive-spi`. Die Cloud hat keine Platine programmiert
 und keinen Motor bewegt. Die Messwerte stammen aus dem Simulator, der das
 kompilierte AVR-Programm und dessen GPIO-/SPI-Signale ausführt. Der frühere
 Anwenderbericht zu Display, Tasten, Y-Homing und Y-Kalibrierung ersetzt
@@ -11,8 +11,8 @@ keinen Hardwaretest der neuen Mikroschritt-Automatik.
 
 | Variante | Werkzeugkette | Flash | Statisches SRAM | Ergebnis |
 | --- | --- | ---: | ---: | --- |
-| Adaptive XYZ-CNC mit LCD | PlatformIO / AVR-GCC 7.3.0 | 50.958 Byte | 3.893 Byte | gebaut und 27 AVR-Fälle bestanden |
-| Adaptive XYZ-CNC mit LCD | Make / AVR-GCC 14.2.0 | 52.130 Byte | 3.893 Byte | gebaut und 57 AVR-Fälle bestanden |
+| Adaptive XYZ-CNC mit LCD | PlatformIO / AVR-GCC 7.3.0 | 50.912 Byte | 3.893 Byte | gebaut und 58 AVR-Fälle bestanden |
+| Adaptive XYZ-CNC mit LCD | Make / AVR-GCC 14.2.0 | 52.078 Byte | 3.893 Byte | gebaut und 28 AVR-Fälle bestanden |
 | Standard-XYZ-Test ohne LCD | Make / AVR-GCC 14.2.0 | 35.226 Byte | 3.520 Byte | gebaut; `make check` bestanden |
 | Separater Y-Test mit LCD | Make / AVR-GCC 14.2.0 | 38.448 Byte | 3.697 Byte | gebaut; HEX unverändert |
 | Repetier-Referenz | historischer Build | 218.996 Byte | 6.914 Byte | unverändertes Artefakt, nicht erneut gebaut |
@@ -26,9 +26,9 @@ Die beiden CNC-Werkzeugketten erzeugen unterschiedliche Programme. Ihre
 Simulatorergebnisse wurden deshalb unmittelbar am jeweiligen ELF erhoben:
 
 ```text
-PlatformIO ELF 8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06
-PlatformIO HEX 6cc3c14af6c076a5e338bd7ebd806b08614dcfd86ce3763ddcc71c2b59759bda
-Make ELF       148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874
+PlatformIO ELF 92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
+PlatformIO HEX d477d766d5b8650f4125237629c57a0580d4afa16d063535ff0953a5b81def56
+Make ELF       23cbf1c7958ebbe14c228fa98c3372cf92aca5dccd540ad968af3f5dd6cf56e4
 ```
 
 PlatformIO verwendet `platformio/atmelavr@5.1.0`,
@@ -43,11 +43,10 @@ Compiler, Sektionen sowie Quell- und Artefaktprüfsummen.
 
 ## Adaptive Bewegung und Fehlerbehandlung
 
-Die adaptive Suite besteht aus **27 Fällen**. Sie wurde mit dem
-PlatformIO-ELF vollständig in einem Lauf ausgeführt. Beim Make-ELF wurden
-26 Fälle gemeinsam und der anschließend ergänzte Migrationsfall separat
-auf demselben unveränderten ELF ausgeführt. Alle Läufe endeten mit
-**Exitstatus 0**. Protokolle mit Hash und tatsächlichen Aufrufen:
+Die adaptive Suite besteht aus **28 Fällen**. Sie wurde mit dem
+PlatformIO-ELF und dem Make-ELF jeweils vollständig in einem Lauf
+ausgeführt. Alle Läufe endeten mit **Exitstatus 0**. Der neue zusätzliche
+Fall bildet die Anstiegszeit der offenen SPI-Leseleitung nach. Protokolle mit Hash und tatsächlichen Aufrufen:
 
 - `artifacts/adaptive-platformio-simulation.log`
 - `artifacts/adaptive-simulation.log`
@@ -76,6 +75,39 @@ berechnet, nicht aus den internen Firmwarezählern übernommen. Das bestätigt
 die digitale Konsistenz. Motor-Schrittverluste oder echte mechanische
 Bewegung werden damit nicht gemessen.
 
+## Korrektur nach gemeldetem Alarm 12
+
+Der Nutzer meldete am 24.10.2026 Alarm 12 beim Referenzstart. Die später
+übermittelten Diagnosewerte zeigen einen erfolgreichen Starttest mit
+`READY=1`, `FAULT=0`, `READBACK=0` und `MICRO=256`; sie dokumentieren keinen
+verriegelten Laufzeitfehler dieser MCU-Sitzung. Der konkrete elektrische
+Auslöser an der Maschine ist damit noch nicht abschließend gemessen.
+
+Ein gezielter neuer Test verzögert ausschließlich nach dem Start die
+freigegebene HIGH-Flanke des Open-Drain-SDATO-Signals um 1 µs. Der alte
+offizielle PlatformIO-ELF aus Commit `929f552` reproduziert damit Alarm 12
+beim ersten MODE32-Readback vor der Referenzbewegung. Der korrigierte
+PlatformIO-ELF besteht denselben Test, einschließlich vollständigem
+Homing und anschließender MODE8-Fahrt samt Rückkehr.
+
+Der negative alte Lauf endet **erwartet mit Exitstatus 1**. Er wird getrennt
+von den erfolgreichen Releaseprüfungen in
+`artifacts/spi-readback-regression.log` dokumentiert. Dieses Protokoll
+enthält ausdrücklich einen erwarteten Fehler, keinen fehlgeschlagenen
+Prüflauf der neuen Firmware.
+
+Die Korrektur liest CTRL bei Laufzeitwechseln über den langsameren
+Starttransport zurück, statt mit dem schnellen Schreibtakt abzutasten.
+Registervergleich, unbekannter Teilzustand, FAULT-Verriegelung und
+Pulsbarriere bleiben aktiv. Hosttests injizieren weiterhin nach jedem der
+sechs Frames Reset/Alarm/FAULT, nun über schnelles Schreiben und langsames
+Lesen gemeinsam. Es gibt keine Abschaltung oder Umgehung der Fehlerprüfung.
+
+Der Test belegt die zeitliche Schwachstelle im Modell. Die tatsächliche
+Anstiegszeit und das Verhalten der Nutzerplatine nach dem Update müssen
+noch am Gerät geprüft werden. Bedienung und Diagnose:
+[diagnose-alarm12.md](diagnose-alarm12.md).
+
 ## Geschwindigkeit und Pulszeiten unter Last
 
 Das LCD bleibt aktiv; die Tests fragen UART-Status mit 100 Hz ab.
@@ -84,12 +116,12 @@ jeder Achse beträgt dabei etwa 577,35 mm/min, nicht 1000.
 
 | ELF / Bewegung | Angefordert | Gemessener Vorschub | Min. HIGH | Min. LOW |
 | --- | ---: | ---: | ---: | ---: |
-| PlatformIO, nur X, `$0=10` | F1000 | 992,890 mm/min | 14,438 µs | 60,562 µs |
-| Make, nur X, `$0=10` | F1000 | 993,430 mm/min | 14,312 µs | 58,000 µs |
-| PlatformIO, gleiche XYZ, `$0=10` | Bahn F1000 | 569,578 mm/min je Achse | 20,188 µs | 76,750 µs |
-| Make, gleiche XYZ, `$0=10` | Bahn F1000 | 569,816 mm/min je Achse | 20,062 µs | 88,000 µs |
-| PlatformIO, gleiche XYZ, `$0=20` | Bahn F1000 | 569,576 mm/min je Achse | 30,250 µs | 64,312 µs |
-| Make, gleiche XYZ, `$0=20` | Bahn F1000 | 569,816 mm/min je Achse | 30,125 µs | 70,625 µs |
+| PlatformIO, nur X, `$0=10` | F1000 | 993,026 mm/min | 14,438 µs | 59,375 µs |
+| Make, nur X, `$0=10` | F1000 | 993,365 mm/min | 14,312 µs | 60,062 µs |
+| PlatformIO, gleiche XYZ, `$0=10` | Bahn F1000 | 569,578 mm/min je Achse | 20,188 µs | 76,062 µs |
+| Make, gleiche XYZ, `$0=10` | Bahn F1000 | 569,817 mm/min je Achse | 20,062 µs | 79,062 µs |
+| PlatformIO, gleiche XYZ, `$0=20` | Bahn F1000 | 569,577 mm/min je Achse | 30,250 µs | 67,312 µs |
+| Make, gleiche XYZ, `$0=20` | Bahn F1000 | 569,816 mm/min je Achse | 30,125 µs | 68,312 µs |
 
 Die Zeitprüfung verlangt ausreichende Puls-HIGH-/LOW-Zeiten und
 Richtungsvorlauf; kurze Interrupt-/Abschnittslatenzen können Pulse
@@ -105,7 +137,7 @@ DDA-Treppenform und Mechanik erfordern eine getrennte Genauigkeitsmessung.
 
 ## Bedienfeld, Freifahren und gestaffeltes Homing
 
-Zusätzlich bestanden auf dem Make-ELF:
+Zusätzlich bestanden auf dem PlatformIO-ELF:
 
 - **Acht Menügruppen**, `artifacts/menu-simulation.log`: elf reale
   GPIO-Tasten, LCD-Navigation, Freigaben, bestätigtes Arbeitsnullsetzen,
@@ -121,8 +153,8 @@ Zusätzlich bestanden auf dem Make-ELF:
   STEP-Flanke, während die andere sucht. Danach vollständiger Rückzug,
   Feinannäherung und letzter Rückzug; `$H` endet mit freien Schaltern.
 
-Damit bestanden **57 Fälle auf demselben Make-ELF** und die adaptive
-**27-Fälle-Suite auf dem separaten PlatformIO-ELF**. Zusätzliche
+Damit bestanden **58 Fälle auf demselben PlatformIO-ELF** und die adaptive
+**28-Fälle-Suite auf dem separaten Make-ELF**. Zusätzliche
 Wiederholungen einzelner Fälle werden nicht als neue Fälle gezählt.
 
 Reproduktion:

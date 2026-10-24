@@ -58,7 +58,7 @@ static uint8_t physical_awake(void)
     (((PORTK >> PK0) & 1) << 2) | (((PORTA >> PA2) & 1) << 3) |
     (((PORTC >> PC7) & 1) << 4);
 }
-static uint16_t transfer(uint8_t driver, uint16_t command)
+static uint16_t mock_exchange(uint8_t driver, uint16_t command)
 {
   uint8_t address = (command >> 12) & 7;
   assert(driver < 5);
@@ -79,17 +79,28 @@ static uint16_t transfer(uint8_t driver, uint16_t command)
   } else mock_registers[driver][address] = command & 0xfff;
   return 0;
 }
+static uint16_t transfer(uint8_t driver,uint16_t command)
+{
+  const uint16_t result=mock_exchange(driver,command);
+  #if RF2000_ADAPTIVE_MICROSTEPS
+  if (!initializing) {
+    /* Runtime writes use the fast transport; readback deliberately uses the
+     * settled startup transport. Both are frames of the same six-frame
+     * transaction and must retain every reset/alarm/fault injection point. */
+    assert(!(PORTF & (_BV(PF0)|_BV(PF3)|_BV(PF6))));
+    const unsigned frame=runtime_frames++;
+    if ((int)frame==runtime_reset_frame) sys_rt_exec_state|=EXEC_RESET;
+    if ((int)frame==runtime_alarm_frame) sys_rt_exec_alarm=1;
+    if ((int)frame==runtime_fault_frame) PINE=0;
+  }
+  #endif
+  return result;
+}
 #if RF2000_ADAPTIVE_MICROSTEPS
 static uint16_t fast_transfer(uint8_t driver,uint16_t command)
 {
   assert(!initializing);
-  assert(!(PORTF & (_BV(PF0)|_BV(PF3)|_BV(PF6))));
-  const uint16_t result=transfer(driver,command);
-  const unsigned frame=runtime_frames++;
-  if ((int)frame==runtime_reset_frame) sys_rt_exec_state|=EXEC_RESET;
-  if ((int)frame==runtime_alarm_frame) sys_rt_exec_alarm=1;
-  if ((int)frame==runtime_fault_frame) PINE=0;
-  return result;
+  return transfer(driver,command);
 }
 #endif
 """

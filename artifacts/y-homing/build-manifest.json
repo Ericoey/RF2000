@@ -49,7 +49,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "ed5454a6805f771b89f41f93b834d018b85820b3bbf3953216ba637e425b2f9a",
+    "grbl/grbl.h": "6900df7c9e9de86132be973975a4433c0600a8e76bcc30ce36847b7c2441cfc4",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "644591245f11e0934610fcffce578ae74ece7df9ce98ffacd9d1dcb1c56bb7e1",
@@ -73,7 +73,7 @@
     "grbl/rf2000_adaptive_stepper.inc": "d4c5a73bf2f2aef89f4c405dc2313b6e5e73e4b5df69b32307c8de48c9714966",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
-    "grbl/rf2000_drv8711.c": "5b4d480bcb5ee40fce30cb7b2210c03b061306a412913004ef6ec1be01ebd733",
+    "grbl/rf2000_drv8711.c": "e32d4527c5586d73fd3f26ae1335f6f66d10107c90ccc4768c9b426486d6068e",
     "grbl/rf2000_drv8711.h": "1749bca52a2f1914e5e58351a76be513baea38cf28103ab5232a3c9cf576ba6e",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
@@ -93,9 +93,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "b872d093b47349c4d03b24fb5e7599d0b22cf4d65b693b0f2c498b4e7301dd86",
+    "rf2000-grbl.elf": "8a3a1d3b3d9e186deecc9083f44346cdac989051f13223c524f27dce1958a8f0",
     "rf2000-grbl.hex": "3e49a78a7ec6aab11e64dccdc216a7c64c55af04f9141e68e7e8b617ee9dceaa",
-    "rf2000-grbl.map": "9ea4279c38e5017c240e1015dac6d1d6f28c3311e192ec4bc5571adf022fe44d"
+    "rf2000-grbl.map": "099cdc9fd0a30c144ecf787f399120aa4d4e54d8d6f2b88e52db8d8e82179676"
   },
   "hardware_authority": {
     "path": "references/repetier/Repetier/pins.h",
@@ -170,10 +170,10 @@
     "serial_y_homing_real_avr_cases": 13,
     "panel_log": "artifacts/panel-validation.log",
     "y_homing_log": "artifacts/y-homing-simulation.log",
-    "rebuilt_elf_sha256": "b872d093b47349c4d03b24fb5e7599d0b22cf4d65b693b0f2c498b4e7301dd86",
+    "rebuilt_elf_sha256": "8a3a1d3b3d9e186deecc9083f44346cdac989051f13223c524f27dce1958a8f0",
     "hex_unchanged_after_cnc_menu_and_recovery": true,
     "rebuild_evidence": "Current Y HEX remains byte-identical to the historically simulated program;13homing/14panel logs retain actual2026-10-19 ELF hash. Current rebuild changes debug/link metadata only; Y suites were not rerun.",
-    "rebuild_date": "2026-10-22",
+    "rebuild_date": "2026-10-24",
     "hex_unchanged_after_cnc_speed_optimization": true,
     "y_suites_rerun_for_this_rebuild": false,
     "hex_unchanged_after_adaptive_update": true

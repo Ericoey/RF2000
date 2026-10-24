@@ -366,7 +366,11 @@ bool rf2000_drivers_set_microstep_shift(uint8_t shift)
       (control[driver] & ~0x0078u) | ((uint16_t)(8u - shift) << 3);
     (void)fast_transfer(driver, next_control);
     if (!microstep_change_allowed()) return false;
-    const uint16_t observed = fast_transfer(driver, 0x8000u);
+    /* SDATO is open-drain and the board uses the weak AVR pull-up. Its
+     * released HIGH needs board-dependent RC settling, which the fast
+     * write clock cannot guarantee. Reuse the proven startup read timing;
+     * keep Timer1 paused and retain all readback/fault checks. */
+    const uint16_t observed = read_register(driver, 0);
     if ((observed ^ next_control) & readback_mask[0]) {
       ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
         readback_failed_mask |= (uint8_t)1u << driver;

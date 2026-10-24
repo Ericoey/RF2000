@@ -25,7 +25,7 @@
 // Grbl versioning system
 #define GRBL_VERSION "1.2i"
 #if defined(RF2000_CNC) && RF2000_CNC
-  #define GRBL_VERSION_BUILD "20261022-rf2000-cnc-adaptive"
+  #define GRBL_VERSION_BUILD "20261024-rf2000-cnc-adaptive-spi"
 #else
   #define GRBL_VERSION_BUILD "20261018-rf2000"
 #endif

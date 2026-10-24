@@ -9,7 +9,7 @@
   "physical_driver_count": 5,
   "reserve_enabled": false,
   "homing_verified": false,
-  "flash_bytes": 52130,
+  "flash_bytes": 52078,
   "static_sram_bytes": 3893,
   "compiler": "avr-gcc (GCC) 14.2.0",
   "upstream_commit": "baaa1be3fe6c33a287695bbd57121da0b2979d9c",
@@ -29,7 +29,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "ed5454a6805f771b89f41f93b834d018b85820b3bbf3953216ba637e425b2f9a",
+    "grbl/grbl.h": "6900df7c9e9de86132be973975a4433c0600a8e76bcc30ce36847b7c2441cfc4",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "644591245f11e0934610fcffce578ae74ece7df9ce98ffacd9d1dcb1c56bb7e1",
@@ -53,7 +53,7 @@
     "grbl/rf2000_adaptive_stepper.inc": "d4c5a73bf2f2aef89f4c405dc2313b6e5e73e4b5df69b32307c8de48c9714966",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
-    "grbl/rf2000_drv8711.c": "5b4d480bcb5ee40fce30cb7b2210c03b061306a412913004ef6ec1be01ebd733",
+    "grbl/rf2000_drv8711.c": "e32d4527c5586d73fd3f26ae1335f6f66d10107c90ccc4768c9b426486d6068e",
     "grbl/rf2000_drv8711.h": "1749bca52a2f1914e5e58351a76be513baea38cf28103ab5232a3c9cf576ba6e",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
@@ -73,9 +73,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874",
-    "rf2000-grbl.hex": "76cf303c2b2f0669ddd299685e699b9a8952a67cbde36c6ee957a566ddbf6483",
-    "rf2000-grbl.map": "6fc847dd30bac8b307bc07059a18a935f3dbb398796aaee9df6ab4e0498e0535"
+    "rf2000-grbl.elf": "23cbf1c7958ebbe14c228fa98c3372cf92aca5dccd540ad968af3f5dd6cf56e4",
+    "rf2000-grbl.hex": "f58d65f97b04cd9ad0b6fad268a5a77bc45709a05e9e07536729f348c68118c7",
+    "rf2000-grbl.map": "d4e6e52beb24229a0e6c5eda9925a2eeea0deecc829d7a99b5d173264cc83462"
   },
   "hardware_test_performed": false,
   "hardware_authority": {
@@ -139,27 +139,21 @@
     "documentation": "docs/bedienfeld-menue.md"
   },
   "validation": {
-    "date": "2026-10-23",
+    "date": "2026-10-24",
     "status": "Passed; final actual-AVR simulator runs completed with exit0. No physical hardware test.",
     "adaptive_log": "artifacts/adaptive-simulation.log",
-    "menu_log": "artifacts/menu-simulation.log",
-    "limit_release_log": "artifacts/recovery-simulation.log",
-    "homing_wait_log": "artifacts/homing-wait-simulation.log",
     "standard_make_check": "Passed on current standard-profile ELF, exit0; artifacts/validation.log",
     "host_settings_migration": "Passed actual production settings/planner functions under ASAN/UBSAN; 88 cutoffs for each old version74 and75 plus88 current writes (264 total);1000mm/min path/axis/homing caps and physical-pulse budget verified.",
     "host_quantizer_and_hysteresis": "897036 cases passed; tools/test_rf2000_adaptive_math.py",
     "simavr_eeprom_model": "Fixture supplements missing EEPM erase-only/write-only behavior in simavr1.6; production EEPROM code unchanged.",
     "hardware_test_performed": false,
-    "tested_elf_sha256": "148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874",
-    "adaptive_real_avr_cases": 27,
+    "tested_elf_sha256": "23cbf1c7958ebbe14c228fa98c3372cf92aca5dccd540ad968af3f5dd6cf56e4",
+    "adaptive_real_avr_cases": 28,
     "host_log": "artifacts/adaptive-host-validation.log",
-    "menu_real_avr_groups": 8,
-    "limit_release_real_avr_cases": 20,
-    "staggered_homing_real_avr_cases": 2,
-    "total_current_elf_cases": 57,
-    "all_57_cases_same_elf": true,
-    "adaptive_execution": "26 cases together plus the added EEPROM migration case separately, same final ELF; both exit0.",
-    "gsender_detection": "Actual Make-ELF UART handshake passed real gSender1.6.4 Connection detector and negative fallback control; artifacts/gsender-detection.log"
+    "total_current_elf_cases": 28,
+    "adaptive_execution": "All28 adaptive cases together on this exact ELF, exit0; includes synthetic1us open-drain released-HIGH regression.",
+    "gsender_detection": "Actual Make-ELF UART handshake passed real gSender1.6.4 Connection detector and negative fallback control; artifacts/gsender-detection.log",
+    "spi_readback_regression": "Old official929f552 PIO ELF fails with synthetic1us SDATO HIGH rise; fixedPIO passes same case; artifacts/spi-readback-regression.log. Model evidence, not measured hardware rise time."
   },
   "platformio_default_environment": "rf2000_cnc",
   "profile": "rf2000_cnc",
@@ -265,7 +259,7 @@
     ],
     "steps_per_mm_units": "Fixed virtual1/256 coordinate units/mm; independent of current physical microstep MODE."
   },
-  "firmware_identification": "20261022-rf2000-cnc-adaptive; $I retains standard Grbl-Mega-5X identification for gSender.",
+  "firmware_identification": "20261024-rf2000-cnc-adaptive-spi; $I retains standard Grbl-Mega-5X identification for gSender.",
   "mechanics": {
     "basis": "User-specified SFU1605/2:1 mechanics on XYZ. Prior Y travel at1/32 and2560steps/mm was user-confirmed; current adaptive travel and X/Z not physically measured.",
     "motor_full_steps_per_revolution": 200,
@@ -349,7 +343,7 @@
     "nominal_endpoint_quantization_residual_max_virtual_units_per_axis": 31,
     "endpoint_residual_bound_is_whole_path_accuracy_claim": false,
     "phase_tracking": "Separate low8 electrical-phase bits start at128 after actual shared DRV RESET; update only for GPIO rising edges actually emitted. Soft reset, sleep and homing coordinate rebases do not reset phase.",
-    "mode_transition": "Timer1 pulse-idle barrier; foreground fast CTRL write/readback forXYZ with Timer2/UART/INT6 enabled. Timer1 resumes only after all verified reads and fresh fault/reset checks.",
+    "mode_transition": "Timer1 pulse-idle barrier; foreground fast CTRL writes, then slower startup transport CTRL readback forXYZ with Timer2/UART/INT6 enabled; no STEP until all registers verified.",
     "interrupted_mode_transition": "Cache becomes0xFF (unknown) until successful XYZ readback synchronization; old segment metadata cannot execute through partial update.",
     "tail_correction": "At normal zero-velocity junction/end/controlled hold, residual is resolved at1/256 and nominal<=6000finepulses/s; no correction motion after alarm/reset.",
     "homing": "One fixed profile perphase: default1/32, coarser1/16 or1/8 selected for elevated homing rate; masks update actual position/phase only for emitted STEP.",
@@ -363,10 +357,11 @@
       "MAX=1000",
       "PULSE_MAX=12000"
     ],
-    "documentation": "docs/adaptive-mikroschritte.md"
+    "documentation": "docs/adaptive-mikroschritte.md",
+    "runtime_spi_read_timing": "Open-drain SDATO HIGH settling uses the same read_register() path as startup, not fast_transfer(). Readback/fault checks are retained."
   },
   "elf_sections_bytes": {
-    ".text": 52004,
+    ".text": 51952,
     ".data": 126,
     ".bss": 3767
   },

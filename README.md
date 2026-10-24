@@ -56,7 +56,7 @@ pio run
 Das HEX liegt anschließend unter `.pio/build/rf2000_cnc/firmware.hex`.
 Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 Das adaptive CNC-Profil wurde in der Cloud auch mit dem festgelegten
-PlatformIO-AVR-GCC 7.3.0 erfolgreich gebaut (50.958 Byte Flash, 3.893 Byte
+PlatformIO-AVR-GCC 7.3.0 erfolgreich gebaut (50.912 Byte Flash, 3.893 Byte
 statisches SRAM). Softwareprüfungen werden dem tatsächlich geprüften ELF
 zugeordnet: [Prüfbericht](docs/validation.md).
 
@@ -69,7 +69,7 @@ pio device monitor --port /dev/cu.usbserial-AL03P2K9
 ```
 
 Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-115200 Baud** verbinden. `$I` enthält `20261022-rf2000-cnc-adaptive`.
+115200 Baud** verbinden. `$I` enthält `20261024-rf2000-cnc-adaptive-spi`.
 **Vor der ersten Bewegung die [EEPROM-Migration prüfen](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).**
 Die CNC-Versionen 74 und 75 werden auf **76** umgerechnet. Danach gelten
 nominal **20480/20480/20480 Einheiten/mm**, vorhandene Feinabgleiche werden

@@ -79,124 +79,124 @@ Archive member included to satisfy reference by file (symbol)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrev.o)
                               /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(ultoa_ncheck.o) (strrev)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cmpsf2.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__eqsf2)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__eqsf2)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__fixsfsi)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__fixsfsi)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__fixunssfsi)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__fixunssfsi)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floatsisf.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__floatunsisf)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__floatunsisf)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_cmp.o)
                               /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cmpsf2.o) (__fp_cmp)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__gesf2)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__gesf2)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__mulsi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__mulsi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__udivmodqi4)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__udivmodqi4)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__udivmodhi4)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__udivmodhi4)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__divmodhi4)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__divmodhi4)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__udivmodsi4)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__udivmodsi4)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__tablejump2__)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__tablejump2__)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__do_copy_data)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__do_copy_data)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__do_clear_bss)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__do_clear_bss)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__muluhisi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__muluhisi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulsidi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__umulsidi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__umulsidi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivdi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__udivdi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__udivdi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmod64.o)
                               /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivdi3.o) (__udivmod64)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negdi2.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__negdi2)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__negdi2)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ashrdi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__lshrdi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__lshrdi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_adddi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__adddi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__adddi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_adddi3_s8.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__adddi3_s8)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__adddi3_s8)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_subdi3.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__subdi3)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__subdi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_cmpdi2.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__cmpdi2)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__cmpdi2)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_cmpdi2_s8.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (__cmpdi2_s8)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (__cmpdi2_s8)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
                               /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o) (__umulhisi3)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muldi3_6.o)
                               /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulsidi3.o) (__muldi3_6)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memchr.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (memchr)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (memchr)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcmp.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (memcmp)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (memcmp)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (memcpy)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (memcpy)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (memmove)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (memmove)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (memset)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (memset)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (strcmp)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (strcmp)
 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
-                              /tmp/ccRUUQEf.ltrans0.ltrans.o (strcpy)
+                              /tmp/ccAwN5fO.ltrans0.ltrans.o (strcpy)
 
 Discarded input sections
 
  .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
  .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
- .text          0x00000000        0x0 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .data          0x00000000        0x0 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss           0x00000000        0x0 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .debug_info    0x00000000       0x6c /tmp/ccI2zc3q.debug.temp.o
- .debug_abbrev  0x00000000       0x26 /tmp/ccI2zc3q.debug.temp.o
- .debug_line    0x00000000       0x31 /tmp/ccI2zc3q.debug.temp.o
- .debug_str     0x00000000      0x105 /tmp/ccI2zc3q.debug.temp.o
+ .text          0x00000000        0x0 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .data          0x00000000        0x0 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss           0x00000000        0x0 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .debug_info    0x00000000       0x6c /tmp/ccHqyZcj.debug.temp.o
+ .debug_abbrev  0x00000000       0x26 /tmp/ccHqyZcj.debug.temp.o
+ .debug_line    0x00000000       0x31 /tmp/ccHqyZcj.debug.temp.o
+ .debug_str     0x00000000      0x105 /tmp/ccHqyZcj.debug.temp.o
  .debug_line_str
-                0x00000000       0x28 /tmp/ccI2zc3q.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccI2zc3q.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccjiOnyt.debug.temp.o
- .debug_info    0x00000000      0x1c3 /tmp/ccJ0Q9UO.debug.temp.o
- .debug_abbrev  0x00000000       0xf6 /tmp/ccJ0Q9UO.debug.temp.o
- .debug_line    0x00000000       0x52 /tmp/ccJ0Q9UO.debug.temp.o
- .debug_str     0x00000000      0x255 /tmp/ccJ0Q9UO.debug.temp.o
+                0x00000000       0x28 /tmp/ccHqyZcj.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccHqyZcj.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cczLU8hV.debug.temp.o
+ .debug_info    0x00000000      0x1c3 /tmp/ccNii5jJ.debug.temp.o
+ .debug_abbrev  0x00000000       0xf6 /tmp/ccNii5jJ.debug.temp.o
+ .debug_line    0x00000000       0x52 /tmp/ccNii5jJ.debug.temp.o
+ .debug_str     0x00000000      0x255 /tmp/ccNii5jJ.debug.temp.o
  .debug_line_str
-                0x00000000       0x96 /tmp/ccJ0Q9UO.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccJ0Q9UO.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccyW5t4J.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccHKzofS.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cc6zTX2T.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccSVXZPH.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cceyIjDx.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccqF6RlT.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccOfBCnh.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccGMMJgi.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccBO0SlB.debug.temp.o
- .debug_info    0x00000000      0x100 /tmp/cchiyH2q.debug.temp.o
- .debug_abbrev  0x00000000       0xb8 /tmp/cchiyH2q.debug.temp.o
- .debug_line    0x00000000       0x48 /tmp/cchiyH2q.debug.temp.o
- .debug_str     0x00000000      0x1c2 /tmp/cchiyH2q.debug.temp.o
+                0x00000000       0x96 /tmp/ccNii5jJ.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccNii5jJ.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccukaOnG.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccKrpdks.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccdYzH5I.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccNJ1wYU.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccijX42d.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccwIXaEa.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccyi3uqE.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccu0Vgee.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccZYgjhF.debug.temp.o
+ .debug_info    0x00000000      0x100 /tmp/cchqNywC.debug.temp.o
+ .debug_abbrev  0x00000000       0xb8 /tmp/cchqNywC.debug.temp.o
+ .debug_line    0x00000000       0x48 /tmp/cchqNywC.debug.temp.o
+ .debug_str     0x00000000      0x1c2 /tmp/cchqNywC.debug.temp.o
  .debug_line_str
-                0x00000000       0x68 /tmp/cchiyH2q.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cchiyH2q.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccpo7lST.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cc597zTs.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cchYrDqW.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccxnMhr2.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccBLrlpE.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cc6cny9I.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccUD0epx.debug.temp.o
- .comment       0x00000000       0x13 /tmp/cc4r7cxT.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccF0dFzQ.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccqY6BNF.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccqfyLc9.debug.temp.o
- .comment       0x00000000       0x13 /tmp/ccADK3LV.debug.temp.o
+                0x00000000       0x68 /tmp/cchqNywC.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cchqNywC.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccblFoSI.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccEgq8kJ.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccPkYSVr.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccY67TJq.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cccBjJEr.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cctE42FH.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccbe3xeq.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cc9D4OYV.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cc6e0DhD.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cc0LDnpa.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/ccpnM1Lf.debug.temp.o
+ .comment       0x00000000       0x13 /tmp/cc4Xvk9B.debug.temp.o
  .text          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
  .data          0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
  .bss           0x00000000        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
@@ -689,32 +689,32 @@ Linker script and memory map
 Address of section .data set to 0x800200
 LOAD /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
 LOAD build/cnc/analog_control.o
-LOAD /tmp/ccRUUQEf.ltrans0.ltrans.o
-LOAD /tmp/ccI2zc3q.debug.temp.o
-LOAD /tmp/ccjiOnyt.debug.temp.o
-LOAD /tmp/ccJ0Q9UO.debug.temp.o
-LOAD /tmp/ccyW5t4J.debug.temp.o
-LOAD /tmp/ccHKzofS.debug.temp.o
-LOAD /tmp/cc6zTX2T.debug.temp.o
-LOAD /tmp/ccSVXZPH.debug.temp.o
-LOAD /tmp/cceyIjDx.debug.temp.o
-LOAD /tmp/ccqF6RlT.debug.temp.o
-LOAD /tmp/ccOfBCnh.debug.temp.o
-LOAD /tmp/ccGMMJgi.debug.temp.o
-LOAD /tmp/ccBO0SlB.debug.temp.o
-LOAD /tmp/cchiyH2q.debug.temp.o
-LOAD /tmp/ccpo7lST.debug.temp.o
-LOAD /tmp/cc597zTs.debug.temp.o
-LOAD /tmp/cchYrDqW.debug.temp.o
-LOAD /tmp/ccxnMhr2.debug.temp.o
-LOAD /tmp/ccBLrlpE.debug.temp.o
-LOAD /tmp/cc6cny9I.debug.temp.o
-LOAD /tmp/ccUD0epx.debug.temp.o
-LOAD /tmp/cc4r7cxT.debug.temp.o
-LOAD /tmp/ccF0dFzQ.debug.temp.o
-LOAD /tmp/ccqY6BNF.debug.temp.o
-LOAD /tmp/ccqfyLc9.debug.temp.o
-LOAD /tmp/ccADK3LV.debug.temp.o
+LOAD /tmp/ccAwN5fO.ltrans0.ltrans.o
+LOAD /tmp/ccHqyZcj.debug.temp.o
+LOAD /tmp/cczLU8hV.debug.temp.o
+LOAD /tmp/ccNii5jJ.debug.temp.o
+LOAD /tmp/ccukaOnG.debug.temp.o
+LOAD /tmp/ccKrpdks.debug.temp.o
+LOAD /tmp/ccdYzH5I.debug.temp.o
+LOAD /tmp/ccNJ1wYU.debug.temp.o
+LOAD /tmp/ccijX42d.debug.temp.o
+LOAD /tmp/ccwIXaEa.debug.temp.o
+LOAD /tmp/ccyi3uqE.debug.temp.o
+LOAD /tmp/ccu0Vgee.debug.temp.o
+LOAD /tmp/ccZYgjhF.debug.temp.o
+LOAD /tmp/cchqNywC.debug.temp.o
+LOAD /tmp/ccblFoSI.debug.temp.o
+LOAD /tmp/ccEgq8kJ.debug.temp.o
+LOAD /tmp/ccPkYSVr.debug.temp.o
+LOAD /tmp/ccY67TJq.debug.temp.o
+LOAD /tmp/cccBjJEr.debug.temp.o
+LOAD /tmp/cctE42FH.debug.temp.o
+LOAD /tmp/ccbe3xeq.debug.temp.o
+LOAD /tmp/cc9D4OYV.debug.temp.o
+LOAD /tmp/cc6e0DhD.debug.temp.o
+LOAD /tmp/cc0LDnpa.debug.temp.o
+LOAD /tmp/ccpnM1Lf.debug.temp.o
+LOAD /tmp/cc4Xvk9B.debug.temp.o
 LOAD build/cnc/coolant_control.o
 LOAD build/cnc/digital_control.o
 LOAD build/cnc/eeprom.o
@@ -846,7 +846,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0xcb24
+.text           0x00000000     0xcaf0
  *(.vectors)
  .vectors       0x00000000       0xe4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
                 0x00000000                __vectors
@@ -863,321 +863,321 @@ END GROUP
  *libc.a:*(.progmem.data)
  *(.progmem.*)
  .progmem.data.__c.0.lto_priv.0
-                0x000001fc       0x2a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000001fc       0x2a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.39.lto_priv.0
-                0x00000226       0x3e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000226       0x3e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.40.lto_priv.0
-                0x00000264       0x4d /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000264       0x4d /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.27.lto_priv.0
-                0x000002b1        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002b1        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.26.lto_priv.0
-                0x000002b4        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002b4        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.28.lto_priv.0
-                0x000002b7        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002b7        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.29.lto_priv.0
-                0x000002ba        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002ba        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.30.lto_priv.0
-                0x000002bd        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002bd        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.31.lto_priv.0
-                0x000002c0        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002c0        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.32.lto_priv.0
-                0x000002c4        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002c4        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.0.lto_priv.2
-                0x000002ca        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002ca        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.33.lto_priv.0
-                0x000002ce        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002ce        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.34.lto_priv.0
-                0x000002d4        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002d4        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.35.lto_priv.0
-                0x000002da        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002da        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.36.lto_priv.0
-                0x000002dd        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002dd        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.37.lto_priv.0
-                0x000002e0        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002e0        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.20.lto_priv.0
-                0x000002e3        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002e3        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.21.lto_priv.0
-                0x000002e9        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002e9        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.22.lto_priv.0
-                0x000002eb        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002eb        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.23.lto_priv.0
-                0x000002f1       0x28 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000002f1       0x2c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.24.lto_priv.0
-                0x00000319       0x1c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000031d       0x1c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.25.lto_priv.0
-                0x00000335        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000339        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.0.lto_priv.5
-                0x00000338        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000033c        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.1.lto_priv.3
-                0x0000033c        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000340        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.2.lto_priv.3
-                0x00000345        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000349        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.3.lto_priv.3
-                0x0000034e        0xb /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000352        0xb /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.4.lto_priv.3
-                0x00000359        0x8 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000035d        0x8 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.5.lto_priv.3
-                0x00000361        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000365        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.6.lto_priv.3
-                0x0000036d       0x1d /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000371       0x1d /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.7.lto_priv.3
-                0x0000038a       0x17 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000038e       0x17 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.1.lto_priv.1
-                0x000003a1       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000003a5       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.2.lto_priv.1
-                0x000003b3        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000003b7        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.3.lto_priv.1
-                0x000003bc        0xb /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000003c0        0xb /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.4.lto_priv.1
-                0x000003c7       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000003cb       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.5.lto_priv.1
-                0x000003db       0x11 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000003df       0x11 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.7.lto_priv.1
-                0x000003ec       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000003f0       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.6.lto_priv.1
-                0x00000401       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000405       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.8.lto_priv.1
-                0x00000416        0xd /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000041a        0xd /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.9.lto_priv.1
-                0x00000423       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000427       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.axes.10
-                0x00000435       0x50 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000439       0x50 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.labels.11
-                0x00000485       0xa0 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000489       0xa0 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.13.lto_priv.1
-                0x00000525        0xe /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000529        0xe /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.12.lto_priv.1
-                0x00000533       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000537       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.14.lto_priv.1
-                0x00000546        0xa /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000054a        0xa /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.15.lto_priv.1
-                0x00000550       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000554       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.16.lto_priv.1
-                0x00000565        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000569        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.17.lto_priv.1
-                0x00000571        0xd /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000575        0xd /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.18.lto_priv.1
-                0x0000057e        0xd /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000582        0xd /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.19
-                0x0000058b       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000058f       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.20.lto_priv.1
-                0x0000059b       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000059f       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.21.lto_priv.1
-                0x000005ab       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000005af       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.22.lto_priv.1
-                0x000005be        0x8 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000005c2        0x8 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.28.lto_priv.1
-                0x000005c6       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000005ca       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.25.lto_priv.1
-                0x000005d6       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000005da       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.26.lto_priv.1
-                0x000005e6       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000005ea       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.24.lto_priv.1
-                0x000005f6       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000005fa       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.27.lto_priv.1
-                0x00000606       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000060a       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.23.lto_priv.1
-                0x00000616        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000061a        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.31.lto_priv.1
-                0x00000619        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000061d        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.32.lto_priv.1
-                0x00000622        0x7 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000626        0x7 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.30.lto_priv.1
-                0x00000629        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000062d        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.29.lto_priv.1
-                0x00000635        0xb /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000639        0xb /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.33.lto_priv.1
-                0x00000640        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000644        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.34.lto_priv.1
-                0x00000645       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000649       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.35.lto_priv.1
-                0x00000658        0xd /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000065c        0xd /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.36.lto_priv.1
-                0x00000665        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000669        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.43.lto_priv.1
-                0x00000674        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000678        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.40.lto_priv.1
-                0x0000067d        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000681        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.37.lto_priv.1
-                0x00000686        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000068a        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.45.lto_priv.1
-                0x0000068f        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000693        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.38.lto_priv.1
-                0x00000698        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000069c        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.39.lto_priv.1
-                0x000006a1        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006a5        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.41.lto_priv.1
-                0x000006aa        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006ae        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.42.lto_priv.1
-                0x000006b3        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006b7        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.44.lto_priv.1
-                0x000006bc        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006c0        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.46.lto_priv.1
-                0x000006c5       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006c9       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.47.lto_priv.1
-                0x000006da       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006de       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.48.lto_priv.1
-                0x000006ed       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000006f1       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.50.lto_priv.1
-                0x000006fd       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000701       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.49.lto_priv.1
-                0x00000710       0x11 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000714       0x11 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.51.lto_priv.1
-                0x00000721       0x11 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000725       0x11 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.52.lto_priv.1
-                0x00000732       0x11 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000736       0x11 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.53.lto_priv.1
-                0x00000743       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000747       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.54.lto_priv.1
-                0x00000756        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000075a        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.55.lto_priv.1
-                0x00000765        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000769        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.56.lto_priv.1
-                0x00000774       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000778       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.57.lto_priv.1
-                0x00000788       0x11 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000078c       0x11 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.58
-                0x00000799       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000079d       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.59
-                0x000007ab       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000007af       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.60
-                0x000007c0       0x11 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000007c4       0x11 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.61
-                0x000007d1        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000007d5        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.62
-                0x000007e0        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000007e4        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.63
-                0x000007ef       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000007f3       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.64
-                0x00000801        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000805        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.65
-                0x00000810       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000814       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.66
-                0x00000822       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000826       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.67
-                0x00000832       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000836       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.0.lto_priv.3
-                0x00000846        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000084a        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.56.lto_priv.0
-                0x0000084f        0x7 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000853        0x7 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.2.lto_priv.0
-                0x00000856        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000085a        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.3.lto_priv.0
-                0x0000085b        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000085f        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.4.lto_priv.0
-                0x00000861        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000865        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.5.lto_priv.0
-                0x00000866        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000086a        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.6.lto_priv.0
-                0x0000086b        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000086f        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.7.lto_priv.0
-                0x00000870        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000874        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.8.lto_priv.0
-                0x00000875        0x7 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000879        0x7 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.9.lto_priv.0
-                0x0000087c        0x7 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000880        0x7 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.10
-                0x00000883        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000887        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.11
-                0x00000889        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000088d        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.12.lto_priv.0
-                0x0000088f        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000893        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.13.lto_priv.0
-                0x00000895        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000899        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.14.lto_priv.0
-                0x0000089b        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000089f        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.15.lto_priv.0
-                0x000008a0        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008a4        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.16.lto_priv.0
-                0x000008a4        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008a8        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.17.lto_priv.0
-                0x000008aa        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008ae        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.18.lto_priv.0
-                0x000008ae        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008b2        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.38.lto_priv.0
-                0x000008b3        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008b7        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.54.lto_priv.0
-                0x000008b9        0x7 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008bd        0x7 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.55.lto_priv.0
-                0x000008c0        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008c4        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.1.lto_priv.2
-                0x000008c3       0x42 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000008c7       0x42 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.2.lto_priv.2
-                0x00000905       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000909       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.3.lto_priv.2
-                0x0000091a       0x2e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000091e       0x2e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.4.lto_priv.2
-                0x00000948       0x15 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000094c       0x15 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.5.lto_priv.2
-                0x0000095d       0x2e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000961       0x2e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.6.lto_priv.2
-                0x0000098b       0x24 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000098f       0x24 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.7.lto_priv.2
-                0x000009af       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000009b3       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.defaults
-                0x000009c3       0x55 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000009c7       0x55 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.0.lto_priv.4
-                0x00000a18       0x3c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000a1c       0x3c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.41.lto_priv.0
-                0x00000a54       0x1d /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000a58       0x1d /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.57.lto_priv.0
-                0x00000a71        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000a75        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.step_labels
-                0x00000a76        0xf /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000a7a        0xf /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.0.lto_priv.1
-                0x00000a85       0x3d /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000a89       0x3d /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.42.lto_priv.0
-                0x00000ac2        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000ac6        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.43.lto_priv.0
-                0x00000acb       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000acf       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.44.lto_priv.0
-                0x00000add       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000ae1       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.45.lto_priv.0
-                0x00000af0        0x8 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000af4        0x8 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.46.lto_priv.0
-                0x00000af8        0xd /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000afc        0xd /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.47.lto_priv.0
-                0x00000b05        0xb /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000b09        0xb /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.48.lto_priv.0
-                0x00000b10        0x9 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000b14        0x9 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.49.lto_priv.0
-                0x00000b19        0x8 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000b1d        0x8 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.50.lto_priv.0
-                0x00000b21       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000b25       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.51.lto_priv.0
-                0x00000b33       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000b37       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.52.lto_priv.0
-                0x00000b47       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000b4b       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .progmem.data.__c.53.lto_priv.0
-                0x00000b59        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x00000b60                        . = ALIGN (0x2)
- *fill*         0x00000b5f        0x1 
+                0x00000b5d        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x00000b64                        . = ALIGN (0x2)
+ *fill*         0x00000b63        0x1 
  *(.lowtext)
  *(.lowtext*)
-                0x00000b60                        __ctors_start = .
+                0x00000b64                        __ctors_start = .
  *(.ctors)
-                0x00000b60                        __ctors_end = .
-                0x00000b60                        __dtors_start = .
+                0x00000b64                        __ctors_end = .
+                0x00000b64                        __dtors_start = .
  *(.dtors)
-                0x00000b60                        __dtors_end = .
+                0x00000b64                        __dtors_end = .
  SORT_BY_NAME(*)(.ctors)
  SORT_BY_NAME(*)(.dtors)
  *(.init0)
- .init0         0x00000b60        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
-                0x00000b60                __init
+ .init0         0x00000b64        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+                0x00000b64                __init
  *(.init0)
  *(.init1)
  *(.init1)
  *(.init2)
- .init2         0x00000b60       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .init2         0x00000b64       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
  *(.init2)
  *(.init3)
  *(.init3)
  *(.init4)
- .init4         0x00000b70       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
-                0x00000b70                __do_copy_data
- .init4         0x00000b8a       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
-                0x00000b8a                __do_clear_bss
+ .init4         0x00000b74       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_copy_data.o)
+                0x00000b74                __do_copy_data
+ .init4         0x00000b8e       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_clear_bss.o)
+                0x00000b8e                __do_clear_bss
  *(.init4)
  *(.init5)
  *(.init5)
@@ -1188,527 +1188,525 @@ END GROUP
  *(.init8)
  *(.init8)
  *(.init9)
- .init9         0x00000b9a        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+ .init9         0x00000b9e        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
  *(.init9)
  *(.text)
- .text          0x00000ba2        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
-                0x00000ba2                __vector_38
-                0x00000ba2                __vector_22
-                0x00000ba2                __vector_28
-                0x00000ba2                __vector_1
-                0x00000ba2                __vector_32
-                0x00000ba2                __vector_34
-                0x00000ba2                __vector_24
-                0x00000ba2                __vector_12
-                0x00000ba2                __vector_55
-                0x00000ba2                __vector_46
-                0x00000ba2                __bad_interrupt
-                0x00000ba2                __vector_6
-                0x00000ba2                __vector_31
-                0x00000ba2                __vector_39
-                0x00000ba2                __vector_3
-                0x00000ba2                __vector_30
-                0x00000ba2                __vector_45
-                0x00000ba2                __vector_11
-                0x00000ba2                __vector_54
-                0x00000ba2                __vector_19
-                0x00000ba2                __vector_56
-                0x00000ba2                __vector_49
-                0x00000ba2                __vector_41
-                0x00000ba2                __vector_43
-                0x00000ba2                __vector_27
-                0x00000ba2                __vector_5
-                0x00000ba2                __vector_33
-                0x00000ba2                __vector_47
-                0x00000ba2                __vector_52
-                0x00000ba2                __vector_37
-                0x00000ba2                __vector_4
-                0x00000ba2                __vector_44
-                0x00000ba2                __vector_51
-                0x00000ba2                __vector_9
-                0x00000ba2                __vector_2
-                0x00000ba2                __vector_15
-                0x00000ba2                __vector_36
-                0x00000ba2                __vector_29
-                0x00000ba2                __vector_40
-                0x00000ba2                __vector_8
-                0x00000ba2                __vector_48
-                0x00000ba2                __vector_14
-                0x00000ba2                __vector_53
-                0x00000ba2                __vector_10
-                0x00000ba2                __vector_50
-                0x00000ba2                __vector_16
-                0x00000ba2                __vector_18
-                0x00000ba2                __vector_20
-                0x00000ba2                __vector_42
-                0x00000ba6                        . = ALIGN (0x2)
+ .text          0x00000ba6        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
+                0x00000ba6                __vector_38
+                0x00000ba6                __vector_22
+                0x00000ba6                __vector_28
+                0x00000ba6                __vector_1
+                0x00000ba6                __vector_32
+                0x00000ba6                __vector_34
+                0x00000ba6                __vector_24
+                0x00000ba6                __vector_12
+                0x00000ba6                __vector_55
+                0x00000ba6                __vector_46
+                0x00000ba6                __bad_interrupt
+                0x00000ba6                __vector_6
+                0x00000ba6                __vector_31
+                0x00000ba6                __vector_39
+                0x00000ba6                __vector_3
+                0x00000ba6                __vector_30
+                0x00000ba6                __vector_45
+                0x00000ba6                __vector_11
+                0x00000ba6                __vector_54
+                0x00000ba6                __vector_19
+                0x00000ba6                __vector_56
+                0x00000ba6                __vector_49
+                0x00000ba6                __vector_41
+                0x00000ba6                __vector_43
+                0x00000ba6                __vector_27
+                0x00000ba6                __vector_5
+                0x00000ba6                __vector_33
+                0x00000ba6                __vector_47
+                0x00000ba6                __vector_52
+                0x00000ba6                __vector_37
+                0x00000ba6                __vector_4
+                0x00000ba6                __vector_44
+                0x00000ba6                __vector_51
+                0x00000ba6                __vector_9
+                0x00000ba6                __vector_2
+                0x00000ba6                __vector_15
+                0x00000ba6                __vector_36
+                0x00000ba6                __vector_29
+                0x00000ba6                __vector_40
+                0x00000ba6                __vector_8
+                0x00000ba6                __vector_48
+                0x00000ba6                __vector_14
+                0x00000ba6                __vector_53
+                0x00000ba6                __vector_10
+                0x00000ba6                __vector_50
+                0x00000ba6                __vector_16
+                0x00000ba6                __vector_18
+                0x00000ba6                __vector_20
+                0x00000ba6                __vector_42
+                0x00000baa                        . = ALIGN (0x2)
  *(.text.*)
  .text.eeprom_get_char
-                0x00000ba6       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000baa       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.eeprom_put_char
-                0x00000bb8       0x44 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000bbc       0x44 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.memcpy_to_eeprom_with_checksum
-                0x00000bfc       0x62 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000c00       0x62 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.memcpy_from_eeprom_with_checksum
-                0x00000c5e       0x74 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000c62       0x74 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_limits_raw_state
-                0x00000cd2       0x1a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000cd6       0x1a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.limits_init
-                0x00000cec       0x66 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000cf0       0x66 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.limits_get_state
-                0x00000d52       0x28 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000d56       0x28 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.read_float
-                0x00000d7a      0x158 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000d7e      0x158 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.limit_value_by_axis_maximum
-                0x00000ed2       0xb4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000ed6       0xb4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.plan_get_current_block
-                0x00000f86       0x20 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000f8a       0x20 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.plan_compute_profile_nominal_speed
-                0x00000fa6      0x114 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000faa      0x114 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.plan_sync_position
-                0x000010ba       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000010be       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_board_outputs_off
-                0x000010ce       0x28 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000010d2       0x28 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_drivers_disable
-                0x000010f6       0x1e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000010fa       0x1e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.latch_pin_fault
-                0x00001114       0x18 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001118       0x18 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_drivers_fault_active
-                0x0000112c       0x1c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001130       0x1c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_drivers_ready
-                0x00001148       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000114c       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.limits_motion_allowed
-                0x0000115c       0x3e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001160       0x3e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.microstep_change_allowed
-                0x0000119a       0x34 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000119e       0x34 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.read_keys
-                0x000011ce       0x48 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000011d2       0x48 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.two_digits
-                0x00001216       0x22 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000121a       0x22 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_panel_note_alarm.part.0
-                0x00001238       0x46 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000123c       0x46 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.serial_get_rx_buffer_available
-                0x0000127e       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001282       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.serial_write
-                0x00001292       0x32 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001296       0x32 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.printString
-                0x000012c4       0x18 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000012c8       0x18 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.printPgmString
-                0x000012dc       0x1c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000012e0       0x1c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_util_line_feed
-                0x000012f8        0x8 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000012fc        0x8 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.print_uint8_base10
-                0x00001300       0x4a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001304       0x4a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_status_message.part.0
-                0x0000134a       0x18 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000134e       0x18 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_status_message
-                0x00001362       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001366       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.print_uint16_base10
-                0x00001372       0xa6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001376       0xa6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.print_uint32_base10
-                0x00001418       0xdc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000141c       0xdc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.printFloat
-                0x000014f4      0x15c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000014f8      0x15c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.printFloat_CoordValue
-                0x00001650       0x24 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001654       0x24 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.printFloat_RateValue
-                0x00001674       0x24 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001678       0x24 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_util_feedback_line_feed
-                0x00001698        0xa /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000169c        0xa /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_util_axis_values
-                0x000016a2       0x34 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000016a6       0x34 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_util_uint8_setting
-                0x000016d6       0x28 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000016da       0x28 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_util_float_setting
-                0x000016fe       0x44 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001702       0x44 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_grbl_settings
-                0x00001742      0x230 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001746      0x230 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.printDgState
-                0x00001972       0x2e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001976       0x2e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.write_global_settings
-                0x000019a0       0x24 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000019a4       0x24 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_stepper_active_axes
-                0x000019c4       0x4e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000019c8       0x4e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_stop_step_outputs
-                0x00001a12       0x2a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001a16       0x2a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf_adaptive_plan_physical
-                0x00001a3c      0x3e2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001a40      0x3e2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.st_generate_step_dir_invert_masks
-                0x00001e1e       0x42 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001e22       0x42 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.st_update_plan_block_parameters
-                0x00001e60       0x48 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001e64       0x48 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.planner_recalculate
-                0x00001ea8      0x30a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00001eac      0x30a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_convert_array_steps_to_mpos
-                0x000021b2       0x78 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000021b6       0x78 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.gc_sync_position
-                0x0000222a        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000222e        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_probe_parameters
-                0x00002236       0x52 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000223a       0x52 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_realtime_status
-                0x00002288      0x37e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000228c      0x37e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_check_travel_limits
-                0x00002606       0x9a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000260a       0x9a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_set_exec_state_flag
-                0x000026a0       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000026a4       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.protocol_auto_cycle_start
-                0x000026b4       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000026b8       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_clear_exec_state_flag
-                0x000026c4       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000026c8       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_set_exec_alarm
-                0x000026d8        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000026dc        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_set_exec_motion_override_flag
-                0x000026e4       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000026e8       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_set_exec_accessory_override_flag
-                0x000026f8       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000026fc       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.plan_reset
-                0x0000270c       0x22 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .text.row_P    0x0000272e       0x46 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002710       0x22 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .text.row_P    0x00002732       0x46 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.convert_delta_vector_to_unit_vector
-                0x00002774       0xf6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002778       0xf6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.plan_buffer_line
-                0x0000286a      0x610 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000286e      0x610 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.st_go_idle
-                0x00002e7a       0x7c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002e7e       0x7c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.mc_reset
-                0x00002ef6       0x4e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002efa       0x4e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_stepper_fault_stop
-                0x00002f44        0xe /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002f48        0xe /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf_adaptive_geometry_fault
-                0x00002f52        0xe /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002f56        0xe /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf_adaptive_publish_tail
-                0x00002f60       0xec /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00002f64       0xec /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.st_reset
-                0x0000304c       0xaa /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003050       0xaa /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.report_alarm_message
-                0x000030f6       0x2e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000030fa       0x2e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.select_driver
-                0x00003124       0x4a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003128       0x4a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.deselect_drivers
-                0x0000316e       0x26 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .text.fast_transfer
-                0x00003194      0x17c /tmp/ccRUUQEf.ltrans0.ltrans.o
- .text.rf_adaptive_service_mode
-                0x00003310      0x1ae /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003172       0x26 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.transfer
-                0x000034be       0x74 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003198       0x74 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .text.rf_adaptive_service_mode
+                0x0000320c      0x2f2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.lcd_nibble
-                0x00003532       0x68 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000034fe       0x68 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_lcd_write
-                0x0000359a       0x2c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003566       0x2c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.lcd_startup_command
-                0x000035c6       0x14 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003592       0x14 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.st_wake_up
-                0x000035da      0x162 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000035a6      0x162 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.st_prep_buffer
-                0x0000373c     0x1910 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00003708     0x1910 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.settings_store_build_info
-                0x0000504c       0x6c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00005018       0x6c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.decimal_field
-                0x000050b8      0x190 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00005084      0x190 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.rf2000_panel_service
-                0x00005248      0xa06 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00005214      0xa06 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.protocol_exec_rt_system
-                0x00005c4e      0x604 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00005c1a      0x604 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.protocol_execute_realtime
-                0x00006252      0x214 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000621e      0x214 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.limits_go_home
-                0x00006466      0x4fc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006432      0x4fc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.mc_homing_cycle
-                0x00006962       0x78 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000692e       0x78 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.delay_sec
-                0x000069da       0x5c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x000069a6       0x5c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.protocol_buffer_synchronize
-                0x00006a36       0x22 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006a02       0x22 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.settings_store_startup_line
-                0x00006a58       0x84 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006a24       0x84 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.settings_write_coord_data
-                0x00006adc       0x2c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006aa8       0x2c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.settings_restore
-                0x00006b08       0xa2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006ad4       0xa2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.settings_read_coord_data
-                0x00006baa       0x42 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006b76       0x42 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.spindle_sync.part.0
-                0x00006bec       0x20 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .text.mc_line  0x00006c0c       0xc2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006bb8       0x20 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .text.mc_line  0x00006bd8       0xc2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_flag_wco_change
-                0x00006cce        0xa /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006c9a        0xa /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.coolant_sync.isra.0
-                0x00006cd8       0x16 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006ca4       0x16 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.gc_execute_line
-                0x00006cee     0x2116 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00006cba     0x2116 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.settings_read_startup_line
-                0x00008e04       0x52 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00008dd0       0x52 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_execute_startup
-                0x00008e56       0x6a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00008e22       0x6a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.system_execute_line
-                0x00008ec0      0xf5e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00008e8c      0xf5e /tmp/ccAwN5fO.ltrans0.ltrans.o
  .text.__vector_13
-                0x00009e1e      0x33e /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x00009e1e                __vector_13
+                0x00009dea      0x33e /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x00009dea                __vector_13
  .text.startup.main
-                0x0000a15c     0x1210 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000a15c                main
+                0x0000a128     0x1210 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000a128                main
  .text.__vector_7
-                0x0000b36c       0x50 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000b36c                __vector_7
+                0x0000b338       0x50 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000b338                __vector_7
  .text.__vector_26
-                0x0000b3bc       0x4c /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000b3bc                __vector_26
+                0x0000b388       0x4c /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000b388                __vector_26
  .text.__vector_25
-                0x0000b408      0x124 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000b408                __vector_25
+                0x0000b3d4      0x124 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000b3d4                __vector_25
  .text.__vector_35
-                0x0000b52c       0x18 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000b52c                __vector_35
+                0x0000b4f8       0x18 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000b4f8                __vector_35
  .text.__vector_17
-                0x0000b544      0x520 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000b544                __vector_17
+                0x0000b510      0x520 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000b510                __vector_17
  .text.__vector_23
-                0x0000ba64       0x24 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000ba64                __vector_23
+                0x0000ba30       0x24 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000ba30                __vector_23
  .text.__vector_21
-                0x0000ba88      0x202 /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000ba88                __vector_21
+                0x0000ba54      0x202 /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000ba54                __vector_21
  .text.avr-libc.fplib
-                0x0000bc8a       0x86 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
-                0x0000bcb0                atan2
-                0x0000bcb0                atan2f
+                0x0000bc56       0x86 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan2.o)
+                0x0000bc7c                atan2
+                0x0000bc7c                atan2f
  .text.avr-libc.fplib
-                0x0000bd10       0x60 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
-                0x0000bd10                atan
-                0x0000bd10                atanf
+                0x0000bcdc       0x60 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+                0x0000bcdc                atan
+                0x0000bcdc                atanf
  .text.avr-libc.fplib
-                0x0000bd70       0x2e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ceil.o)
-                0x0000bd70                ceil
-                0x0000bd70                ceilf
+                0x0000bd3c       0x2e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(ceil.o)
+                0x0000bd3c                ceil
+                0x0000bd3c                ceilf
  .text.avr-libc.fplib
-                0x0000bd9e        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
-                0x0000bd9e                cosf
-                0x0000bd9e                cos
+                0x0000bd6a        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cos.o)
+                0x0000bd6a                cosf
+                0x0000bd6a                cos
  .text.avr-libc.fplib
-                0x0000bda8       0xdc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
-                0x0000bdc8                __divsf3x
-                0x0000bdce                __divsf3_pse
+                0x0000bd74       0xdc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3x.o)
+                0x0000bd94                __divsf3x
+                0x0000bd9a                __divsf3_pse
  .text.avr-libc.fplib
-                0x0000be84       0x2e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
-                0x0000be84                floor
-                0x0000be84                floorf
+                0x0000be50       0x2e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floor.o)
+                0x0000be50                floor
+                0x0000be50                floorf
  .text.avr-libc.fplib
-                0x0000beb2       0x3e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fmax.o)
-                0x0000beb2                fmaxf
-                0x0000beb2                fmax
+                0x0000be7e       0x3e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fmax.o)
+                0x0000be7e                fmaxf
+                0x0000be7e                fmax
  .text.avr-libc.fplib
-                0x0000bef0       0x3e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fmin.o)
-                0x0000bef0                fmin
-                0x0000bef0                fminf
+                0x0000bebc       0x3e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fmin.o)
+                0x0000bebc                fmin
+                0x0000bebc                fminf
  .text.avr-libc.fplib
-                0x0000bf2e        0xc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
-                0x0000bf2e                __fp_inf
+                0x0000befa        0xc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_inf.o)
+                0x0000befa                __fp_inf
  .text.avr-libc.fplib
-                0x0000bf3a       0x36 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
-                0x0000bf3a                __fp_mintl
+                0x0000bf06       0x36 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mintl.o)
+                0x0000bf06                __fp_mintl
  .text.avr-libc.fplib
-                0x0000bf70       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
-                0x0000bf70                __fp_mpack
-                0x0000bf74                __fp_mpack_finite
+                0x0000bf3c       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_mpack.o)
+                0x0000bf3c                __fp_mpack
+                0x0000bf40                __fp_mpack_finite
  .text.avr-libc.fplib
-                0x0000bf8c        0x6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
-                0x0000bf8c                __fp_nan
+                0x0000bf58        0x6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_nan.o)
+                0x0000bf58                __fp_nan
  .text.avr-libc.fplib
-                0x0000bf92       0x50 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
-                0x0000bf92                __fp_powser
+                0x0000bf5e       0x50 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powser.o)
+                0x0000bf5e                __fp_powser
  .text.avr-libc.fplib
-                0x0000bfe2        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
-                0x0000bfe2                __fp_pscA
+                0x0000bfae        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscA.o)
+                0x0000bfae                __fp_pscA
  .text.avr-libc.fplib
-                0x0000bff0        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
-                0x0000bff0                __fp_pscB
+                0x0000bfbc        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_pscB.o)
+                0x0000bfbc                __fp_pscB
  .text.avr-libc.fplib
-                0x0000bffe       0x56 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
-                0x0000c002                __fp_rempio2
+                0x0000bfca       0x56 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_rempio2.o)
+                0x0000bfce                __fp_rempio2
  .text.avr-libc.fplib
-                0x0000c054       0x22 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
-                0x0000c054                __fp_round
+                0x0000c020       0x22 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_round.o)
+                0x0000c020                __fp_round
  .text.avr-libc.fplib
-                0x0000c076       0x2a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
-                0x0000c076                __fp_sinus
+                0x0000c042       0x2a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+                0x0000c042                __fp_sinus
  .text.avr-libc.fplib
-                0x0000c0a0       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
-                0x0000c0a0                __fp_split3
-                0x0000c0b0                __fp_splitA
+                0x0000c06c       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_split3.o)
+                0x0000c06c                __fp_split3
+                0x0000c07c                __fp_splitA
  .text.avr-libc.fplib
-                0x0000c0e4       0x30 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
-                0x0000c0e4                __fp_trunc
+                0x0000c0b0       0x30 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_trunc.o)
+                0x0000c0b0                __fp_trunc
  .text.avr-libc.fplib
-                0x0000c114        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
-                0x0000c114                __fp_zero
-                0x0000c116                __fp_szero
+                0x0000c0e0        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_zero.o)
+                0x0000c0e0                __fp_zero
+                0x0000c0e2                __fp_szero
  .text.avr-libc.fplib
-                0x0000c122       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
-                0x0000c122                __inversef
+                0x0000c0ee       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(inverse.o)
+                0x0000c0ee                __inversef
  .text.avr-libc.fplib
-                0x0000c132       0x66 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
-                0x0000c132                lroundf
-                0x0000c132                lround
+                0x0000c0fe       0x66 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(lround.o)
+                0x0000c0fe                lroundf
+                0x0000c0fe                lround
  .text.avr-libc.fplib
-                0x0000c198       0xd2 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
-                0x0000c1b6                __mulsf3x
-                0x0000c1bc                __mulsf3_pse
+                0x0000c164       0xd2 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3x.o)
+                0x0000c182                __mulsf3x
+                0x0000c188                __mulsf3_pse
  .text.avr-libc.fplib
-                0x0000c26a       0x48 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(round.o)
-                0x0000c26a                round
-                0x0000c26a                roundf
+                0x0000c236       0x48 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(round.o)
+                0x0000c236                round
+                0x0000c236                roundf
  .text.avr-libc.fplib
-                0x0000c2b2       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
-                0x0000c2b2                sin
-                0x0000c2b2                sinf
+                0x0000c27e       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sin.o)
+                0x0000c27e                sin
+                0x0000c27e                sinf
  .text.avr-libc.fplib
-                0x0000c2c2       0x8c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
-                0x0000c2ce                sqrt
-                0x0000c2ce                sqrtf
+                0x0000c28e       0x8c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(sqrt.o)
+                0x0000c29a                sqrt
+                0x0000c29a                sqrtf
  .text.avr-libc.fplib
-                0x0000c34e        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
-                0x0000c34e                square
-                0x0000c34e                squaref
+                0x0000c31a        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(square.o)
+                0x0000c31a                square
+                0x0000c31a                squaref
  .text.avr-libc.fplib
-                0x0000c356       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(trunc.o)
-                0x0000c356                truncf
-                0x0000c356                trunc
+                0x0000c322       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(trunc.o)
+                0x0000c322                truncf
+                0x0000c322                trunc
  .text.avr-libc.fplib
-                0x0000c36c        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
-                0x0000c36c                __subsf3
-                0x0000c36e                __addsf3
+                0x0000c338        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3.o)
+                0x0000c338                __subsf3
+                0x0000c33a                __addsf3
  .text.avr-libc.fplib
-                0x0000c37a       0xcc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
-                0x0000c39c                __addsf3x
+                0x0000c346       0xcc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(addsf3x.o)
+                0x0000c368                __addsf3x
  .text.avr-libc.fplib
-                0x0000c446        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
-                0x0000c446                __divsf3
+                0x0000c412        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(divsf3.o)
+                0x0000c412                __divsf3
  .text.avr-libc.fplib
-                0x0000c44e        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
-                0x0000c44e                __fp_norm2
+                0x0000c41a        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_norm2.o)
+                0x0000c41a                __fp_norm2
  .text.avr-libc.fplib
-                0x0000c45c       0x2c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
-                0x0000c45c                __fp_powsodd
+                0x0000c428       0x2c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_powsodd.o)
+                0x0000c428                __fp_powsodd
  .text.avr-libc.fplib
-                0x0000c488        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
-                0x0000c488                __mulsf3
+                0x0000c454        0x8 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(mulsf3.o)
+                0x0000c454                __mulsf3
  .text.avr-libc.fplib
-                0x0000c490        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cmpsf2.o)
-                0x0000c490                __lesf2
-                0x0000c490                __nesf2
-                0x0000c490                __eqsf2
-                0x0000c490                __cmpsf2
-                0x0000c490                __ltsf2
+                0x0000c45c        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(cmpsf2.o)
+                0x0000c45c                __lesf2
+                0x0000c45c                __nesf2
+                0x0000c45c                __eqsf2
+                0x0000c45c                __cmpsf2
+                0x0000c45c                __ltsf2
  .text.avr-libc.fplib
-                0x0000c49a        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
-                0x0000c49a                __fixsfsi
+                0x0000c466        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixsfsi.o)
+                0x0000c466                __fixsfsi
  .text.avr-libc.fplib
-                0x0000c4a8       0x5e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
-                0x0000c4a8                __fixunssfsi
+                0x0000c474       0x5e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fixunssfsi.o)
+                0x0000c474                __fixunssfsi
  .text.avr-libc.fplib
-                0x0000c506       0x7a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floatsisf.o)
-                0x0000c506                __floatunsisf
-                0x0000c50a                __floatsisf
+                0x0000c4d2       0x7a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(floatsisf.o)
+                0x0000c4d2                __floatunsisf
+                0x0000c4d6                __floatsisf
  .text.avr-libc.fplib
-                0x0000c580       0x48 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_cmp.o)
-                0x0000c580                __fp_cmp
+                0x0000c54c       0x48 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_cmp.o)
+                0x0000c54c                __fp_cmp
  .text.avr-libc.fplib
-                0x0000c5c8        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
-                0x0000c5c8                __gtsf2
-                0x0000c5c8                __gesf2
+                0x0000c594        0xa /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(gesf2.o)
+                0x0000c594                __gtsf2
+                0x0000c594                __gesf2
  .text.libgcc.mul
-                0x0000c5d2       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
-                0x0000c5d2                __mulsi3
+                0x0000c59e       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_mulsi3.o)
+                0x0000c59e                __mulsi3
  .text.libgcc.div
-                0x0000c5f2       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
-                0x0000c5f2                __udivmodqi4
+                0x0000c5be       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodqi4.o)
+                0x0000c5be                __udivmodqi4
  .text.libgcc.div
-                0x0000c60a       0x28 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
-                0x0000c60a                __udivmodhi4
+                0x0000c5d6       0x28 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodhi4.o)
+                0x0000c5d6                __udivmodhi4
  .text.libgcc.div
-                0x0000c632       0x28 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
-                0x0000c632                __divmodhi4
-                0x0000c632                _div
+                0x0000c5fe       0x28 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_divmodhi4.o)
+                0x0000c5fe                __divmodhi4
+                0x0000c5fe                _div
  .text.libgcc.div
-                0x0000c65a       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
-                0x0000c65a                __udivmodsi4
- .text.libgcc   0x0000c69e       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
-                0x0000c69e                __tablejump2__
+                0x0000c626       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmodsi4.o)
+                0x0000c626                __udivmodsi4
+ .text.libgcc   0x0000c66a       0x10 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_tablejump2.o)
+                0x0000c66a                __tablejump2__
  .text.libgcc.mul
-                0x0000c6ae       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
-                0x0000c6ae                __muluhisi3
+                0x0000c67a       0x16 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muluhisi3.o)
+                0x0000c67a                __muluhisi3
  .text.libgcc.mul
-                0x0000c6c4       0x56 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulsidi3.o)
-                0x0000c6c4                __umulsidi3
-                0x0000c6c6                __umulsidi3_helper
+                0x0000c690       0x56 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulsidi3.o)
+                0x0000c690                __umulsidi3
+                0x0000c692                __umulsidi3_helper
  .text.libgcc.div
-                0x0000c71a       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivdi3.o)
-                0x0000c71a                __umoddi3
-                0x0000c71e                __udivdi3
-                0x0000c720                __udivdi3_umoddi3
+                0x0000c6e6       0x1c /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivdi3.o)
+                0x0000c6e6                __umoddi3
+                0x0000c6ea                __udivdi3
+                0x0000c6ec                __udivdi3_umoddi3
  .text.libgcc.div
-                0x0000c736       0xa2 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmod64.o)
-                0x0000c736                __udivmod64
- .text.libgcc   0x0000c7d8       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negdi2.o)
-                0x0000c7d8                __negdi2
+                0x0000c702       0xa2 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_udivmod64.o)
+                0x0000c702                __udivmod64
+ .text.libgcc   0x0000c7a4       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_negdi2.o)
+                0x0000c7a4                __negdi2
  .text.libgcc.builtins
-                0x0000c7f8       0x3a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ashrdi3.o)
-                0x0000c7f8                __ashrdi3
-                0x0000c7fc                __lshrdi3
- .text.libgcc   0x0000c832       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_adddi3.o)
-                0x0000c832                __adddi3
- .text.libgcc   0x0000c844       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_adddi3_s8.o)
-                0x0000c844                __adddi3_s8
- .text.libgcc   0x0000c85c       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_subdi3.o)
-                0x0000c85c                __subdi3
- .text.libgcc   0x0000c86e       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_cmpdi2.o)
-                0x0000c86e                __cmpdi2
- .text.libgcc   0x0000c880       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_cmpdi2_s8.o)
-                0x0000c880                __cmpdi2_s8
+                0x0000c7c4       0x3a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_ashrdi3.o)
+                0x0000c7c4                __ashrdi3
+                0x0000c7c8                __lshrdi3
+ .text.libgcc   0x0000c7fe       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_adddi3.o)
+                0x0000c7fe                __adddi3
+ .text.libgcc   0x0000c810       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_adddi3_s8.o)
+                0x0000c810                __adddi3_s8
+ .text.libgcc   0x0000c828       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_subdi3.o)
+                0x0000c828                __subdi3
+ .text.libgcc   0x0000c83a       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_cmpdi2.o)
+                0x0000c83a                __cmpdi2
+ .text.libgcc   0x0000c84c       0x18 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_cmpdi2_s8.o)
+                0x0000c84c                __cmpdi2_s8
  .text.libgcc.mul
-                0x0000c898       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
-                0x0000c898                __umulhisi3
+                0x0000c864       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_umulhisi3.o)
+                0x0000c864                __umulhisi3
  .text.libgcc.mul
-                0x0000c8b6       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muldi3_6.o)
-                0x0000c8b6                __muldi3_6
+                0x0000c882       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_muldi3_6.o)
+                0x0000c882                __muldi3_6
  .text.avr-libc
-                0x0000c8c8       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy_P.o)
-                0x0000c8c8                memcpy_P
+                0x0000c894       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy_P.o)
+                0x0000c894                memcpy_P
  .text.avr-libc
-                0x0000c8da       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(ultoa_ncheck.o)
-                0x0000c8da                __ultoa_ncheck
-                0x0000c8dc                __ultoa_common
+                0x0000c8a6       0x44 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(ultoa_ncheck.o)
+                0x0000c8a6                __ultoa_ncheck
+                0x0000c8a8                __ultoa_common
  .text.avr-libc
-                0x0000c91e       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrev.o)
-                0x0000c91e                strrev
+                0x0000c8ea       0x20 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strrev.o)
+                0x0000c8ea                strrev
  .text.avr-libc
-                0x0000c93e       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memchr.o)
-                0x0000c93e                memchr
+                0x0000c90a       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memchr.o)
+                0x0000c90a                memchr
  .text.avr-libc
-                0x0000c958       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcmp.o)
-                0x0000c958                memcmp
+                0x0000c924       0x1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcmp.o)
+                0x0000c924                memcmp
  .text.avr-libc
-                0x0000c972       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
-                0x0000c972                memcpy
+                0x0000c93e       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memcpy.o)
+                0x0000c93e                memcpy
  .text.avr-libc
-                0x0000c984       0x24 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
-                0x0000c984                memmove
+                0x0000c950       0x24 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memmove.o)
+                0x0000c950                memmove
  .text.avr-libc
-                0x0000c9a8        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
-                0x0000c9a8                memset
+                0x0000c974        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(memset.o)
+                0x0000c974                memset
  .text.avr-libc
-                0x0000c9b6       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
-                0x0000c9b6                strcmp
+                0x0000c982       0x12 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcmp.o)
+                0x0000c982                strcmp
  .text.avr-libc
-                0x0000c9c8        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
-                0x0000c9c8                strcpy
-                0x0000c9d6                        . = ALIGN (0x2)
+                0x0000c994        0xe /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libc.a(strcpy.o)
+                0x0000c994                strcpy
+                0x0000c9a2                        . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000c9d6        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
-                0x0000c9d6                exit
-                0x0000c9d6                _exit
+ .fini9         0x0000c9a2        0x0 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+                0x0000c9a2                exit
+                0x0000c9a2                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -1727,56 +1725,56 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000c9d6        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
+ .fini0         0x0000c9a2        0x4 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/avr6/libgcc.a(_exit.o)
  *(.fini0)
  *(.hightext)
  *(.hightext*)
  *(.progmemx.*)
  .progmemx.gcc_fplib.atan
-                0x0000c9da       0x2d /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
+                0x0000c9a6       0x2d /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(atan.o)
  .progmemx.gcc_fplib.sinus
-                0x0000ca07       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
-                0x0000ca26                        . = ALIGN (0x2)
- *fill*         0x0000ca25        0x1 
+                0x0000c9d3       0x1e /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/libm.a(fp_sinus.o)
+                0x0000c9f2                        . = ALIGN (0x2)
+ *fill*         0x0000c9f1        0x1 
  *(.jumptables)
  *(.jumptables*)
  .jumptables.gcc.gc_execute_line
-                0x0000ca26       0x4a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000c9f2       0x4a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .jumptables.gcc.system_execute_line
-                0x0000ca70       0x42 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000ca3c       0x42 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .jumptables.gcc.main
-                0x0000cab2       0x36 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0000ca7e       0x36 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .jumptables.gcc.__vector_25
-                0x0000cae8       0x3c /tmp/ccRUUQEf.ltrans0.ltrans.o
-                0x0000cb24                        _etext = .
+                0x0000cab4       0x3c /tmp/ccAwN5fO.ltrans0.ltrans.o
+                0x0000caf0                        _etext = .
 
-.data           0x00800200       0x7e load address 0x0000cb24
+.data           0x00800200       0x7e load address 0x0000caf0
                 0x00800200                        PROVIDE (__data_start = .)
  *(.data)
  *(.data*)
  .data.rf_ad_phase
-                0x00800200        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800200        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  *(.gnu.linkonce.d*)
  *(.rodata)
- .rodata        0x00800203       0x18 /tmp/ccRUUQEf.ltrans0.ltrans.o
+ .rodata        0x00800203       0x18 /tmp/ccAwN5fO.ltrans0.ltrans.o
  *(.rodata*)
  .rodata.system_execute_line.str1.1
-                0x0080021b       0x2e /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080021b       0x2e /tmp/ccAwN5fO.ltrans0.ltrans.o
                                   0xd (size before relaxing)
  .rodata.main.str1.1
-                0x00800249       0x21 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800249       0x21 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .rodata.row_address.68
-                0x00800249        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800249        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .rodata.register_data
-                0x0080024d       0x10 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080024d       0x10 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .rodata.torque
-                0x0080025d        0x5 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080025d        0x5 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .rodata.readback_mask
-                0x00800262        0xe /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800262        0xe /tmp/ccAwN5fO.ltrans0.ltrans.o
  .rodata.control
-                0x00800270        0xa /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800270        0xa /tmp/ccAwN5fO.ltrans0.ltrans.o
  .rodata.jog_feeds
-                0x0080027a        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080027a        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  *(.gnu.linkonce.r*)
                 0x0080027e                        . = ALIGN (0x2)
  *fill*         0x0080027d        0x1 
@@ -1788,215 +1786,215 @@ END GROUP
  *(.bss)
  *(.bss*)
  .bss.rf_ad_homing_shift
-                0x0080027e        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080027e        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_prepare_shift
-                0x0080027f        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080027f        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_ideal_counter
-                0x00800280        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.pl_block  0x0080028c        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800280        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.pl_block  0x0080028c        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_predict_valid
-                0x0080028e        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080028e        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_direction_l
-                0x0080028f        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080028f        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_direction_f
-                0x00800290        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800290        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.dir_port_invert_mask
-                0x00800291        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800291        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_first
-                0x00800294        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800294        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_counter
-                0x00800297        0x6 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800297        0x6 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_phase_plus
-                0x0080029d        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080029d        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_negative
-                0x0080029e        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080029e        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_stride
-                0x0080029f        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080029f        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.st_block_buffer
-                0x008002a0       0xb4 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.busy      0x00800354        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x008002a0       0xb4 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.busy      0x00800354        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_direction_update
-                0x00800355        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800355        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_direction_valid
-                0x00800356        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800356        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_pulse_ticks
-                0x00800357        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800357        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.step_port_invert_mask
-                0x00800358        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800358        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_tail_block
-                0x0080035b        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080035b        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.segment_buffer
-                0x0080035c       0xbe /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080035c       0xbe /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.segment_next_head
-                0x0080041a        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080041a        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_tail_pending
-                0x0080041b        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080041b        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.st_prep_block
-                0x0080041c        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080041c        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_ideal
-                0x0080041e        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080041e        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_physical
-                0x0080042a        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080042a        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_predicted_phase
-                0x00800436        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800436        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_direction_pending
-                0x00800439        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800439        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_wait_shift
-                0x0080043a        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080043a        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.segment_buffer_tail
-                0x0080043b        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080043b        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.segment_buffer_head
-                0x0080043c        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080043c        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf_ad_mode_wait
-                0x0080043d        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.st        0x0080043e       0x2a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080043d        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.st        0x0080043e       0x2a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sleep_counter
-                0x00800468        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800468        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.serial_tx_buffer
-                0x00800469      0x100 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800469      0x100 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.serial_tx_buffer_tail
-                0x00800569        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800569        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.serial_tx_buffer_head
-                0x0080056a        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080056a        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.frame_slot
-                0x0080056b        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080056b        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.displayed_steps
-                0x0080056c        0x4 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080056c        0x4 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.last_service_ms
-                0x00800570        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.frame     0x00800572       0x50 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800570        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.frame     0x00800572       0x50 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.awake_mask
-                0x008005c2        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.prep      0x008005c3       0x31 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.pl        0x008005f4       0x1c /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x008005c2        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.prep      0x008005c3       0x31 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.pl        0x008005f4       0x1c /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.block_buffer
-                0x00800610      0x7e0 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800610      0x7e0 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.block_buffer_planned
-                0x00800df0        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800df0        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.block_buffer_head
-                0x00800df1        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800df1        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.next_buffer_head
-                0x00800df2        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800df2        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.block_buffer_tail
-                0x00800df3        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800df3        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.initial_status
-                0x00800df4        0xa /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800df4        0xa /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.fault_reason
-                0x00800dfe        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800dfe        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.readback_failed_mask
-                0x00800dff        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800dff        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.microstep_shift
-                0x00800e00        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.ready     0x00800e01        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e00        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.ready     0x00800e01        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.initialized.lto_priv.0
-                0x00800e02        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e02        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.report_grbl_settings_running
-                0x00800e03        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e03        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_preserve_eeprom_records
-                0x00800e04        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e04        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.previous_keys_ready
-                0x00800e05        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e05        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.previous_state
-                0x00800e06        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e06        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.previous_limits
-                0x00800e07        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e07        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.previous_fault
-                0x00800e08        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e08        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.previous_ready
-                0x00800e09        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e09        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.last_position_ms
-                0x00800e0a        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e0a        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.referenced
-                0x00800e0c        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e0c        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.serial_rx_buffer
-                0x00800e0d      0x100 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800e0d      0x100 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.serial_rx_buffer_head
-                0x00800f0d        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f0d        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.serial_rx_buffer_tail
-                0x00800f0e        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f0e        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.last_alarm
-                0x00800f0f        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f0f        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.selection
-                0x00800f10        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f10        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.subselection
-                0x00800f11        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f11        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.feed_index
-                0x00800f12        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f12        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.selected_axis
-                0x00800f13        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f13        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.step_index
-                0x00800f14        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.page      0x00800f15        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f14        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.page      0x00800f15        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.confirm_home
-                0x00800f16        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f16        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.command_error
-                0x00800f17        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.line      0x00800f18      0x100 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00800f17        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.line      0x00800f18      0x100 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_rt_exec_accessory_override
-                0x00801018        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801018        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_rt_exec_motion_override
-                0x00801019        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.is_clone  0x0080101a        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801019        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.is_clone  0x0080101a        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.axis_Z_mask
-                0x0080101d        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080101d        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.axis_Y_mask
-                0x0080101e        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080101e        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.axis_name
-                0x0080101f        0x3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080101f        0x3 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.axis_X_mask
-                0x00801022        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801022        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.homing_axes
-                0x00801023        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.dirty     0x00801024        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801023        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.dirty     0x00801024        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.homing_phase
-                0x00801025        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801025        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.dispatch_busy
-                0x00801026        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801026        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_rt_exec_state
-                0x00801027        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801027        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.candidate_busy
-                0x00801028        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801028        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.candidate_ms
-                0x00801029        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801029        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.candidate_keys
-                0x0080102a        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080102a        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.keys_ready
-                0x0080102c        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080102c        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.key_event
-                0x0080102d        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080102d        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.pause_reset_latched
-                0x0080102e        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080102e        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.pause_ticks
-                0x0080102f        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080102f        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.stop_was_down
-                0x00801031        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.panel_ms  0x00801032        0x2 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801031        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.panel_ms  0x00801032        0x2 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.initialized.lto_priv.1
-                0x00801034        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801034        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_rt_exec_alarm
-                0x00801035        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801035        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_recovering
-                0x00801036        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801036        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_limit_release_ticks
-                0x00801037        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801037        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_homing_expected
-                0x00801038        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801038        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.rf2000_limit_held
-                0x00801039        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801039        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_probe_position
-                0x0080103a        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x0080103a        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_probe_state
-                0x00801046        0x1 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.sys       0x00801047       0x13 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.settings  0x0080105a       0x55 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.gc_block  0x008010af       0x3a /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00801046        0x1 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.sys       0x00801047       0x13 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.settings  0x0080105a       0x55 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.gc_block  0x008010af       0x3a /tmp/ccAwN5fO.ltrans0.ltrans.o
  .bss.sys_position
-                0x008010e9        0xc /tmp/ccRUUQEf.ltrans0.ltrans.o
- .bss.gc_state  0x008010f5       0x40 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x008010e9        0xc /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .bss.gc_state  0x008010f5       0x40 /tmp/ccAwN5fO.ltrans0.ltrans.o
  *(COMMON)
                 0x00801135                        PROVIDE (__bss_end = .)
-                0x0000cb24                        __data_load_start = LOADADDR (.data)
-                0x0000cba2                        __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x0000caf0                        __data_load_start = LOADADDR (.data)
+                0x0000cb6e                        __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00801135        0x0
                 [!provide]                        PROVIDE (__noinit_start = .)
@@ -2043,7 +2041,7 @@ END GROUP
 
 .comment        0x00000000       0x12
  *(.comment)
- .comment       0x00000000       0x12 /tmp/ccRUUQEf.ltrans0.ltrans.o
+ .comment       0x00000000       0x12 /tmp/ccAwN5fO.ltrans0.ltrans.o
                                  0x13 (size before relaxing)
 
 .note.gnu.avr.deviceinfo
@@ -2069,148 +2067,148 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000      0x388
+.debug_aranges  0x00000000      0x380
  *(.debug_aranges)
  .debug_aranges
-                0x00000000      0x388 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000000      0x380 /tmp/ccAwN5fO.ltrans0.ltrans.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000    0x152ea
+.debug_info     0x00000000    0x15300
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0xbbc /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
- .debug_info    0x00000bbc     0xa983 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .debug_info    0x0000b53f      0x1ac /tmp/ccjiOnyt.debug.temp.o
-                0x0000b53f                coolant_control.c.0c80a8bf
- .debug_info    0x0000b6eb      0x151 /tmp/ccyW5t4J.debug.temp.o
-                0x0000b6eb                eeprom.c.8c334ed6
- .debug_info    0x0000b83c      0xa9b /tmp/ccHKzofS.debug.temp.o
-                0x0000b83c                gcode.c.fb64d20b
- .debug_info    0x0000c2d7      0x5a5 /tmp/cc6zTX2T.debug.temp.o
-                0x0000c2d7                jog.c.2bc7e084
- .debug_info    0x0000c87c      0x91d /tmp/ccSVXZPH.debug.temp.o
-                0x0000c87c                limits.c.812c0377
- .debug_info    0x0000d199      0x5d3 /tmp/cceyIjDx.debug.temp.o
-                0x0000d199                main.c.b69d3a4d
- .debug_info    0x0000d76c      0x86d /tmp/ccqF6RlT.debug.temp.o
-                0x0000d76c                motion_control.c.3edb3df0
- .debug_info    0x0000dfd9      0x419 /tmp/ccOfBCnh.debug.temp.o
-                0x0000dfd9                nuts_bolts.c.981bcc6d
- .debug_info    0x0000e3f2      0x796 /tmp/ccGMMJgi.debug.temp.o
-                0x0000e3f2                planner.c.9d7ed61a
- .debug_info    0x0000eb88      0x374 /tmp/ccBO0SlB.debug.temp.o
-                0x0000eb88                print.c.87f71332
- .debug_info    0x0000eefc      0x88c /tmp/ccpo7lST.debug.temp.o
-                0x0000eefc                protocol.c.f6789ea1
- .debug_info    0x0000f788      0xe8d /tmp/cc597zTs.debug.temp.o
-                0x0000f788                report.c.8d635f5e
- .debug_info    0x00010615       0xfb /tmp/cchYrDqW.debug.temp.o
-                0x00010615                rf2000_board.c.246759a7
- .debug_info    0x00010710      0x69c /tmp/ccxnMhr2.debug.temp.o
-                0x00010710                rf2000_drv8711.c.12c5e241
- .debug_info    0x00010dac      0x246 /tmp/ccBLrlpE.debug.temp.o
-                0x00010dac                rf2000_lcd.c.8f9fc49e
- .debug_info    0x00010ff2     0x16f3 /tmp/cc6cny9I.debug.temp.o
-                0x00010ff2                rf2000_panel.c.8e3150c4
- .debug_info    0x000126e5      0x379 /tmp/ccUD0epx.debug.temp.o
-                0x000126e5                serial.c.39448a3e
- .debug_info    0x00012a5e      0x7da /tmp/cc4r7cxT.debug.temp.o
-                0x00012a5e                settings.c.c0da1108
- .debug_info    0x00013238      0x353 /tmp/ccF0dFzQ.debug.temp.o
-                0x00013238                sleep.c.6f44da2b
- .debug_info    0x0001358b      0x200 /tmp/ccqY6BNF.debug.temp.o
-                0x0001358b                spindle_control.c.1c5b855d
- .debug_info    0x0001378b     0x1130 /tmp/ccqfyLc9.debug.temp.o
-                0x0001378b                stepper.c.a4754efc
- .debug_info    0x000148bb      0xa2f /tmp/ccADK3LV.debug.temp.o
-                0x000148bb                system.c.33a8d6ce
+ .debug_info    0x00000bbc     0xa999 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .debug_info    0x0000b555      0x1ac /tmp/cczLU8hV.debug.temp.o
+                0x0000b555                coolant_control.c.0c80a8bf
+ .debug_info    0x0000b701      0x151 /tmp/ccukaOnG.debug.temp.o
+                0x0000b701                eeprom.c.8c334ed6
+ .debug_info    0x0000b852      0xa9b /tmp/ccKrpdks.debug.temp.o
+                0x0000b852                gcode.c.fb64d20b
+ .debug_info    0x0000c2ed      0x5a5 /tmp/ccdYzH5I.debug.temp.o
+                0x0000c2ed                jog.c.2bc7e084
+ .debug_info    0x0000c892      0x91d /tmp/ccNJ1wYU.debug.temp.o
+                0x0000c892                limits.c.812c0377
+ .debug_info    0x0000d1af      0x5d3 /tmp/ccijX42d.debug.temp.o
+                0x0000d1af                main.c.b69d3a4d
+ .debug_info    0x0000d782      0x86d /tmp/ccwIXaEa.debug.temp.o
+                0x0000d782                motion_control.c.3edb3df0
+ .debug_info    0x0000dfef      0x419 /tmp/ccyi3uqE.debug.temp.o
+                0x0000dfef                nuts_bolts.c.981bcc6d
+ .debug_info    0x0000e408      0x796 /tmp/ccu0Vgee.debug.temp.o
+                0x0000e408                planner.c.9d7ed61a
+ .debug_info    0x0000eb9e      0x374 /tmp/ccZYgjhF.debug.temp.o
+                0x0000eb9e                print.c.87f71332
+ .debug_info    0x0000ef12      0x88c /tmp/ccblFoSI.debug.temp.o
+                0x0000ef12                protocol.c.f6789ea1
+ .debug_info    0x0000f79e      0xe8d /tmp/ccEgq8kJ.debug.temp.o
+                0x0000f79e                report.c.c5ae536e
+ .debug_info    0x0001062b       0xfb /tmp/ccPkYSVr.debug.temp.o
+                0x0001062b                rf2000_board.c.246759a7
+ .debug_info    0x00010726      0x69c /tmp/ccY67TJq.debug.temp.o
+                0x00010726                rf2000_drv8711.c.465daef6
+ .debug_info    0x00010dc2      0x246 /tmp/cccBjJEr.debug.temp.o
+                0x00010dc2                rf2000_lcd.c.8f9fc49e
+ .debug_info    0x00011008     0x16f3 /tmp/cctE42FH.debug.temp.o
+                0x00011008                rf2000_panel.c.8e3150c4
+ .debug_info    0x000126fb      0x379 /tmp/ccbe3xeq.debug.temp.o
+                0x000126fb                serial.c.39448a3e
+ .debug_info    0x00012a74      0x7da /tmp/cc9D4OYV.debug.temp.o
+                0x00012a74                settings.c.c0da1108
+ .debug_info    0x0001324e      0x353 /tmp/cc6e0DhD.debug.temp.o
+                0x0001324e                sleep.c.6f44da2b
+ .debug_info    0x000135a1      0x200 /tmp/cc0LDnpa.debug.temp.o
+                0x000135a1                spindle_control.c.1c5b855d
+ .debug_info    0x000137a1     0x1130 /tmp/ccpnM1Lf.debug.temp.o
+                0x000137a1                stepper.c.a4754efc
+ .debug_info    0x000148d1      0xa2f /tmp/cc4Xvk9B.debug.temp.o
+                0x000148d1                system.c.33a8d6ce
 
 .debug_abbrev   0x00000000     0x3496
  *(.debug_abbrev)
  .debug_abbrev  0x00000000      0xb1a /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
- .debug_abbrev  0x00000b1a      0x2c8 /tmp/ccRUUQEf.ltrans0.ltrans.o
- .debug_abbrev  0x00000de2       0xf1 /tmp/ccjiOnyt.debug.temp.o
- .debug_abbrev  0x00000ed3       0x9d /tmp/ccyW5t4J.debug.temp.o
- .debug_abbrev  0x00000f70      0x226 /tmp/ccHKzofS.debug.temp.o
- .debug_abbrev  0x00001196      0x163 /tmp/cc6zTX2T.debug.temp.o
- .debug_abbrev  0x000012f9      0x276 /tmp/ccSVXZPH.debug.temp.o
- .debug_abbrev  0x0000156f      0x149 /tmp/cceyIjDx.debug.temp.o
- .debug_abbrev  0x000016b8      0x21e /tmp/ccqF6RlT.debug.temp.o
- .debug_abbrev  0x000018d6      0x1ad /tmp/ccOfBCnh.debug.temp.o
- .debug_abbrev  0x00001a83      0x252 /tmp/ccGMMJgi.debug.temp.o
- .debug_abbrev  0x00001cd5      0x124 /tmp/ccBO0SlB.debug.temp.o
- .debug_abbrev  0x00001df9      0x1fe /tmp/ccpo7lST.debug.temp.o
- .debug_abbrev  0x00001ff7      0x24e /tmp/cc597zTs.debug.temp.o
- .debug_abbrev  0x00002245       0xa0 /tmp/cchYrDqW.debug.temp.o
- .debug_abbrev  0x000022e5      0x20b /tmp/ccxnMhr2.debug.temp.o
- .debug_abbrev  0x000024f0       0xf7 /tmp/ccBLrlpE.debug.temp.o
- .debug_abbrev  0x000025e7      0x2f8 /tmp/cc6cny9I.debug.temp.o
- .debug_abbrev  0x000028df      0x1aa /tmp/ccUD0epx.debug.temp.o
- .debug_abbrev  0x00002a89      0x254 /tmp/cc4r7cxT.debug.temp.o
- .debug_abbrev  0x00002cdd      0x163 /tmp/ccF0dFzQ.debug.temp.o
- .debug_abbrev  0x00002e40      0x116 /tmp/ccqY6BNF.debug.temp.o
- .debug_abbrev  0x00002f56      0x2ca /tmp/ccqfyLc9.debug.temp.o
- .debug_abbrev  0x00003220      0x276 /tmp/ccADK3LV.debug.temp.o
+ .debug_abbrev  0x00000b1a      0x2c8 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .debug_abbrev  0x00000de2       0xf1 /tmp/cczLU8hV.debug.temp.o
+ .debug_abbrev  0x00000ed3       0x9d /tmp/ccukaOnG.debug.temp.o
+ .debug_abbrev  0x00000f70      0x226 /tmp/ccKrpdks.debug.temp.o
+ .debug_abbrev  0x00001196      0x163 /tmp/ccdYzH5I.debug.temp.o
+ .debug_abbrev  0x000012f9      0x276 /tmp/ccNJ1wYU.debug.temp.o
+ .debug_abbrev  0x0000156f      0x149 /tmp/ccijX42d.debug.temp.o
+ .debug_abbrev  0x000016b8      0x21e /tmp/ccwIXaEa.debug.temp.o
+ .debug_abbrev  0x000018d6      0x1ad /tmp/ccyi3uqE.debug.temp.o
+ .debug_abbrev  0x00001a83      0x252 /tmp/ccu0Vgee.debug.temp.o
+ .debug_abbrev  0x00001cd5      0x124 /tmp/ccZYgjhF.debug.temp.o
+ .debug_abbrev  0x00001df9      0x1fe /tmp/ccblFoSI.debug.temp.o
+ .debug_abbrev  0x00001ff7      0x24e /tmp/ccEgq8kJ.debug.temp.o
+ .debug_abbrev  0x00002245       0xa0 /tmp/ccPkYSVr.debug.temp.o
+ .debug_abbrev  0x000022e5      0x20b /tmp/ccY67TJq.debug.temp.o
+ .debug_abbrev  0x000024f0       0xf7 /tmp/cccBjJEr.debug.temp.o
+ .debug_abbrev  0x000025e7      0x2f8 /tmp/cctE42FH.debug.temp.o
+ .debug_abbrev  0x000028df      0x1aa /tmp/ccbe3xeq.debug.temp.o
+ .debug_abbrev  0x00002a89      0x254 /tmp/cc9D4OYV.debug.temp.o
+ .debug_abbrev  0x00002cdd      0x163 /tmp/cc6e0DhD.debug.temp.o
+ .debug_abbrev  0x00002e40      0x116 /tmp/cc0LDnpa.debug.temp.o
+ .debug_abbrev  0x00002f56      0x2ca /tmp/ccpnM1Lf.debug.temp.o
+ .debug_abbrev  0x00003220      0x276 /tmp/cc4Xvk9B.debug.temp.o
 
-.debug_line     0x00000000    0x170a1
+.debug_line     0x00000000    0x16a09
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000       0x1d /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
- .debug_line    0x0000001d    0x166ef /tmp/ccRUUQEf.ltrans0.ltrans.o
- .debug_line    0x0001670c       0x52 /tmp/ccjiOnyt.debug.temp.o
- .debug_line    0x0001675e       0x43 /tmp/ccyW5t4J.debug.temp.o
- .debug_line    0x000167a1       0x89 /tmp/ccHKzofS.debug.temp.o
- .debug_line    0x0001682a       0x61 /tmp/cc6zTX2T.debug.temp.o
- .debug_line    0x0001688b       0x92 /tmp/ccSVXZPH.debug.temp.o
- .debug_line    0x0001691d       0x9d /tmp/cceyIjDx.debug.temp.o
- .debug_line    0x000169ba       0x8e /tmp/ccqF6RlT.debug.temp.o
- .debug_line    0x00016a48       0x5b /tmp/ccOfBCnh.debug.temp.o
- .debug_line    0x00016aa3       0x6b /tmp/ccGMMJgi.debug.temp.o
- .debug_line    0x00016b0e       0x4d /tmp/ccBO0SlB.debug.temp.o
- .debug_line    0x00016b5b       0x8e /tmp/ccpo7lST.debug.temp.o
- .debug_line    0x00016be9       0x84 /tmp/cc597zTs.debug.temp.o
- .debug_line    0x00016c6d       0x4c /tmp/cchYrDqW.debug.temp.o
- .debug_line    0x00016cb9       0x56 /tmp/ccxnMhr2.debug.temp.o
- .debug_line    0x00016d0f       0x51 /tmp/ccBLrlpE.debug.temp.o
- .debug_line    0x00016d60       0x95 /tmp/cc6cny9I.debug.temp.o
- .debug_line    0x00016df5       0x60 /tmp/ccUD0epx.debug.temp.o
- .debug_line    0x00016e55       0x88 /tmp/cc4r7cxT.debug.temp.o
- .debug_line    0x00016edd       0x57 /tmp/ccF0dFzQ.debug.temp.o
- .debug_line    0x00016f34       0x52 /tmp/ccqY6BNF.debug.temp.o
- .debug_line    0x00016f86       0x84 /tmp/ccqfyLc9.debug.temp.o
- .debug_line    0x0001700a       0x97 /tmp/ccADK3LV.debug.temp.o
+ .debug_line    0x0000001d    0x16057 /tmp/ccAwN5fO.ltrans0.ltrans.o
+ .debug_line    0x00016074       0x52 /tmp/cczLU8hV.debug.temp.o
+ .debug_line    0x000160c6       0x43 /tmp/ccukaOnG.debug.temp.o
+ .debug_line    0x00016109       0x89 /tmp/ccKrpdks.debug.temp.o
+ .debug_line    0x00016192       0x61 /tmp/ccdYzH5I.debug.temp.o
+ .debug_line    0x000161f3       0x92 /tmp/ccNJ1wYU.debug.temp.o
+ .debug_line    0x00016285       0x9d /tmp/ccijX42d.debug.temp.o
+ .debug_line    0x00016322       0x8e /tmp/ccwIXaEa.debug.temp.o
+ .debug_line    0x000163b0       0x5b /tmp/ccyi3uqE.debug.temp.o
+ .debug_line    0x0001640b       0x6b /tmp/ccu0Vgee.debug.temp.o
+ .debug_line    0x00016476       0x4d /tmp/ccZYgjhF.debug.temp.o
+ .debug_line    0x000164c3       0x8e /tmp/ccblFoSI.debug.temp.o
+ .debug_line    0x00016551       0x84 /tmp/ccEgq8kJ.debug.temp.o
+ .debug_line    0x000165d5       0x4c /tmp/ccPkYSVr.debug.temp.o
+ .debug_line    0x00016621       0x56 /tmp/ccY67TJq.debug.temp.o
+ .debug_line    0x00016677       0x51 /tmp/cccBjJEr.debug.temp.o
+ .debug_line    0x000166c8       0x95 /tmp/cctE42FH.debug.temp.o
+ .debug_line    0x0001675d       0x60 /tmp/ccbe3xeq.debug.temp.o
+ .debug_line    0x000167bd       0x88 /tmp/cc9D4OYV.debug.temp.o
+ .debug_line    0x00016845       0x57 /tmp/cc6e0DhD.debug.temp.o
+ .debug_line    0x0001689c       0x52 /tmp/cc0LDnpa.debug.temp.o
+ .debug_line    0x000168ee       0x84 /tmp/ccpnM1Lf.debug.temp.o
+ .debug_line    0x00016972       0x97 /tmp/cc4Xvk9B.debug.temp.o
 
-.debug_frame    0x00000000     0x1204
+.debug_frame    0x00000000     0x11e4
  *(.debug_frame)
- .debug_frame   0x00000000     0x1204 /tmp/ccRUUQEf.ltrans0.ltrans.o
+ .debug_frame   0x00000000     0x11e4 /tmp/ccAwN5fO.ltrans0.ltrans.o
 
 .debug_str      0x00000000     0x2f1a
  *(.debug_str)
  .debug_str     0x00000000      0x3e6 /workspace/.tools/avr/usr/bin/../lib/gcc/avr/14.2.0/../../../avr/lib/avr6/crtatmega2560.o
- .debug_str     0x000003e6     0x2b34 /tmp/ccRUUQEf.ltrans0.ltrans.o
+ .debug_str     0x000003e6     0x2b34 /tmp/ccAwN5fO.ltrans0.ltrans.o
                                 0x1da (size before relaxing)
- .debug_str     0x00002f1a      0x255 /tmp/ccjiOnyt.debug.temp.o
- .debug_str     0x00002f1a      0x1c3 /tmp/ccyW5t4J.debug.temp.o
- .debug_str     0x00002f1a      0x82a /tmp/ccHKzofS.debug.temp.o
- .debug_str     0x00002f1a      0x4f6 /tmp/cc6zTX2T.debug.temp.o
- .debug_str     0x00002f1a      0x85f /tmp/ccSVXZPH.debug.temp.o
- .debug_str     0x00002f1a      0x5d0 /tmp/cceyIjDx.debug.temp.o
- .debug_str     0x00002f1a      0x84b /tmp/ccqF6RlT.debug.temp.o
- .debug_str     0x00002f1a      0x382 /tmp/ccOfBCnh.debug.temp.o
- .debug_str     0x00002f1a      0x7a2 /tmp/ccGMMJgi.debug.temp.o
- .debug_str     0x00002f1a      0x34d /tmp/ccBO0SlB.debug.temp.o
- .debug_str     0x00002f1a      0x9b2 /tmp/ccpo7lST.debug.temp.o
- .debug_str     0x00002f1a      0x976 /tmp/cc597zTs.debug.temp.o
- .debug_str     0x00002f1a      0x167 /tmp/cchYrDqW.debug.temp.o
- .debug_str     0x00002f1a      0x527 /tmp/ccxnMhr2.debug.temp.o
- .debug_str     0x00002f1a      0x1d6 /tmp/ccBLrlpE.debug.temp.o
- .debug_str     0x00002f1a      0xa5a /tmp/cc6cny9I.debug.temp.o
- .debug_str     0x00002f1a      0x40a /tmp/ccUD0epx.debug.temp.o
- .debug_str     0x00002f1a      0x632 /tmp/cc4r7cxT.debug.temp.o
- .debug_str     0x00002f1a      0x394 /tmp/ccF0dFzQ.debug.temp.o
- .debug_str     0x00002f1a      0x28f /tmp/ccqY6BNF.debug.temp.o
- .debug_str     0x00002f1a      0xfd9 /tmp/ccqfyLc9.debug.temp.o
- .debug_str     0x00002f1a      0x994 /tmp/ccADK3LV.debug.temp.o
+ .debug_str     0x00002f1a      0x255 /tmp/cczLU8hV.debug.temp.o
+ .debug_str     0x00002f1a      0x1c3 /tmp/ccukaOnG.debug.temp.o
+ .debug_str     0x00002f1a      0x82a /tmp/ccKrpdks.debug.temp.o
+ .debug_str     0x00002f1a      0x4f6 /tmp/ccdYzH5I.debug.temp.o
+ .debug_str     0x00002f1a      0x85f /tmp/ccNJ1wYU.debug.temp.o
+ .debug_str     0x00002f1a      0x5d0 /tmp/ccijX42d.debug.temp.o
+ .debug_str     0x00002f1a      0x84b /tmp/ccwIXaEa.debug.temp.o
+ .debug_str     0x00002f1a      0x382 /tmp/ccyi3uqE.debug.temp.o
+ .debug_str     0x00002f1a      0x7a2 /tmp/ccu0Vgee.debug.temp.o
+ .debug_str     0x00002f1a      0x34d /tmp/ccZYgjhF.debug.temp.o
+ .debug_str     0x00002f1a      0x9b2 /tmp/ccblFoSI.debug.temp.o
+ .debug_str     0x00002f1a      0x976 /tmp/ccEgq8kJ.debug.temp.o
+ .debug_str     0x00002f1a      0x167 /tmp/ccPkYSVr.debug.temp.o
+ .debug_str     0x00002f1a      0x527 /tmp/ccY67TJq.debug.temp.o
+ .debug_str     0x00002f1a      0x1d6 /tmp/cccBjJEr.debug.temp.o
+ .debug_str     0x00002f1a      0xa5a /tmp/cctE42FH.debug.temp.o
+ .debug_str     0x00002f1a      0x40a /tmp/ccbe3xeq.debug.temp.o
+ .debug_str     0x00002f1a      0x632 /tmp/cc9D4OYV.debug.temp.o
+ .debug_str     0x00002f1a      0x394 /tmp/cc6e0DhD.debug.temp.o
+ .debug_str     0x00002f1a      0x28f /tmp/cc0LDnpa.debug.temp.o
+ .debug_str     0x00002f1a      0xfd9 /tmp/ccpnM1Lf.debug.temp.o
+ .debug_str     0x00002f1a      0x994 /tmp/cc4Xvk9B.debug.temp.o
 
 .debug_loc
  *(.debug_loc)
@@ -2243,58 +2241,58 @@ END GROUP
                 0x00000000      0x3d3
  *(.debug_line_str)
  .debug_line_str
-                0x00000000      0x3d3 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000000      0x3d3 /tmp/ccAwN5fO.ltrans0.ltrans.o
                                 0x1f5 (size before relaxing)
  .debug_line_str
-                0x000003d3       0x96 /tmp/ccjiOnyt.debug.temp.o
+                0x000003d3       0x96 /tmp/cczLU8hV.debug.temp.o
  .debug_line_str
-                0x000003d3       0x61 /tmp/ccyW5t4J.debug.temp.o
+                0x000003d3       0x61 /tmp/ccukaOnG.debug.temp.o
  .debug_line_str
-                0x000003d3      0x103 /tmp/ccHKzofS.debug.temp.o
+                0x000003d3      0x103 /tmp/ccKrpdks.debug.temp.o
  .debug_line_str
-                0x000003d3       0x9c /tmp/cc6zTX2T.debug.temp.o
+                0x000003d3       0x9c /tmp/ccdYzH5I.debug.temp.o
  .debug_line_str
-                0x000003d3      0x12e /tmp/ccSVXZPH.debug.temp.o
+                0x000003d3      0x12e /tmp/ccNJ1wYU.debug.temp.o
  .debug_line_str
-                0x000003d3      0x131 /tmp/cceyIjDx.debug.temp.o
+                0x000003d3      0x131 /tmp/ccijX42d.debug.temp.o
  .debug_line_str
-                0x000003d3      0x11e /tmp/ccqF6RlT.debug.temp.o
+                0x000003d3      0x11e /tmp/ccwIXaEa.debug.temp.o
  .debug_line_str
-                0x000003d3       0xbb /tmp/ccOfBCnh.debug.temp.o
+                0x000003d3       0xbb /tmp/ccyi3uqE.debug.temp.o
  .debug_line_str
-                0x000003d3       0xb1 /tmp/ccGMMJgi.debug.temp.o
+                0x000003d3       0xb1 /tmp/ccu0Vgee.debug.temp.o
  .debug_line_str
-                0x000003d3       0x73 /tmp/ccBO0SlB.debug.temp.o
+                0x000003d3       0x73 /tmp/ccZYgjhF.debug.temp.o
  .debug_line_str
-                0x000003d3      0x11a /tmp/ccpo7lST.debug.temp.o
+                0x000003d3      0x11a /tmp/ccblFoSI.debug.temp.o
  .debug_line_str
-                0x000003d3       0xf6 /tmp/cc597zTs.debug.temp.o
+                0x000003d3       0xf6 /tmp/ccEgq8kJ.debug.temp.o
  .debug_line_str
-                0x000003d3       0xa5 /tmp/cchYrDqW.debug.temp.o
+                0x000003d3       0xa5 /tmp/ccPkYSVr.debug.temp.o
  .debug_line_str
-                0x000003d3       0xba /tmp/ccxnMhr2.debug.temp.o
+                0x000003d3       0xba /tmp/ccY67TJq.debug.temp.o
  .debug_line_str
-                0x000003d3       0xa9 /tmp/ccBLrlpE.debug.temp.o
+                0x000003d3       0xa9 /tmp/cccBjJEr.debug.temp.o
  .debug_line_str
-                0x000003d3      0x193 /tmp/cc6cny9I.debug.temp.o
+                0x000003d3      0x193 /tmp/cctE42FH.debug.temp.o
  .debug_line_str
-                0x000003d3       0xcb /tmp/ccUD0epx.debug.temp.o
+                0x000003d3       0xcb /tmp/ccbe3xeq.debug.temp.o
  .debug_line_str
-                0x000003d3      0x119 /tmp/cc4r7cxT.debug.temp.o
+                0x000003d3      0x119 /tmp/cc9D4OYV.debug.temp.o
  .debug_line_str
-                0x000003d3       0x82 /tmp/ccF0dFzQ.debug.temp.o
+                0x000003d3       0x82 /tmp/cc6e0DhD.debug.temp.o
  .debug_line_str
-                0x000003d3       0x96 /tmp/ccqY6BNF.debug.temp.o
+                0x000003d3       0x96 /tmp/cc0LDnpa.debug.temp.o
  .debug_line_str
-                0x000003d3      0x11d /tmp/ccqfyLc9.debug.temp.o
+                0x000003d3      0x11d /tmp/ccpnM1Lf.debug.temp.o
  .debug_line_str
-                0x000003d3      0x144 /tmp/ccADK3LV.debug.temp.o
+                0x000003d3      0x144 /tmp/cc4Xvk9B.debug.temp.o
 
 .debug_loclists
-                0x00000000     0x7604
+                0x00000000     0x75e0
  *(.debug_loclists)
  .debug_loclists
-                0x00000000     0x7604 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000000     0x75e0 /tmp/ccAwN5fO.ltrans0.ltrans.o
 
 .debug_macro
  *(.debug_macro)
@@ -2303,10 +2301,10 @@ END GROUP
  *(.debug_names)
 
 .debug_rnglists
-                0x00000000      0xaa7
+                0x00000000      0xab0
  *(.debug_rnglists)
  .debug_rnglists
-                0x00000000      0xaa7 /tmp/ccRUUQEf.ltrans0.ltrans.o
+                0x00000000      0xab0 /tmp/ccAwN5fO.ltrans0.ltrans.o
 
 .debug_str_offsets
  *(.debug_str_offsets)

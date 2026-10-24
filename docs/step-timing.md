@@ -5,7 +5,7 @@ DRV8711 channels. A/B have no planner axis and remain disabled. Their digital
 circuits are temporarily awake during initial RESET/readback with CTRL.ENBL=0;
 their motor bridges remain disabled. Pins and current settings are unchanged.
 
-The current CNC profile is **`20261022-rf2000-cnc-adaptive`**. It retains a
+The current CNC profile is **`20261024-rf2000-cnc-adaptive-spi`**. It retains a
 fixed virtual 1/256 coordinate grid, nominal **20480 units/mm on XYZ**, while
 physical resolution changes between **1/256, 1/128, 1/64, 1/32, 1/16 and 1/8**.
 Axis and path feed are capped at **1000 mm/min**. The physical pulse budget is
@@ -86,8 +86,11 @@ five channels; it does not continue with an assumed resolution.
 
 Other interrupts remain available during transfers, apart from short atomic
 GPIO operations. Timer2 limit polling, UART and INT6 fault latching therefore
-remain active. Runtime transfers have a dedicated bounded transport; the
-slower initialization transaction is not inserted into a STEP ISR.
+remain active. MODE writes use the fast transport, but CTRL readback uses
+the slower startup transport to allow the open-drain SDATO line to rise.
+Both run in foreground only; neither transaction enters a STEP ISR.
+The synthetic delayed-HIGH regression reproduces the former Alarm12
+with the old fast read and passes with the settled read path.
 
 Transfer/readback and fine completion add time. High rates and exact command
 endpoints do not imply an identical wall-clock profile at every short segment.

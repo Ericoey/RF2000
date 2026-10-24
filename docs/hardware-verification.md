@@ -79,7 +79,7 @@ Diese Zahlen sind nominale Wicklungs-Spitzenstrom-Sollwerte, keine gemessenen St
 
 Die Tabelle zeigt den Referenz-CTRL mit ENBL=1; Reserve A/B muss im Port mit gelöschtem ENBL, also CTRL `0x0E28`, abgelegt werden. Die kurze Wake-Phase während des Starts ist damit keine Freigabe der Motorbrücke. Weitere aus der Referenz übernommene SPI-Wörter: OFF `0x2097`, BLANK `0x31D7`, DECAY `0x4430`, STALL `0x583C`, DRIVE `0x60F0`, STATUS-Schreibwert `0x7000`. Das oberste Adressnibble ist nicht Teil des jeweiligen 12-Bit-Registerinhalts. TORQUE.SMPLTH Bit 10 ist laut TI §7.6.3 nur schreibbar und muss vom Readback-Vergleich ausgenommen werden. Diese Werte sind keine beliebig sicheren Defaults für andere MOSFETs, Motoren oder Shunts.
 
-Das aktuelle CNC-Profil `20261022-rf2000-cnc-adaptive` startet XYZ mit
+Das aktuelle CNC-Profil `20261024-rf2000-cnc-adaptive-spi` startet XYZ mit
 1/256 und CTRL `0x0E41` bei ENBL=1. Im Betrieb wechselt MODE zwischen
 1/256 und 1/8 an pulsfreien Abschnittsgrenzen mit Readback. A/B bleiben
 1/32 und gesperrt. Pins und Stromwerte ändern sich nicht. GRBL verwendet

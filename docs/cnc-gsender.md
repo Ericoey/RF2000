@@ -45,7 +45,7 @@ HEX/ELF/MAP liegen unter `.pio/build/rf2000_cnc/`.
 Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 
 Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-`$I` enthält `20261022-rf2000-cnc-adaptive`. Das Y-Testprofil bleibt mit
+`$I` enthält `20261024-rf2000-cnc-adaptive-spi`. Das Y-Testprofil bleibt mit
 `-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 
 **Nach einem Update zuerst die unten beschriebene

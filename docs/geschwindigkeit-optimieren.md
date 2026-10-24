@@ -1,7 +1,7 @@
 # RF2000-CNC: Geschwindigkeit und Hardwaretest
 
 Stand: 22.10.2026. Das aktuelle CNC-Profil
-**`20261022-rf2000-cnc-adaptive`** verwendet automatische Mikroschritte
+**`20261024-rf2000-cnc-adaptive-spi`** verwendet automatische Mikroschritte
 von **1/256 bis 1/8** und ein festes internes Raster mit nominal
 **20480 Einheiten/mm auf X/Y/Z**. Die Maximalgeschwindigkeit ist auf
 **1000 mm/min für Einzelachsen und Bahnfeed** begrenzt. Details der Umschaltung stehen in

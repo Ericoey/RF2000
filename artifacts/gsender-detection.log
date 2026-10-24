@@ -1,7 +1,7 @@
-AVR ELF SHA256: 148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874
-Command: node tools/test_gsender_detection.cjs build/tests/gsender-source build/tests/adaptive-handshake.txt
+AVR ELF SHA256: 23cbf1c7958ebbe14c228fa98c3372cf92aca5dccd540ad968af3f5dd6cf56e4
+Command: node tools/test_gsender_detection.cjs build/tests/gsender-source build/tests/spi-fix-handshake.txt
 Exit status: 0
 PASS: real gSender Connection identifies AVR $I as Grbl, despite grblHAL default and no startup banner
 PASS: negative control reproduces old reply falling back to grblHAL
 gSender Connection.js SHA256 980f267213d6051d0df34e560e5dd07ab740a601cd0748f0317737e18bc0d1a8
-AVR transcript SHA256 13017bb7334acc35efe7052948234640c78e375e5ae6e2bcee653cee03453fd3
+AVR transcript SHA256 76318c56bf781f0504cf855a27c50eb0a650dd734276341b485d9c8d3b04cce1

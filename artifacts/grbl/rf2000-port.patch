@@ -322,7 +322,7 @@
 +Das HEX liegt anschließend unter `.pio/build/rf2000_cnc/firmware.hex`.
 +Die vollständige Anleitung steht in [docs/platformio.md](docs/platformio.md).
 +Das adaptive CNC-Profil wurde in der Cloud auch mit dem festgelegten
-+PlatformIO-AVR-GCC 7.3.0 erfolgreich gebaut (50.958 Byte Flash, 3.893 Byte
++PlatformIO-AVR-GCC 7.3.0 erfolgreich gebaut (50.912 Byte Flash, 3.893 Byte
 +statisches SRAM). Softwareprüfungen werden dem tatsächlich geprüften ELF
 +zugeordnet: [Prüfbericht](docs/validation.md).
 +
@@ -337,7 +337,7 @@
 --------------
 -Grbl-Mega-5X is an open-source project and fueled by the free-time of our intrepid administrators and altruistic users. If you'd like to donate, all proceeds will be used to help fund supporting hardware and testing equipment. Thank you! [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate/?business=CZZN52UPPVHCW&no_recurring=0&item_name=Grbl-Mega-5X+%26+cn5X%2B%2B+donations&currency_code=EUR)
 +Die Startmeldung muss **`RF2000 XYZ CNC`** enthalten. In gSender **GRBL,
-+115200 Baud** verbinden. `$I` enthält `20261022-rf2000-cnc-adaptive`.
++115200 Baud** verbinden. `$I` enthält `20261024-rf2000-cnc-adaptive-spi`.
 +**Vor der ersten Bewegung die [EEPROM-Migration prüfen](docs/cnc-gsender.md#bestehende-cnc-einstellungen-umstellen).**
 +Die CNC-Versionen 74 und 75 werden auf **76** umgerechnet. Danach gelten
 +nominal **20480/20480/20480 Einheiten/mm**, vorhandene Feinabgleiche werden
@@ -1055,7 +1055,7 @@
  #define GRBL_VERSION "1.2i"
 -#define GRBL_VERSION_BUILD "20260521"
 +#if defined(RF2000_CNC) && RF2000_CNC
-+  #define GRBL_VERSION_BUILD "20261022-rf2000-cnc-adaptive"
++  #define GRBL_VERSION_BUILD "20261024-rf2000-cnc-adaptive-spi"
 +#else
 +  #define GRBL_VERSION_BUILD "20261018-rf2000"
 +#endif
@@ -2321,7 +2321,7 @@
 +#endif
 --- /dev/null
 +++ b/grbl/rf2000_drv8711.c
-@@ -0,0 +1,431 @@
+@@ -0,0 +1,435 @@
 +/*
 + * RF2000 I851 CTC V3.0 five-channel DRV8711 hardware support.
 + * Derived from drv8711Init()/drv8711Transmit()/setMotorCurrent() in the
@@ -2690,7 +2690,11 @@
 +      (control[driver] & ~0x0078u) | ((uint16_t)(8u - shift) << 3);
 +    (void)fast_transfer(driver, next_control);
 +    if (!microstep_change_allowed()) return false;
-+    const uint16_t observed = fast_transfer(driver, 0x8000u);
++    /* SDATO is open-drain and the board uses the weak AVR pull-up. Its
++     * released HIGH needs board-dependent RC settling, which the fast
++     * write clock cannot guarantee. Reuse the proven startup read timing;
++     * keep Timer1 paused and retain all readback/fault checks. */
++    const uint16_t observed = read_register(driver, 0);
 +    if ((observed ^ next_control) & readback_mask[0]) {
 +      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
 +        readback_failed_mask |= (uint8_t)1u << driver;
@@ -5532,7 +5536,7 @@
 +echo 'AVR tools and pinned Arduino AVR core available. No device was flashed.'
 --- /dev/null
 +++ b/tools/package-release.py
-@@ -0,0 +1,70 @@
+@@ -0,0 +1,71 @@
 +#!/usr/bin/env python3
 +"""Package reviewed sources, reference documents, and current build artifacts."""
 +from pathlib import Path
@@ -5587,7 +5591,8 @@
 +             'speed-simulation.log', 'homing-wait-simulation.log',
 +             'speed-host-validation.log', 'speed-exploration.tsv',
 +             'adaptive-simulation.log', 'adaptive-platformio-simulation.log',
-+             'adaptive-host-validation.log', 'platformio-cnc-build.log'):
++             'adaptive-host-validation.log', 'platformio-cnc-build.log',
++             'spi-readback-regression.log'):
 +    p = artifacts / name
 +    if p.is_file():
 +        files.append(p)
@@ -6112,7 +6117,7 @@
 +    main()
 --- /dev/null
 +++ b/tools/test_rf2000_drv8711.py
-@@ -0,0 +1,297 @@
+@@ -0,0 +1,308 @@
 +#!/usr/bin/env python3
 +"""Exercise the actual driver state machine with a host GPIO/register model.
 +
@@ -6173,7 +6178,7 @@
 +    (((PORTK >> PK0) & 1) << 2) | (((PORTA >> PA2) & 1) << 3) |
 +    (((PORTC >> PC7) & 1) << 4);
 +}
-+static uint16_t transfer(uint8_t driver, uint16_t command)
++static uint16_t mock_exchange(uint8_t driver, uint16_t command)
 +{
 +  uint8_t address = (command >> 12) & 7;
 +  assert(driver < 5);
@@ -6194,17 +6199,28 @@
 +  } else mock_registers[driver][address] = command & 0xfff;
 +  return 0;
 +}
++static uint16_t transfer(uint8_t driver,uint16_t command)
++{
++  const uint16_t result=mock_exchange(driver,command);
++  #if RF2000_ADAPTIVE_MICROSTEPS
++  if (!initializing) {
++    /* Runtime writes use the fast transport; readback deliberately uses the
++     * settled startup transport. Both are frames of the same six-frame
++     * transaction and must retain every reset/alarm/fault injection point. */
++    assert(!(PORTF & (_BV(PF0)|_BV(PF3)|_BV(PF6))));
++    const unsigned frame=runtime_frames++;
++    if ((int)frame==runtime_reset_frame) sys_rt_exec_state|=EXEC_RESET;
++    if ((int)frame==runtime_alarm_frame) sys_rt_exec_alarm=1;
++    if ((int)frame==runtime_fault_frame) PINE=0;
++  }
++  #endif
++  return result;
++}
 +#if RF2000_ADAPTIVE_MICROSTEPS
 +static uint16_t fast_transfer(uint8_t driver,uint16_t command)
 +{
 +  assert(!initializing);
-+  assert(!(PORTF & (_BV(PF0)|_BV(PF3)|_BV(PF6))));
-+  const uint16_t result=transfer(driver,command);
-+  const unsigned frame=runtime_frames++;
-+  if ((int)frame==runtime_reset_frame) sys_rt_exec_state|=EXEC_RESET;
-+  if ((int)frame==runtime_alarm_frame) sys_rt_exec_alarm=1;
-+  if ((int)frame==runtime_fault_frame) PINE=0;
-+  return result;
++  return transfer(driver,command);
 +}
 +#endif
 +"""
@@ -7097,7 +7113,7 @@
 +    print("Serial ring compile-time capacity guards (RX/TX 0, 256, -1): PASS")
 --- /dev/null
 +++ b/tests/rf2000_adaptive_sim.c
-@@ -0,0 +1,568 @@
+@@ -0,0 +1,614 @@
 +/* Actual AVR adaptive-resolution regression. The independent peripheral model
 + * follows the TI next-valid-indexer rule, not the firmware's virtual counters.
 + * Tests do not establish mechanical accuracy, current or hardware timing.
@@ -7295,7 +7311,7 @@
 +{
 +  adaptive_boot(elf);
 +  const char *identity=command("$I\n",100);
-+  CHECK(strstr(identity,"20261022-rf2000-cnc-adaptive"),"adaptive identity absent");
++  CHECK(strstr(identity,"20261024-rf2000-cnc-adaptive-spi"),"adaptive identity absent");
 +  const char *identity_path=getenv("RF2000_HANDSHAKE_LOG");
 +  if (identity_path) {
 +    FILE *file=fopen(identity_path,"w");
@@ -7436,6 +7452,51 @@
 +  CHECK(stored_position(1)==before+20 || stored_position(1)==before+21,"posthome fine jog endpoint wrong");
 +  reserves_off();
 +  printf("PASS: %s adaptive homing reaches two contacts/releases per selectedaxis; phase survives coordinate rebases; following weighted fine jog correct\n",single<0?"combinedXYZ":single==0?"X-only":single==1?"Y-only":"Z-only");
++  avr_terminate(sim.avr);
++}
++
++/* A finite released-HIGH rise is separate from the driver's propagation
++ * delay. Enable only after boot: this targets the new runtime MODE transport
++ * without changing the already working startup read sequence. One microsecond
++ * is an illustrative regression fixture, not a measurement of the RF2000 bus. */
++static void test_adaptive_spi_slow_rise(const char *elf)
++{
++  adaptive_boot(elf);
++  assert_ok("$27=0.1\n",350); assert_ok("$26=5\n",350);
++  sim.sdato_rise_delay_cycles = CPU_HZ/1000000UL;
++  adaptive_machine.enabled = 1;
++  const size_t start = sim.log_len;
++  command("$H\n",0);
++  const uint64_t deadline = sim.avr->cycle+CPU_HZ*12;
++  while (!strstr(sim.log+start,"ok\r\n") &&
++      !strstr(sim.log+start,"ALARM:") && sim.avr->cycle<deadline)
++    run_us(1000);
++  CHECK(strstr(sim.log+start,"ok\r\n") &&
++      !strstr(sim.log+start,"ALARM:"),
++    "1us released-HIGH SDATO rise broke first MODE32 homing readback");
++  for (unsigned axis=0;axis<3;++axis) {
++    CHECK(adaptive_machine.contacts[axis]==2 && adaptive_machine.releases[axis]==2,
++      "slow-rise homing axis%c contacts/releases incomplete",'X'+axis);
++    CHECK(sim.mode_pulses[axis][5],"slow-rise homing omitted MODE32");
++    CHECK(!adaptive_machine.active[axis],"slow-rise homing left switch active");
++  }
++  adaptive_machine.enabled = 0;
++  anchor_coordinates(); configure_speed();
++  const int32_t before[3]={stored_position(0),stored_position(1),stored_position(2)};
++  adaptive_move("G21G91G1X6F1000\n");
++  CHECK(sim.mode_pulses[0][3],"slow-rise high-speed move never reached MODE8");
++  CHECK(stored_position(0)==before[0]+6*20480 &&
++      stored_position(1)==before[1] && stored_position(2)==before[2],
++    "slow-rise mode transition changed the requested endpoint");
++  adaptive_move("G21G91G1X-6F1000\n");
++  for (unsigned axis=0;axis<3;++axis)
++    CHECK(stored_position(axis)==before[axis],"slow-rise reverse endpoint differs");
++  CHECK(sim.sdato_delayed_highs>50,"SDATO rise-delay fixture was not exercised");
++  CHECK(strstr(command("$DRV\n",80),"READY=1|FAULT=0|READBACK=0"),
++    "slow-rise readback test did not retain verified ready state");
++  verify_actual_positions(); reserves_off();
++  printf("PASS: 1us released-HIGH SDATO delay survives first MODE32 XYZ home and MODE8 F1000 forward/reverse; weighted positions exact, readback guards remain active (%u delayed rises)\n",
++    sim.sdato_delayed_highs);
 +  avr_terminate(sim.avr);
 +}
 +
@@ -7653,6 +7714,7 @@
 +  CASE("fault-loaded",test_adaptive_stop(argv[1],4));
 +  CASE("reset",test_adaptive_stop(argv[1],5));
 +  CASE("pause-reset",test_adaptive_stop(argv[1],6));
++  CASE("spi-slow-rise",test_adaptive_spi_slow_rise(argv[1]));
 +  CASE("spi-fault",test_adaptive_spi_fault(argv[1],0));
 +  CASE("spi-readback",test_adaptive_spi_fault(argv[1],1));
 +  CASE("spi-reset",test_adaptive_spi_reset(argv[1]));
@@ -9538,7 +9600,7 @@
 +}
 --- /dev/null
 +++ b/tests/rf2000_sim.c
-@@ -0,0 +1,495 @@
+@@ -0,0 +1,529 @@
 +/* Run the real ATmega2560 ELF in simavr with a five-channel DRV8711 SPI
 + * register model. This verifies digital firmware behavior, not real hardware,
 + * power electronics, switch wiring or analog current regulation. GPL-3.0+. */
@@ -9549,6 +9611,7 @@
 +#include <inttypes.h>
 +#include "sim_avr.h"
 +#include "sim_elf.h"
++#include "sim_cycle_timers.h"
 +#include "avr_ioport.h"
 +#include "avr_uart.h"
 +
@@ -9571,6 +9634,12 @@
 +  int selected;
 +  uint8_t spi_bits;
 +  uint16_t spi_word, regs[5][8];
++  /* Optional open-drain SDATO rise model. Zero preserves the historical
++   * instantaneous digital peripheral. LOW is immediate; a released HIGH
++   * reaches the MCU only after the configured pull-up/bus-capacitance delay. */
++  uint32_t sdato_rise_delay_cycles;
++  unsigned sdato_delayed_highs;
++  uint8_t sdato_requested;
 +  unsigned writes[5][8], reads[5][8];
 +  unsigned reset_count[5];
 +  unsigned step_count[5];
@@ -9607,6 +9676,32 @@
 +  };
 +  avr_ioctl(sim.avr, AVR_IOCTL_IOPORT_SET_EXTERNAL(port), &external);
 +  avr_raise_irq(pin_irq(port, bit), value);
++}
++
++static avr_cycle_count_t sdato_rise_ready(avr_t *avr,
++    avr_cycle_count_t when, void *opaque)
++{
++  (void)avr; (void)when; (void)opaque;
++  if (sim.sdato_requested) {
++    input_pin('D',4,1);
++    ++sim.sdato_delayed_highs;
++  }
++  return 0;
++}
++
++static void drive_sdato(uint8_t level)
++{
++  if (!sim.sdato_rise_delay_cycles) {
++    sim.sdato_requested = level;
++    input_pin('D',4,level);
++    return;
++  }
++  if (sim.sdato_requested == level) return;
++  sim.sdato_requested = level;
++  avr_cycle_timer_cancel(sim.avr,sdato_rise_ready,NULL);
++  if (!level) input_pin('D',4,0); /* DRV actively sinks the bus. */
++  else avr_cycle_timer_register(sim.avr,sim.sdato_rise_delay_cycles,
++    sdato_rise_ready,NULL); /* Pull-up rise, not an actively driven HIGH. */
 +}
 +
 +static int is_output(char port, uint8_t bit)
@@ -9710,6 +9805,7 @@
 +        ++sim.writes[driver][address];
 +      }
 +      sim.selected = -1;
++      if (sim.sdato_rise_delay_cycles) drive_sdato(1); /* Deselected OD output. */
 +    }
 +  }
 +  if (port == 'D' && bit == 5 && sim.selected >= 0) {
@@ -9724,7 +9820,7 @@
 +      const unsigned reg = header & 7;
 +      uint16_t response = sim.regs[sim.selected][reg];
 +      if (sim.corrupt_readback && reg == 0) response ^= 1;
-+      input_pin('D',4,(response >> (15-sim.spi_bits)) & 1);
++      drive_sdato((response >> (15-sim.spi_bits)) & 1);
 +    }
 +  }
 +  const int axis = axis_step(port,bit);
@@ -10810,11 +10906,11 @@
 +"$repo_root/build/tests/rf2000_y_homing_sim" "${1:-$repo_root/build/y-homing/main.elf}" "${@:2}"
 --- /dev/null
 +++ b/docs/adaptive-mikroschritte.md
-@@ -0,0 +1,236 @@
+@@ -0,0 +1,244 @@
 +# Adaptive Mikroschritte bis 1000 mm/min
 +
 +Das CNC-Profil **`rf2000_cnc`** mit der Kennung
-+**`20261022-rf2000-cnc-adaptive`** verwendet die DRV8711-Auflösungen
++**`20261024-rf2000-cnc-adaptive-spi`** verwendet die DRV8711-Auflösungen
 +**1/256, 1/128, 1/64, 1/32, 1/16 und 1/8** geschwindigkeitsabhängig.
 +XYZ bleiben die drei aktiven Achsen; A/B bleiben gesperrt. Display,
 +Tastenfeld, gSender-Befehle, Endschalter und manuelle Spindelbedienung
@@ -10901,6 +10997,14 @@
 +entsprechende Genauigkeitsgrenze für die gesamte Bahn oder die Mechanik.
 +
 +## Umschalten ohne laufenden STEP-Puls
++
++Seit `20261024-rf2000-cnc-adaptive-spi` verwendet das Rücklesen beim
++Umschalten dieselbe langsamere SPI-Abfrage wie der Starttest. SDATO ist
++Open-Drain; die HIGH-Flanke braucht mit dem internen Pull-up Zeit zum
++Ansteigen. Schnelles MODE-Schreiben bleibt möglich, aber das Rücklesen
++wird nicht mehr mit diesem schnellen Takt abgetastet. Der Vergleich aller
++XYZ-Register und die Fehlersperre bleiben aktiv.
++Bei Alarm 12: [Diagnose und Software-Reset](diagnose-alarm12.md).
 +
 +Ein Auflösungswechsel erfolgt an einer Abschnittsgrenze mit beendetem
 +STEP-Puls und angehaltenem Schritttimer. Der Vordergrund schreibt und liest
@@ -11020,8 +11124,8 @@
 +
 +| Werkzeugkette | Flash | Statisches SRAM |
 +| --- | ---: | ---: |
-+| PlatformIO Atmel AVR 5.1.0 / AVR-GCC 7.3.0 | 50.958 Byte | 3.893 Byte |
-+| Make / AVR-GCC 14.2.0 | 52.130 Byte | 3.893 Byte |
++| PlatformIO Atmel AVR 5.1.0 / AVR-GCC 7.3.0 | 50.912 Byte | 3.893 Byte |
++| Make / AVR-GCC 14.2.0 | 52.078 Byte | 3.893 Byte |
 +
 +Der PlatformIO-Build einschließlich Größenprüfung und HEX-Erzeugung
 +bestand. Die frühere Registry-Sperre ist für diesen aktuellen Build
@@ -11032,9 +11136,9 @@
 +gebautes Image ist der direkte Aufruf
 +`tests/run-adaptive-sim.sh .pio/build/rf2000_cnc/firmware.elf` vorgesehen.
 +Die Suite muss neben MODE-Auswahl auch die tatsächlich gefahrenen,
-+phasengewichteten Wege und die Fehlerfälle prüfen. Beide Compiler-Ausgaben haben je 27 adaptive AVR-Fälle bestanden.
-+Beim Make-ELF bestanden zusätzlich acht Menü-, 20 Freifahr- und zwei
-+gestaffelte XY-Referenzfälle, insgesamt 57 Fälle auf demselben ELF.
++phasengewichteten Wege und die Fehlerfälle prüfen. Beide Compiler-Ausgaben haben je 28 adaptive AVR-Fälle bestanden.
++Beim PlatformIO-ELF bestanden zusätzlich acht Menü-, 20 Freifahr- und zwei
++gestaffelte XY-Referenzfälle, insgesamt 58 Fälle auf demselben ELF.
 +Kommandos, Messwerte und Hashzuordnung stehen im [Prüfbericht](validation.md). Ein Build ist kein
 +Hardwaretest und keine Messung der tatsächlichen Fräsgenauigkeit.
 +
@@ -11297,7 +11401,7 @@
 +# RF2000-CNC: Befehlsübersicht für gSender
 +
 +Diese Übersicht gilt für das Projektprofil **`rf2000_cnc`**, Stand
-+22.10.2026, ab Version `20261022-rf2000-cnc-adaptive`. Sie beschreibt die
++22.10.2026, ab Version `20261024-rf2000-cnc-adaptive-spi`. Sie beschreibt die
 +im RF2000-Code vorhandenen Befehle. Das separate Y-Testprofil hat andere
 +Beschränkungen. [Bedienfeld und Menü](bedienfeld-menue.md) ·
 +[Einrichten und Fräsen mit gSender](cnc-gsender.md)
@@ -11683,7 +11787,7 @@
 +Alternativ: `make cnc`, Ergebnisse unter `artifacts/cnc/rf2000-grbl.*`.
 +
 +Die Startmeldung lautet **`RF2000 XYZ CNC; spindle manual; ...`**.
-+`$I` enthält `20261022-rf2000-cnc-adaptive`. Das Y-Testprofil bleibt mit
++`$I` enthält `20261024-rf2000-cnc-adaptive-spi`. Das Y-Testprofil bleibt mit
 +`-e rf2000_y_homing_test` wählbar und hat weiterhin seine erste endlose Suche.
 +
 +**Nach einem Update zuerst die unten beschriebene
@@ -12002,8 +12106,8 @@
 +ELF-Hashes stehen in [validation.md](validation.md).
 +
 +Das aktuelle CNC-Profil wurde zusätzlich mit dem festgelegten PlatformIO-
-+AVR-GCC 7.3.0 gebaut: 50.958 Byte Flash, 3.893 Byte statisches SRAM.
-+Der Make-Build mit AVR-GCC 14.2.0 benötigt 52.130/3.893 Byte. Beide Builds
++AVR-GCC 7.3.0 gebaut: 50.912 Byte Flash, 3.893 Byte statisches SRAM.
++Der Make-Build mit AVR-GCC 14.2.0 benötigt 52.078/3.893 Byte. Beide Builds
 +sind von den jeweils getrennten AVR-Simulationsnachweisen zu unterscheiden.
 +[PlatformIO-Buildnachweis](platformio.md#stand-der-cloudprüfung).
 +`make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.
@@ -12075,8 +12179,90 @@
 +zum CPU-Portpin PC0. Weitere Änderungen der Hardwarezuordnung werden dem
 +Nutzer mit bisheriger und neuer Zuordnung ausdrücklich mitgeteilt.
 --- /dev/null
++++ b/docs/diagnose-alarm12.md
+@@ -0,0 +1,79 @@
++# Alarm 12 beim RF2000
++
++`ALARM:12` bedeutet einen verriegelten DRV8711-Treiber-/Konfigurationsfehler.
++Die Firmware hält deshalb alle Motoren abgeschaltet. `error:12` ist eine
++andere Meldung: Sie betrifft eine unzulässige Geschwindigkeitseinstellung.
++
++## Diagnose in gSender 1.6.4
++
++Bei `[MSG:Reset to continue]` wartet GRBL auf einen Software-Reset und
++verarbeitet normale Konsolenzeilen noch nicht. Vorgehen nach dem Alarm:
++
++1. gSender verbunden lassen. **Den roten STOP-Knopf mitten im rechten
++   X/Y-Steuerkreuz** einmal anklicken. Im GRBL-Alarmzustand sendet dieser
++   Knopf das Resetzeichen `0x18`.
++2. Die neue `Grbl 1.2i`-Startmeldung abwarten.
++3. In der Konsole einzeln `$DRV` und `$MS` senden und die Antworten sichern.
++
++Der untere Job-STOP kann ohne laufenden Job deaktiviert sein. Ein getipptes
++`$RST=*` ist kein Software-Reset: Es löscht Einstellungen und Nullpunkte.
++`Ctrl+X` im Konsoleneingabefeld ist kein verlässlich belegter gSender-
++Tastaturweg; der rote mittlere STOP ist im Quellcode ausdrücklich zugeordnet.
++
++Der Software-Reset löscht den verriegelten Treiberfehler nicht. Ein echter
++MCU-Neustart oder erneutes Öffnen des seriellen Ports kann dagegen den
++Starttest neu ausführen und den vorherigen Diagnosezustand verlieren.
++Deshalb vor der Diagnose weder ausschalten noch neu verbinden.
++
++Die gSender-Zuordnung ist anhand des offiziellen 1.6.4-Quellstands geprüft:
++[Jogging.ts](https://github.com/Sienci-Labs/gsender/blob/eb2df2d2073d9dd1a762c0ed150d9be19360cf49/src/app/src/features/Jogging/utils/Jogging.ts#L109).
++
++## Antworten verstehen
++
++Beispiel eines erfolgreichen Starttests:
++
++```text
++[DRV:READY=1|FAULT=0|READBACK=0|LIMITS=0|STATUS=0,0,0,0,0]
++[MS:VIRTUAL=256|MICRO=256|MAX=1000|PULSE_MAX=12000]
++```
++
++Das bestätigt den aktuellen Startzustand. Es enthält keinen gespeicherten
++Fehler einer früheren MCU-Sitzung.
++
++| Feld | Bedeutung |
++| --- | --- |
++| `FAULT=1` | Gemeinsames FAULTn wurde aktiv; Versorgung und Treiberfehler prüfen |
++| `FAULT=2` | Ein Register wurde nicht wie erwartet zurückgelesen |
++| `FAULT=4` | Der Start-STATUS enthält einen Leistungsstufenfehler |
++| Andere FAULT-Werte | Bitkombinationen, beispielsweise 3 = FAULTn plus Readback |
++| `READBACK` | Kanalmaske: X=1, Y=2, Z=4, Reserve A=8, Reserve B=16 |
++| `MICRO=0` | Eine Laufzeit-Umstellung blieb unbestätigt; vor jeder Bewegung ist vollständige Registerbestätigung erforderlich |
++| `LIMITS` | Physische Endschaltermaske: X-Min=1, Y-Min=2, Z-Min=4, Z-Max=8 |
++
++Das gemeinsame XYZ-Profil wird vor der ersten Bewegung auf allen drei
++Kanälen geprüft. Ein fehlgeschlagenes X-Readback kann daher auch den Beginn
++einer Z-Referenzfahrt sperren. Der Kanalname allein beweist keinen defekten
++Motor oder Treiber.
++
++## Korrektur des Laufzeit-Readbacks
++
++Bei der bisherigen Kennung `20261022-rf2000-cnc-adaptive` wurde auch das
++Readback beim MODE-Wechsel mit dem schnellen SPI-Transport ausgeführt.
++SDATO ist Open-Drain und verwendet den AVR-Pull-up. Eine verzögerte HIGH-
++Flanke kann deshalb zu einem scheinbar falschen Registerwert führen.
++
++Die Kennung **`20261024-rf2000-cnc-adaptive-spi`** verwendet für dieses
++Readback den langsameren, bereits beim Start verwendeten Ablauf.
++MODE-Schreiben bleibt schnell. Die XYZ-Registervergleiche, FAULT-Abfrage,
++Pulsbarriere und Abschaltung bleiben wirksam; Fehler werden nicht ignoriert.
++
++Ein neuer Test mit synthetischer 1-µs-HIGH-Anstiegszeit reproduziert beim
++alten offiziellen ELF Alarm 12 vor dem ersten Homingschritt. Derselbe Test
++besteht beim korrigierten ELF. Das ist eine gezielte Nachstellung im
++Simulator, keine Messung der tatsächlichen Signalflanke an der Maschine.
++
++Projekt aktualisieren, `rf2000_cnc` bauen und nach dem Aufspielen die neue
++Kennung mit `$I` prüfen. EEPROM-Version 76 und die Kalibrierung bleiben
++unverändert; `$RST=*` oder neue Schritte/mm sind dafür nicht nötig.
++Falls Alarm 12 weiterhin auftritt, die oben beschriebenen Diagnosewerte
++sichern und die Ursache anhand der FAULT-/READBACK-Bits weiter eingrenzen.
+--- /dev/null
 +++ b/docs/drv8711.md
-@@ -0,0 +1,232 @@
+@@ -0,0 +1,237 @@
 +# DRV8711 auf I851 CTC V3.0
 +
 +Der Port initialisiert fünf physische Treiber, während GRBL im Standardprofil nur
@@ -12094,7 +12280,7 @@
 +Kanäle durchlaufen weiterhin den sicheren Reset und Registerreadback. Die
 +folgenden Registerbeispiele beschreiben das Standardprofil.
 +
-+Das CNC-Profil `20261022-rf2000-cnc-adaptive` verwendet auf XYZ
++Das CNC-Profil `20261024-rf2000-cnc-adaptive-spi` verwendet auf XYZ
 +**automatische Stufen von 1/256 bis 1/8**. GRBL behält ein festes virtuelles
 +1/256-Raster mit nominal 20480 Einheiten/mm auf allen Achsen. A/B behalten
 +1/32 und ENBL=0; die getrennten Standard-/Y-Testprofile bleiben unverändert.
@@ -12259,8 +12445,13 @@
 +
 +Die Initialisierung verwendet den übernommenen langsamen SPI-Transport
 +mit mindestens 1 µs LOW und 5 µs HIGH. Das adaptive CNC-Profil verwendet
-+zusätzlich einen begrenzten Laufzeittransport für MODE-Schreiben und
-+Readback, während STEP beendet und der Schritttimer angehalten ist.
++zusätzlich schnelles MODE-Schreiben mit anschließendem Rücklesen über
++den langsameren Starttransport, während STEP beendet und der
++Schritttimer angehalten ist. Seit `20261024-rf2000-cnc-adaptive-spi` wird
++SDATO beim Laufzeit-Readback nicht mehr mit dem schnellen Schreibtakt
++abgetastet: Das Open-Drain-Signal benötigt mit dem internen Pull-up eine
++zusätzliche Anstiegszeit. Eine digitale Mindesttaktangabe belegt nicht
++die reale RC-Anstiegszeit auf der Platine.
 +Er läuft im Vordergrund und hält Interrupts nicht über einen ganzen Transfer
 +gesperrt. Nur kurze gemeinsame Portzugriffe sind atomar; Fehler, Limits und
 +UART bleiben ansprechbar. Ein Readbackfehler verriegelt die Abschaltung.
@@ -12315,7 +12506,7 @@
 +# RF2000-CNC: Geschwindigkeit und Hardwaretest
 +
 +Stand: 22.10.2026. Das aktuelle CNC-Profil
-+**`20261022-rf2000-cnc-adaptive`** verwendet automatische Mikroschritte
++**`20261024-rf2000-cnc-adaptive-spi`** verwendet automatische Mikroschritte
 +von **1/256 bis 1/8** und ein festes internes Raster mit nominal
 +**20480 Einheiten/mm auf X/Y/Z**. Die Maximalgeschwindigkeit ist auf
 +**1000 mm/min für Einzelachsen und Bahnfeed** begrenzt. Details der Umschaltung stehen in
@@ -12495,7 +12686,7 @@
 +ursprünglichen XYZ-Inbetriebnahmeschritte unten beschreiben
 +`rf2000_grbl`; Unterschiede des aktuellen CNC-Profils sind ausdrücklich
 +genannt. Das [CNC-Profil](cnc-gsender.md)
-+`20261022-rf2000-cnc-adaptive` verwendet automatische XYZ-Auflösungen von
++`20261024-rf2000-cnc-adaptive-spi` verwendet automatische XYZ-Auflösungen von
 +**1/256 bis 1/8**, ein festes virtuelles Raster mit nominal
 +**20480/20480/20480 Einheiten/mm** und höchstens **1000 mm/min Achs-/Bahnfeed**.
 +Factory-Tempi bleiben 600/600/300 mm/min bei 10 mm/s². Gültige niedrigere
@@ -12774,7 +12965,7 @@
 +
 +Die Tabelle zeigt den Referenz-CTRL mit ENBL=1; Reserve A/B muss im Port mit gelöschtem ENBL, also CTRL `0x0E28`, abgelegt werden. Die kurze Wake-Phase während des Starts ist damit keine Freigabe der Motorbrücke. Weitere aus der Referenz übernommene SPI-Wörter: OFF `0x2097`, BLANK `0x31D7`, DECAY `0x4430`, STALL `0x583C`, DRIVE `0x60F0`, STATUS-Schreibwert `0x7000`. Das oberste Adressnibble ist nicht Teil des jeweiligen 12-Bit-Registerinhalts. TORQUE.SMPLTH Bit 10 ist laut TI §7.6.3 nur schreibbar und muss vom Readback-Vergleich ausgenommen werden. Diese Werte sind keine beliebig sicheren Defaults für andere MOSFETs, Motoren oder Shunts.
 +
-+Das aktuelle CNC-Profil `20261022-rf2000-cnc-adaptive` startet XYZ mit
++Das aktuelle CNC-Profil `20261024-rf2000-cnc-adaptive-spi` startet XYZ mit
 +1/256 und CTRL `0x0E41` bei ENBL=1. Im Betrieb wechselt MODE zwischen
 +1/256 und 1/8 an pulsfreien Abschnittsgrenzen mit Readback. A/B bleiben
 +1/32 und gesperrt. Pins und Stromwerte ändern sich nicht. GRBL verwendet
@@ -13420,7 +13611,7 @@
 +
 +Am 22.10.2026 wurde das adaptive CNC-Profil mit der festgelegten
 +PlatformIO-Plattform **Atmel AVR 5.1.0** und **AVR-GCC 7.3.0** vollständig
-+gebaut. Flash: **50.958 Byte**, statisches SRAM: **3.893 Byte**. Auch die
++gebaut. Flash: **50.912 Byte**, statisches SRAM: **3.893 Byte**. Auch die
 +zusätzliche Sektions-/Kapazitätsprüfung und die HEX-Erzeugung liefen
 +mit Exitstatus 0 durch. Der frühere Registry-403 verhinderte diesen
 +aktuellen Build nicht; nach einem verweigerten Spiegel wurde ein anderer
@@ -13429,21 +13620,21 @@
 +Der dabei erzeugte ELF-SHA256 lautet:
 +
 +```text
-+8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06
++92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
 +```
 +
 +HEX-SHA256:
 +
 +```text
-+6cc3c14af6c076a5e338bd7ebd806b08614dcfd86ce3763ddcc71c2b59759bda
++d477d766d5b8650f4125237629c57a0580d4afa16d063535ff0953a5b81def56
 +```
 +
-+Der separate Make-Build mit AVR-GCC 14.2.0 benötigt 52.130 Byte Flash und
++Der separate Make-Build mit AVR-GCC 14.2.0 benötigt 52.078 Byte Flash und
 +3.893 Byte statisches SRAM. Die unterschiedlichen Compiler erzeugen
 +verschiedene Programme; Prüfergebnisse müssen deshalb dem jeweiligen ELF
 +zugeordnet werden. Ein erfolgreicher Build allein belegt noch keinen
 +bestandenen Bewegungs-/Fehlerfall. Das erzeugte PlatformIO-ELF hat die vollständige adaptive Suite mit
-+**27 AVR-Simulatorfällen** bestanden, Exitstatus 0. Genaue Kommandos,
++**28 AVR-Simulatorfällen** bestanden, Exitstatus 0. Genaue Kommandos,
 +Messwerte und Hashzuordnung stehen im [Prüfbericht](validation.md).
 +
 +Reproduktion der adaptiven AVR-Prüfung mit einem lokal gebauten Image:
@@ -13536,7 +13727,7 @@
 +Für spätere Aufgaben den vorhandenen Checkout verwenden; die Cloudmaschine ist bereits isoliert und benötigt keinen Git-Worktree. Flashen ist keine Setupaktion und wurde nicht durchgeführt.
 --- /dev/null
 +++ b/docs/step-timing.md
-@@ -0,0 +1,110 @@
+@@ -0,0 +1,113 @@
 +# RF2000 STEP/DIR timing
 +
 +All RF2000 profiles use three logical Grbl axes and initialize five physical
@@ -13544,7 +13735,7 @@
 +circuits are temporarily awake during initial RESET/readback with CTRL.ENBL=0;
 +their motor bridges remain disabled. Pins and current settings are unchanged.
 +
-+The current CNC profile is **`20261022-rf2000-cnc-adaptive`**. It retains a
++The current CNC profile is **`20261024-rf2000-cnc-adaptive-spi`**. It retains a
 +fixed virtual 1/256 coordinate grid, nominal **20480 units/mm on XYZ**, while
 +physical resolution changes between **1/256, 1/128, 1/64, 1/32, 1/16 and 1/8**.
 +Axis and path feed are capped at **1000 mm/min**. The physical pulse budget is
@@ -13625,8 +13816,11 @@
 +
 +Other interrupts remain available during transfers, apart from short atomic
 +GPIO operations. Timer2 limit polling, UART and INT6 fault latching therefore
-+remain active. Runtime transfers have a dedicated bounded transport; the
-+slower initialization transaction is not inserted into a STEP ISR.
++remain active. MODE writes use the fast transport, but CTRL readback uses
++the slower startup transport to allow the open-drain SDATO line to rise.
++Both run in foreground only; neither transaction enters a STEP ISR.
++The synthetic delayed-HIGH regression reproduces the former Alarm12
++with the old fast read and passes with the settled read path.
 +
 +Transfer/readback and fine completion add time. High rates and exact command
 +endpoints do not imply an identical wall-clock profile at every short segment.
@@ -13649,11 +13843,11 @@
 +[adaptive-mikroschritte.md](adaptive-mikroschritte.md).
 --- /dev/null
 +++ b/docs/validation.md
-@@ -0,0 +1,196 @@
+@@ -0,0 +1,228 @@
 +# Prüfbericht
 +
-+Stand: 23.10.2026. Dieser Bericht beschreibt die adaptive CNC-Firmware
-+`20261022-rf2000-cnc-adaptive`. Die Cloud hat keine Platine programmiert
++Stand: 24.10.2026. Dieser Bericht beschreibt die adaptive CNC-Firmware
++`20261024-rf2000-cnc-adaptive-spi`. Die Cloud hat keine Platine programmiert
 +und keinen Motor bewegt. Die Messwerte stammen aus dem Simulator, der das
 +kompilierte AVR-Programm und dessen GPIO-/SPI-Signale ausführt. Der frühere
 +Anwenderbericht zu Display, Tasten, Y-Homing und Y-Kalibrierung ersetzt
@@ -13663,8 +13857,8 @@
 +
 +| Variante | Werkzeugkette | Flash | Statisches SRAM | Ergebnis |
 +| --- | --- | ---: | ---: | --- |
-+| Adaptive XYZ-CNC mit LCD | PlatformIO / AVR-GCC 7.3.0 | 50.958 Byte | 3.893 Byte | gebaut und 27 AVR-Fälle bestanden |
-+| Adaptive XYZ-CNC mit LCD | Make / AVR-GCC 14.2.0 | 52.130 Byte | 3.893 Byte | gebaut und 57 AVR-Fälle bestanden |
++| Adaptive XYZ-CNC mit LCD | PlatformIO / AVR-GCC 7.3.0 | 50.912 Byte | 3.893 Byte | gebaut und 58 AVR-Fälle bestanden |
++| Adaptive XYZ-CNC mit LCD | Make / AVR-GCC 14.2.0 | 52.078 Byte | 3.893 Byte | gebaut und 28 AVR-Fälle bestanden |
 +| Standard-XYZ-Test ohne LCD | Make / AVR-GCC 14.2.0 | 35.226 Byte | 3.520 Byte | gebaut; `make check` bestanden |
 +| Separater Y-Test mit LCD | Make / AVR-GCC 14.2.0 | 38.448 Byte | 3.697 Byte | gebaut; HEX unverändert |
 +| Repetier-Referenz | historischer Build | 218.996 Byte | 6.914 Byte | unverändertes Artefakt, nicht erneut gebaut |
@@ -13678,9 +13872,9 @@
 +Simulatorergebnisse wurden deshalb unmittelbar am jeweiligen ELF erhoben:
 +
 +```text
-+PlatformIO ELF 8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06
-+PlatformIO HEX 6cc3c14af6c076a5e338bd7ebd806b08614dcfd86ce3763ddcc71c2b59759bda
-+Make ELF       148184742600dcab361e525e411b94fb8b013b16b09988d388d1729acc6eb874
++PlatformIO ELF 92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
++PlatformIO HEX d477d766d5b8650f4125237629c57a0580d4afa16d063535ff0953a5b81def56
++Make ELF       23cbf1c7958ebbe14c228fa98c3372cf92aca5dccd540ad968af3f5dd6cf56e4
 +```
 +
 +PlatformIO verwendet `platformio/atmelavr@5.1.0`,
@@ -13695,11 +13889,10 @@
 +
 +## Adaptive Bewegung und Fehlerbehandlung
 +
-+Die adaptive Suite besteht aus **27 Fällen**. Sie wurde mit dem
-+PlatformIO-ELF vollständig in einem Lauf ausgeführt. Beim Make-ELF wurden
-+26 Fälle gemeinsam und der anschließend ergänzte Migrationsfall separat
-+auf demselben unveränderten ELF ausgeführt. Alle Läufe endeten mit
-+**Exitstatus 0**. Protokolle mit Hash und tatsächlichen Aufrufen:
++Die adaptive Suite besteht aus **28 Fällen**. Sie wurde mit dem
++PlatformIO-ELF und dem Make-ELF jeweils vollständig in einem Lauf
++ausgeführt. Alle Läufe endeten mit **Exitstatus 0**. Der neue zusätzliche
++Fall bildet die Anstiegszeit der offenen SPI-Leseleitung nach. Protokolle mit Hash und tatsächlichen Aufrufen:
 +
 +- `artifacts/adaptive-platformio-simulation.log`
 +- `artifacts/adaptive-simulation.log`
@@ -13728,6 +13921,39 @@
 +die digitale Konsistenz. Motor-Schrittverluste oder echte mechanische
 +Bewegung werden damit nicht gemessen.
 +
++## Korrektur nach gemeldetem Alarm 12
++
++Der Nutzer meldete am 24.10.2026 Alarm 12 beim Referenzstart. Die später
++übermittelten Diagnosewerte zeigen einen erfolgreichen Starttest mit
++`READY=1`, `FAULT=0`, `READBACK=0` und `MICRO=256`; sie dokumentieren keinen
++verriegelten Laufzeitfehler dieser MCU-Sitzung. Der konkrete elektrische
++Auslöser an der Maschine ist damit noch nicht abschließend gemessen.
++
++Ein gezielter neuer Test verzögert ausschließlich nach dem Start die
++freigegebene HIGH-Flanke des Open-Drain-SDATO-Signals um 1 µs. Der alte
++offizielle PlatformIO-ELF aus Commit `929f552` reproduziert damit Alarm 12
++beim ersten MODE32-Readback vor der Referenzbewegung. Der korrigierte
++PlatformIO-ELF besteht denselben Test, einschließlich vollständigem
++Homing und anschließender MODE8-Fahrt samt Rückkehr.
++
++Der negative alte Lauf endet **erwartet mit Exitstatus 1**. Er wird getrennt
++von den erfolgreichen Releaseprüfungen in
++`artifacts/spi-readback-regression.log` dokumentiert. Dieses Protokoll
++enthält ausdrücklich einen erwarteten Fehler, keinen fehlgeschlagenen
++Prüflauf der neuen Firmware.
++
++Die Korrektur liest CTRL bei Laufzeitwechseln über den langsameren
++Starttransport zurück, statt mit dem schnellen Schreibtakt abzutasten.
++Registervergleich, unbekannter Teilzustand, FAULT-Verriegelung und
++Pulsbarriere bleiben aktiv. Hosttests injizieren weiterhin nach jedem der
++sechs Frames Reset/Alarm/FAULT, nun über schnelles Schreiben und langsames
++Lesen gemeinsam. Es gibt keine Abschaltung oder Umgehung der Fehlerprüfung.
++
++Der Test belegt die zeitliche Schwachstelle im Modell. Die tatsächliche
++Anstiegszeit und das Verhalten der Nutzerplatine nach dem Update müssen
++noch am Gerät geprüft werden. Bedienung und Diagnose:
++[diagnose-alarm12.md](diagnose-alarm12.md).
++
 +## Geschwindigkeit und Pulszeiten unter Last
 +
 +Das LCD bleibt aktiv; die Tests fragen UART-Status mit 100 Hz ab.
@@ -13736,12 +13962,12 @@
 +
 +| ELF / Bewegung | Angefordert | Gemessener Vorschub | Min. HIGH | Min. LOW |
 +| --- | ---: | ---: | ---: | ---: |
-+| PlatformIO, nur X, `$0=10` | F1000 | 992,890 mm/min | 14,438 µs | 60,562 µs |
-+| Make, nur X, `$0=10` | F1000 | 993,430 mm/min | 14,312 µs | 58,000 µs |
-+| PlatformIO, gleiche XYZ, `$0=10` | Bahn F1000 | 569,578 mm/min je Achse | 20,188 µs | 76,750 µs |
-+| Make, gleiche XYZ, `$0=10` | Bahn F1000 | 569,816 mm/min je Achse | 20,062 µs | 88,000 µs |
-+| PlatformIO, gleiche XYZ, `$0=20` | Bahn F1000 | 569,576 mm/min je Achse | 30,250 µs | 64,312 µs |
-+| Make, gleiche XYZ, `$0=20` | Bahn F1000 | 569,816 mm/min je Achse | 30,125 µs | 70,625 µs |
++| PlatformIO, nur X, `$0=10` | F1000 | 993,026 mm/min | 14,438 µs | 59,375 µs |
++| Make, nur X, `$0=10` | F1000 | 993,365 mm/min | 14,312 µs | 60,062 µs |
++| PlatformIO, gleiche XYZ, `$0=10` | Bahn F1000 | 569,578 mm/min je Achse | 20,188 µs | 76,062 µs |
++| Make, gleiche XYZ, `$0=10` | Bahn F1000 | 569,817 mm/min je Achse | 20,062 µs | 79,062 µs |
++| PlatformIO, gleiche XYZ, `$0=20` | Bahn F1000 | 569,577 mm/min je Achse | 30,250 µs | 67,312 µs |
++| Make, gleiche XYZ, `$0=20` | Bahn F1000 | 569,816 mm/min je Achse | 30,125 µs | 68,312 µs |
 +
 +Die Zeitprüfung verlangt ausreichende Puls-HIGH-/LOW-Zeiten und
 +Richtungsvorlauf; kurze Interrupt-/Abschnittslatenzen können Pulse
@@ -13757,7 +13983,7 @@
 +
 +## Bedienfeld, Freifahren und gestaffeltes Homing
 +
-+Zusätzlich bestanden auf dem Make-ELF:
++Zusätzlich bestanden auf dem PlatformIO-ELF:
 +
 +- **Acht Menügruppen**, `artifacts/menu-simulation.log`: elf reale
 +  GPIO-Tasten, LCD-Navigation, Freigaben, bestätigtes Arbeitsnullsetzen,
@@ -13773,8 +13999,8 @@
 +  STEP-Flanke, während die andere sucht. Danach vollständiger Rückzug,
 +  Feinannäherung und letzter Rückzug; `$H` endet mit freien Schaltern.
 +
-+Damit bestanden **57 Fälle auf demselben Make-ELF** und die adaptive
-+**27-Fälle-Suite auf dem separaten PlatformIO-ELF**. Zusätzliche
++Damit bestanden **58 Fälle auf demselben PlatformIO-ELF** und die adaptive
++**28-Fälle-Suite auf dem separaten Make-ELF**. Zusätzliche
 +Wiederholungen einzelner Fälle werden nicht als neue Fälle gezählt.
 +
 +Reproduktion:

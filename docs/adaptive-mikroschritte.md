@@ -1,7 +1,7 @@
 # Adaptive Mikroschritte bis 1000 mm/min
 
 Das CNC-Profil **`rf2000_cnc`** mit der Kennung
-**`20261022-rf2000-cnc-adaptive`** verwendet die DRV8711-Auflösungen
+**`20261024-rf2000-cnc-adaptive-spi`** verwendet die DRV8711-Auflösungen
 **1/256, 1/128, 1/64, 1/32, 1/16 und 1/8** geschwindigkeitsabhängig.
 XYZ bleiben die drei aktiven Achsen; A/B bleiben gesperrt. Display,
 Tastenfeld, gSender-Befehle, Endschalter und manuelle Spindelbedienung
@@ -88,6 +88,14 @@ Endpunkten erzeugt zusätzliche Abweichungen; daraus folgt keine
 entsprechende Genauigkeitsgrenze für die gesamte Bahn oder die Mechanik.
 
 ## Umschalten ohne laufenden STEP-Puls
+
+Seit `20261024-rf2000-cnc-adaptive-spi` verwendet das Rücklesen beim
+Umschalten dieselbe langsamere SPI-Abfrage wie der Starttest. SDATO ist
+Open-Drain; die HIGH-Flanke braucht mit dem internen Pull-up Zeit zum
+Ansteigen. Schnelles MODE-Schreiben bleibt möglich, aber das Rücklesen
+wird nicht mehr mit diesem schnellen Takt abgetastet. Der Vergleich aller
+XYZ-Register und die Fehlersperre bleiben aktiv.
+Bei Alarm 12: [Diagnose und Software-Reset](diagnose-alarm12.md).
 
 Ein Auflösungswechsel erfolgt an einer Abschnittsgrenze mit beendetem
 STEP-Puls und angehaltenem Schritttimer. Der Vordergrund schreibt und liest
@@ -207,8 +215,8 @@ Das CNC-Profil wurde mit den beiden vorgesehenen Werkzeugketten gebaut:
 
 | Werkzeugkette | Flash | Statisches SRAM |
 | --- | ---: | ---: |
-| PlatformIO Atmel AVR 5.1.0 / AVR-GCC 7.3.0 | 50.958 Byte | 3.893 Byte |
-| Make / AVR-GCC 14.2.0 | 52.130 Byte | 3.893 Byte |
+| PlatformIO Atmel AVR 5.1.0 / AVR-GCC 7.3.0 | 50.912 Byte | 3.893 Byte |
+| Make / AVR-GCC 14.2.0 | 52.078 Byte | 3.893 Byte |
 
 Der PlatformIO-Build einschließlich Größenprüfung und HEX-Erzeugung
 bestand. Die frühere Registry-Sperre ist für diesen aktuellen Build
@@ -219,9 +227,9 @@ dieselbe adaptive AVR-Suite mit dem Make-ELF. Für ein lokal mit PlatformIO
 gebautes Image ist der direkte Aufruf
 `tests/run-adaptive-sim.sh .pio/build/rf2000_cnc/firmware.elf` vorgesehen.
 Die Suite muss neben MODE-Auswahl auch die tatsächlich gefahrenen,
-phasengewichteten Wege und die Fehlerfälle prüfen. Beide Compiler-Ausgaben haben je 27 adaptive AVR-Fälle bestanden.
-Beim Make-ELF bestanden zusätzlich acht Menü-, 20 Freifahr- und zwei
-gestaffelte XY-Referenzfälle, insgesamt 57 Fälle auf demselben ELF.
+phasengewichteten Wege und die Fehlerfälle prüfen. Beide Compiler-Ausgaben haben je 28 adaptive AVR-Fälle bestanden.
+Beim PlatformIO-ELF bestanden zusätzlich acht Menü-, 20 Freifahr- und zwei
+gestaffelte XY-Referenzfälle, insgesamt 58 Fälle auf demselben ELF.
 Kommandos, Messwerte und Hashzuordnung stehen im [Prüfbericht](validation.md). Ein Build ist kein
 Hardwaretest und keine Messung der tatsächlichen Fräsgenauigkeit.
 

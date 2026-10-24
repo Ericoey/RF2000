@@ -57,8 +57,8 @@ und bewegen keine reale Maschine. Kommandos, Ergebnisse und zugehörige
 ELF-Hashes stehen in [validation.md](validation.md).
 
 Das aktuelle CNC-Profil wurde zusätzlich mit dem festgelegten PlatformIO-
-AVR-GCC 7.3.0 gebaut: 50.958 Byte Flash, 3.893 Byte statisches SRAM.
-Der Make-Build mit AVR-GCC 14.2.0 benötigt 52.130/3.893 Byte. Beide Builds
+AVR-GCC 7.3.0 gebaut: 50.912 Byte Flash, 3.893 Byte statisches SRAM.
+Der Make-Build mit AVR-GCC 14.2.0 benötigt 52.078/3.893 Byte. Beide Builds
 sind von den jeweils getrennten AVR-Simulationsnachweisen zu unterscheiden.
 [PlatformIO-Buildnachweis](platformio.md#stand-der-cloudprüfung).
 `make disasm` erzeugt das Disassembly `build/rf2000-grbl.lst`.

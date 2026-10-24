@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include "sim_avr.h"
 #include "sim_elf.h"
+#include "sim_cycle_timers.h"
 #include "avr_ioport.h"
 #include "avr_uart.h"
 
@@ -30,6 +31,12 @@ struct simulation {
   int selected;
   uint8_t spi_bits;
   uint16_t spi_word, regs[5][8];
+  /* Optional open-drain SDATO rise model. Zero preserves the historical
+   * instantaneous digital peripheral. LOW is immediate; a released HIGH
+   * reaches the MCU only after the configured pull-up/bus-capacitance delay. */
+  uint32_t sdato_rise_delay_cycles;
+  unsigned sdato_delayed_highs;
+  uint8_t sdato_requested;
   unsigned writes[5][8], reads[5][8];
   unsigned reset_count[5];
   unsigned step_count[5];
@@ -66,6 +73,32 @@ static void input_pin(char port, uint8_t bit, uint8_t value)
   };
   avr_ioctl(sim.avr, AVR_IOCTL_IOPORT_SET_EXTERNAL(port), &external);
   avr_raise_irq(pin_irq(port, bit), value);
+}
+
+static avr_cycle_count_t sdato_rise_ready(avr_t *avr,
+    avr_cycle_count_t when, void *opaque)
+{
+  (void)avr; (void)when; (void)opaque;
+  if (sim.sdato_requested) {
+    input_pin('D',4,1);
+    ++sim.sdato_delayed_highs;
+  }
+  return 0;
+}
+
+static void drive_sdato(uint8_t level)
+{
+  if (!sim.sdato_rise_delay_cycles) {
+    sim.sdato_requested = level;
+    input_pin('D',4,level);
+    return;
+  }
+  if (sim.sdato_requested == level) return;
+  sim.sdato_requested = level;
+  avr_cycle_timer_cancel(sim.avr,sdato_rise_ready,NULL);
+  if (!level) input_pin('D',4,0); /* DRV actively sinks the bus. */
+  else avr_cycle_timer_register(sim.avr,sim.sdato_rise_delay_cycles,
+    sdato_rise_ready,NULL); /* Pull-up rise, not an actively driven HIGH. */
 }
 
 static int is_output(char port, uint8_t bit)
@@ -169,6 +202,7 @@ static void pin_changed(struct avr_irq_t *irq, uint32_t value, void *opaque)
         ++sim.writes[driver][address];
       }
       sim.selected = -1;
+      if (sim.sdato_rise_delay_cycles) drive_sdato(1); /* Deselected OD output. */
     }
   }
   if (port == 'D' && bit == 5 && sim.selected >= 0) {
@@ -183,7 +217,7 @@ static void pin_changed(struct avr_irq_t *irq, uint32_t value, void *opaque)
       const unsigned reg = header & 7;
       uint16_t response = sim.regs[sim.selected][reg];
       if (sim.corrupt_readback && reg == 0) response ^= 1;
-      input_pin('D',4,(response >> (15-sim.spi_bits)) & 1);
+      drive_sdato((response >> (15-sim.spi_bits)) & 1);
     }
   }
   const int axis = axis_step(port,bit);

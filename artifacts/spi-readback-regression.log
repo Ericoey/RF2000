@@ -1,0 +1,70 @@
+Synthetic open-drain released-HIGH 1us delay, enabled only after startup.
+This is model-level regression evidence, not measurement of the user machine.
+
+EXPECTED NEGATIVE CONTROL: original official929f552 PlatformIO ELF
+ELF SHA256: 8789ad8ee733899117d6a3526e66f60b390d23a292ec7cc49173f62d2fa27b06
+Command: tests/run-adaptive-sim.sh build/tests/adaptive-platformio.elf spi-slow-rise
+Observed exit status: 1 (expected failure; ALARM12 before first homing step)
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+Loaded 50832 .text at address 0x0
+Loaded 126 .data
+FAIL: 1us released-HIGH SDATO rise broke first MODE32 homing readback
+UART: error:7
+$0=10
+$1=255
+$2=0
+$3=6
+$4=0
+$5=0
+$6=0
+$10=1
+$11=0.010
+$12=0.002
+$13=0
+$20=0
+$21=1
+$22=1
+$23=3
+$24=20.000
+$25=100.000
+$26=250
+$27=2.000
+$30=1000
+$31=0
+$32=0
+$100=20480.000
+$101=20480.000
+$102=20480.000
+$110=600.000
+$111=600.000
+$112=300.000
+$120=10.000
+$121=10.000
+$122=10.000
+$130=200.000
+$131=290.000
+$132=185.000
+
+Grbl 1.2i ['$' for help]
+[MSG:RF2000 XYZ CNC; spindle manual; home Zmax then XYmin]
+[MSG:'$H'|'$X' to unlock]
+<Alarm|MPos:0.000,0.000,0.000|FS:0,0|WCO:0.000,0.000,0.000>
+ok
+ok
+ALARM:12
+
+
+POSITIVE FIXED CONTROL: runtime MODE readback uses startup-proven slow read
+ELF SHA256: 92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
+Firmware ELF SHA256: 92e5ecbd0ec07bed5d2c0f3c35d55088b1d6f654611b47e924df46d07a40fc63
+No physical hardware attached. Public UART settings and independent TI GPIO/indexer model.
+
+Command: build/tests/rf2000_adaptive_sim-spi-pio build/tests/spi-fix-platformio.elf spi-slow-rise
+Loaded 50786 .text at address 0x0
+Loaded 126 .data
+Loaded 50786 .text at address 0x0
+Loaded 126 .data
+PASS: 1us released-HIGH SDATO delay survives first MODE32 XYZ home and MODE8 F1000 forward/reverse; weighted positions exact, readback guards remain active (97 delayed rises)
+PASS: 1 actual-AVR adaptive-resolution cases; publicUART settings, independentTIphase model, no physicalhardware
+Exit status: 0

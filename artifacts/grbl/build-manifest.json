@@ -29,7 +29,7 @@
     "grbl/examples/grblUpload/license.txt": "178d0f401ed9a4e65a97412f323482206c849d615425c540777dc131c5359190",
     "grbl/gcode.c": "ebdc1d910e060bc06b4668d0b1f41395b026428031a6096188810e7c224d6be2",
     "grbl/gcode.h": "94683445d3fd911ca20e07d994721b46a2e89f7d612cc7d4181bea9ef67c33b5",
-    "grbl/grbl.h": "ed5454a6805f771b89f41f93b834d018b85820b3bbf3953216ba637e425b2f9a",
+    "grbl/grbl.h": "6900df7c9e9de86132be973975a4433c0600a8e76bcc30ce36847b7c2441cfc4",
     "grbl/jog.c": "237df645130d15d0eee0131d6389e3a5511ef2402b5705f0613c3626001e2c88",
     "grbl/jog.h": "3763819a981290e61a3bbe1c89d20901e278292d89215b9654f756228dcf5dc9",
     "grbl/limits.c": "644591245f11e0934610fcffce578ae74ece7df9ce98ffacd9d1dcb1c56bb7e1",
@@ -53,7 +53,7 @@
     "grbl/rf2000_adaptive_stepper.inc": "d4c5a73bf2f2aef89f4c405dc2313b6e5e73e4b5df69b32307c8de48c9714966",
     "grbl/rf2000_board.c": "bdcefbc4093a7ae53ef577439c5e0ee28378cd02e3afc2f47e9f7f1e0983177b",
     "grbl/rf2000_board.h": "34bbda1017c23f99a6b1c135fcfc43c5b312f239f98f4387765abab99bb1ebe4",
-    "grbl/rf2000_drv8711.c": "5b4d480bcb5ee40fce30cb7b2210c03b061306a412913004ef6ec1be01ebd733",
+    "grbl/rf2000_drv8711.c": "e32d4527c5586d73fd3f26ae1335f6f66d10107c90ccc4768c9b426486d6068e",
     "grbl/rf2000_drv8711.h": "1749bca52a2f1914e5e58351a76be513baea38cf28103ab5232a3c9cf576ba6e",
     "grbl/rf2000_lcd.c": "e7cbcfae4f48b32215fdf6252c77bb518fcbfc759299526ed9cee2ff8882d8a7",
     "grbl/rf2000_lcd.h": "b58073e3d6fca611dfeda5a92522efc48dde3418c2df3fadb7cbbb131c0ccc50",
@@ -73,9 +73,9 @@
     "grbl/system.h": "029a1f2ba9fc5fbec3b570bd7086d7e0491f76a1e3ee8f641f1ae0f9fb7700a3"
   },
   "artifacts": {
-    "rf2000-grbl.elf": "e21ce1591a3984e9456f6fe1b4e0977b544b17224dd73a87740f21b75e6ace6e",
+    "rf2000-grbl.elf": "2c72164e61deb1e3028ec886fb9adf7a69ec4bf7db81a8dcf8f986ab6696f12f",
     "rf2000-grbl.hex": "fc34c27dd636276c3a94135dc3b27a7b2c52b1c2371deabda7e47d811b62178f",
-    "rf2000-grbl.map": "ae64ee9f992293d1b585eed9d2cc4c9bb587b8b10854492cfcd246aa16c8b7e6"
+    "rf2000-grbl.map": "5b2c043fd74064b24f846ab2a72d4869aac97494e6b0955eea1cf2c52777d073"
   },
   "reproducibility": "Current HEX is byte-identical after rebuilding all objects in a second clean directory with installed AVR-GCC 14.2.0; dependency installation into a second prefix was verified earlier.",
   "hardware_test_performed": false,
@@ -104,12 +104,12 @@
     "configuration": "RF2000_LOCAL_PANEL defaults to (RF2000_Y_HOMING_TEST || RF2000_CNC)"
   },
   "validation": {
-    "date": "2026-10-22",
-    "standard_make_check": "Passed current standard-profile ELF after adaptive source update, exit0; artifacts/validation.log",
-    "tested_elf_sha256": "e21ce1591a3984e9456f6fe1b4e0977b544b17224dd73a87740f21b75e6ace6e",
+    "date": "2026-10-24",
+    "standard_make_check": "Passed on current standard-profile ELF, exit0; artifacts/validation.log",
+    "tested_elf_sha256": "2c72164e61deb1e3028ec886fb9adf7a69ec4bf7db81a8dcf8f986ab6696f12f",
     "hex_unchanged_after_identification_fix": true,
-    "rebuilt_elf_sha256": "e21ce1591a3984e9456f6fe1b4e0977b544b17224dd73a87740f21b75e6ace6e",
-    "rebuild_evidence": "Current standard program fully exercised by make check after adaptive update; HEX byte-identical to prior fixed-profile release.",
+    "rebuilt_elf_sha256": "2c72164e61deb1e3028ec886fb9adf7a69ec4bf7db81a8dcf8f986ab6696f12f",
+    "rebuild_evidence": "SPI patch is CNC-only; current standard HEX byte-identical and current ELF fully exercised by make check on2026-10-24.",
     "hex_unchanged_after_cnc_menu_and_recovery": true,
     "previous_tested_elf_sha256": "ddd7b2b7f172a502758a77f3ec014e00c00d543ba2ae23b4cb20c3ea8bd07ec1",
     "hex_unchanged_after_cnc_speed_optimization": true,
